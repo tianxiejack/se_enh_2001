@@ -64,6 +64,28 @@ static void copyMat2Mat(cv::Mat src, cv::Mat dst, cv::Point pt)
 
 TARGETBOX mBox[MAX_TARGET_NUMBER];
 //static int trktime = 0;
+
+
+void extractUYVY2Gray(Mat src, Mat dst)
+{
+	int ImgHeight, ImgWidth,ImgStride;
+
+	ImgWidth = src.cols;
+	ImgHeight = src.rows;
+	ImgStride = ImgWidth*2;
+	uint8_t  *  pDst8_t;
+	uint8_t *  pSrc8_t;
+
+	pSrc8_t = (uint8_t*)(src.data);
+	pDst8_t = (uint8_t*)(dst.data);
+//#pragma UNROLL 4
+//#pragma omp parallel for
+	for(int y = 0; y < ImgHeight*ImgWidth; y++)
+	{
+		pDst8_t[y] = pSrc8_t[y*2+1];
+	}
+}
+
 void CVideoProcess::main_proc_func()
 {
 	OSA_printf("%s: Main Proc Tsk Is Entering...\n",__func__);
@@ -135,7 +157,10 @@ void CVideoProcess::main_proc_func()
 
 		if(channel == 2)
 		{
+		if(chId == video_gaoqing)
 			extractYUYV2Gray2(frame, frame_gray);
+		else if(chId == video_pal)
+			extractUYVY2Gray(frame, frame_gray);
 		}
 		else
 		{
@@ -382,8 +407,16 @@ void CVideoProcess::main_proc_func()
 				acqRect.axisY = m_ImageAxisy;
 
 				if(m_SensorStat == 0){
+					if(chId == video_gaoqing)
+					{
 					acqRect.rcWin.width = 1800;
 					acqRect.rcWin.height = 900;
+					}
+					else if(chId == video_pal)
+					{
+					acqRect.rcWin.width = 720-100;
+					acqRect.rcWin.height = 576-100;
+					}
 					acqRect.rcWin.x = VIDEO_IMAGE_WIDTH_0/2 - acqRect.rcWin.width/2;
 					acqRect.rcWin.y = VIDEO_IMAGE_HEIGHT_0/2 -acqRect.rcWin.height/2;
 				}
@@ -500,7 +533,7 @@ int CVideoProcess::MAIN_threadDestroy(void)
 
 
 CVideoProcess::CVideoProcess()
-	:m_track(NULL),m_curChId(0),m_curSubChId(-1),adaptiveThred(40)		
+	:m_track(NULL),m_curChId(MAIN_CHID),m_curSubChId(-1),adaptiveThred(40)		
 {
 	pThis = this;
 	m_pwFile = NULL;
@@ -1188,10 +1221,10 @@ void CVideoProcess::process_event(int type, int iPrm, void *pPrm)
 	
 }
 
-int CVideoProcess::callback_process(void *handle, int chId, Mat frame)
+int CVideoProcess::callback_process(void *handle, int chId, int virchId, Mat frame)
 {
 	CVideoProcess *pThis = (CVideoProcess*)handle;
-	return pThis->process_frame(chId, frame);
+	return pThis->process_frame(chId, virchId, frame);
 }
 
 static void extractYUYV2Gray(Mat src, Mat dst)
@@ -1334,7 +1367,7 @@ extern void cutColor(cv::Mat src, cv::Mat &dst, int code);
 
 #define TM
 #undef TM 
-int CVideoProcess::process_frame(int chId, Mat frame)
+int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 {
 	int format = -1;
 	if(frame.cols<=0 || frame.rows<=0)
@@ -1356,7 +1389,10 @@ int CVideoProcess::process_frame(int chId, Mat frame)
 
 	if(channel == 2){
 //		cvtColor(frame,frame,CV_YUV2BGR_YUYV);
-		format = CV_YUV2BGR_YUYV;
+		if(chId == video_gaoqing)
+			format = CV_YUV2BGR_YUYV;
+		else if(chId == video_pal)
+			format = CV_YUV2BGR_UYVY;
 	}
 	else {
 //		cvtColor(frame,frame,CV_GRAY2BGR);
@@ -1393,13 +1429,14 @@ int CVideoProcess::process_frame(int chId, Mat frame)
 	#endif
 		
 	//OSA_printf("chid =%d  m_curChId=%d m_curSubChId=%d\n", chId,m_curChId,m_curSubChId);
+
 	if(chId == m_curChId || chId == m_curSubChId)
-		{
-		
-			m_display.display(frame,  chId, format);
-		
-		}
-	
+	{
+		if((chId == video_pal)&&(virchId != PAL_VIRCHID));
+		else
+			m_display.display(frame,  chId, format);		
+	}
+
 
 	OSA_mutexUnlock(&m_mutex);
 
@@ -1490,16 +1527,15 @@ int CVideoProcess::process_track(int trackStatus, Mat frame_gray, Mat frame_dis,
 
 		//OSA_printf("---*****Enter UtcTrkAcq*****---\n");
 		//rcResult = UtcTrkAcq(m_track, image, acq);
-		#if 1
+
 		if(moveStat == true)
 		{
 			printf("=========movestat = %d\n",moveStat);
 			rcResult = UtcTrkAcq(m_track, image, acq);
 			moveStat = false;
 		}
-		else
+		if(m_curChId== 0)
 			rcResult = UtcTrkAcqSR(m_track, image, acq, true);
-		#endif
 		trackStatus = 1;
 	}
 

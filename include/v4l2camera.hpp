@@ -30,12 +30,13 @@ using namespace cv;
 //#define SHOW_TIMES
 
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
-#define MAX_CHAN     (1)
+
 #define LARGE_PHOTO_WIDTH  (4096)
 #define LARGE_PHOTO_HEIGHT (3072)
 #define CAP_CH_NUM 		(1)
 #define IMAGE_WIDTH  	1920
-#define IMAGE_HEIGHT 	1080	
+#define IMAGE_HEIGHT 	1080
+#define CAP_CHPAL_NUM 		(4)
 
 #ifndef V4L2_PIX_FMT_H264
 
@@ -55,6 +56,12 @@ using namespace cv;
 #define BUFFER_ID_INV(data)		BUFFER_ID( ((unsigned char*)(data) - BUFFER_HEAD_LEN) )
 #define BUFFER_CHID_INV(data)	BUFFER_CHID( ((unsigned char*)(data) - BUFFER_HEAD_LEN) )
 
+
+enum devvideo{
+	video_pal,
+	video_gaoqing,
+	MAX_CHAN,
+};
 enum io_method {
 	IO_METHOD_READ,
 	IO_METHOD_MMAP,
@@ -91,7 +98,10 @@ public:
 	bool bRun;
 	int init_Captureparm(int devid,int width,int height);
 	void start_capturing_2(void);
-
+public:
+	OSA_BufHndl *m_bufferHndl;
+	OSA_BufCreate m_bufferCreate;
+	void parse_line_header2(int channels, unsigned char *p);
 private:
 	int  open_device(void);
 	void close_device(void);
@@ -106,6 +116,9 @@ private:
 	int  read_frame(unsigned char **data);
 
 	void errno_exit(const char *s);
+	int alloc_split_buffer(void);
+	unsigned char* getEmptyBuffer(int chId);
+	int putFullBuffer(unsigned char* data);
 	char            dev_name[16];
 
 	enum io_method  io;
@@ -119,6 +132,10 @@ private:
 	int imgformat;
 	int force_format;
 	int Id;
+	int iLine[2][4];
+	unsigned char   *split_buffer;
+	unsigned char   *split_buffer_ch[4];
+	int              fieldmask[4];
 };
 
 

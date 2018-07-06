@@ -8,7 +8,7 @@
 #include "osa_sem.h"
 #include "v4l2camera.hpp"
 
-typedef int (* MultiCh_CB)(void *handle, int chId, Mat frame);
+typedef int (* MultiCh_CB)(void *handle, int chId, int virchId, Mat frame);
 
 class MultiChVideo;
 typedef struct _Thread_Context{
@@ -39,13 +39,25 @@ private:
 	v4l2_camera *VCap[MAX_CHAN];
 	OSA_ThrHndl m_thrCap[MAX_CHAN];
 	THD_CXT m_thrCxt[MAX_CHAN];
+	OSA_ThrHndl m_palthrCap[4];
+	THD_CXT m_palthrCxt[4];
 	void process(void);
 	void process(int chId);
+	void pal4process(int chId);
 	static void *capThreadFunc(void *context)
 	{
 		THD_CXT *muv = (THD_CXT *)context;
 		for(;;){
 			muv->pUser->process(muv->chId);
+		}
+		return NULL;
+	}
+
+	static void *cappal4ThreadFunc(void *context)
+	{
+		THD_CXT *muv = (THD_CXT *)context;
+		for(;;){
+			muv->pUser->pal4process(muv->chId);
 		}
 		return NULL;
 	}

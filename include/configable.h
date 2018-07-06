@@ -19,6 +19,9 @@
 
 #define AVT_TRK_AIM_SIZE			2
 
+#define MAIN_CHID					0
+#define PAL_VIRCHID					1
+
 #if 0
 typedef struct {
 	int MAIN_Sensor;	//13--0

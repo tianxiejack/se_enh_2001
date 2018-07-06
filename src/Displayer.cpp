@@ -54,6 +54,14 @@ GLfloat _fontColor[4] = {1.0,1.0,1.0,	1.0};
 static GLfloat m_glvVertsDefault[8] = {-1.0f, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f};
 static GLfloat m_glvTexCoordsDefault[8] = {0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f};
 
+int VIDEO_IMAGE_ARR[DS_CHAN_MAX][2] = {{720,576},{1920,1080},{1920,1080},{1920,1080}};
+
+enum devvideo{
+	video_pal,
+	video_gaoqing,
+	MAX_CHAN,
+};
+
 CDisplayer::CDisplayer()
 :m_mainWinWidth(VIDEO_IMAGE_WIDTH_0),m_mainWinHeight(VIDEO_IMAGE_HEIGHT_0),m_renderCount(0),
 m_bRun(false),m_bFullScreen(false),m_bOsd(false),
@@ -204,7 +212,7 @@ int CDisplayer::initRender(bool bInitBind)
 	m_renders[0].croprect.w=0;
 	m_renders[0].croprect.h=0;
 	
-	m_renders[0].video_chId = 0;
+	m_renders[0].video_chId = MAIN_CHID;
 	m_renders[0].displayrect.x = 0;
 	m_renders[0].displayrect.y = 0;
 	m_renders[0].displayrect.w = m_mainWinWidth;
@@ -500,6 +508,10 @@ extern "C" int yuyv2bgr_(
 	unsigned char *dst, const unsigned char *src,
 	int width, int height, cudaStream_t stream);
 
+extern "C" int uyvy2bgr_(
+	unsigned char *dst, const unsigned char *src,
+	int width, int height, cudaStream_t stream);
+
 
 void extractYUYV2Gray(Mat src, Mat dst)
 {
@@ -528,6 +540,25 @@ void extractYUYV2Gray(Mat src, Mat dst)
 }
 
 
+void extractUYVY2Gray1(Mat src, Mat dst)
+{
+	int ImgHeight, ImgWidth,ImgStride;
+
+	ImgWidth = src.cols;
+	ImgHeight = src.rows;
+	ImgStride = ImgWidth*2;
+	uint8_t  *  pDst8_t;
+	uint8_t *  pSrc8_t;
+
+	pSrc8_t = (uint8_t*)(src.data);
+	pDst8_t = (uint8_t*)(dst.data);
+//#pragma UNROLL 4
+//#pragma omp parallel for
+	for(int y = 0; y < ImgHeight*ImgWidth; y++)
+	{
+		pDst8_t[y] = pSrc8_t[y*2+1];
+	}
+}
 
 void CDisplayer::display(Mat frame, int chId, int code)
 {
@@ -610,6 +641,12 @@ void CDisplayer::display(Mat frame, int chId, int code)
 			yuyv2bgr_(d_src_rgb + (byteCount_rgb>>2)*1, d_src + (byteCount>>2)*1, frame.cols, (frame.rows>>2), m_cuStream[1]);
 			yuyv2bgr_(d_src_rgb + (byteCount_rgb>>2)*2, d_src + (byteCount>>2)*2, frame.cols, (frame.rows>>2), m_cuStream[2]);
 			yuyv2bgr_(d_src_rgb + (byteCount_rgb>>2)*3, d_src + (byteCount>>2)*3, frame.cols, (frame.rows>>2), m_cuStream[3]);
+		}
+		else if(code == CV_YUV2BGR_UYVY){
+			uyvy2bgr_(d_src_rgb + (byteCount_rgb>>2)*0, d_src + (byteCount>>2)*0, frame.cols, (frame.rows>>2), m_cuStream[0]);
+			uyvy2bgr_(d_src_rgb + (byteCount_rgb>>2)*1, d_src + (byteCount>>2)*1, frame.cols, (frame.rows>>2), m_cuStream[1]);
+			uyvy2bgr_(d_src_rgb + (byteCount_rgb>>2)*2, d_src + (byteCount>>2)*2, frame.cols, (frame.rows>>2), m_cuStream[2]);
+			uyvy2bgr_(d_src_rgb + (byteCount_rgb>>2)*3, d_src + (byteCount>>2)*3, frame.cols, (frame.rows>>2), m_cuStream[3]);
 		}
 #endif
 
@@ -749,7 +786,7 @@ void CDisplayer::gl_init()
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);//GL_NEAREST);//GL_NEAREST_MIPMAP_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);//GL_CLAMP);//GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);//GL_CLAMP);//GL_CLAMP_TO_EDGE);
-		glTexImage2D(GL_TEXTURE_2D, 0,3, VIDEO_IMAGE_WIDTH_0, VIDEO_IMAGE_HEIGHT_0, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0,3, VIDEO_IMAGE_ARR[i][0], VIDEO_IMAGE_ARR[i][1], 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, NULL);
 	}
 	glGenBuffers(DS_DC_CNT, buffId_osd);
 	glGenTextures(DS_DC_CNT, textureId_osd); 
@@ -998,7 +1035,7 @@ void CDisplayer::gl_textureLoad(void)
 
 				int drupfram=PICBUFFERCOUNT;
 
-				if(chId==0)
+				if((chId==video_gaoqing) ||(chId==video_pal))
 				{
 					int framecount=OSA_bufGetBufcount(&(tskSendBuftv),0);
 					if(framecount>=drupfram)
@@ -1011,43 +1048,20 @@ void CDisplayer::gl_textureLoad(void)
 					}
 					disbuffer=OSA_bufGetFull(&tskSendBuftv, &bufid, OSA_TIMEOUT_NONE);
 				}
-				else if(chId==1)
-				{
-					int framecount=OSA_bufGetBufcount(&(tskSendBuffir),0);			
-					if(framecount>=drupfram)
-					{
-						if(OSA_bufGetFull(&tskSendBuffir, &bufid, OSA_TIMEOUT_NONE)==0)
-							OSA_bufPutEmpty(&tskSendBuffir, bufid);
-						if(OSA_bufGetFull(&tskSendBuffir, &bufid, OSA_TIMEOUT_NONE)==0)
-							OSA_bufPutEmpty(&tskSendBuffir, bufid);
-						OSA_printf("dis frame\n");
-					}
-					disbuffer=OSA_bufGetFull(&tskSendBuffir, &bufid, OSA_TIMEOUT_NONE);
-				}
 				//printf("disbuffer =%d video chId=%d  bufid =%d\n",disbuffer,chId,bufid);
-				if((disbuffer==0)&&(chId==0))
+				if((disbuffer==video_pal))
 				{
 					dism_img[chId].data=(unsigned char *)tskSendBuftv.bufInfo[bufid].virtAddr;
 					tv_pribuffid=bufid;
 				}
-				else if((disbuffer!=0)&&(chId==0))
+				else if((disbuffer!=video_pal))
 				{
 					if(tv_pribuffid<0||tv_pribuffid>=PICBUFFERCOUNT)
 						tv_pribuffid=PICBUFFERCOUNT-1;
 					
 					dism_img[chId].data=(unsigned char *)tskSendBuftv.bufInfo[tv_pribuffid].virtAddr;
 				}
-				else if((disbuffer==0)&&(chId==1))
-				{	
-					dism_img[chId].data=(unsigned char *)tskSendBuffir.bufInfo[bufid].virtAddr;
-					fir_pribuffid=bufid;
-				}
-				else if((disbuffer!=0)&&(chId==1))
-				{
-					if(fir_pribuffid<0||fir_pribuffid>=PICBUFFERCOUNT)
-						fir_pribuffid=PICBUFFERCOUNT-1;
-					dism_img[chId].data=(unsigned char *)tskSendBuffir.bufInfo[fir_pribuffid].virtAddr;
-				}
+
 			
 			if(disptimeEnable == 1){
 				//test zhou qi  time
@@ -1177,10 +1191,8 @@ void CDisplayer::gl_textureLoad(void)
 
 				//add for kaidun
 				#if 1
-					if((disbuffer==0)&&(chId==0))
+					if(disbuffer==0)
 						OSA_bufPutEmpty(&tskSendBuftv, bufid);
-					else if((disbuffer==0)&&(chId==1))
-						OSA_bufPutEmpty(&tskSendBuffir, bufid);
 				#endif
 			
 			}
@@ -1315,10 +1327,10 @@ void CDisplayer::gl_display(void)
 		}
 		glDisable(GL_BLEND);
 		//chinese_osd(600,200,L"第一次的封装显示",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);	
-		chinese_osd(1100,10,L"速  度",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);	//rate
-		chinese_osd(1300,10,L"距  离",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);// juli
-		chinese_osd(1805,10,L"导航干扰",255,255,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);//daohang ganrao
-		chinese_osd(1805,100,L"遥控干扰",255,255,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);//yaokong ganrao
+		//chinese_osd(1100,10,L"速  度",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);	//rate
+		//chinese_osd(1300,10,L"距  离",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);// juli
+		//chinese_osd(1805,10,L"导航干扰",255,255,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);//daohang ganrao
+		//chinese_osd(1805,100,L"遥控干扰",255,255,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);//yaokong ganrao
 	}
 	
 	glUseProgram(0);

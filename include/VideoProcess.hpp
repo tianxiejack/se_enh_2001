@@ -155,7 +155,7 @@ protected:
 	int Algconfig();
 	
 	void process_event(int type, int iPrm, void *pPrm);
-	int process_frame(int chId, Mat frame);
+	int process_frame(int chId, int virchID, Mat frame);
 	int process_mtd(ALGMTD_HANDLE pChPrm, Mat frame_gray, Mat frame_dis);
 
 	#if __TRACK__
@@ -170,7 +170,7 @@ protected:
 	static int m_mouseEvent, m_mousex, m_mousey;
 	static CVideoProcess *pThis;
 	static void call_run(int value);
-	static int callback_process(void *handle, int chId, Mat frame);
+	static int callback_process(void *handle, int chId, int virchId, Mat frame);
 	static void mouse_event(int button, int state, int x, int y);
 	static void keyboard_event(unsigned char key, int x, int y);
 	static void keySpecial_event( int key, int x, int y);

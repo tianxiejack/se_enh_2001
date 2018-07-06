@@ -35,10 +35,10 @@ static int frameflag = 0;
 
 int MultiChVideo::creat()
 {
-
-	VCap[0] = new v4l2_camera(1);
-	VCap[0]->creat();
-	
+	VCap[video_pal] = new v4l2_camera(video_pal);
+	VCap[video_pal]->creat();
+	VCap[video_gaoqing] = new v4l2_camera(video_gaoqing);
+	VCap[video_gaoqing]->creat();
 	return 0;
 }
 
@@ -65,6 +65,14 @@ int MultiChVideo::run()
 		m_thrCxt[i].pUser = this;
 		m_thrCxt[i].chId = i;
 		iRet = OSA_thrCreate(&m_thrCap[i], capThreadFunc, 0, 0, &m_thrCxt[i]);
+		if(i == video_pal)
+		{
+			for(int i=0; i<4; i++){
+				m_palthrCxt[i].pUser = this;
+				m_palthrCxt[i].chId = i;
+				iRet = OSA_thrCreate(&m_palthrCap[i], cappal4ThreadFunc, 0, 0, &m_palthrCxt[i]);
+			}
+		}
 	}
 
 	return iRet;
@@ -153,7 +161,7 @@ void MultiChVideo::process()
 					frame = cv::Mat(VCap[chId]->imgheight, VCap[chId]->imgwidth, VCap[chId]->imgtype,
 							VCap[chId]->buffers[buf.index].start);
 
-					m_usrFunc(m_user, chId, frame);
+					m_usrFunc(m_user, chId, 0, frame);
 				}
 				
 				if (-1 == v4l2_camera::xioctl(VCap[chId]->m_devFd, VIDIOC_QBUF, &buf)){
@@ -189,7 +197,7 @@ void MultiChVideo::process(int chId)
 			return;
 	}else if(0 == ret)
 	{
-
+		return;
 	}
 
 	if(VCap[chId]->m_devFd != -1 && FD_ISSET(VCap[chId]->m_devFd, &fds))
@@ -201,21 +209,63 @@ void MultiChVideo::process(int chId)
 
 		if (-1 == v4l2_camera::xioctl(VCap[chId]->m_devFd, VIDIOC_DQBUF, &buf))
 		{
+			fprintf(stderr, "cap ch%d DQBUF Error!\n", chId);
 		}
 		else
 		{
 			if(m_usrFunc != NULL){
-				frame = cv::Mat(VCap[chId]->imgheight, VCap[chId]->imgwidth, VCap[chId]->imgtype,
-						VCap[chId]->buffers[buf.index].start);
-				m_usrFunc(m_user, chId, frame);
+				if(chId == video_gaoqing)
+				{
+					frame = cv::Mat(VCap[chId]->imgheight, VCap[chId]->imgwidth, VCap[chId]->imgtype,
+							VCap[chId]->buffers[buf.index].start);
+					m_usrFunc(m_user, chId, 0, frame);
+				}
+				else if(chId == video_pal)
+				{
+					 	VCap[chId]->parse_line_header2(4,(unsigned char *)VCap[chId]->buffers[buf.index].start);
+				}
 			}
 			if (-1 == v4l2_camera::xioctl(VCap[chId]->m_devFd, VIDIOC_QBUF, &buf)){
 				fprintf(stderr, "VIDIOC_QBUF error %d, %s\n", errno, strerror(errno));
+				exit(EXIT_FAILURE);
 			}
 		}
 		
 	}
 }
 
+void MultiChVideo::pal4process(int chid)
+{
+
+	int status;
+	unsigned char *bufdata  = NULL;
+	int bufId,CHID;
+	int width, height;
+	Mat frame;
+	int nLost = 0;
+	int nProcess = 0;
+	int chId=video_pal;
+	Uint32 fullCnt;
+
+	for(;;)
+	{
+		nProcess = 0;
+		{	
+			status = OSA_bufGetFull(VCap[chId]->m_bufferHndl, &bufId, OSA_TIMEOUT_FOREVER);
+
+			if(status == 0){
+				bufdata	= BUFFER_DATA(VCap[chId]->m_bufferHndl->bufInfo[bufId].virtAddr);
+				CHID = *BUFFER_CHID(VCap[chId]->m_bufferHndl->bufInfo[bufId].virtAddr);
+				width	= VCap[chId]->m_bufferHndl->bufInfo[bufId].width;
+				height	= VCap[chId]->m_bufferHndl->bufInfo[bufId].height;
+				frame = cv::Mat(576, 720, VCap[chId]->imgtype,
+						bufdata);
+				m_usrFunc(m_user, video_pal, CHID, frame);
+				OSA_bufPutEmpty(VCap[chId]->m_bufferHndl, bufId);
+				nProcess ++;
+			}
+		}
+	}
+}
 
 
