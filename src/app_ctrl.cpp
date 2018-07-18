@@ -211,6 +211,8 @@ void app_ctrl_Sensorchange(CMD_EXT * pInCmd)
 	CMD_EXT *pIStuts = msgextInCtrl;
 	pIStuts->unitAimX=pIStuts->opticAxisPosX[pIStuts->SensorStat];
 	pIStuts->unitAimY=pIStuts->opticAxisPosY[pIStuts->SensorStat];
+	//pIStuts->unitAimX_new[pIStuts->SensorStat]=pIStuts->opticAxisPosX[pIStuts->SensorStat];
+	//pIStuts->unitAimY_new[pIStuts->SensorStat]=pIStuts->opticAxisPosY[pIStuts->SensorStat];
 }
 
 void app_ctrl_setReset(CMD_EXT * pInCmd)
@@ -697,9 +699,12 @@ void app_ctrl_setPicp(CMD_EXT * pInCmd)
 		pIStuts->PicpSensorStat = pInCmd->PicpSensorStat;
 		enable = true;
 	}
-	if(pIStuts->ImgPicp[pIStuts->validChId] != pInCmd->ImgPicp[pIStuts->validChId])
+	if(pIStuts->ImgPicp[pIStuts->SensorStat] != pInCmd->ImgPicp[pIStuts->SensorStat])
 	{
-		pIStuts->ImgPicp[pIStuts->validChId] = pInCmd->ImgPicp[pIStuts->validChId];
+		pIStuts->ImgPicp[pIStuts->SensorStat] = pInCmd->ImgPicp[pIStuts->SensorStat];
+		if(pIStuts->ImgPicp[pIStuts->SensorStat]==0)
+			pIStuts->PicpSensorStat = 255;
+		
 		enable = true;
 	}
 	if(enable)

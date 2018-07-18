@@ -18,6 +18,7 @@
 #include "osa_thr.h"
 #include "osa_buf.h"
 #include "osa_sem.h"
+#include "app_status.h"
 
 
 using namespace std;
@@ -124,6 +125,8 @@ public:
 
 	int m_mainWinWidth;
 	int m_mainWinHeight;
+	int m_mainWinWidth_new[eSen_Max];
+	int m_mainWinHeight_new[eSen_Max];
 	bool m_bRun;
 	bool m_bFullScreen;
 	bool m_bOsd;
@@ -138,6 +141,7 @@ public:
 	unsigned int dismodchanagcount;
 	 int tv_pribuffid;
 	 int fir_pribuffid;
+	 int pal_pribuffid;
 	unsigned  int freezeonece;
 
 	#if 1
@@ -161,6 +165,9 @@ public:
 
 	OSA_BufCreate tskSendBufCreatefir;
         OSA_BufHndl tskSendBuffir;
+
+	OSA_BufCreate tskSendBufCreatepal;
+	OSA_BufHndl tskSendBufpal;
 	
 	
 	//bool firvideo;
@@ -235,11 +242,14 @@ public:
 
 	
 };
-#define picwidhttv VIDEO_IMAGE_WIDTH_0
-#define picheightttv VIDEO_IMAGE_HEIGHT_0
+#define picwidhttv VIDEO_IMAGE_WIDTH_1
+#define picheightttv VIDEO_IMAGE_HEIGHT_1
 
 #define picwidhtfir 640
 #define picheightfir 512
+
+#define picwidhtpal 720
+#define picheightpal 576
 
 #define PICBUFFERCOUNT 4
 

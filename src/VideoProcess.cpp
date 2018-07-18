@@ -208,7 +208,6 @@ void CVideoProcess::main_proc_func()
 				
 				unsigned int currentx=MoveAcpSR.x+MoveAcpSR.width/2;
 				unsigned int currenty=MoveAcpSR.y+MoveAcpSR.height/2;
-					
 				if((m_rcTrack.x+m_rcTrack.width>MoveAcpSR.x&&
 					m_rcTrack.x<MoveAcpSR.x+MoveAcpSR.width)||
 					(m_rcTrack.y+m_rcTrack.height>MoveAcpSR.y&&
@@ -294,15 +293,15 @@ void CVideoProcess::main_proc_func()
 			{								
 				if(m_iTrackLostCnt > 3)
 				{					
-					m_rcTrack.x = m_ImageAxisx - m_rcTrack.width/2;
-					m_rcTrack.y = m_ImageAxisy - m_rcTrack.height/2;
+					m_rcTrack.x = m_ImageAxisx[chId] - m_rcTrack.width/2;
+					m_rcTrack.y = m_ImageAxisy[chId] - m_rcTrack.height/2;
 					//OSA_printf(">3 -> TrkStat = %d  ImageAxisxy = (%f,%f)\n",m_iTrackStat,m_rcTrack.x,m_rcTrack.y);
 				}
 				else
 				{
 					m_iTrackStat = 1;
-					m_rcTrack.x = m_ImageAxisx - m_rcTrack.width/2;
-					m_rcTrack.y = m_ImageAxisy - m_rcTrack.height/2;
+					m_rcTrack.x = m_ImageAxisx[chId] - m_rcTrack.width/2;
+					m_rcTrack.y = m_ImageAxisy[chId] - m_rcTrack.height/2;
 					//OSA_printf("<3 ->ImageAxisxy = (%d,%d)\n",m_ImageAxisx,m_ImageAxisy);
 				}
 			}
@@ -403,8 +402,8 @@ void CVideoProcess::main_proc_func()
 							Point( preWarnRect.x+preWarnRect.width, preWarnRect.y+preWarnRect.height),
 							cvScalar(0,0,0,0), 1, 8 );
 				}
-				acqRect.axisX = m_ImageAxisx;
-				acqRect.axisY = m_ImageAxisy;
+				acqRect.axisX = m_ImageAxisx[chId];
+				acqRect.axisY = m_ImageAxisy[chId];
 
 				if(m_SensorStat == 0){
 					if(chId == video_gaoqing)
@@ -417,8 +416,8 @@ void CVideoProcess::main_proc_func()
 					acqRect.rcWin.width = 720-100;
 					acqRect.rcWin.height = 576-100;
 					}
-					acqRect.rcWin.x = VIDEO_IMAGE_WIDTH_0/2 - acqRect.rcWin.width/2;
-					acqRect.rcWin.y = VIDEO_IMAGE_HEIGHT_0/2 -acqRect.rcWin.height/2;
+					acqRect.rcWin.x = VIDEO_IMAGE_WIDTH_1/2 - acqRect.rcWin.width/2;
+					acqRect.rcWin.y = VIDEO_IMAGE_HEIGHT_1/2 -acqRect.rcWin.height/2;
 				}
 				//OSA_printf("acq axis  x ,y :(%d,%d)\n",acqRect.axisX,acqRect.axisY);
 //OSA_printf("x,y,width,height : (%d,%d,%d,%d)\n",acqRect.rcWin.x,acqRect.rcWin.y,acqRect.rcWin.width,acqRect.rcWin.height);
@@ -549,8 +548,10 @@ CVideoProcess::CVideoProcess()
 	moveStat = FALSE;
 	m_acqRectW			= 	60;
 	m_acqRectH			= 	60;
-	m_ImageAxisx		=	VIDEO_IMAGE_WIDTH_0/2; //trkrefine after lost
-	m_ImageAxisy		=	VIDEO_IMAGE_HEIGHT_0/2;//trkrefine after lost
+	m_ImageAxisx[video_pal]		=	VIDEO_IMAGE_WIDTH_0/2; //trkrefine after lost
+	m_ImageAxisy[video_pal]		=	VIDEO_IMAGE_HEIGHT_0/2;//trkrefine after lost
+	m_ImageAxisx[video_gaoqing]		=	VIDEO_IMAGE_WIDTH_1/2; //trkrefine after lost
+	m_ImageAxisy[video_gaoqing]		=	VIDEO_IMAGE_HEIGHT_1/2;//trkrefine after lost
 	m_intervalFrame 			= 0;
 	m_intervalFrame_change 	= 0;
 	m_bakChId = m_curChId;
@@ -690,9 +691,9 @@ int CVideoProcess::init()
 
 	memset(&dsInit, 0, sizeof(DS_InitPrm));
 	dsInit.mousefunc = mouse_event;
-#if (!__IPC__)
+//#if (!__IPC__)
 	dsInit.keyboardfunc = keyboard_event;
-#endif
+//#endif
 	//dsInit.keySpecialfunc = keySpecial_event;
 	dsInit.timerfunc = call_run;
 	//dsInit.idlefunc = call_run;
@@ -703,8 +704,8 @@ int CVideoProcess::init()
 	dsInit.bFullScreen = true;
 	dsInit.winPosX = 200;
 	dsInit.winPosY = 100;
-	dsInit.winWidth = vdisWH[0][0];
-	dsInit.winHeight = vdisWH[0][1];
+	dsInit.winWidth = vdisWH[1][0];
+	dsInit.winHeight = vdisWH[1][1];
 
 	m_display.init(&dsInit);
 
@@ -762,8 +763,8 @@ int CVideoProcess::dynamic_config(int type, int iPrm, void* pPrm)
 			UTC_RECT_float rc;
 			rc.width 	=  60;//m_acqRectW;
 			rc.height 	=  60;//m_acqRectH;
-			rc.x 		=  m_ImageAxisx - rc.width/2;
-			rc.y 		=  m_ImageAxisy - rc.height/2;
+			rc.x 		=  m_ImageAxisx[m_curChId] - rc.width/2;
+			rc.y 		=  m_ImageAxisy[m_curChId] - rc.height/2;
 			m_rcTrack  = rc;
 			m_rcAcq 	  = rc;
 		}
@@ -1284,8 +1285,8 @@ void CVideoProcess::Track_fovreacq(int fov,int sensor,int sensorchange)
 	unsigned int FrFov[5] 	= {200,120,50,16,6};//Big-Mid-Sml-SuperSml-Zoom:4000*5%,2400*5%,1000*5%,330*5%,120*5%
 
 	if(sensorchange == 1){
-		currentx = m_ImageAxisx;
-		currenty = m_ImageAxisy;
+		currentx = m_ImageAxisx[m_curChId];
+		currenty = m_ImageAxisy[m_curChId];
 	}
 	else
 	{		
@@ -1481,8 +1482,8 @@ int CVideoProcess::process_track(int trackStatus, Mat frame_gray, Mat frame_dis,
 	{
 		//printf("track********x=%f y=%f w=%f h=%f  ax=%d xy=%d\n",rcResult.x,rcResult.y,rcResult.width,rcResult.height);
 		UTC_ACQ_param acq;
-		acq.axisX =m_ImageAxisx;// image.width/2;//m_ImageAxisx;//
-		acq.axisY =m_ImageAxisy;//image.height/2;//m_ImageAxisy;//
+		acq.axisX =m_ImageAxisx[m_curChId];// image.width/2;//m_ImageAxisx;//
+		acq.axisY =m_ImageAxisy[m_curChId];//image.height/2;//m_ImageAxisy;//
 		acq.rcWin.x = (int)(rcResult.x);
 		acq.rcWin.y = (int)(rcResult.y);
 		acq.rcWin.width = (int)(rcResult.width);
@@ -1534,8 +1535,10 @@ int CVideoProcess::process_track(int trackStatus, Mat frame_gray, Mat frame_dis,
 			rcResult = UtcTrkAcq(m_track, image, acq);
 			moveStat = false;
 		}
-		if(m_curChId== 0)
+		//if((m_curChId== 0))
+		//{
 			rcResult = UtcTrkAcqSR(m_track, image, acq, true);
+		//}
 		trackStatus = 1;
 	}
 
@@ -1614,7 +1617,6 @@ void CVideoProcess::NotifyFunc(void *context, int chId)
 	pParent->m_display.m_bOsd = true;
 
 	pThis->m_pMovDetector->getMoveTarget(pThis->detect_vect,0);
-
 	pParent->m_display.UpDateOsd(1);
 }
 #endif

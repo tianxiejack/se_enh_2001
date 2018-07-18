@@ -5,8 +5,8 @@
 #define AXIS_FILE		"AxisFile.yml"
 
 
-#define VIDEO_IMAGE_WIDTH_0		1920	//chid = 0 ,input width = 1920
-#define VIDEO_IMAGE_HEIGHT_0		1080	//chid = 0 ,input width = 1080
+#define VIDEO_IMAGE_WIDTH_0		720	//chid = 0 ,input width = 1920
+#define VIDEO_IMAGE_HEIGHT_0		576	//chid = 0 ,input width = 1080
 
 #define VIDEO_IMAGE_WIDTH_1		1920	//chid = 1 ,input width = 1920
 #define VIDEO_IMAGE_HEIGHT_1		1080	//chid = 1 ,input width = 1080
@@ -21,6 +21,8 @@
 
 #define MAIN_CHID					0
 #define PAL_VIRCHID					1
+
+
 
 #if 0
 typedef struct {

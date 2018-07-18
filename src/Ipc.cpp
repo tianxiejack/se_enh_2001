@@ -108,7 +108,7 @@ void* recv_msg(SENDST *RS422)
 	if(startEnable)
 		app_ctrl_getSysData(pMsg);
 	
-	printf("cmdID : %d \n",cmdID);
+	printf("cmdID : %d (%02x %02x %02x %02x %02x)\n",cmdID,imgID1,imgID2,imgID3,imgID4,imgID5);
 	switch(cmdID)
 	{	
 	
@@ -263,7 +263,6 @@ void* recv_msg(SENDST *RS422)
 			break;
 
 		case sensor:
-			break;
 			memcpy(&Rsensor,RS422->param,sizeof(Rsensor));
 			printf("recv Rsensor: %d\n",Rsensor.SensorStat);
 			pMsg->SensorStat = Rsensor.SensorStat;	
@@ -273,12 +272,13 @@ void* recv_msg(SENDST *RS422)
 		case pinp:	
 			memcpy(&Rpinp,RS422->param,sizeof(Rpinp));
 			printf("recv pinp : Rpinp.ImgPicp : %d\n",Rpinp.ImgPicp);
-			if(Rpinp.ImgPicp == 1)
+			/*if(Rpinp.ImgPicp == 1)
 				pMsg->PicpSensorStat = 0x1;
 			else 
-				pMsg->PicpSensorStat = 0xff;
+				pMsg->PicpSensorStat = 0xff;*/
 
-			pMsg->ImgPicp[pMsg->validChId] = Rpinp.ImgPicp;	
+			pMsg->ImgPicp[pMsg->SensorStat] = Rpinp.ImgPicp;	
+			pMsg->PicpSensorStat = Rpinp.PicpSensorStat;
 			app_ctrl_setPicp(pMsg);
 			break;
 					
