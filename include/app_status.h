@@ -167,8 +167,6 @@ typedef struct
 	volatile int  unitAimH;      	// aim size
 	volatile int  unitAimX;	   	// track aimRect x ,mean to the avtPosX
 	volatile int  unitAimY;
-	volatile int  unitAimX_new[eSen_Max];
-	volatile int  unitAimY_new[eSen_Max];
 	
 	volatile float TrkX;    		// for report and osd text 	what
 	volatile float TrkY;    		// for report and osd text
