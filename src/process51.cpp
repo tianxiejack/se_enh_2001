@@ -53,7 +53,7 @@ CProcess::CProcess()
 	CMD_EXT *pIStuts = extInCtrl;
 	
 	pIStuts->opticAxisPosX[0]   = VIDEO_IMAGE_WIDTH_0/2;
-	pIStuts->opticAxisPosY[0]   = VIDEO_IMAGE_WIDTH_0/2;
+	pIStuts->opticAxisPosY[0]   = VIDEO_IMAGE_HEIGHT_0/2;
 	pIStuts->opticAxisPosX[1]   = VIDEO_IMAGE_WIDTH_1/2;
 	pIStuts->opticAxisPosY[1]   = VIDEO_IMAGE_HEIGHT_1/2;
 	
@@ -248,14 +248,14 @@ float  CProcess::PiexltoWindowsyf(float y,int channel)
 int  CProcess::PiexltoWindowsxzoom(int x,int channel)
 {
 	int ret=0;
-	 ret= cvRound(x*1.0/vcapWH[channel][0]*vdisWH[0][0]);
+	 ret= cvRound(x*1.0/vcapWH[channel][0]*vdisWH[channel][0]);
 	 if(ret<0)
  	{
 		ret=0;
  	}
-	 else if(ret>=vdisWH[0][0])
+	 else if(ret>=vdisWH[channel][0])
  	{
-		ret=vdisWH[0][0];
+		ret=vdisWH[channel][0];
  	}
 
 	if(extInCtrl->ImgMmtshow[extInCtrl->SensorStat])
@@ -274,15 +274,15 @@ int  CProcess::PiexltoWindowsxzoom(int x,int channel)
 int  CProcess::PiexltoWindowsyzoom(int y,int channel)
 {
 	 int ret=0;
-	 ret= cvRound(y*1.0/vcapWH[channel][1]*vdisWH[0][1]);
+	 ret= cvRound(y*1.0/vcapWH[channel][1]*vdisWH[channel][1]);
 
 	  if(ret<0)
  	{
 		ret=0;
  	}
-	 else if(ret>=vdisWH[0][1])
+	 else if(ret>=vdisWH[channel][1])
  	{
-		ret=vdisWH[0][1];
+		ret=vdisWH[channel][1];
  	}
 
 	  if(extInCtrl->ImgMmtshow[extInCtrl->SensorStat])
@@ -302,15 +302,15 @@ int  CProcess::PiexltoWindowsxzoom_TrkRect(int x,int channel)
 {
 	int ret=0;
 
-	ret= cvRound(x*1.0/vcapWH[channel][0]*vdisWH[0][0]);
+	ret= cvRound(x*1.0/vcapWH[channel][0]*vdisWH[channel][0]);
 	
 	if(ret<0)
 	{
 		ret=0;
 	}
-	else if(ret>=vdisWH[0][0])
+	else if(ret>=vdisWH[channel][0])
 	{
-		ret=vdisWH[0][0];
+		ret=vdisWH[channel][0];
 	}
 
 	//result to even
@@ -326,15 +326,15 @@ int  CProcess::PiexltoWindowsyzoom_TrkRect(int y,int channel)
 {
 	 int ret=0;
 
-	 ret= cvRound(y*1.0/vcapWH[channel][1]*vdisWH[0][1]);
+	 ret= cvRound(y*1.0/vcapWH[channel][1]*vdisWH[channel][1]);
 
 	if(ret<0)
  	{
 		ret=0;
  	}
-	 else if(ret>=vdisWH[0][1])
+	 else if(ret>=vdisWH[channel][1])
  	{
-		ret=vdisWH[0][1];
+		ret=vdisWH[channel][1];
  	}
 
 	if((ret%2)==0)
