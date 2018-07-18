@@ -1407,24 +1407,28 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 
 	if(chId == m_curChId /*&& (m_bTrack ||m_bMtd )*/)
 	{
-		mainFrame[mainProcThrObj.pp] = frame;
-		mainProcThrObj.cxt[mainProcThrObj.pp].bTrack = m_bTrack;
-		mainProcThrObj.cxt[mainProcThrObj.pp].bMtd = m_bMtd;
-		mainProcThrObj.cxt[mainProcThrObj.pp].bBlobDetect = m_bBlobDetect;
-		mainProcThrObj.cxt[mainProcThrObj.pp].bMoveDetect = m_bMoveDetect;
-		mainProcThrObj.cxt[mainProcThrObj.pp].iTrackStat = m_iTrackStat;
-		mainProcThrObj.cxt[mainProcThrObj.pp].chId = chId;
-		if(mainProcThrObj.bFirst){
-			mainFrame[mainProcThrObj.pp^1] = frame;
-			mainProcThrObj.cxt[mainProcThrObj.pp^1].bTrack = m_bTrack;
-			mainProcThrObj.cxt[mainProcThrObj.pp^1].bMtd = m_bMtd;
-			mainProcThrObj.cxt[mainProcThrObj.pp^1].bBlobDetect = m_bBlobDetect;
-			mainProcThrObj.cxt[mainProcThrObj.pp^1].bMoveDetect = m_bMoveDetect;
-			mainProcThrObj.cxt[mainProcThrObj.pp^1].iTrackStat = m_iTrackStat;
-			mainProcThrObj.cxt[mainProcThrObj.pp^1].chId = chId;
-			mainProcThrObj.bFirst = false;
+		if((chId==video_pal) && (virchId!= PAL_VIRCHID));
+		else
+		{
+			mainFrame[mainProcThrObj.pp] = frame;
+			mainProcThrObj.cxt[mainProcThrObj.pp].bTrack = m_bTrack;
+			mainProcThrObj.cxt[mainProcThrObj.pp].bMtd = m_bMtd;
+			mainProcThrObj.cxt[mainProcThrObj.pp].bBlobDetect = m_bBlobDetect;
+			mainProcThrObj.cxt[mainProcThrObj.pp].bMoveDetect = m_bMoveDetect;
+			mainProcThrObj.cxt[mainProcThrObj.pp].iTrackStat = m_iTrackStat;
+			mainProcThrObj.cxt[mainProcThrObj.pp].chId = chId;
+			if(mainProcThrObj.bFirst){
+				mainFrame[mainProcThrObj.pp^1] = frame;
+				mainProcThrObj.cxt[mainProcThrObj.pp^1].bTrack = m_bTrack;
+				mainProcThrObj.cxt[mainProcThrObj.pp^1].bMtd = m_bMtd;
+				mainProcThrObj.cxt[mainProcThrObj.pp^1].bBlobDetect = m_bBlobDetect;
+				mainProcThrObj.cxt[mainProcThrObj.pp^1].bMoveDetect = m_bMoveDetect;
+				mainProcThrObj.cxt[mainProcThrObj.pp^1].iTrackStat = m_iTrackStat;
+				mainProcThrObj.cxt[mainProcThrObj.pp^1].chId = chId;
+				mainProcThrObj.bFirst = false;
+			}
+			OSA_semSignal(&mainProcThrObj.procNotifySem);
 		}
-		OSA_semSignal(&mainProcThrObj.procNotifySem);
 	}
 
 	#endif

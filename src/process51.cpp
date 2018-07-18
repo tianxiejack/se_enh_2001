@@ -177,9 +177,9 @@ int  CProcess::PiexltoWindowsx(int x,int channel)
  	 {
 		ret=0;
  	 }
-	 else if(ret>=vdisWH[1][0])
+	 else if(ret>=vdisWH[channel][0])
  	 {
-		ret=vdisWH[1][0];
+		ret=vdisWH[channel][0];
  	 }
 	 if(extInCtrl->ImgMmtshow[extInCtrl->SensorStat])
  	 {
@@ -198,9 +198,9 @@ int  CProcess::PiexltoWindowsy(int y,int channel)
  	 {
 		ret=0;
  	 }
-	 else if(ret>=vdisWH[1][1])
+	 else if(ret>=vdisWH[channel][1])
  	 {
-		ret=vdisWH[1][1];
+		ret=vdisWH[channel][1];
  	 }
 
 	  if(extInCtrl->ImgMmtshow[extInCtrl->SensorStat])
@@ -214,14 +214,14 @@ int  CProcess::PiexltoWindowsy(int y,int channel)
 float  CProcess::PiexltoWindowsxf(float x,int channel)
 {
 	float ret=0;
-	 ret= (x*1.0/vcapWH[channel][0]*vdisWH[0][0]);
+	 ret= (x*1.0/vcapWH[channel][0]*vdisWH[channel][0]);
 	 if(ret<0)
  	{
 		ret=0;
  	}
-	 else if(ret>=vdisWH[0][0])
+	 else if(ret>=vdisWH[channel][0])
  	{
-		ret=vdisWH[0][0];
+		ret=vdisWH[channel][0];
  	}
 
 	  return ret;
@@ -230,15 +230,15 @@ float  CProcess::PiexltoWindowsxf(float x,int channel)
 float  CProcess::PiexltoWindowsyf(float y,int channel)
 {
 	 float ret=0;
-	 ret= (y*1.0/vcapWH[channel][1]*vdisWH[0][1]);
+	 ret= (y*1.0/vcapWH[channel][1]*vdisWH[channel][1]);
 
 	  if(ret<0)
  	{
 		ret=0;
  	}
-	 else if(ret>=vdisWH[0][1])
+	 else if(ret>=vdisWH[channel][1])
  	{
-		ret=vdisWH[0][1];
+		ret=vdisWH[channel][1];
  	}
 	
 	return  ret;
@@ -1576,8 +1576,16 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			#if __IPC__
 					if(extInCtrl->TrkStat != 3)
 					{
-						extInCtrl->trkerrx = extInCtrl->trkerrx - VIDEO_IMAGE_WIDTH_1/2;
-						extInCtrl->trkerry = extInCtrl->trkerry - VIDEO_IMAGE_HEIGHT_1/2;
+						if(extInCtrl->SensorStat == video_gaoqing)
+						{
+							extInCtrl->trkerrx = extInCtrl->trkerrx - VIDEO_IMAGE_WIDTH_1/2;
+							extInCtrl->trkerry = extInCtrl->trkerry - VIDEO_IMAGE_HEIGHT_1/2;
+						}
+						else if(extInCtrl->SensorStat == video_pal)
+						{
+							extInCtrl->trkerrx = extInCtrl->trkerrx - VIDEO_IMAGE_WIDTH_0/2;
+							extInCtrl->trkerry = extInCtrl->trkerry - VIDEO_IMAGE_HEIGHT_0/2;
+						}
 					}
 					else
 					{
