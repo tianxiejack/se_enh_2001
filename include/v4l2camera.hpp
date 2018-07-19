@@ -23,7 +23,7 @@
 
 #include "osa_buf.h"
 
-
+#include "configable.h"
 
 using namespace cv;
 
@@ -57,11 +57,6 @@ using namespace cv;
 #define BUFFER_CHID_INV(data)	BUFFER_CHID( ((unsigned char*)(data) - BUFFER_HEAD_LEN) )
 
 
-enum devvideo{
-	video_pal,
-	video_gaoqing,
-	MAX_CHAN,
-};
 enum io_method {
 	IO_METHOD_READ,
 	IO_METHOD_MMAP,

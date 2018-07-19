@@ -155,11 +155,12 @@ void* recv_msg(SENDST *RS422)
 			{
 				pMsg->AxisPosX[pMsg->SensorStat] = pMsg->opticAxisPosX[pMsg->SensorStat];
 				pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
-				pMsg->AvtPosX[pMsg->SensorStat] = pMsg->AxisPosX[pMsg->SensorStat];
-				pMsg->AvtPosY[pMsg->SensorStat] = pMsg->AxisPosY[pMsg->SensorStat];
+				pMsg->AvtPosX[pMsg->SensorStat]  = pMsg->AxisPosX[pMsg->SensorStat];
+				pMsg->AvtPosY[pMsg->SensorStat]  = pMsg->AxisPosY[pMsg->SensorStat];
 				app_ctrl_setAimPos(pMsg);
 				app_ctrl_setAxisPos(pMsg);
 			}
+			
 			app_ctrl_setTrkStat(pMsg); 
 			MSGAPI_msgsend(trk);
 			break;
@@ -233,10 +234,19 @@ void* recv_msg(SENDST *RS422)
 				if(1 == imgID1){
 					pMsg->AxisPosX[pMsg->SensorStat] = Rsectrk.ImgPixelX;
 					pMsg->AxisPosY[pMsg->SensorStat] = Rsectrk.ImgPixelY;
-					if(pMsg->AxisPosX[pMsg->SensorStat] + pMsg->crossAxisWidth/2 > VIDEO_IMAGE_WIDTH_0)
-						pMsg->AxisPosX[pMsg->SensorStat] = VIDEO_IMAGE_WIDTH_0 - pMsg->crossAxisWidth/2;
-					if(pMsg->AxisPosY[pMsg->SensorStat] + pMsg->crossAxisHeight/2 > VIDEO_IMAGE_HEIGHT_0)
-						pMsg->AxisPosY[pMsg->SensorStat] = VIDEO_IMAGE_HEIGHT_0 - pMsg->crossAxisHeight/2;
+
+					int width = 0,height = 0;
+					if(pMsg->SensorStat == video_pal){
+						width  = VIDEO_IMAGE_WIDTH_0;
+						height = VIDEO_IMAGE_HEIGHT_0;
+					}else{
+						width  = VIDEO_IMAGE_WIDTH_1;
+						height = VIDEO_IMAGE_HEIGHT_1;
+					}
+					if(pMsg->AxisPosX[pMsg->SensorStat] + pMsg->crossAxisWidth/2 > width)
+						pMsg->AxisPosX[pMsg->SensorStat] = width - pMsg->crossAxisWidth/2;
+					if(pMsg->AxisPosY[pMsg->SensorStat] + pMsg->crossAxisHeight/2 > height)
+						pMsg->AxisPosY[pMsg->SensorStat] = height - pMsg->crossAxisHeight/2;
 
 					if(pMsg->AxisPosX[pMsg->SensorStat] <  pMsg->crossAxisWidth/2)
 						pMsg->AxisPosX[pMsg->SensorStat] =  pMsg->crossAxisWidth/2;
@@ -251,9 +261,7 @@ void* recv_msg(SENDST *RS422)
 					pMsg->AvtTrkStat = eTrk_mode_sectrk;
 					pMsg->AvtPosX[pMsg->SensorStat] = Rsectrk.ImgPixelX;
 					pMsg->AvtPosY[pMsg->SensorStat] = Rsectrk.ImgPixelY;				
-					//printf("next aimx ,aimy (%d,%d)\n",pMsg->AvtPosX[0],pMsg->AvtPosY[0]);
 					app_ctrl_setTrkStat(pMsg);
-					//printf("opticAxisPosX,opticAxisPosY (%d,%d)\n",pMsg->opticAxisPosX[0],pMsg->opticAxisPosY[0]);
 					pMsg->AxisPosX[pMsg->SensorStat] = pMsg->opticAxisPosX[pMsg->SensorStat];
 					pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
 					app_ctrl_setAxisPos(pMsg);

@@ -20,7 +20,6 @@
 #include "osa_sem.h"
 #include "app_status.h"
 
-
 using namespace std;
 using namespace cv;
 

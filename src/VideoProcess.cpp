@@ -1308,19 +1308,6 @@ void CVideoProcess::Track_fovreacq(int fov,int sensor,int sensorchange)
 
 	}
 	
-	//OSA_printf("prifov=%d fov=%d  the w=%d  h=%d ratio=%f wt=%f,\n",prifov,fov,w,h,ratio,trackinfo_obj->trackrect.width);
-	/*
-	if(w>trkWinWH[sensor][4][0])
-		w=trkWinWH[sensor][4][0];
-	else if(w<trkWinWH[sensor][0][0])
-		w=trkWinWH[sensor][0][0];
-
-	if(h>trkWinWH[sensor][4][1])
-		h=trkWinWH[sensor][4][1];
-	else if(h<trkWinWH[sensor][0][1])
-		h=trkWinWH[sensor][0][1];
-	*/
-	
 	trackinfo_obj->trackfov=fov;
 
 	trackinfo_obj->reAcqRect.width=w;

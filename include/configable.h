@@ -23,6 +23,14 @@
 #define PAL_VIRCHID					1
 
 
+enum devvideo{
+	video_pal,
+	video_gaoqing,
+	MAX_CHAN,
+};
+
+
+
 
 #if 0
 typedef struct {

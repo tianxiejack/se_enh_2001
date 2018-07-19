@@ -40,8 +40,8 @@ void app_ctrl_setTrkStat(CMD_EXT * pInCmd)
 		}	
 		else if(pIStuts->AvtTrkStat==eTrk_mode_sectrk)
 		{
-			pIStuts->AvtPosX[0] = pInCmd->AvtPosX[0];
-			pIStuts->AvtPosY[0] = pInCmd->AvtPosY[0];
+			pIStuts->AvtPosX[pIStuts->SensorStat] = pInCmd->AvtPosX[pIStuts->SensorStat];
+			pIStuts->AvtPosY[pIStuts->SensorStat] = pInCmd->AvtPosY[pIStuts->SensorStat];
 		}
 		MSGDRIV_send(MSGID_EXT_INPUT_TRACK, 0);
 	}
@@ -82,10 +82,11 @@ void app_ctrl_setAimPos(CMD_EXT * pInCmd)
 		pIStuts->aimRectMoveStepY = pInCmd->aimRectMoveStepY;
 		MSGDRIV_send(MSGID_EXT_INPUT_AIMPOS, 0);
 	}
-	else if(pIStuts->AvtPosX[0]!= pInCmd->AvtPosX[0] ||pIStuts->AvtPosY[0]!= pInCmd->AvtPosY[0] )
+	else if(pIStuts->AvtPosX[pIStuts->SensorStat]!= pInCmd->AvtPosX[pIStuts->SensorStat] ||
+		pIStuts->AvtPosY[pIStuts->SensorStat]!= pInCmd->AvtPosY[pIStuts->SensorStat] )
 	{
-		pIStuts->AvtPosX[0] = pInCmd->AvtPosX[0];
-		pIStuts->AvtPosY[0] = pInCmd->AvtPosY[0];		
+		pIStuts->AvtPosX[pIStuts->SensorStat] = pInCmd->AvtPosX[pIStuts->SensorStat];
+		pIStuts->AvtPosY[pIStuts->SensorStat] = pInCmd->AvtPosY[pIStuts->SensorStat];		
 	}
 	return ;
 }
@@ -97,12 +98,12 @@ void app_ctrl_setMmtSelect(CMD_EXT * pIStuts,unsigned char index)
 	getMmtTg(index, &curx, &cury);
 	
 	pIStuts->AvtTrkStat = eTrk_mode_sectrk;
-	pIStuts->AvtPosX[0] = curx;
-	pIStuts->AvtPosY[0] = cury;
+	pIStuts->AvtPosX[pIStuts->SensorStat] = curx;
+	pIStuts->AvtPosY[pIStuts->SensorStat] = cury;
 	app_ctrl_setTrkStat(pIStuts);
 
-	pIStuts->AxisPosX[0] = pIStuts->opticAxisPosX[0];
-	pIStuts->AxisPosY[0] = pIStuts->opticAxisPosY[0];
+	pIStuts->AxisPosX[pIStuts->SensorStat] = pIStuts->opticAxisPosX[pIStuts->SensorStat];
+	pIStuts->AxisPosY[pIStuts->SensorStat] = pIStuts->opticAxisPosY[pIStuts->SensorStat];
 	app_ctrl_setAxisPos(pIStuts);
 	return ;
 }
@@ -129,21 +130,21 @@ void app_ctrl_setEnhance(CMD_EXT * pInCmd)
 
 void app_ctrl_setAxisPos(CMD_EXT * pInCmd)
 {
-       if(msgextInCtrl==NULL)
+	if(msgextInCtrl==NULL)
 		return ;
-     	CMD_EXT *pIStuts = msgextInCtrl;
+	CMD_EXT *pIStuts = msgextInCtrl;
 	unsigned char mask = 0;
-	if(pInCmd->axisMoveStepX != 0  || pInCmd->axisMoveStepY !=0)
+	if(pInCmd->axisMoveStepX != 0  || pInCmd->axisMoveStepY != 0)
 	{	
 		pIStuts->axisMoveStepX = pInCmd->axisMoveStepX;
 		pIStuts->axisMoveStepY = pInCmd->axisMoveStepY;
 		mask++;
 	}
 
-	if(pIStuts->AxisPosX[0] != pInCmd->AxisPosX[0] || pIStuts->AxisPosY[0]!= pInCmd->AxisPosY[0])
+	if(pIStuts->AxisPosX[pIStuts->SensorStat] != pInCmd->AxisPosX[pIStuts->SensorStat] || pIStuts->AxisPosY[pIStuts->SensorStat]!= pInCmd->AxisPosY[pIStuts->SensorStat])
 	{
-		pIStuts->AxisPosX[0] = pInCmd->AxisPosX[0];
-		pIStuts->AxisPosY[0] = pInCmd->AxisPosY[0];
+		pIStuts->AxisPosX[pIStuts->SensorStat] = pInCmd->AxisPosX[pIStuts->SensorStat];
+		pIStuts->AxisPosY[pIStuts->SensorStat] = pInCmd->AxisPosY[pIStuts->SensorStat];
 		mask++;
 	}
 	if(mask)
@@ -189,9 +190,9 @@ void app_ctrl_setMMT(CMD_EXT * pInCmd)
 
 	if(pInCmd->AvtTrkStat != eTrk_mode_target)
 	{
-		if (pIStuts->MmtStat[0] != pInCmd->MmtStat[0])
+		if (pIStuts->MmtStat[pIStuts->SensorStat] != pInCmd->MmtStat[pIStuts->SensorStat])
 		{     
-			pIStuts->MmtStat[0] = pInCmd->MmtStat[0];
+			pIStuts->MmtStat[pIStuts->SensorStat] = pInCmd->MmtStat[pIStuts->SensorStat];
 			{
 			    MSGDRIV_send(MSGID_EXT_INPUT_ENMTD, 0);
 			}
@@ -211,8 +212,6 @@ void app_ctrl_Sensorchange(CMD_EXT * pInCmd)
 	CMD_EXT *pIStuts = msgextInCtrl;
 	pIStuts->unitAimX=pIStuts->opticAxisPosX[pIStuts->SensorStat];
 	pIStuts->unitAimY=pIStuts->opticAxisPosY[pIStuts->SensorStat];
-	//pIStuts->unitAimX_new[pIStuts->SensorStat]=pIStuts->opticAxisPosX[pIStuts->SensorStat];
-	//pIStuts->unitAimY_new[pIStuts->SensorStat]=pIStuts->opticAxisPosY[pIStuts->SensorStat];
 }
 
 void app_ctrl_setReset(CMD_EXT * pInCmd)

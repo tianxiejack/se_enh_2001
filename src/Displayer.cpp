@@ -56,11 +56,6 @@ static GLfloat m_glvTexCoordsDefault[8] = {0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1
 
 int VIDEO_IMAGE_ARR[DS_CHAN_MAX][2] = {{720,576},{1920,1080},{1920,1080},{1920,1080}};
 
-enum devvideo{
-	video_pal,
-	video_gaoqing,
-	MAX_CHAN,
-};
 
 CDisplayer::CDisplayer()
 :m_mainWinWidth(VIDEO_IMAGE_WIDTH_1),m_mainWinHeight(VIDEO_IMAGE_HEIGHT_1),m_renderCount(0),
