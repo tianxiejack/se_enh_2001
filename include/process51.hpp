@@ -29,7 +29,6 @@ class CProcess : public CVideoProcess
 	DS_Rect random;
 	char trkFPSDisplay[128];
 	Osd_cvPoint debugBak;
-
 	char timedisplay[128];
 
 	
@@ -53,8 +52,6 @@ public:
 	void OnKeyDwn(unsigned char key);
 	
 	CMD_EXT* extInCtrl;
-	
-	
 	static CProcess *sThis;
 	void process_osd_test(void *pPrm);
 
@@ -116,9 +113,8 @@ protected:
 
 private:
 	ACK_EXT extOutAck;
-	bool     m_bCast;
-	UInt32 m_castTm;
-	//Multich_graphic grpxChWinPrms;
+	bool    m_bCast;
+	UInt32 	m_castTm;
 
 	void process_status(void);
 
@@ -141,7 +137,7 @@ private:
 	int process_draw_instance(Mat frame);
 	int draw_circle_display(Mat frame);
 
-	void	DrawRect(Mat frame,cv::Rect rec,int frcolor);
+	void DrawRect(Mat frame,cv::Rect rec,int frcolor);
 	void DrawAcqRect(cv::Mat frame,cv::Rect rec,int frcolor,bool bshow);
 
 	void initAcqRect();

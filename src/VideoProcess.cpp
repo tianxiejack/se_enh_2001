@@ -115,19 +115,8 @@ void CVideoProcess::main_proc_func()
 #endif
 	while(mainProcThrObj.exitProcThread ==  false)
 	{
-		/******************************************/
-		if(m_pwFile==NULL && wFileFlag){
-			time(&timep);  
-			p = gmtime(&timep);
-			sprintf(file,"MVspeed_%d-%d-%d.txt",p->tm_hour, p->tm_min, p->tm_sec);		
-			m_pwFile = fopen(file,"a+");
-			if(m_pwFile==NULL)
-				printf("Open File err.\n");
-		}
-		
 		OSA_semWait(&mainProcThrObj.procNotifySem, OSA_TIMEOUT_FOREVER);
 
-		//OSA_printf("%s:pp = %d ,\n",__func__, mainProcThrObj.pp);
 		Mat frame = mainFrame[mainProcThrObj.pp^1];
 		bool bTrack = mainProcThrObj.cxt[mainProcThrObj.pp^1].bTrack;
 		bool bMtd = mainProcThrObj.cxt[mainProcThrObj.pp^1].bMtd;
@@ -166,18 +155,7 @@ void CVideoProcess::main_proc_func()
 		{
 			memcpy(frame_gray.data, frame.data, frame.cols * frame.rows*channel*sizeof(unsigned char));
 		}
-#if 1
-		if(wFileFlag == true && m_pwFile != NULL){
-			if(bTrack)
-			{
-				timeFlag--;
-				if(timeFlag == 0)
-					timeFlag = 0;
-			}
-			else
-				timeFlag = 2;
-		}
-#endif		
+
 		if(bTrack)
 		{
 		#if __TRACK__
@@ -526,8 +504,6 @@ CVideoProcess::CVideoProcess()
 	:m_track(NULL),m_curChId(MAIN_CHID),m_curSubChId(-1),adaptiveThred(40)		
 {
 	pThis = this;
-	m_pwFile = NULL;
-
 	memset(m_mtd, 0, sizeof(m_mtd));
 	memset(&mainProcThrObj, 0, sizeof(MAIN_ProcThrObj));
 	
@@ -561,17 +537,13 @@ CVideoProcess::CVideoProcess()
 CVideoProcess::~CVideoProcess()
 {
 	pThis = NULL;
-	if(m_pwFile != NULL){
-		fclose(m_pwFile);
-		m_pwFile = NULL;
-	}
 }
 
 int CVideoProcess::creat()
 {
 	int i = 0;
 	#if __TRACK__
-	trackinfo_obj=(Track_InfoObj *)malloc(sizeof(Track_InfoObj));
+		trackinfo_obj=(Track_InfoObj *)malloc(sizeof(Track_InfoObj));
 	#endif
 	m_display.create();
 
@@ -580,9 +552,7 @@ int CVideoProcess::creat()
 	MultiCh.creat();
 
 	MAIN_threadCreate();
-	
-	OSA_mutexCreate(&m_mutex);	
-
+	OSA_mutexCreate(&m_mutex);
 	OnCreate();
 
 	
@@ -608,12 +578,6 @@ int CVideoProcess::destroy()
 	m_display.destroy();
 
 	OnDestroy();
-
-	if(m_pwFile != NULL){
-		fclose(m_pwFile);
-		m_pwFile = NULL;
-	}
-
 
 #if __MOVE_DETECT__
 	#if __DETECT_SWITCH_Z__

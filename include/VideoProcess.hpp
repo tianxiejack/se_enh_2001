@@ -146,8 +146,6 @@ protected:
 	float lapScaler;
 	int lumThred;
 
-	FILE *m_pwFile;
-
 	int configEnhFromFile();
 	int configAvtFromFile();
 	int Algconfig();
