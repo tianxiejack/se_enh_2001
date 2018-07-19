@@ -150,13 +150,16 @@ void* recv_msg(SENDST *RS422)
 				pMsg->AvtTrkStat =eTrk_mode_target;
 			else
 				pMsg->AvtTrkStat = eTrk_mode_acq;
-			printf("avt status = %d \n",pMsg->AvtTrkStat);
+			//printf("avt status = %d \n",pMsg->AvtTrkStat);
 			if(pMsg->AvtTrkStat == eTrk_mode_acq)
 			{
 				pMsg->AxisPosX[pMsg->SensorStat] = pMsg->opticAxisPosX[pMsg->SensorStat];
 				pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
 				pMsg->AvtPosX[pMsg->SensorStat]  = pMsg->AxisPosX[pMsg->SensorStat];
 				pMsg->AvtPosY[pMsg->SensorStat]  = pMsg->AxisPosY[pMsg->SensorStat];
+				//printf("sensor = %d , avtpos x,y(%d  %d ) \n",pMsg->SensorStat,
+				//	pMsg->AvtPosX[pMsg->SensorStat],pMsg->opticAxisPosY[pMsg->SensorStat]);
+				
 				app_ctrl_setAimPos(pMsg);
 				app_ctrl_setAxisPos(pMsg);
 			}

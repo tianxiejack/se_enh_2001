@@ -1332,7 +1332,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 		 m_SensorStat = extInCtrl->SensorStat;
 		 int aimw = extInCtrl->AimW[extInCtrl->SensorStat];
 		 int aimh = extInCtrl->AimH[extInCtrl->SensorStat];
-		 
+
 		if(Osdflag[osdindex]==1)
  		{
  			if(extInCtrl->SensorStat==video_gaoqing)
@@ -1501,8 +1501,8 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				
 				if(extInCtrl->TrkStat == 2)
 				{
-					extInCtrl->trkerrx=(PiexltoWindowsx(m_ImageAxisx[extInCtrl->SensorStat] ,extInCtrl->SensorStat));
-					extInCtrl->trkerry=(PiexltoWindowsy(m_ImageAxisy[extInCtrl->SensorStat] ,extInCtrl->SensorStat));
+					extInCtrl->trkerrx=(PiexltoWindowsx(extInCtrl->AvtPosX[extInCtrl->SensorStat] ,extInCtrl->SensorStat));
+					extInCtrl->trkerry=(PiexltoWindowsy(extInCtrl->AvtPosY[extInCtrl->SensorStat] ,extInCtrl->SensorStat));
 				}
 
 				extInCtrl->TrkErrFeedback = 1;
@@ -2046,12 +2046,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 
 //picp position
 		lay_rect=rendpos[pIStuts->PicpPosStat];
-		m_ImageAxisx[extInCtrl->SensorStat]=pIStuts->AvtPosX[extInCtrl->SensorStat ];
-		m_ImageAxisy[extInCtrl->SensorStat]=pIStuts->AvtPosY[extInCtrl->SensorStat ];
-		//printf("m_ImageAxisx,m_ImageAxisy = (%d,%d) \n",m_ImageAxisx,m_ImageAxisy);
-		//OSA_printf("%s: lay_rect: %d, %d,  %d x %d\n", __func__, lay_rect.x, lay_rect.y, lay_rect.w, lay_rect.h);
 		
-
 		lay_rect.w = VIDEO_IMAGE_WIDTH_1/3;
 		lay_rect.h =VIDEO_IMAGE_HEIGHT_1/3;
 		lay_rect.x = VIDEO_IMAGE_WIDTH_1*2/3;
@@ -2963,8 +2958,6 @@ void CProcess::MSGAPI_inputpositon(long lParam )
 			pIStuts->axisMoveStepX = 0;
 		}	
 		pIStuts->unitAimX = pIStuts->AxisPosX[pIStuts->SensorStat];
-		sThis->m_ImageAxisx[sThis->extInCtrl->SensorStat]=pIStuts->AvtPosX[pIStuts->SensorStat];		
-
 	}
 	if((pIStuts->AxisPosY[pIStuts->SensorStat]>=50)&&(pIStuts->AxisPosY[pIStuts->SensorStat]<=vcapWH[pIStuts->SensorStat][1]-50))
 	{
@@ -2974,7 +2967,6 @@ void CProcess::MSGAPI_inputpositon(long lParam )
 			pIStuts->axisMoveStepY = 0;
 		}
 		pIStuts->unitAimY = pIStuts->AxisPosY[pIStuts->SensorStat];
-		sThis->m_ImageAxisy[sThis->extInCtrl->SensorStat]=pIStuts->AvtPosY[pIStuts->SensorStat];
 	}
 	
 	OSA_printf("%s   THE=unitAimX=%d unitAxisY=%d\n",__func__,pIStuts->opticAxisPosX[pIStuts->SensorStat],pIStuts->opticAxisPosY[pIStuts->SensorStat]);

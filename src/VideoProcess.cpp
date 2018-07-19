@@ -14,7 +14,7 @@
 #include "app_ctrl.h"
 
 using namespace vmath;
-
+extern CMD_EXT *msgextInCtrl;
 int CVideoProcess::m_mouseEvent = 0;
 int CVideoProcess::m_mousex = 0;
 int CVideoProcess::m_mousey = 0;
@@ -270,39 +270,30 @@ void CVideoProcess::main_proc_func()
 				m_searchmod=0;
 			}
 			m_iTrackStat = process_track(iTrackStat, frame_gray, m_dc, m_rcTrack);
+	
 
 			UtcGetSceneMV(m_track, &speedx, &speedy);
 			UtcGetOptValue(m_track, &optValue);
-			//OSA_printf("*************speedxy=(%f,%f)\n",speedx,speedy);
-			#if 1
-			if(wFileFlag == true && m_pwFile != NULL){
-				if(timeFlag == 1){
-					speedcount +=1;
-					fprintf(m_pwFile,"###############################%d\n",speedcount);
-				}
-				fprintf(m_pwFile,"%0.3f,%0.3f,%d,%0.3f\n",speedx,speedy,m_iTrackStat,optValue*10);
-			}
-			#endif
+			
 			if(m_iTrackStat == 2)
 				m_iTrackLostCnt++;
 			else
 				m_iTrackLostCnt = 0;
 
-
 			if(m_iTrackStat == 2)
 			{								
 				if(m_iTrackLostCnt > 3)
 				{					
-					m_rcTrack.x = m_ImageAxisx[chId] - m_rcTrack.width/2;
-					m_rcTrack.y = m_ImageAxisy[chId] - m_rcTrack.height/2;
-					//OSA_printf(">3 -> TrkStat = %d  ImageAxisxy = (%f,%f)\n",m_iTrackStat,m_rcTrack.x,m_rcTrack.y);
+					m_rcTrack.x = msgextInCtrl->AvtPosX[chId]- m_rcTrack.width/2;
+					m_rcTrack.y = msgextInCtrl->AvtPosY[chId]- m_rcTrack.height/2;
+					//OSA_printf(">3 -> TrkStat = %d  ImageAxisxy = (%d,%d)\n",m_iTrackStat,m_ImageAxisx[chId],m_ImageAxisy[chId]);
 				}
 				else
 				{
 					m_iTrackStat = 1;
-					m_rcTrack.x = m_ImageAxisx[chId] - m_rcTrack.width/2;
-					m_rcTrack.y = m_ImageAxisy[chId] - m_rcTrack.height/2;
-					//OSA_printf("<3 ->ImageAxisxy = (%d,%d)\n",m_ImageAxisx,m_ImageAxisy);
+					m_rcTrack.x = msgextInCtrl->AvtPosX[chId] - m_rcTrack.width/2;
+					m_rcTrack.y = msgextInCtrl->AvtPosY[chId] - m_rcTrack.height/2;
+					//OSA_printf("<3 ->ImageAxisxy = (%d,%d)\n",m_ImageAxisx[chId],m_ImageAxisy[chId]);
 				}
 			}
 
@@ -402,8 +393,8 @@ void CVideoProcess::main_proc_func()
 							Point( preWarnRect.x+preWarnRect.width, preWarnRect.y+preWarnRect.height),
 							cvScalar(0,0,0,0), 1, 8 );
 				}
-				acqRect.axisX = m_ImageAxisx[chId];
-				acqRect.axisY = m_ImageAxisy[chId];
+				acqRect.axisX = msgextInCtrl->AvtPosX[chId];
+				acqRect.axisY = msgextInCtrl->AvtPosY[chId];
 
 				if(m_SensorStat == 0){
 					if(chId == video_gaoqing)
@@ -548,10 +539,7 @@ CVideoProcess::CVideoProcess()
 	moveStat = FALSE;
 	m_acqRectW			= 	60;
 	m_acqRectH			= 	60;
-	m_ImageAxisx[video_pal]		=	VIDEO_IMAGE_WIDTH_0/2; //trkrefine after lost
-	m_ImageAxisy[video_pal]		=	VIDEO_IMAGE_HEIGHT_0/2;//trkrefine after lost
-	m_ImageAxisx[video_gaoqing]		=	VIDEO_IMAGE_WIDTH_1/2; //trkrefine after lost
-	m_ImageAxisy[video_gaoqing]		=	VIDEO_IMAGE_HEIGHT_1/2;//trkrefine after lost
+
 	m_intervalFrame 			= 0;
 	m_intervalFrame_change 	= 0;
 	m_bakChId = m_curChId;
@@ -763,10 +751,10 @@ int CVideoProcess::dynamic_config(int type, int iPrm, void* pPrm)
 			UTC_RECT_float rc;
 			rc.width 	=  60;//m_acqRectW;
 			rc.height 	=  60;//m_acqRectH;
-			rc.x 		=  m_ImageAxisx[m_curChId] - rc.width/2;
-			rc.y 		=  m_ImageAxisy[m_curChId] - rc.height/2;
-			m_rcTrack  = rc;
-			m_rcAcq 	  = rc;
+			rc.x 		=  msgextInCtrl->AvtPosX[m_curChId] - rc.width/2;
+			rc.y 		=  msgextInCtrl->AvtPosY[m_curChId] - rc.height/2;
+			m_rcTrack   = rc;
+			m_rcAcq 	= rc;
 		}
 		else
 		{
@@ -1285,8 +1273,8 @@ void CVideoProcess::Track_fovreacq(int fov,int sensor,int sensorchange)
 	unsigned int FrFov[5] 	= {200,120,50,16,6};//Big-Mid-Sml-SuperSml-Zoom:4000*5%,2400*5%,1000*5%,330*5%,120*5%
 
 	if(sensorchange == 1){
-		currentx = m_ImageAxisx[m_curChId];
-		currenty = m_ImageAxisy[m_curChId];
+		currentx = msgextInCtrl->AvtPosX[m_curChId];
+		currenty = msgextInCtrl->AvtPosY[m_curChId];
 	}
 	else
 	{		
@@ -1473,11 +1461,11 @@ int CVideoProcess::process_track(int trackStatus, Mat frame_gray, Mat frame_dis,
 	{
 		//printf("track********x=%f y=%f w=%f h=%f  ax=%d xy=%d\n",rcResult.x,rcResult.y,rcResult.width,rcResult.height);
 		UTC_ACQ_param acq;
-		acq.axisX =m_ImageAxisx[m_curChId];// image.width/2;//m_ImageAxisx;//
-		acq.axisY =m_ImageAxisy[m_curChId];//image.height/2;//m_ImageAxisy;//
-		acq.rcWin.x = (int)(rcResult.x);
-		acq.rcWin.y = (int)(rcResult.y);
-		acq.rcWin.width = (int)(rcResult.width);
+		acq.axisX 	=	msgextInCtrl->AvtPosX[m_curChId];// image.width/2;//m_ImageAxisx;//
+		acq.axisY 	=	msgextInCtrl->AvtPosY[m_curChId];//image.height/2;//m_ImageAxisy;//
+		acq.rcWin.x = 	(int)(rcResult.x);
+		acq.rcWin.y = 	(int)(rcResult.y);
+		acq.rcWin.width  = (int)(rcResult.width);
 		acq.rcWin.height = (int)(rcResult.height);
 
 		if(acq.rcWin.width<0)

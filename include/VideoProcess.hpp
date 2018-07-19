@@ -86,8 +86,6 @@ public:
 	virtual void OnMouseRightUp(int x, int y){};
 	virtual void OnKeyDwn(unsigned char key){};
 
-	int m_ImageAxisx[eSen_Max];		//trkrefine after lost
-	int m_ImageAxisy[eSen_Max];		
 	int m_SensorStat;
 	int m_acqRectW;
 	int m_acqRectH;
