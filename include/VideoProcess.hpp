@@ -213,7 +213,6 @@ protected: //track
 	TARGETBOX	m_tgtBox[MAX_TARGET_NUMBER];	
 
 #if __MOVE_DETECT__
-	#if __DETECT_SWITCH_Z__
 		protected:
 		CMvDectInterface *m_pMovDetector;
 		void	initMvDetect();
@@ -221,11 +220,6 @@ protected: //track
 		static void NotifyFunc(void *context, int chId);
 		std::vector<TRK_RECT_INFO> detect_vect;
 		std::vector<TRK_RECT_INFO> detect_bak;
-	#else
-		protected:
-		cv::Rect boundRect[6];
-		cv::Rect backRect[6];
-	#endif
 #endif
 
 

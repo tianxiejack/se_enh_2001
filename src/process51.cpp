@@ -1695,7 +1695,6 @@ osdindex++;
 
 	
 #if __MOVE_DETECT__
-#if __DETECT_SWITCH_Z__
 	osdindex++;
 	{
 		if(Osdflag[osdindex]==1)
@@ -1728,24 +1727,6 @@ osdindex++;
 		else
 			DrawMoveDetect = 0 ;
 	}
-#else
-	osdindex++;
-	{
-		if(Osdflag[osdindex]==1){
-			for(i=0;i<6;i++){	
-				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], backRect[i],0);
-			}			
-			Osdflag[osdindex]=0;
-		}
-		if(m_bMoveDetect){
-			for(i=0;i<6;i++){	
-				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], boundRect[i],4);
-				backRect[i] = boundRect[i];
-			}			
-			Osdflag[osdindex]=1;
-		}		
-	}
-#endif	
 #endif
 	prisensorstatus=extInCtrl->SensorStat;
 

@@ -10,7 +10,6 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "configable.h"
 
-#include "MvDetect.hpp"
 #include "app_ctrl.h"
 
 using namespace vmath;
@@ -464,12 +463,8 @@ void CVideoProcess::main_proc_func()
 #endif
 
 		#if __MOVE_DETECT__
-			#if __DETECT_SWITCH_Z__
 				if(m_pMovDetector != NULL)
-					m_pMovDetector->setFrame(frame_gray,frame_gray.cols,frame_gray.rows,0,2,8,200,35);	//chId
-			#else
-				mvDetect(1,frame_gray.data,frame_gray.cols,frame_gray.rows,boundRect);
-			#endif
+					m_pMovDetector->setFrame(frame_gray,frame_gray.cols,frame_gray.rows,0,2,8,200,30);
 		#endif
 		}
 
@@ -526,9 +521,7 @@ CVideoProcess::CVideoProcess()
 	preAcpSR	={0};
 	
 	#if __MOVE_DETECT__
-		#if __DETECT_SWITCH_Z__
-			m_pMovDetector	=NULL;
-		#endif
+		m_pMovDetector	=NULL;
 	#endif
 	
 	memset(m_tgtBox, 0, sizeof(TARGETBOX)*MAX_TARGET_NUMBER);
@@ -557,13 +550,9 @@ int CVideoProcess::creat()
 
 	
 #if __MOVE_DETECT__
-	#if __DETECT_SWITCH_Z__
-		if(m_pMovDetector == NULL)
-			m_pMovDetector = MvDetector_Create();
-		OSA_assert(m_pMovDetector != NULL);
-	#else
-		createDetect(1,1920,1080);
-	#endif
+	if(m_pMovDetector == NULL)
+		m_pMovDetector = MvDetector_Create();
+	OSA_assert(m_pMovDetector != NULL);
 #endif
 	return 0;
 }
@@ -580,11 +569,7 @@ int CVideoProcess::destroy()
 	OnDestroy();
 
 #if __MOVE_DETECT__
-	#if __DETECT_SWITCH_Z__
-		DeInitMvDetect();
-	#else
-		exitDetect();
-	#endif
+	DeInitMvDetect();
 #endif
 
 	return 0;
@@ -673,9 +658,7 @@ int CVideoProcess::init()
 #endif
 
 #if __MOVE_DETECT__
-	#if __DETECT_SWITCH_Z__
-		initMvDetect();
-	#endif
+	initMvDetect();
 #endif
 	
 	return 0;
@@ -1523,7 +1506,6 @@ int CVideoProcess::process_mtd(ALGMTD_HANDLE pChPrm, Mat frame_gray, Mat frame_d
 }
 
 #if __MOVE_DETECT__
-#if __DETECT_SWITCH_Z__
 void	CVideoProcess::initMvDetect()
 {
 	int	i;
@@ -1562,7 +1544,6 @@ void CVideoProcess::NotifyFunc(void *context, int chId)
 	pThis->m_pMovDetector->getMoveTarget(pThis->detect_vect,0);
 	pParent->m_display.UpDateOsd(1);
 }
-#endif
 #endif
 
 void CVideoProcess::getImgRioDelta(unsigned char* pdata,int width ,int height,UTC_Rect rio,double * value)
