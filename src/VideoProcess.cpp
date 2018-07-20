@@ -466,7 +466,7 @@ void CVideoProcess::main_proc_func()
 		#if __MOVE_DETECT__
 			#if __DETECT_SWITCH_Z__
 				if(m_pMovDetector != NULL)
-					m_pMovDetector->setFrame(frame_gray,0);	//chId
+					m_pMovDetector->setFrame(frame_gray,frame_gray.cols,frame_gray.rows,0,2,8,200,35);	//chId
 			#else
 				mvDetect(1,frame_gray.data,frame_gray.cols,frame_gray.rows,boundRect);
 			#endif
@@ -1541,8 +1541,8 @@ void	CVideoProcess::initMvDetect()
 	for(i=0; i<DETECTOR_NUM; i++)
 	{
 		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
-		m_pMovDetector->setDrawOSD(m_dccv, i);
-		m_pMovDetector->enableSelfDraw(true, i);
+		//m_pMovDetector->setDrawOSD(m_dccv, i);
+		//m_pMovDetector->enableSelfDraw(true, i);
 		m_pMovDetector->setWarnMode(WARN_MOVEDETECT_MODE, i);
 	} 
 }
