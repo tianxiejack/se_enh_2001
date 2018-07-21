@@ -1448,6 +1448,7 @@ void CDisplayer::gl_display(void)
 		//sprintf(s,"%ls",ws);
 		if(0 != strcmp((const char*)disOsdBuf,(const char*)disOsdBufbak))
 		{
+			memcpy(disOsdBufbak,disOsdBuf,sizeof(disOsdBuf));
 			swprintf(disOsd, 32, L"%s", disOsdBuf[0]);
 			//printf("****************************\n");
 			//for(int i =0 ;i < 10;i++)
