@@ -22,6 +22,9 @@
 #include "configable.h"
 
 #include "osd_text.hpp"
+#include "string.h"
+
+#include "locale.h"
 #define HISTEN 0
 #define CLAHEH 1
 #define DARKEN 0
@@ -56,6 +59,10 @@ static GLfloat m_glvTexCoordsDefault[8] = {0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1
 
 int VIDEO_IMAGE_ARR[DS_CHAN_MAX][2] = {{720,576},{1920,1080},{1920,1080},{1920,1080}};
 
+
+char disOsdBuf[32][128] = {0};
+char disOsdBufbak[32][128] = {0};
+wchar_t disOsd[32];
 
 CDisplayer::CDisplayer()
 :m_mainWinWidth(VIDEO_IMAGE_WIDTH_1),m_mainWinHeight(VIDEO_IMAGE_HEIGHT_1),m_renderCount(0),
@@ -1434,7 +1441,21 @@ void CDisplayer::gl_display(void)
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		}
 		glDisable(GL_BLEND);
-		//chinese_osd(600,200,L"第一次的封装显示",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);	
+
+		//wchar_t ws[] = L"中文";
+		//char s[128];
+		setlocale(LC_ALL, "zh_CN.UTF-8");
+		//sprintf(s,"%ls",ws);
+		if(0 != strcmp((const char*)disOsdBuf,(const char*)disOsdBufbak))
+		{
+			swprintf(disOsd, 32, L"%s", disOsdBuf[0]);
+			//printf("****************************\n");
+			//for(int i =0 ;i < 10;i++)
+			//	printf("%x",disOsdBuf[0][i]);
+			//printf("**********end\n");
+		}
+		
+		chinese_osd(200,200,disOsd,255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);
 		//chinese_osd(1100,10,L"速  度",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);	//rate
 		//chinese_osd(1300,10,L"距  离",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);// juli
 		//chinese_osd(1805,10,L"导航干扰",255,255,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);//daohang ganrao

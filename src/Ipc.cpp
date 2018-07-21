@@ -18,6 +18,8 @@ extern OSDSTATUS gConfig_Osd_param ;
 extern UTCTRKSTATUS gConfig_Alg_param;
 int ipc_loop = 1;
 extern void inputtmp(unsigned char cmdid);
+extern char disOsdBuf[32][128];
+
 
 OSA_BufCreate msgSendBufCreate;
 OSA_BufHndl msgSendBuf;
@@ -111,7 +113,22 @@ void* recv_msg(SENDST *RS422)
 	printf("cmdID : %d (%02x %02x %02x %02x %02x)\n",cmdID,imgID1,imgID2,imgID3,imgID4,imgID5);
 	switch(cmdID)
 	{	
-	
+		case osdBuf:
+#if 0
+	printf("IPC   get   \n");
+	for(int i =0 ;i < 8 ;i++){
+		printf("%x ",RS422->param[i]);
+	}	
+	printf("before memcpy\n");
+#endif
+		memcpy(disOsdBuf[0],RS422->param,128);	
+#if 0
+	for(int i =0 ;i < 8 ;i++){
+		printf("%x ",disOsdBuf[0][i]);
+	}	
+	printf("\n");
+#endif
+			break;
 		case read_shm_config:
 			if(!startEnable){		
 				OSDSTATUS *osdtmp = ipc_getosdstatus_p();
