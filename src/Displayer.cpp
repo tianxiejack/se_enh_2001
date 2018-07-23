@@ -30,6 +30,10 @@
 #define DARKEN 0
 
 static CDisplayer *gThis = NULL;
+extern int IrisAndFocusAndExit;
+extern OSD_param m_osd;
+
+
 
 double capTime = 0;
 
@@ -1456,7 +1460,10 @@ void CDisplayer::gl_display(void)
 			//printf("**********end\n");
 		}
 		
-		chinese_osd(200,200,disOsd,255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);
+		IrisAndFocus();
+		OSDFunc();
+
+		//chinese_osd(200,200,disOsd,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
 		//chinese_osd(1100,10,L"速  度",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);	//rate
 		//chinese_osd(1300,10,L"距  离",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);// juli
 		//chinese_osd(1805,10,L"导航干扰",255,255,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);//daohang ganrao
@@ -1478,6 +1485,89 @@ void CDisplayer::gl_display(void)
 	//glFlush();
 }
 
+void CDisplayer::IrisAndFocus()
+{
+	switch(IrisAndFocusAndExit)
+	{
+	case Enable_Iris:
+	chinese_osd(5,5,L"光圈调节",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_1);
+	break;
+
+	case Enable_Focus:
+	chinese_osd(5,5,L"聚焦调节",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_1);
+	break;
+	}
+}
+
+int CDisplayer::OSDFunc()
+{
+	OSD_param* posd = NULL;
+	posd = &m_osd;
+	unsigned char r, g, b, a, color, colorbak, Enable;
+	short x, y;
+
+	Enable = posd->DispSwitch;
+
+	printf("DispSwitch = %d\n", posd->DispSwitch);
+	printf("Enable = %d\n", Enable);
+
+	if(!Enable){
+
+	 x = posd->DispPosX;
+	 y = posd->DispPosY;
+	  a = posd->DispAlpha;
+	 color = posd->DispColor;
+	 colorbak = color;
+
+	switch(color)
+	{
+	case 1:
+		r = 0;
+		g = 0;
+		b = 0;
+		break;
+	case 2:
+		r = 255;
+		g = 255;
+		b = 255;
+		break;
+	case 3:
+		r = 255;
+		g = 0;
+		b = 0;
+		break;
+	case 4:
+		r = 255;
+		g = 255;
+		b = 0;
+		break;
+	case 5:
+		r = 0;
+		g = 0;
+		b = 255;
+		break;
+	case 6:
+		r = 0;
+		g = 255;
+		b = 0;
+		break;
+	case 7:
+		color = colorbak;
+		break;
+	}
+	if(a < 80)
+		a = 255;
+	else if(a > 80 && a < 90)
+		a = 25;
+	else if( a == 100)
+		a = 0;
+
+	chinese_osd(x, y, disOsd, r, g, b, a, VIDEO_IMAGE_WIDTH_1, VIDEO_IMAGE_HEIGHT_1);
+
+	}
+
+	return 0;
+}
 
 //////////////////////////////////////////////////////////////////////////
 // Load the shader from the source text

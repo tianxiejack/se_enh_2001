@@ -14,11 +14,12 @@ void main(void)
 
 	texCoords = (vVaryingPostion+1.0)*0.5;
 
-	vTex44.st = vVaryingTexCoords.st - 0.5f; 
+	vTex44.st = vVaryingTexCoords.st;// - 0.5f; 
 	vTex44.p = 0.0f;
 	vTex44.q = 1.0f;
 	vTex44 = vTex44 * mTrans;
-	vTex44.st += 0.5f; 
+	//vTex44.st/=vTex44.q;
+	//vTex44.st += 0.5f; 
 	vTex44.st = vTex44.st;
 
 	//if(vTex44.s > 0.0001f && vTex44.s < 1.0001f && vTex44.t > 0.0001f && vTex44.t < 1.0001f)

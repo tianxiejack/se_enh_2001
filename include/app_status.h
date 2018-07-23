@@ -13,6 +13,24 @@ extern "C" {
 #define MTD_TARGET_NUM  8
 #endif
 
+typedef enum{
+	Disable = 0x00,
+	Enable_Iris,
+	Enable_Focus
+}IrisAndFocus;
+
+typedef struct{
+	volatile unsigned int  DispColor;
+	volatile unsigned char DispFont;
+	volatile unsigned char DispSize;
+	volatile unsigned char DispSwitch;
+	volatile unsigned char DispID;
+	volatile short DispPosX;
+	volatile short DispPosY;
+	volatile unsigned char DispAlpha;
+}OSD_param;
+
+
 typedef enum {
 	eSen_CH0	= 0x00,
 	eSen_CH1   ,

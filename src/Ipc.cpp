@@ -16,6 +16,8 @@
 extern  bool startEnable;
 extern OSDSTATUS gConfig_Osd_param ;
 extern UTCTRKSTATUS gConfig_Alg_param;
+int IrisAndFocusAndExit = 0;
+OSD_param m_osd;
 int ipc_loop = 1;
 extern void inputtmp(unsigned char cmdid);
 extern char disOsdBuf[32][128];
@@ -91,6 +93,18 @@ void* recv_msg(SENDST *RS422)
 	CMD_POSMOVE Raxismove;
 	CMD_ZOOM Rzoom;
 	
+	/*OSD param*/
+	CMD_OSDCOLOR osd_color;
+	CMD_OSDFONT osd_font;
+	CMD_OSDSIZE osd_size;
+	CMD_OSDCTRL osd_switch;
+	CMD_OSDID osd_id;
+	CMD_OSDPOS osd_pos;
+	CMD_OSDALPHA osd_alpha;
+
+	OSD_param* pOsd = NULL;
+	pOsd = &m_osd;
+
 
 	if(RS422==NULL)
 	{
@@ -129,6 +143,63 @@ void* recv_msg(SENDST *RS422)
 	printf("\n");
 #endif
 			break;
+
+		case Iris:
+			IrisAndFocusAndExit = Enable_Iris;
+			break;
+
+		case focus:
+			IrisAndFocusAndExit = Enable_Focus;
+			break;
+
+		case exit_IrisAndFocus:
+			IrisAndFocusAndExit = Disable;
+			break;
+
+		case osdcolor:
+			memcpy(&osd_color, RS422->param,sizeof(osd_color));
+			pOsd->DispColor = osd_color.color;
+			printf("color ==> %d\n", pOsd->DispColor);
+			break;
+
+		case osdfont:
+			memcpy(&osd_font, RS422->param,sizeof(osd_font));
+			pOsd->DispFont = osd_font.font;
+			printf("font ==> %d\n", pOsd->DispFont);
+			break;
+
+		case osdsize:
+			memcpy(&osd_size, RS422->param,sizeof(osd_size));
+			pOsd->DispSize = osd_size.size;
+			printf("size ==> %d\n", pOsd->DispSize);
+			break;
+
+		case osdctrl:
+			memcpy(&osd_switch, RS422->param,sizeof(osd_switch));
+			pOsd->DispSwitch = osd_switch.ctrl;
+			printf("osd_switch ==> %d\n", pOsd->DispSwitch);
+			break;
+
+		case osdID:
+			memcpy(&osd_id, RS422->param,sizeof(osd_id));
+			pOsd->DispID = osd_id.id;
+			printf("id ==> %d\n", pOsd->DispID);
+			break;
+
+		case osdPOS:
+			memcpy(&osd_pos, RS422->param,sizeof(osd_pos));
+			pOsd->DispPosX = osd_pos.pos_X;
+			pOsd->DispPosY = osd_pos.pos_Y;
+			printf("posX ==> %d\n", pOsd->DispPosX);
+			printf("posY ==> %d\n", pOsd->DispPosY);
+			break;
+
+		case osdAlpha:
+			memcpy(&osd_alpha, RS422->param,sizeof(osd_alpha));
+			pOsd->DispAlpha = osd_alpha.alpha;
+			printf("alpha ==> %d\n", pOsd->DispAlpha);
+			break;
+
 		case read_shm_config:
 			if(!startEnable){		
 				OSDSTATUS *osdtmp = ipc_getosdstatus_p();

@@ -369,8 +369,8 @@ typedef struct{
 }CMD_OSDID;
 
 typedef struct{
-    volatile short pos_X;
-    volatile short pos_Y;
+    volatile unsigned char pos_X;
+    volatile unsigned char pos_Y;
 }CMD_OSDPOS;
 
 typedef struct{
