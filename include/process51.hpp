@@ -7,7 +7,7 @@
 #include "osd_cv.h"
 class CProcess : public CVideoProcess
 {
-	UTC_RECT_float rcTrackBak,resultTrackBak;
+	UTC_RECT_float rcTrackBak[2],resultTrackBak;
 	TARGET tgBak[MAX_TARGET_NUMBER];
 	TARGETDRAW Mdrawbak[MAX_TARGET_NUMBER];
 	BlobRect blob_rectBak;

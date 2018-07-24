@@ -23,7 +23,7 @@
 
 #include "osd_text.hpp"
 #include "string.h"
-
+#include "process51.hpp"
 #include "locale.h"
 #define HISTEN 0
 #define CLAHEH 1
@@ -32,7 +32,7 @@
 static CDisplayer *gThis = NULL;
 extern int IrisAndFocusAndExit;
 extern OSD_param m_osd;
-
+extern CProcess* plat;
 
 
 double capTime = 0;
@@ -1462,12 +1462,6 @@ void CDisplayer::gl_display(void)
 		
 		IrisAndFocus();
 		OSDFunc();
-
-		//chinese_osd(200,200,disOsd,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
-		//chinese_osd(1100,10,L"速  度",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);	//rate
-		//chinese_osd(1300,10,L"距  离",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);// juli
-		//chinese_osd(1805,10,L"导航干扰",255,255,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);//daohang ganrao
-		//chinese_osd(1805,100,L"遥控干扰",255,255,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_0);//yaokong ganrao
 	}
 	
 	glUseProgram(0);
@@ -1508,8 +1502,8 @@ int CDisplayer::OSDFunc()
 
 	Enable = posd->DispSwitch;
 
-	printf("DispSwitch = %d\n", posd->DispSwitch);
-	printf("Enable = %d\n", Enable);
+	//printf("DispSwitch = %d\n", posd->DispSwitch);
+	//printf("Enable = %d\n", Enable);
 
 	if(!Enable){
 
@@ -1555,14 +1549,18 @@ int CDisplayer::OSDFunc()
 		color = colorbak;
 		break;
 	}
-	if(a < 80)
-		a = 255;
-	else if(a > 80 && a < 90)
-		a = 25;
-	else if( a == 100)
-		a = 0;
 
-	chinese_osd(x, y, disOsd, r, g, b, a, VIDEO_IMAGE_WIDTH_1, VIDEO_IMAGE_HEIGHT_1);
+	if(a > 0x0a)
+		a = 0x0a;
+	if(a == 0x0a)
+		a = 0;
+	else
+		a = 255 - a*16;
+	
+	if(1 == plat->extInCtrl->SensorStat )
+		chinese_osd(x, y, disOsd, r, g, b, a, VIDEO_IMAGE_WIDTH_1, VIDEO_IMAGE_HEIGHT_1);
+	else
+		chinese_osd(x, y, disOsd, r, g, b, a, VIDEO_IMAGE_WIDTH_0, VIDEO_IMAGE_HEIGHT_0);
 
 	}
 

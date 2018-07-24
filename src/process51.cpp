@@ -38,7 +38,7 @@ void getMmtTg(unsigned char index,int *x,int *y)
 
 CProcess::CProcess()
 {
-	memset(&rcTrackBak, 0, sizeof(rcTrackBak));
+	memset(rcTrackBak, 0, sizeof(rcTrackBak));
 	memset(tgBak, 0, sizeof(tgBak));
 	memset(&blob_rectBak, 0, sizeof(blob_rectBak));
 	memset(&extOutAck, 0, sizeof(ACK_EXT));
@@ -1338,15 +1338,17 @@ bool CProcess::OnProcess(int chId, Mat &frame)
  			if(extInCtrl->SensorStat==video_gaoqing)
  			{
 				rectangle( m_dccv,
-					Point( rcTrackBak.x, rcTrackBak.y ),
-					Point( rcTrackBak.x+rcTrackBak.width, rcTrackBak.y+rcTrackBak.height),
+					Point( rcTrackBak[extInCtrl->SensorStat].x, rcTrackBak[extInCtrl->SensorStat].y ),
+					Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
+						rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
 					cvScalar(0,0,0, 0), 1, 8 );
  			}
 			else if(extInCtrl->SensorStat==video_pal)
  			{
 				rectangle( m_dc,
-					Point( rcTrackBak.x, rcTrackBak.y ),
-					Point( rcTrackBak.x+rcTrackBak.width, rcTrackBak.y+rcTrackBak.height),
+					Point( rcTrackBak[extInCtrl->SensorStat].x, rcTrackBak[extInCtrl->SensorStat].y ),
+					Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
+						rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
 					cvScalar(0,0,0, 0), 1, 8 );
  			}
 			#if 1//dft alg reply x y w h
@@ -1401,8 +1403,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			}
 
 			if( m_iTrackStat == 1)
-			{		
-				
+			{			
 				rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
 					Point( startx, starty ),
 					Point( endx, endy),
@@ -1444,16 +1445,14 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			}
 
 			Osdflag[osdindex]=1;
-			rcTrackBak = rcResult;
-			rcTrackBak.x=startx;
-			rcTrackBak.y=starty;
-			rcTrackBak.width=endx-startx;
-			rcTrackBak.height=endy-starty;
+			rcTrackBak[extInCtrl->SensorStat].x=startx;
+			rcTrackBak[extInCtrl->SensorStat].y=starty;
+			rcTrackBak[extInCtrl->SensorStat].width=endx-startx;
+			rcTrackBak[extInCtrl->SensorStat].height=endy-starty;
 
 			#if 1 //dft alg reply x y w h
 			if(algOsdRect == true)
 			{
-				resultTrackBak = rcResult_algRect;
 				resultTrackBak.x = rcResult_algRect.x;
 				resultTrackBak.y = rcResult_algRect.y;
 				resultTrackBak.width = rcResult_algRect.width;
@@ -1589,20 +1588,6 @@ osdindex++;
 		}
 	}
 
-osdindex++;
-	// blob detect
-	{
-		if(Osdflag[osdindex]==1)
-		{
-			DrawBlob(blob_rectBak, false);
-			Osdflag[osdindex]=0;
-		}
-		if(m_bBlobDetect&&(extInCtrl->SensorStat==0)){
-			DrawBlob(m_blobRect, true);
-			memcpy(&blob_rectBak, &m_blobRect, sizeof(BlobRect));
-			Osdflag[osdindex]=1;
-		}
-	}
 osdindex++; //dash little cross
 	{
 		if(Osdflag[osdindex]==1)
@@ -1929,6 +1914,26 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 	CMD_EXT tmpCmd = {0};
 	if(msgId == MSGID_EXT_INPUT_SENSOR || msgId == MSGID_EXT_INPUT_ENPICP)
 	{
+		/*
+		if(msgId == MSGID_EXT_INPUT_SENSOR){
+			if(pIStuts->SensorStat == 0){
+			rectangle( m_dccv,
+					Point( rcTrackBak[extInCtrl->SensorStat].x, rcTrackBak[extInCtrl->SensorStat].y ),
+					Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
+						rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
+					cvScalar(0,0,0, 0), 1, 8 );
+			}else{
+			rectangle( m_dc,
+					Point( rcTrackBak[extInCtrl->SensorStat].x, rcTrackBak[extInCtrl->SensorStat].y ),
+					Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
+						rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
+					cvScalar(0,0,0, 0), 1, 8 );		
+			}
+		}
+
+		*/
+
+	
 		if(prm != NULL)
 		{
 			pInCmd = (CMD_EXT *)prm;
@@ -2741,7 +2746,7 @@ void CProcess::MSGAPI_init_device(long lParam )
 
   void CProcess::MSGAPI_inputsensor(long lParam )
 {
-	CMD_EXT *pIStuts = sThis->extInCtrl;
+	CMD_EXT *pIStuts = sThis->extInCtrl;	
 	sThis->msgdriv_event(MSGID_EXT_INPUT_SENSOR,NULL);
 }
 
@@ -3075,15 +3080,15 @@ void CProcess::MSGAPI_update_osd(long lParam)
 void CProcess::update_param_osd()
 {
 	CMD_EXT *pIStuts = extInCtrl;
-	pIStuts->SensorStatBegin 		= 0; // gConfig_Osd_param.MAIN_Sensor;
-	pIStuts->osdTextShow 			= 0; //gConfig_Osd_param.OSD_text_show;
+	pIStuts->SensorStatBegin 		= gConfig_Osd_param.MAIN_Sensor;
+	pIStuts->osdTextShow 			= gConfig_Osd_param.OSD_text_show;
 	pIStuts->osdDrawShow 		= 1; //gConfig_Osd_param.OSD_draw_show;
-	pIStuts->osdTextColor 			= 0xFFFFFF; // gConfig_Osd_param.OSD_text_color;
-	pIStuts->osdTextAlpha			=0xFF;   // gConfig_Osd_param.OSD_text_alpha;
+	pIStuts->osdTextColor 			=  gConfig_Osd_param.OSD_text_color;
+	pIStuts->osdTextAlpha			=  gConfig_Osd_param.OSD_text_alpha;
 	pIStuts->osdTextFont			= 0; //gConfig_Osd_param.OSD_text_font;
 	pIStuts->osdTextSize			= 16;  //gConfig_Osd_param.OSD_text_size;
-	pIStuts->osdDrawColor 		= 1;    //gConfig_Osd_param.OSD_draw_color;
-	pIStuts->AcqRectW[0] 			= 2;  //gConfig_Osd_param.ch0_acqRect_width;
+	pIStuts->osdDrawColor 		= 2;    //gConfig_Osd_param.OSD_draw_color;
+	pIStuts->AcqRectW[0] 			= 60;  //gConfig_Osd_param.ch0_acqRect_width;
 	pIStuts->AcqRectW[1] 			= 60;  //gConfig_Osd_param.ch1_acqRect_width;
 	pIStuts->AcqRectW[2] 			= 60;    //gConfig_Osd_param.ch2_acqRect_width;
 	pIStuts->AcqRectW[3] 			= 30;   //gConfig_Osd_param.ch3_acqRect_width;
@@ -3109,8 +3114,8 @@ void CProcess::update_param_osd()
 	pIStuts->AimH[4] 				= 60;  //gConfig_Osd_param.ch4_aim_height;
 	pIStuts->AimH[5] 				= 60;  //gConfig_Osd_param.ch5_aim_height;
 
-	m_acqRectW = 60;  //pIStuts->AimW[pIStuts->SensorStat];
-	m_acqRectH  = 60;  //pIStuts->AimH[pIStuts->SensorStat];
+	m_acqRectW = pIStuts->AimW[pIStuts->SensorStat];
+	m_acqRectH  = pIStuts->AimH[pIStuts->SensorStat];
 	
 	m_display.disptimeEnable = 0;  //gConfig_Osd_param.Timedisp_9;
 	m_display.m_bOsd = 1;  //pIStuts->osdDrawShow;
