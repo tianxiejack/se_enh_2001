@@ -275,8 +275,8 @@ void app_ctrl_setSensor(CMD_EXT * pInCmd)
 	CMD_EXT *pIStuts = msgextInCtrl;
 	if (pIStuts->SensorStat != pInCmd->SensorStat)
 	{
-		
 		pIStuts->changeSensorFlag = 1;
+		pIStuts->SensorStatpri = pIStuts->SensorStat;
 		pIStuts->SensorStat = pInCmd->SensorStat;
 		app_ctrl_Sensorchange(pInCmd);
 		MSGDRIV_send(MSGID_EXT_INPUT_SENSOR, 0);

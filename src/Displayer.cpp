@@ -911,12 +911,10 @@ void* CDisplayer::displayerload(void *pPrm)
 	{
 		
 		OSA_semWait(&(gThis->tskdisSemmain),OSA_TIMEOUT_FOREVER);
-		//i=1;
 		for(i=0; i<DS_DC_CNT; i++)
 		{
 			if(!gThis->updata_osd[i])
 			{
-				//printf("osd update+++++++++++++++++++++++++++++++++++\n");
 				unsigned int  size=gThis->m_imgOsd[i].cols*gThis->m_imgOsd[i].rows*gThis->m_imgOsd[i].channels();
 				memcpy(gThis->m_disOsd[i].data,gThis->m_imgOsd[i].data,size);
 				gThis->updata_osd[i]=true;

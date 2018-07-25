@@ -202,7 +202,8 @@ typedef struct
 
 	/***** cmd stat part *****/
 	volatile unsigned int SensorStatBegin;
-	volatile unsigned int  SensorStat;      		
+	volatile unsigned int  SensorStat;     
+	volatile unsigned int  SensorStatpri;
 	volatile unsigned int  changeSensorFlag;
 	volatile unsigned int  PicpSensorStat;  		
 	volatile unsigned int  PicpSensorStatpri; 		

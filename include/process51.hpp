@@ -30,7 +30,6 @@ class CProcess : public CVideoProcess
 	char trkFPSDisplay[128];
 	Osd_cvPoint debugBak;
 	char timedisplay[128];
-
 	
 public:
 	CProcess();
@@ -60,7 +59,7 @@ protected:
 	void msgdriv_event(MSG_PROC_ID msgId, void *prm);
 	void osd_mtd_show(TARGET tg[], bool bShow = true);
 	void DrawBlob(BlobRect blobRct, bool bShow = true);
-	void DrawCross(cv::Rect rec,int fcolour ,bool bShow /*= true*/);
+	void DrawCross(cv::Rect rec,int fcolour ,int sensor,bool bShow /*= true*/);
 	void drawmmt(TARGET tg[], bool bShow = true);
 	void drawmmtnew(TARGET tg[], bool bShow = true);
 	void erassdrawmmt(TARGET tg[], bool bShow = true);
