@@ -343,125 +343,9 @@ void CVideoProcess::main_proc_func()
 		{
 			Mat dysrc = frame_gray(Rect(frame_gray.cols/2-75, frame_gray.rows/2-75, 150, 150));					
 			BlobDetect(dysrc, adaptiveThred, m_blobRect);
-			//OSA_printf("ALL-BlobDetect: time = %f sec \n", ( (getTickCount() - tstart)/getTickFrequency()) );
 		}
 		else if (bMoveDetect)
 		{
-			#if 1
-
-				IMG_MAT image;
-				image.data_u8 = frame_gray.data;
-				image.width = frame_gray.cols;
-				image.height = frame_gray.rows;
-				image.channels = 1;
-				image.step[0] = image.width;
-				image.dtype = 0;
-				image.size = frame_gray.cols*frame_gray.rows;
-
-				if(moveDetectRect)
-				{
-					rectangle( m_display.m_imgOsd[1],
-						Point( preAcpSR.x, preAcpSR.y ),
-						Point( preAcpSR.x+preAcpSR.width, preAcpSR.y+preAcpSR.height),
-						cvScalar(0,0,0,0), 1, 8 );
-
-					rectangle( m_display.m_imgOsd[1],
-							Point( preWarnRect.x, preWarnRect.y ),
-							Point( preWarnRect.x+preWarnRect.width, preWarnRect.y+preWarnRect.height),
-							cvScalar(0,0,0,0), 1, 8 );
-				}
-				acqRect.axisX = msgextInCtrl->AvtPosX[chId];
-				acqRect.axisY = msgextInCtrl->AvtPosY[chId];
-
-				if(m_SensorStat == 0){
-					if(chId == video_gaoqing)
-					{
-					acqRect.rcWin.width = 1800;
-					acqRect.rcWin.height = 900;
-					}
-					else if(chId == video_pal)
-					{
-					acqRect.rcWin.width = 720-100;
-					acqRect.rcWin.height = 576-100;
-					}
-					acqRect.rcWin.x = VIDEO_IMAGE_WIDTH_1/2 - acqRect.rcWin.width/2;
-					acqRect.rcWin.y = VIDEO_IMAGE_HEIGHT_1/2 -acqRect.rcWin.height/2;
-				}
-				//OSA_printf("acq axis  x ,y :(%d,%d)\n",acqRect.axisX,acqRect.axisY);
-//OSA_printf("x,y,width,height : (%d,%d,%d,%d)\n",acqRect.rcWin.x,acqRect.rcWin.y,acqRect.rcWin.width,acqRect.rcWin.height);
-				memcpy(&preWarnRect,&acqRect.rcWin,sizeof(UTC_Rect));
-				
-				if(1)//(moveDetectRect)
-					rectangle( m_display.m_imgOsd[1],
-							Point( preWarnRect.x, preWarnRect.y ),
-							Point( preWarnRect.x+preWarnRect.width, preWarnRect.y+preWarnRect.height),
-							cvScalar(0,0,255,255), 2, 8 );
-
-				#if 0
-					Movedetect = UtcAcqTarget(m_track,image,acqRect,&MoveAcpSR);
-				#else
-					Movedetect = UtcTrkPreAcqSR(m_track,image,acqRect,&MoveAcpSR);
-				#endif
-				if(Movedetect)
-				{
-					getImgRioDelta(image.data_u8,image.width ,image.height,MoveAcpSR,&value);
-					OSA_printf("%s:line  %d   double = %f \n",__func__,__LINE__,value);	
-					if(value < 300.0)
-						Movedetect = 0;
-				}
-				
-				if(Movedetect)
-				{
-					OSA_printf("%s:line  %d   double = %f \n",__func__,__LINE__,value);	
-					printf("%s,line:%d		xy(%d,%d),wh(%d,%d)\n",__func__,__LINE__,
-						preAcpSR.x,preAcpSR.y,preAcpSR.width,preAcpSR.height);	
-					preAcpSR.x = MoveAcpSR.x*m_display.m_imgOsd[1].cols/frame.cols;
-					preAcpSR.y = MoveAcpSR.y*m_display.m_imgOsd[1].rows/frame.rows;
-					preAcpSR.width = MoveAcpSR.width*m_display.m_imgOsd[1].cols/frame.cols;
-					preAcpSR.height = MoveAcpSR.height*m_display.m_imgOsd[1].rows/frame.rows;
-
-					if(0)//(moveDetectRect)
-						rectangle( m_display.m_imgOsd[1],
-							Point( preAcpSR.x, preAcpSR.y ),
-							Point( preAcpSR.x+preAcpSR.width, preAcpSR.y+preAcpSR.height),
-							cvScalar(255,0,0,255), 1, 8 );
-	
-				
-					tmpCmd.AvtTrkStat = eTrk_mode_sectrk;
-					tmpCmd.AvtPosX[0] = preAcpSR.x + preAcpSR.width/2;
-					tmpCmd.AvtPosY[0] = preAcpSR.y + preAcpSR.height/2;
-					app_ctrl_setTrkStat(&tmpCmd);		
-					tmpCmd.MtdState[0] = 0;
-					app_ctrl_setMtdStat(&tmpCmd);	
-					rectangle( m_display.m_imgOsd[1],
-							Point( preWarnRect.x, preWarnRect.y ),
-							Point( preWarnRect.x+preWarnRect.width, preWarnRect.y+preWarnRect.height),
-							cvScalar(0,0,0,0), 2, 8 );
-										
-				}
-				
-				#if 0
-				if(m_display.disptimeEnable == 1){
-				
-					UtcGetSceneMV(m_track, &speedx1, &speedy1);
-					
-					putText(m_display.m_imgOsd[1],m_strDisplay1,
-							Point( m_display.m_imgOsd[1].cols-450, 105),
-							FONT_HERSHEY_TRIPLEX,0.8,
-							cvScalar(0,0,0,0), 1
-							);
-					sprintf(m_strDisplay1, "speedxy: (%0.2f,%0.2f)", speedx1,speedy1);
-
-					putText(m_display.m_imgOsd[1],m_strDisplay1,
-							Point( m_display.m_imgOsd[1].cols-450, 105),
-							FONT_HERSHEY_TRIPLEX,0.8,
-							cvScalar(255,255,0,255), 1
-							);
-			
-				}
-				#endif
-#endif
-
 		#if __MOVE_DETECT__
 				if(m_pMovDetector != NULL)
 					m_pMovDetector->setFrame(frame_gray,frame_gray.cols,frame_gray.rows,0,2,8,200,30);
@@ -1523,8 +1407,6 @@ void	CVideoProcess::initMvDetect()
 	for(i=0; i<DETECTOR_NUM; i++)
 	{
 		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
-		//m_pMovDetector->setDrawOSD(m_dccv, i);
-		//m_pMovDetector->enableSelfDraw(true, i);
 		m_pMovDetector->setWarnMode(WARN_MOVEDETECT_MODE, i);
 	} 
 }
@@ -1537,12 +1419,8 @@ void	CVideoProcess::DeInitMvDetect()
 
 void CVideoProcess::NotifyFunc(void *context, int chId)
 {
-	//int num;
 	CVideoProcess *pParent = (CVideoProcess*)context;
-	pParent->m_display.m_bOsd = true;
-
-	pThis->m_pMovDetector->getMoveTarget(pThis->detect_vect,0);
-	pParent->m_display.UpDateOsd(1);
+	pThis->m_pMovDetector->getMoveTarget(pThis->detect_vect,0);	
 }
 #endif
 
