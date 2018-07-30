@@ -509,6 +509,8 @@ void CProcess::DrawCross(cv::Rect rec,int fcolour ,int sensor,bool bShow /*= tru
 	lineparm.width	=	rec.width;
 	lineparm.height	=	rec.height;
 	lineparm.frcolor	=	colour;
+	if(sensor>1)
+		sensor = 1;
 	Drawcvcrossaim(m_display.m_imgOsd[sensor],&lineparm);
 }
 
@@ -1591,11 +1593,15 @@ osdindex++;	//acqRect
 	{
 		if(changesensorCnt){
 			recIn = acqRectBak;
+			if(extInCtrl->SensorStatpri>1)
+				extInCtrl->SensorStatpri = 1;
 			DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStatpri],recIn,frcolor,false);
 		}
 		
 	 	if(Osdflag[osdindex]==1){
 			recIn = acqRectBak;
+			if(extInCtrl->SensorStat>1)
+				extInCtrl->SensorStat = 1;
 			DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,false);
 			Osdflag[osdindex]=0;
  		}
@@ -1614,7 +1620,7 @@ osdindex++;	//acqRect
 				DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,true);
 			else if(extInCtrl->SensorStat == video_pal)
 			{
-				DrawAcqRect(m_display.m_imgOsd[0],recIn,frcolor,true);
+				DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,true);
 			}
 			acqRectBak = recIn;
 			Osdflag[osdindex]=1;
@@ -1691,7 +1697,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 
 	if(key == 'a' || key == 'A')
 	{
-		tmpCmd.SensorStat = (pIStuts->SensorStat + 1)%MAX_CHAN;
+		tmpCmd.SensorStat = (pIStuts->SensorStat + 1)%eSen_Max;
 		app_ctrl_setSensor(&tmpCmd);		
 	}
 
