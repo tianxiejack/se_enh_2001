@@ -25,6 +25,7 @@
 #include "string.h"
 #include "process51.hpp"
 #include "locale.h"
+#include "Ipcctl.h"
 #define HISTEN 0
 #define CLAHEH 1
 #define DARKEN 0
@@ -64,9 +65,10 @@ static GLfloat m_glvTexCoordsDefault[8] = {0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1
 int VIDEO_IMAGE_ARR[DS_CHAN_MAX][2] = {{720,576},{1920,1080},{1920,1080},{1920,1080}};
 
 
-char disOsdBuf[32][128] = {0};
-char disOsdBufbak[32][128] = {0};
-wchar_t disOsd[32];
+osdbuffer_t disOsdBuf[32]={0};
+//char disOsdBuf[32][128] = {0};
+osdbuffer_t disOsdBufbak[32] = {0};
+wchar_t disOsd[32][33];
 
 CDisplayer::CDisplayer()
 :m_mainWinWidth(VIDEO_IMAGE_WIDTH_1),m_mainWinHeight(VIDEO_IMAGE_HEIGHT_1),m_renderCount(0),
@@ -1444,37 +1446,17 @@ void CDisplayer::gl_display(void)
 		}
 		glDisable(GL_BLEND);
 
-		//wchar_t ws[] = L"中文";
-		//char s[128];
-		setlocale(LC_ALL, "zh_CN.UTF-8");
-		//sprintf(s,"%ls",ws);
-		if(0 != strcmp((const char*)disOsdBuf,(const char*)disOsdBufbak))
-		{
-			memcpy(disOsdBufbak,disOsdBuf,sizeof(disOsdBuf));
-			swprintf(disOsd, 32, L"%s", disOsdBuf[0]);
-			//printf("****************************\n");
-			//for(int i =0 ;i < 10;i++)
-			//	printf("%x",disOsdBuf[0][i]);
-			//printf("**********end\n");
-		}
 		
 		IrisAndFocus();
 		OSDFunc();
 	}
 	
 	glUseProgram(0);
-	//disp_fps();
-	
-
-	//glValidateProgram(m_glProgram);
 	
 	glutSwapBuffers();
 	glutPostRedisplay();
 	GetFPS();
-	//if(dismodchanagcount>=6000)//for change mod
 	
-	//glFinish();
-	//glFlush();
 }
 
 void CDisplayer::IrisAndFocus()
@@ -1493,76 +1475,73 @@ void CDisplayer::IrisAndFocus()
 
 int CDisplayer::OSDFunc()
 {
-	OSD_param* posd = NULL;
-	posd = &m_osd;
+	//OSD_param* posd = NULL;
+	//posd = &m_osd;
+
 	unsigned char r, g, b, a, color, colorbak, Enable;
 	short x, y;
 	char font,fontsize;
 
-	Enable = posd->DispSwitch;
+	for(int i = 0;i<32;i++){
+		Enable = disOsdBufbak[i].ctrl;
+		if(!Enable){
+			 x = disOsdBufbak[i].posx;
+			 y = disOsdBufbak[i].posy;
+		 	 a = disOsdBufbak[i].alpha;
+			 color = disOsdBufbak[i].color;
+			 font = disOsdBufbak[i].font;
+			 fontsize = disOsdBufbak[i].fontsize;
 
-	//printf("DispSwitch = %d\n", posd->DispSwitch);
-	//printf("Enable = %d\n", Enable);
+			switch(color)
+			{
+				case 1:
+					r = 0;
+					g = 0;
+					b = 0;
+					break;
+				case 2:
+					r = 255;
+					g = 255;
+					b = 255;
+					break;
+				case 3:
+					r = 255;
+					g = 0;
+					b = 0;
+					break;
+				case 4:
+					r = 255;
+					g = 255;
+					b = 0;
+					break;
+				case 5:
+					r = 0;
+					g = 0;
+					b = 255;
+					break;
+				case 6:
+					r = 0;
+					g = 255;
+					b = 0;
+					break;
+				case 7:
+					color = colorbak;
+					break;
+				}
 
-	if(!Enable){
+			if(a > 0x0a)
+				a = 0x0a;
+			if(a == 0x0a)
+				a = 0;
+			else
+				a = 255 - a*16;
+			
+			if(1 == plat->extInCtrl->SensorStat )
+				chinese_osd(x, y, disOsd[i],font ,fontsize, r, g, b, a, VIDEO_IMAGE_WIDTH_1, VIDEO_IMAGE_HEIGHT_1);
+			else
+				chinese_osd(x, y, disOsd[i],font ,fontsize, r, g, b, a, VIDEO_IMAGE_WIDTH_0, VIDEO_IMAGE_HEIGHT_0);
 
-	 x = posd->DispPosX;
-	 y = posd->DispPosY;
- 	 a = posd->DispAlpha;
-	 color = posd->DispColor;
-	 colorbak = color;
-	 font = posd->DispFont;
-	 fontsize = posd->DispSize;
-
-	switch(color)
-	{
-	case 1:
-		r = 0;
-		g = 0;
-		b = 0;
-		break;
-	case 2:
-		r = 255;
-		g = 255;
-		b = 255;
-		break;
-	case 3:
-		r = 255;
-		g = 0;
-		b = 0;
-		break;
-	case 4:
-		r = 255;
-		g = 255;
-		b = 0;
-		break;
-	case 5:
-		r = 0;
-		g = 0;
-		b = 255;
-		break;
-	case 6:
-		r = 0;
-		g = 255;
-		b = 0;
-		break;
-	case 7:
-		color = colorbak;
-		break;
-	}
-
-	if(a > 0x0a)
-		a = 0x0a;
-	if(a == 0x0a)
-		a = 0;
-	else
-		a = 255 - a*16;
-	
-	if(1 == plat->extInCtrl->SensorStat )
-		chinese_osd(x, y, disOsd,font ,fontsize, r, g, b, a, VIDEO_IMAGE_WIDTH_1, VIDEO_IMAGE_HEIGHT_1);
-	else
-		chinese_osd(x, y, disOsd,font ,fontsize, r, g, b, a, VIDEO_IMAGE_WIDTH_0, VIDEO_IMAGE_HEIGHT_0);
-
+		}
 	}
 
 	return 0;

@@ -12,8 +12,7 @@
 #define SHMEMSTATUSSIZE 200
 #define SHMEMFRAMESIZE 10485760
 #define MMTNUM 10
-#define PARAMLEN 128
-//#define OSDBUFSIZE 128
+#define PARAMLEN 164
 
 
 typedef enum 
@@ -43,22 +42,15 @@ typedef enum
     vframerate,/*22*/
     vquality,/*23*/
 
-    osdcolor,/*24*/
-    osdfont,/*25*/
-    osdsize,/*26*/
-    osdctrl,/*27*/
-    osdID,/*28*/
-    osdPOS,/*29*/
-    osdAlpha,/*30*/
-    osdBuf,/*31*/
+    osdbuffer,
 
-    acqBox,/*32*/
-    Iris,/*33*/
-    focus,/*34*/
-    exit_IrisAndFocus,/*35*/
-    menu,/*36*/
-    read_shm_lkosd,/*37*/
-    mmtLock,/*38*/
+    acqBox,
+    Iris,
+    focus,
+    exit_IrisAndFocus,
+    menu,
+    read_shm_lkosd,
+    mmtLock,
     invalid
 }CMD_ID;
 
@@ -381,7 +373,6 @@ typedef struct{
 typedef struct{
     unsigned char cmd_ID;
 	unsigned char param[PARAMLEN];
-	//char osdbuf[OSDBUFSIZE];
 }SENDST;
 
 typedef struct{
@@ -454,8 +445,8 @@ typedef struct
 
 	/***** cmd stat part *****/
 	volatile unsigned int SensorStatBegin;
-	volatile unsigned int  SensorStat;     
-	volatile unsigned int  SensorStatpri;  
+	volatile unsigned int  SensorStat; 
+	volatile unsigned int  SensorStatpri;       		
 	volatile unsigned int  changeSensorFlag;
 	volatile unsigned int  PicpSensorStat;  		
 	volatile unsigned int  PicpSensorStatpri; 		
@@ -690,6 +681,20 @@ typedef struct prevent_jam
     volatile unsigned char stat;
     volatile unsigned char level;
 }prevent_jam_t;
+
+typedef struct osdbuffer
+{
+	volatile unsigned char osdID;
+	volatile unsigned char color;
+	volatile unsigned char alpha;
+	volatile unsigned char font;
+	volatile unsigned char fontsize;
+	volatile unsigned char ctrl;
+	volatile unsigned int posx;
+	volatile unsigned int posy;
+	volatile unsigned char buf[128];
+}osdbuffer_t;
+
 
 
 int ipc_settrack(unsigned int trackstatus, int trackposx, int trackposy);

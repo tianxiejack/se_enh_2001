@@ -7,7 +7,9 @@
 #include "configable.h"
 #include "osd_text.hpp"
 #include "msgDriv.h"
-
+#include "Ipcctl.h"
+#include "locale.h"
+#include "wchar.h"
 
 #define DATAIN_TSK_PRI              (2)
 #define DATAIN_TSK_STACK_SIZE       (0)
@@ -20,7 +22,11 @@ int IrisAndFocusAndExit = 0;
 OSD_param m_osd;
 int ipc_loop = 1;
 extern void inputtmp(unsigned char cmdid);
-extern char disOsdBuf[32][128];
+
+extern osdbuffer_t disOsdBuf[32];
+extern osdbuffer_t disOsdBufbak[32];
+extern wchar_t disOsd[32][33];
+
 
 
 OSA_BufCreate msgSendBufCreate;
@@ -93,18 +99,9 @@ void* recv_msg(SENDST *RS422)
 	CMD_POSMOVE Raxismove;
 	CMD_ZOOM Rzoom;
 	
-	/*OSD param*/
-	CMD_OSDCOLOR osd_color;
-	CMD_OSDFONT osd_font;
-	CMD_OSDSIZE osd_size;
-	CMD_OSDCTRL osd_switch;
-	CMD_OSDID osd_id;
-	CMD_OSDPOS osd_pos;
-	CMD_OSDALPHA osd_alpha;
 
-	OSD_param* pOsd = NULL;
-	pOsd = &m_osd;
-
+	//OSD_param* pOsd = NULL;
+	//pOsd = &m_osd;
 
 	if(RS422==NULL)
 	{
@@ -123,25 +120,15 @@ void* recv_msg(SENDST *RS422)
 	memset(pMsg,0,sizeof(CMD_EXT));
 	if(startEnable)
 		app_ctrl_getSysData(pMsg);
-	
+	osdbuffer_t* ppppp  = NULL;	
 	printf("cmdID : %d (%02x %02x %02x %02x %02x)\n",cmdID,imgID1,imgID2,imgID3,imgID4,imgID5);
 	switch(cmdID)
 	{	
-		case osdBuf:
-#if 0
-	printf("IPC   get   \n");
-	for(int i =0 ;i < 8 ;i++){
-		printf("%x ",RS422->param[i]);
-	}	
-	printf("before memcpy\n");
-#endif
-		memcpy(disOsdBuf[0],RS422->param,128);	
-#if 0
-	for(int i =0 ;i < 8 ;i++){
-		printf("%x ",disOsdBuf[0][i]);
-	}	
-	printf("\n");
-#endif
+		case osdbuffer:
+			memcpy(&disOsdBuf[imgID1],RS422->param,sizeof(osdbuffer_t));
+			setlocale(LC_ALL, "zh_CN.UTF-8");
+			memcpy(&disOsdBufbak[imgID1],&disOsdBuf[imgID1],sizeof(osdbuffer_t));
+			swprintf(disOsd[imgID1], 33, L"%s", disOsdBuf[imgID1].buf);
 			break;
 
 		case Iris:
@@ -154,50 +141,6 @@ void* recv_msg(SENDST *RS422)
 
 		case exit_IrisAndFocus:
 			IrisAndFocusAndExit = Disable;
-			break;
-
-		case osdcolor:
-			memcpy(&osd_color, RS422->param,sizeof(osd_color));
-			pOsd->DispColor = osd_color.color;
-			printf("color ==> %d\n", pOsd->DispColor);
-			break;
-
-		case osdfont:
-			memcpy(&osd_font, RS422->param,sizeof(osd_font));
-			pOsd->DispFont = osd_font.font;
-			printf("font ==> %d\n", pOsd->DispFont);
-			break;
-
-		case osdsize:
-			memcpy(&osd_size, RS422->param,sizeof(osd_size));
-			pOsd->DispSize = osd_size.size;
-			printf("size ==> %d\n", pOsd->DispSize);
-			break;
-
-		case osdctrl:
-			memcpy(&osd_switch, RS422->param,sizeof(osd_switch));
-			pOsd->DispSwitch = osd_switch.ctrl;
-			printf("osd_switch ==> %d\n", pOsd->DispSwitch);
-			break;
-
-		case osdID:
-			memcpy(&osd_id, RS422->param,sizeof(osd_id));
-			pOsd->DispID = osd_id.id;
-			printf("id ==> %d\n", pOsd->DispID);
-			break;
-
-		case osdPOS:
-			memcpy(&osd_pos, RS422->param,sizeof(osd_pos));
-			pOsd->DispPosX = osd_pos.pos_X;
-			pOsd->DispPosY = osd_pos.pos_Y;
-			printf("posX ==> %d\n", pOsd->DispPosX);
-			printf("posY ==> %d\n", pOsd->DispPosY);
-			break;
-
-		case osdAlpha:
-			memcpy(&osd_alpha, RS422->param,sizeof(osd_alpha));
-			pOsd->DispAlpha = osd_alpha.alpha;
-			printf("alpha ==> %d\n", pOsd->DispAlpha);
 			break;
 
 		case read_shm_config:
