@@ -56,7 +56,7 @@ static GLfloat m_glmat44fTransDefault2[16] ={
 	0.0f, 0.0f, 0.0f, 1.0f
 };
 
-GLfloat _fontColor[4] = {1.0,1.0,1.0,	1.0};
+GLfloat _fontColor[4] = {1.0,1.0,1.0,1.0};
 
 static GLfloat m_glvVertsDefault[8] = {-1.0f, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f};
 static GLfloat m_glvTexCoordsDefault[8] = {0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f};
@@ -1482,11 +1482,11 @@ void CDisplayer::IrisAndFocus()
 	switch(IrisAndFocusAndExit)
 	{
 	case Enable_Iris:
-	chinese_osd(5,5,L"光圈调节",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_1);
+	//chinese_osd(5,5,L"光圈调节",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_1);
 	break;
 
 	case Enable_Focus:
-	chinese_osd(5,5,L"聚焦调节",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_1);
+	//chinese_osd(5,5,L"聚焦调节",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_1);
 	break;
 	}
 }
@@ -1497,6 +1497,7 @@ int CDisplayer::OSDFunc()
 	posd = &m_osd;
 	unsigned char r, g, b, a, color, colorbak, Enable;
 	short x, y;
+	char font,fontsize;
 
 	Enable = posd->DispSwitch;
 
@@ -1507,9 +1508,11 @@ int CDisplayer::OSDFunc()
 
 	 x = posd->DispPosX;
 	 y = posd->DispPosY;
-	  a = posd->DispAlpha;
+ 	 a = posd->DispAlpha;
 	 color = posd->DispColor;
 	 colorbak = color;
+	 font = posd->DispFont;
+	 fontsize = posd->DispSize;
 
 	switch(color)
 	{
@@ -1556,9 +1559,9 @@ int CDisplayer::OSDFunc()
 		a = 255 - a*16;
 	
 	if(1 == plat->extInCtrl->SensorStat )
-		chinese_osd(x, y, disOsd, r, g, b, a, VIDEO_IMAGE_WIDTH_1, VIDEO_IMAGE_HEIGHT_1);
+		chinese_osd(x, y, disOsd,font ,fontsize, r, g, b, a, VIDEO_IMAGE_WIDTH_1, VIDEO_IMAGE_HEIGHT_1);
 	else
-		chinese_osd(x, y, disOsd, r, g, b, a, VIDEO_IMAGE_WIDTH_0, VIDEO_IMAGE_HEIGHT_0);
+		chinese_osd(x, y, disOsd,font ,fontsize, r, g, b, a, VIDEO_IMAGE_WIDTH_0, VIDEO_IMAGE_HEIGHT_0);
 
 	}
 
@@ -1748,7 +1751,7 @@ void CDisplayer::GetFPS()
 	}
 }
 
-void CDisplayer::chinese_osd(int x,int y,wchar_t* text,unsigned char r,unsigned char g,unsigned char b,unsigned char a,int win_width,int win_height)
+void CDisplayer::chinese_osd(int x,int y,wchar_t* text,char font,char fontsize,unsigned char r,unsigned char g,unsigned char b,unsigned char a,int win_width,int win_height)
 {
 	glUseProgram(m_fontProgram);
 	_fontColor[0] = (float)r/float(255);
@@ -1756,7 +1759,7 @@ void CDisplayer::chinese_osd(int x,int y,wchar_t* text,unsigned char r,unsigned 
 	_fontColor[2] = (float)b/float(255);
 	_fontColor[3] = (float)a/float(255);
 	glUniform4fv(Uniform_font_color,1,_fontColor);
-	OSDdrawText(x,y,text,win_width,win_height);
+	OSDdrawText(x,y,text,font,fontsize,win_width,win_height);
 	glUseProgram(0);
 }
 
