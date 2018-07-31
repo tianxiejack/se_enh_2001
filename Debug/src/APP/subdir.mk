@@ -4,15 +4,12 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/APP/app_main.cpp \
 ../src/APP/app_user.cpp 
 
 OBJS += \
-./src/APP/app_main.o \
 ./src/APP/app_user.o 
 
 CPP_DEPS += \
-./src/APP/app_main.d \
 ./src/APP/app_user.d 
 
 

@@ -4,24 +4,15 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/DXUTC/config_menu.cpp \
-../src/DXUTC/dx.cpp \
 ../src/DXUTC/dxTimer.cpp \
-../src/DXUTC/script.cpp \
 ../src/DXUTC/sys_config.cpp 
 
 OBJS += \
-./src/DXUTC/config_menu.o \
-./src/DXUTC/dx.o \
 ./src/DXUTC/dxTimer.o \
-./src/DXUTC/script.o \
 ./src/DXUTC/sys_config.o 
 
 CPP_DEPS += \
-./src/DXUTC/config_menu.d \
-./src/DXUTC/dx.d \
 ./src/DXUTC/dxTimer.d \
-./src/DXUTC/script.d \
 ./src/DXUTC/sys_config.d 
 
 

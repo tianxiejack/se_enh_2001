@@ -3,7 +3,6 @@
 #include <opencv/cv.hpp>
 #include <glut.h>
 #include "process51.hpp"
-#include "dx_main.h"
 #include "Ipc.hpp"
 #include "msgDriv.h"
 #include <sys/time.h>
@@ -25,9 +24,7 @@ int main(int argc, char **argv)
 	{
 		select( 0, NULL, NULL, NULL, &tv );
 	};
-	
 	CProcess proc;
-	//App_dxmain();
 	proc.creat();
 	proc.init();
 	proc.run();

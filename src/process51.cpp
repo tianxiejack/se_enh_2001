@@ -2,7 +2,6 @@
 #include <glut.h>
 #include "process51.hpp"
 #include "vmath.h"
-#include "dx_main.h"
 #include "msgDriv.h"
 #include"app_ctrl.h"
 
