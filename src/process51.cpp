@@ -1487,10 +1487,6 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 						extInCtrl->trkerrx = 0;
 						extInCtrl->trkerry = 0;
 					}
-					if(extInCtrl->TrkStat == 2 )
-						extInCtrl->TrkStat = 1;
-					else if(extInCtrl->TrkStat == 3)
-						extInCtrl->TrkStat = 0;
 					
 					ipc_settrack(extInCtrl->TrkStat, extInCtrl->trkerrx, extInCtrl->trkerry);
 					trkmsg.cmd_ID = read_shm_trkpos;
