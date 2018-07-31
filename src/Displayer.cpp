@@ -1464,12 +1464,12 @@ void CDisplayer::IrisAndFocus()
 	switch(IrisAndFocusAndExit)
 	{
 	case Enable_Iris:
-	//chinese_osd(5,5,L"光圈调节",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_1);
-	break;
+		chinese_osd(5,5,L"光圈调节",1,6,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
+		break;
 
 	case Enable_Focus:
-	//chinese_osd(5,5,L"聚焦调节",255,0,0,255,VIDEO_IMAGE_WIDTH_0,VIDEO_IMAGE_HEIGHT_1);
-	break;
+		chinese_osd(5,5,L"聚焦调节",1,6,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
+		break;
 	}
 }
 
@@ -1536,11 +1536,7 @@ int CDisplayer::OSDFunc()
 			else
 				a = 255 - a*16;
 			
-			if(1 == plat->extInCtrl->SensorStat )
-				chinese_osd(x, y, disOsd[i],font ,fontsize, r, g, b, a, VIDEO_IMAGE_WIDTH_1, VIDEO_IMAGE_HEIGHT_1);
-			else
-				chinese_osd(x, y, disOsd[i],font ,fontsize, r, g, b, a, VIDEO_IMAGE_WIDTH_0, VIDEO_IMAGE_HEIGHT_0);
-
+			chinese_osd(x, y, disOsd[i],font ,fontsize, r, g, b, a, VIDEO_IMAGE_WIDTH_1, VIDEO_IMAGE_HEIGHT_1);
 		}
 	}
 
