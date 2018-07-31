@@ -1,16 +1,6 @@
-/*
- * cuProcess.hpp
- *
- *  Created on: May 11, 2017
- *      Author: ubuntu
- */
 
 #ifndef __ENH_HPP_
 #define __ENH_HPP_
-
-
-
-
 
 
 extern void cuHistEnh(cv::Mat src, cv::Mat dst);

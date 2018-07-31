@@ -2,9 +2,8 @@
 #include "app_global.h"
 #include <stdio.h>
 
-#include "dx_config.h"
 #include "app_osdgrp.h"
-#include"app_status.h"
+#include "app_status.h"
 #include "app_proj_xgs026.h"
 
 #define UNUSED 0
