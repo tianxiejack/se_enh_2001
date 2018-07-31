@@ -1227,7 +1227,6 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	cv::Rect recIn;
 	static int coastCnt = 1;
 	static int bDraw = 0;
-
 	algOsdRect = 0;
 
 	static int changesensorCnt = 0;
@@ -1265,6 +1264,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	 
 		 trackinfo_obj->trackrect=m_rcTrack;
 		 trackinfo_obj->TrkStat = extInCtrl->AvtTrkStat;
+		 extInCtrl->TrkStat = extInCtrl->AvtTrkStat;
 		 m_SensorStat = extInCtrl->SensorStat;
 		 int aimw = extInCtrl->AimW[extInCtrl->SensorStat];
 		 int aimh = extInCtrl->AimH[extInCtrl->SensorStat];
@@ -1487,6 +1487,11 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 						extInCtrl->trkerrx = 0;
 						extInCtrl->trkerry = 0;
 					}
+					if(extInCtrl->TrkStat == 2 )
+						extInCtrl->TrkStat = 1;
+					else if(extInCtrl->TrkStat == 3)
+						extInCtrl->TrkStat = 0;
+					
 					ipc_settrack(extInCtrl->TrkStat, extInCtrl->trkerrx, extInCtrl->trkerry);
 					trkmsg.cmd_ID = read_shm_trkpos;
 					//printf("ack the trackerr to mainThr\n");
