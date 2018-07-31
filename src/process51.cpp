@@ -364,9 +364,6 @@ void CProcess::Ontimer(){
 };
 bool CProcess::OnPreProcess(int chId, Mat &frame)
 {
-	set_graph();
-
-	
 	if(m_bCast){
 		Uint32 curTm = OSA_getCurTimeInMsec();
 		Uint32 elapse = curTm - m_castTm;
@@ -379,9 +376,6 @@ bool CProcess::OnPreProcess(int chId, Mat &frame)
 			m_bCast=false;
 		}
 	}
-
-	
-
 	return true;
 }
 

@@ -476,31 +476,4 @@ void Draw_cvgraph_osd(Mat frame,void *lParam)
 
 }
 
-
-void process_cvosd(Mat frame,void *pPrm)
-{
-	int devId=0;
-
-	Multich_graphic *grpxChWinPrms=(Multich_graphic *)pPrm;
-	int winId;
-	Line_Param_fb * lineParam = NULL;
-	if(grpxChWinPrms==NULL)
-		{
-			return;
-		}
-	for(winId = 0; winId < grpxChWinPrms->chParam[devId].numWindows; winId++)
-	{
-		lineParam = (Line_Param_fb *)&grpxChWinPrms->chParam[devId].winPrms[winId];
-		if(!lineParam->enableWin)
-			continue;
-		Draw_cvgraph_osd(frame,lineParam);
-		
-	}
-
-}
-
-
-
-
-
 #endif

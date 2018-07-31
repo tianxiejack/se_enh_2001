@@ -4,15 +4,12 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/OSD/osd_graph.cpp \
 ../src/OSD/osd_text.cpp 
 
 OBJS += \
-./src/OSD/osd_graph.o \
 ./src/OSD/osd_text.o 
 
 CPP_DEPS += \
-./src/OSD/osd_graph.d \
 ./src/OSD/osd_text.d 
 
 

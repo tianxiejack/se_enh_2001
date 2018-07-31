@@ -9,7 +9,6 @@
 #include "BlobDetector.h"
 #include "app_osdgrp.h"
 #include "app_status.h"
-#include"osd_graph.h"
 
 #include "MMTD.h"
 #include "mvdetectInterface.hpp"

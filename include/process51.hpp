@@ -3,7 +3,6 @@
 #define PROCESS021_HPP_
 
 #include "VideoProcess.hpp"
-#include "osd_graph.h"
 #include "osd_cv.h"
 class CProcess : public CVideoProcess
 {
@@ -131,7 +130,6 @@ private:
 	void osd_draw_cross_black_white(Mat frame, void *prm);
 
 	int process_draw_line(Mat frame, int startx, int starty, int endx, int linewidth,char R, char G, char B, char A);
-	int process_draw_text(Mat frame,int startx,int starty,char *pstring,int frcolor,int bgcolor);
 	int process_draw_instance(Mat frame);
 	int draw_circle_display(Mat frame);
 
