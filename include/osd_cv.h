@@ -27,7 +27,6 @@ typedef struct
 
 }Osd_cvPoint;
 
-void process_cvosd(Mat frame,void *pPrm);
 void Drawcvcross(Mat frame,Line_Param_fb *lineparm);
  CvScalar  GetcvColour(int colour);
  void DrawcvDashcross(Mat frame,Line_Param_fb *lineparm,int linelength,int dashlength);

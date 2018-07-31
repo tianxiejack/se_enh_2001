@@ -388,49 +388,6 @@ bool CProcess::OnPreProcess(int chId, Mat &frame)
 
 int onece=0;
 
-void CProcess::process_osd1()
-{
-	int devId=0;
-	
-	CMD_EXT *pIStuts = sThis->extInCtrl;
-	Mat frame=sThis->m_display.m_imgOsd[pIStuts->SensorStat];
-	int winId;
-	Text_Param_fb * textParam = NULL;
-	Line_Param_fb * lineParam = NULL;
-	Text_Param_fb * textParampri = NULL;
-	Line_Param_fb * lineParampri = NULL;
-
-	if(sThis->m_display.m_bOsd == false)
-		return ;
-
-	for(winId = 0; winId < grpxChWinPrms.chParam[devId].numWindows; winId++)
-	{
-		textParam = &grpxChWinPrms.chParam[devId].winPrms[winId];
-		textParampri = &grpxChWinPrms.chParam[devId].winPrms_pri[winId];
-		lineParam = (Line_Param_fb *)&grpxChWinPrms.chParam[devId].winPrms[winId];
-		lineParampri = (Line_Param_fb *)&grpxChWinPrms.chParam[devId].winPrms_pri[winId];
-		if(onece<ALG_LINK_GRPX_MAX_WINDOWS)
-		{
-			memcpy(textParampri,textParam,sizeof(Text_Param_fb));
-			onece++;
-		}
-		
-		if(winId==WINID_TV_FOV_CHOOSE_1/2)
-		{
-			//printf("textParam->enableWin=%d  objType=%d valid=%d\n",textParam->enableWin,textParam->objType,textParam->text_valid);
-		}
-		//printf("textParam->enableWin=%d  objType=%d valid=%d\n",textParam->enableWin,textParam->objType,textParam->text_valid);
-		if(!textParam->enableWin)
-			continue;
-
-		//EraseDraw_graph_osd(frame,textParam,textParampri);
-		//	Draw_graph_osd(frame,textParam,lineParam);
-		
-		memcpy(textParampri,textParam,sizeof(Text_Param_fb));
-	}
-
-}
-
 void CProcess::osd_mtd_show(TARGET tg[], bool bShow)
 {
 	int i;
