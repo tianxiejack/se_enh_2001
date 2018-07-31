@@ -5,7 +5,7 @@
 #include "dx_main.h"
 #include "msgDriv.h"
 #include"app_ctrl.h"
-#include"dx.h"
+
 #include"osd_cv.h"
 #include "app_status.h"
 #include "configable.h"

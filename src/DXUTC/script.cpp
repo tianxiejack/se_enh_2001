@@ -1,4 +1,3 @@
-#include "dx.h"
 #include "script.h"
 
 static char *gScriptFile = "config/default.txt";
@@ -7,8 +6,9 @@ static int script_Init(SCRIPT_OBJ *pObj, char *scriptFile);
 static void script_ParseLine(SCRIPT_OBJ *pObj, char *line);
 static void script_ParseFieldLine(SCRIPT_OBJ *pObj, char *key, char *line);
 
-Int32 script_create(char *scriptfile, SCRIPT_OBJ** ppObj)
+int script_create(char *scriptfile, SCRIPT_OBJ** ppObj)
 {
+	#if 0
     Int32 iRet = 0;
     SCRIPT_OBJ *pObj;
     pObj = (SCRIPT_OBJ *)malloc(sizeof(SCRIPT_OBJ));
@@ -24,17 +24,19 @@ Int32 script_create(char *scriptfile, SCRIPT_OBJ** ppObj)
         *ppObj = pObj;
 
     return iRet;
+	#endif
 }
 
 void   script_destroy(SCRIPT_OBJ *pObj)
 {
-    UTILS_assert(pObj != NULL);
+   // UTILS_assert(pObj != NULL);
 
-    free(pObj);
+   // free(pObj);
 }
 
 static int script_Init(SCRIPT_OBJ *pObj, char *scriptFile)
 {
+	#if 0
     FILE *stream;
     char line[256];
     int iLine =0;
@@ -71,11 +73,13 @@ static int script_Init(SCRIPT_OBJ *pObj, char *scriptFile)
     fclose( stream );
 
     return 0;
+	#endif
 }
 
 
 static void script_ParseLine(SCRIPT_OBJ *pObj, char *line)
 {
+	#if 0
     int i, len;
     char *label = NULL;
     char *text = NULL;
@@ -218,10 +222,12 @@ static void script_ParseLine(SCRIPT_OBJ *pObj, char *line)
         script_ParseFieldLine(pObj, "WRITE_ONLY", label);
         return ;
     }
+	#endif
 }
 
 char *strNotchr(char *str, char n)
 {
+	#if 0
     int len, i;
     if(str == NULL)
         return NULL;
@@ -232,7 +238,9 @@ char *strNotchr(char *str, char n)
             return &str[i];
     }
     return NULL;
+	#endif
 }
+#if 0
 #define NEXT_KEY	\
 {	\
 	tmp = strchr(tmp, ' ');	\
@@ -244,8 +252,12 @@ char *strNotchr(char *str, char n)
 		return ;	\
 	}	\
 }
+#endif
+
+
 static void script_ParseFieldLine(SCRIPT_OBJ *pObj, char *key, char *line)
 {
+	#if 0
     int len, i;
     SCRIPT_FIELD field;
     char *tmp = line;
@@ -359,4 +371,5 @@ static void script_ParseFieldLine(SCRIPT_OBJ *pObj, char *key, char *line)
     printf("\t%02d-%02d <format %d> <init %d>  '%s'\n",
     	field.blkid, field.fldno, field.format, field.iInit, field.lab);
     */
+    #endif
 }

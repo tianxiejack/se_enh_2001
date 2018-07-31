@@ -29,19 +29,18 @@
       <author>  <time>   <version >   <desc>
       xavier    13/04/17     1.0     build this moudle
 ********************************************************************************************************/
-#include "dx.h"
 
 typedef struct _dx_timer {
 	int		interval;
 	int		curTamp;
-	UInt32	cnt;
+
 	void ( *fnxCall )( void );
 	volatile int	flag;
-	struct timeval	timeout;
+
 }DX_TIMER;
 
 static DX_TIMER		cTimer;
-static pthread_t	thread_timer;
+
 static void *sig_func( void * p );
 
 
@@ -60,16 +59,6 @@ static void *sig_func( void * p );
  **********************************************************************************************************/
 int dxTimer_create( int interval, void ( *fnxCall )( void ) )
 {
-	//__suseconds_t us;
-	memset( &cTimer, 0, sizeof( cTimer ) );
-	cTimer.fnxCall		   = fnxCall;
-	cTimer.flag			   = 1;
-	cTimer.timeout.tv_sec  = interval / 1000;
-	cTimer.timeout.tv_usec = ( ( interval % 1000 ) - 1 ) * 1000;
-
-	OSA_printf( "%s : %d %d\n", __func__, (int)cTimer.timeout.tv_sec, (int)cTimer.timeout.tv_usec );
-
-	return pthread_create( &thread_timer, NULL, sig_func, NULL );
 }
 
 /********************************************************************************************************
@@ -85,17 +74,7 @@ int dxTimer_create( int interval, void ( *fnxCall )( void ) )
  **********************************************************************************************************/
 void dxTimer_destroy( )
 {
-	OSA_waitMsecs( 100 );
-	cTimer.flag = 0;
-	OSA_waitMsecs( 10 );
-	while( !cTimer.flag )
-	{
-		OSA_waitMsecs( 10 );
-	}
-	pthread_cancel( thread_timer );
-	pthread_join( thread_timer, NULL ); /* wait the thread stopped */
 
-	memset( &cTimer, 0, sizeof( cTimer ) );
 }
 
 /**************************************************************************************
@@ -111,17 +90,6 @@ void dxTimer_destroy( )
  **************************************************************************************/
 static void *sig_func( void * p )
 {
-	struct timeval timeout;
-	while( cTimer.flag )
-	{
-		//pthread_testcancel();
-		memcpy( &timeout, &cTimer.timeout, sizeof( timeout ) );
-		select( 0, NULL, NULL, NULL, &timeout );
-
-		cTimer.fnxCall( );
-	}
-	cTimer.flag = 1;
-	OSA_printf( "%s:: exit !", __func__ );
-	return NULL;
+	//return NULL;
 }
 /************************************** The End Of File **************************************/

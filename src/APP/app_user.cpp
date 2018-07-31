@@ -1,3 +1,5 @@
+#if 0
+
 /*****************************************************************************
 * Copyright (C), 2011-2012, ChamRun Tech. Co., Ltd.
 * FileName:     app_user.c
@@ -53,8 +55,8 @@ static Int32 APP_control(int item );
 static Int32 APP_stop( int item);
 static Int32 APP_onTimer( int item);
 
-DXD_Info gDXD_info ;
-DXD_Info gDXD_infoSave;
+//DXD_Info gDXD_info ;
+//DXD_Info gDXD_infoSave;
 static Bool  gAPP_Started   = FALSE;
 static Int32 gAPP_Usecase   = 0x00;
 
@@ -459,3 +461,5 @@ static Int32 APP_onTimer( Int32 timerId )
 int cltrl_dis_user(int value,int id)
 {
 }
+
+#endif

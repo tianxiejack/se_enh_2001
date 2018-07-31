@@ -1,4 +1,4 @@
-
+#if 0
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -76,7 +76,7 @@ static void* dxmain(void *pPrm)
     int onece=0;
     char ch = '3';
     OSA_printf("%s:  enter %d   \n", __func__, __LINE__);
-    Dx_run();
+    //Dx_run();
     Dx_initparam();//init dx param
     OSA_semSignal((OSA_SemHndl *)pPrm);
     OSA_printf("%s:%d\n", __func__, __LINE__);
@@ -135,4 +135,4 @@ int App_dxmain( )
   OSA_semWait(&tskGraphicSemmain,OSA_TIMEOUT_FOREVER);
 
 }
-
+#endif

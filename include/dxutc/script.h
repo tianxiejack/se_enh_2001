@@ -1,10 +1,6 @@
 #ifndef _SCRIPT_H
 #define _SCRIPT_H
 
-#ifndef BOOL
-#define BOOL Bool
-#endif
-
 typedef struct _Enum_Def{
 	char text[48];
 	int value;
@@ -17,14 +13,14 @@ typedef struct _Enum_Tab{
 //FIELD <blkid> <fldno> <lab> <scr> <x> <y> <format> [<limits>] <init> [<opfs>] [ENUMS <tabno>]
 typedef struct _Script_Field{
 	int mode;// FIELD or WRITE_ONLY
-	BOOL bCheckBox;
+	bool bCheckBox;
 	int blkid;	int fldno; char lab[128]; int scr; int x; int y; int dataFmt;
 	int imin; int imax; float fmin; float fmax; int iInit; float fInit; char opfs[8]; int enumtabno;
 	ENUMTAB *enumtab;
 }SCRIPT_FIELD;
 
 typedef struct _DataBlk{
-	BOOL bValid;
+	bool bValid;
 	int  number;
 	char label[48];
 	int x; int y;
@@ -45,7 +41,7 @@ typedef struct _Script_Object{
 	int m_iCurDataBlk;
 }SCRIPT_OBJ;
 
-Int32 script_create(char *scriptfile, SCRIPT_OBJ** ppObj);
+int script_create(char *scriptfile, SCRIPT_OBJ** ppObj);
 void   script_destroy(SCRIPT_OBJ *pObj);
 
 #endif

@@ -4,7 +4,6 @@
 #include <osa_tsk.h>
 #include <osa_debug.h>
 
-#include <dx.h>
 #include <dx_priv.h>
 #include <arpa/inet.h>
 
@@ -40,6 +39,7 @@ static Int32 Dx_getInt32(void)
 
 static void  Dx_configSetup(SCRIPT_FIELD *field)
 {
+	#if 0
     Int32 value=0;
     char buffer[128];
 
@@ -150,10 +150,12 @@ static void  Dx_configSetup(SCRIPT_FIELD *field)
             cSaveFlag = 0;
         }
     }
+	#endif
 }
 
 static void Dx_configMenuSub(DATABLK *blk)
 {
+	#if 0
     int i, iSel=-1;
     SCRIPT_FIELD *field;
 
@@ -224,10 +226,12 @@ static void Dx_configMenuSub(DATABLK *blk)
             }
         }
     }
+	#endif
 }
 
 void Dx_configMenu(Int32 *script)
 {
+	#if 0
     int i = 0, iBak = 0;
     int iPage = 0;
     Int32 iSel = -1;
@@ -299,6 +303,8 @@ void Dx_configMenu(Int32 *script)
             gDXD_info.fxnsCfg[CFGID_BUILD(9,7)](9, 7);
         }
     }
+
+	#endif
 }
 
 

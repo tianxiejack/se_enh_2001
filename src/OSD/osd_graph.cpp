@@ -5,7 +5,6 @@
 #include "osd_graph.h"
 #include "app_osdgrp.h"
 #include "app_status.h"
-#include"dx.h"
 #include"app_ctrl.h"
 #include "msgDriv.h"
 #include "grpFont.h"
@@ -997,7 +996,7 @@ static int APP_get_Rgb_Color(int colorId)
 	return iRtnColor;
 }
 
-#if 1
+#if 0
 Int32 APP_set_graphic_parms_fb( Int32 blkId, Int32 fieldId,Multich_graphic *pMultGrap,int winid)
 {
     int configId   = CFGID_BUILD(blkId, 2);
@@ -1391,7 +1390,7 @@ void EraseDraw_graph_osd(Mat frame, void *Param,void *Parampri)
 }
 void APP_graphic_timer_alarm()
 {
-
+#if 0
     int i;
     int blkId;
 
@@ -1418,7 +1417,7 @@ void APP_graphic_timer_alarm()
 				
 				//pIStuts->PicpSensorStatpri=0x02;
 				MSGDRIV_send(MSGID_EXT_INPUT_ENFREZZ, 0);
-				app_ctrl_ack();
+				//app_ctrl_ack();
 			}
 
     	}
@@ -1462,7 +1461,7 @@ void APP_graphic_timer_alarm()
 	
  //   MultichGrpx_update_sem_post();
 
-
+#endif
 }
 
 
@@ -1494,7 +1493,7 @@ void  APP_Err_feedback_timer_alarm()
         CMD_EXT *pIStuts = msgextInCtrl;
 
 	if(pIStuts->TrkErrFeedback)
-		app_err_feedbak();
+		;//app_err_feedbak();
 	
 
 

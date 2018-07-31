@@ -1,7 +1,7 @@
 
 #include "app_global.h"
 #include <stdio.h>
-#include "dx.h"
+
 #include "dx_config.h"
 #include "app_osdgrp.h"
 #include"app_status.h"
@@ -306,6 +306,7 @@ void sysinfo_loop_deal(char *pStr,int *lineStrLen,int sysinfo_subsys,int sysinfo
 *****************************************************************************/
 int APP_text_genContext(int chId, int winId, char * str, int strBufLen, Int16 *textLen)
 {
+	#if 0
     int iRet = 0;
     int lineStrLen = 0;
 
@@ -979,7 +980,7 @@ int APP_text_genContext(int chId, int winId, char * str, int strBufLen, Int16 *t
     iRet = textLines;
 
     return iRet;
-
+#endif
 }
 //#endif
 /************************************** The End Of File **************************************/

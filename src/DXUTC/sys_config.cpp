@@ -1,9 +1,11 @@
+#if 0
 #include "dx.h"
+
 #include "sys_config.h"
 
 static char *gScriptFile = "/mnt/dxd/config_0.txt";
 
-Int32 syscfg_load(char *configfile, Int32 *data, Int32 dataSize)
+int syscfg_load(char *configfile, Int32 *data, Int32 dataSize)
 {
 	FILE *stream;
 	char line[128];
@@ -42,7 +44,7 @@ Int32 syscfg_load(char *configfile, Int32 *data, Int32 dataSize)
 	return 0;
 }
 
-Int32 syscfg_save(char *configfile, Int32 *data, Int32 dataSize)
+int syscfg_save(char *configfile, Int32 *data, Int32 dataSize)
 {
 	FILE *stream;
 	int i;
@@ -65,8 +67,9 @@ Int32 syscfg_save(char *configfile, Int32 *data, Int32 dataSize)
 	return 0;
 }
 
-Int32 syscfg_load_block(char *configfile, Int32 *data, Int32 blkId)
+int syscfg_load_block(char *configfile, int *data, int blkId)
 {
+#if 0
 	FILE *stream;
 	char line[128];
 
@@ -104,7 +107,8 @@ Int32 syscfg_load_block(char *configfile, Int32 *data, Int32 blkId)
 	fclose( stream );
 
 	return 0;
+#endif
 }
 
 
-
+#endif
