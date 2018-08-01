@@ -140,7 +140,6 @@ private:
 public:
 	void update_param_alg();
 	void update_param_osd();
-	void DrawScaleLine(Mat frame,int frcolor);
 
 };
 

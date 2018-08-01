@@ -322,8 +322,6 @@ typedef struct
 	unsigned int  DispalyHeight  [eSen_Max];    // display height
 }CMD_SYS;
 
-#define 	TVBIGFOV 			(2400)
-#define 	FIRBIGFOV 			(40)
 
 #ifdef __cplusplus
 }
