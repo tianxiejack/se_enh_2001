@@ -25,6 +25,27 @@ typedef struct
 
 }Osd_cvPoint;
 
+
+typedef struct  _line_param_fb{
+	UInt32 enableWin;
+	UInt32 objType;        //GRPX_OBJ_ID
+	UInt32 frcolor;
+	UInt32 bgcolor;
+
+	Int16 x;		        //center position
+	Int16 y;		        //center position
+	Int16 res0;
+
+	Int16 width;            //graphic width
+	Int16 height;           //graphic height
+	Int16 res1;
+
+	Int16 linePixels;		//line width
+	Int16 lineGapWidth;     //must be <= width
+	Int16 lineGapHeight;    //must be <= height
+}Line_Param_fb;
+
+
 void Drawcvcross(Mat frame,Line_Param_fb *lineparm);
  CvScalar  GetcvColour(int colour);
  void DrawcvDashcross(Mat frame,Line_Param_fb *lineparm,int linelength,int dashlength);

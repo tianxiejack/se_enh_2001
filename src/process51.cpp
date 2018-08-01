@@ -5,7 +5,7 @@
 #include "msgDriv.h"
 #include"app_ctrl.h"
 
-#include"osd_cv.h"
+#include "osd_cv.h"
 #include "app_status.h"
 #include "configable.h"
 #include "Ipcctl.h"
