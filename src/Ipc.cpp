@@ -415,12 +415,12 @@ int send_msg(SENDST *RS422)
 	{
 		case trk:
 			RS422->param[0] = pIStuts.AvtTrkStat;
-			printf("ack trk  :  %d\n",RS422->param[0]);
+			//printf("ack trk  :  %d\n",RS422->param[0]);
 			break;
 			
 		case mmt:
 			RS422->param[0] = pIStuts.MmtStat[pIStuts.SensorStat];
-			printf("ack mmt  :  %d\n",RS422->param[0]);
+			//printf("ack mmt  :  %d\n",RS422->param[0]);
 			break;
 			
 		case mmtselect:

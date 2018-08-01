@@ -530,9 +530,6 @@ int CVideoProcess::init()
 	prichnalid=1;//fir
 
 	moveDetectRect = false;
-#if __TRACK__
-	trackinfo_obj->trackfov=TVBIGFOV;
-#endif
 
 #if __MOVE_DETECT__
 	initMvDetect();

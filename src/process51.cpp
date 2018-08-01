@@ -1344,7 +1344,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 					rememtime=OSA_getCurTimeInMsec();
 				}
 				
-				if((OSA_getCurTimeInMsec()-rememtime)>2000)
+				if((OSA_getCurTimeInMsec()-rememtime) > 3000)
 				{							
 					extInCtrl->TrkStat=3;	
 				}
