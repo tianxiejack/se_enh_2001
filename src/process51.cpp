@@ -2881,12 +2881,12 @@ void CProcess::update_param_osd()
 	CMD_EXT *pIStuts = extInCtrl;
 	pIStuts->SensorStatBegin 		= gConfig_Osd_param.MAIN_Sensor;
 	pIStuts->osdTextShow 			= gConfig_Osd_param.OSD_text_show;
-	pIStuts->osdDrawShow 		= gConfig_Osd_param.OSD_draw_show;
+	pIStuts->osdDrawShow 			= gConfig_Osd_param.OSD_draw_show;
 	pIStuts->osdTextColor 			=  gConfig_Osd_param.OSD_text_color;
 	pIStuts->osdTextAlpha			=  gConfig_Osd_param.OSD_text_alpha;
 	pIStuts->osdTextFont			= gConfig_Osd_param.OSD_text_font;
 	pIStuts->osdTextSize			= gConfig_Osd_param.OSD_text_size;
-	pIStuts->osdDrawColor 		= gConfig_Osd_param.OSD_draw_color;
+	pIStuts->osdDrawColor 			= gConfig_Osd_param.OSD_draw_color;
 	pIStuts->AcqRectW[0] 			= gConfig_Osd_param.ch0_acqRect_width;
 	pIStuts->AcqRectW[1] 			= gConfig_Osd_param.ch1_acqRect_width;
 	pIStuts->AcqRectW[2] 			= gConfig_Osd_param.ch2_acqRect_width;
@@ -2900,12 +2900,12 @@ void CProcess::update_param_osd()
 	pIStuts->AcqRectH[4] 			= gConfig_Osd_param.ch4_acqRect_height;
 	pIStuts->AcqRectH[5] 			= gConfig_Osd_param.ch5_acqRect_height;
 
-	pIStuts->AimW[0] 			= gConfig_Osd_param.ch0_aim_width;
-	pIStuts->AimW[1] 			= gConfig_Osd_param.ch1_aim_width;
-	pIStuts->AimW[2] 			= gConfig_Osd_param.ch2_aim_width;
-	pIStuts->AimW[3] 			= gConfig_Osd_param.ch3_aim_width;
-	pIStuts->AimW[4] 			= gConfig_Osd_param.ch4_aim_width;
-	pIStuts->AimW[5] 			= gConfig_Osd_param.ch5_aim_width;
+	pIStuts->AimW[0] 				= gConfig_Osd_param.ch0_aim_width;
+	pIStuts->AimW[1] 				= gConfig_Osd_param.ch1_aim_width;
+	pIStuts->AimW[2] 				= gConfig_Osd_param.ch2_aim_width;
+	pIStuts->AimW[3] 				= gConfig_Osd_param.ch3_aim_width;
+	pIStuts->AimW[4] 				= gConfig_Osd_param.ch4_aim_width;
+	pIStuts->AimW[5] 				= gConfig_Osd_param.ch5_aim_width;
 	pIStuts->AimH[0] 				= gConfig_Osd_param.ch0_aim_height;
 	pIStuts->AimH[1] 				= gConfig_Osd_param.ch1_aim_height;
 	pIStuts->AimH[2] 				= gConfig_Osd_param.ch2_aim_height;
@@ -2913,7 +2913,7 @@ void CProcess::update_param_osd()
 	pIStuts->AimH[4] 				= gConfig_Osd_param.ch4_aim_height;
 	pIStuts->AimH[5] 				= gConfig_Osd_param.ch5_aim_height;
 
-	m_acqRectW = pIStuts->AimW[pIStuts->SensorStat];
+	m_acqRectW 	= pIStuts->AimW[pIStuts->SensorStat];
 	m_acqRectH  = pIStuts->AimH[pIStuts->SensorStat];
 	
 	m_display.disptimeEnable = gConfig_Osd_param.Timedisp_9;
@@ -2921,13 +2921,9 @@ void CProcess::update_param_osd()
 
 	pIStuts->crossAxisWidth 		= gConfig_Osd_param.CROSS_AXIS_WIDTH;
 	pIStuts->crossAxisHeight		= gConfig_Osd_param.CROSS_AXIS_HEIGHT;
-	pIStuts->picpCrossAxisWidth	= gConfig_Osd_param.Picp_CROSS_AXIS_WIDTH;
+	pIStuts->picpCrossAxisWidth		= gConfig_Osd_param.Picp_CROSS_AXIS_WIDTH;
 	pIStuts->picpCrossAxisHeight	= gConfig_Osd_param.Picp_CROSS_AXIS_HEIGHT;
 
-	//OSA_printf("%s , pIStuts->AimW[0] = %d \n",__func__,pIStuts->AimW[0]);
-	//OSA_printf("%s , pIStuts->AimH[0] = %d \n",__func__,pIStuts->AimH[0]);
-	//OSA_printf("pIStuts->osdDrawShow 		= %d\n",pIStuts->osdDrawShow);
-	//OSA_printf("pIStuts->osdTextShow 		= %d\n",pIStuts->osdTextShow);
 	return;
 }
 
@@ -3293,293 +3289,3 @@ void CProcess::MSGAPI_update_camera(long lParam)
 {
 }
 
-void CProcess::DrawScaleLine(Mat frame,int frcolor)
-{
-	int i;
-	Osd_cvPoint n_start;
-	Osd_cvPoint n_end;
-	int horScaleVal[7]={270,300,330,0,30,60,90};
-	char display[128];
-	int daohangganrao=30;
-	int yaokongganrao=30;
-	float sudu=15.2;
-	int juli=1200;
-	int input_fuyang=20; //the value of fuyang jiao du  //external input
-	int input_shuiping=270; //the value of shuiping jiao du  //external input
-	int input_zoom=500; //the value of zoom  //external input
-	int input_zoom_y=0;
-	int startTextPosInputZoom[4]={1859,1852,1846,1835};
-	int x;
-	time_t timer;
-	struct tm *realTime;
-	int jingdu1=116;  //external input [jingdu's du]
-	int jingdu2=23;    //[jingdu's fen]
-	int jingdu3=17;    //[jingdu's miao]
-	int weidu1=39;    //external input  [weidu's du]
-	int weidu2=54;    //[weidu's fen]
-	int weidu3=27;    //[weidu's miao]
-
-		/*  characters on the head of image  */
-		//had draw chinese characters  in Displayer.cpp chinese_osd
-		//the time of board
-		#if 1
-		timer=time(NULL);
-		realTime=localtime(&timer);
-		putText(m_display.m_imgOsd[1],timedisplay,
-												Point(36,30 ),
-												FONT_HERSHEY_DUPLEX,0.8,
-												cvScalar(0,0,0,0), 1
-								 );
-		sprintf(timedisplay,"%d-%02d-%02d %02d:%02d:%02d",realTime->tm_year+1900,realTime->tm_mon,\
-				realTime->tm_mday,realTime->tm_hour,realTime->tm_min,realTime->tm_sec);
-
-		putText(m_display.m_imgOsd[1],timedisplay,
-										Point(36,30 ),
-										FONT_HERSHEY_DUPLEX,0.8,
-										cvScalar(0,0,255,255), 1
-						 );
-		#endif
-		//behind the sudu  15.2m/s
-		sprintf(display,"%.1fm/s",sudu );
-		putText(m_display.m_imgOsd[1],display,
-								Point(1100,70 ),
-								FONT_HERSHEY_DUPLEX,0.8,
-								cvScalar(0,0,255,255), 1
-				 );
-		//behind the juli 1200m
-		sprintf(display,"%dm",juli );
-		putText(m_display.m_imgOsd[1],display,
-								Point(1300,70 ),
-								FONT_HERSHEY_DUPLEX,0.9,
-								cvScalar(0,0,255,255), 1
-				 );
-		//jingweidu
-		sprintf(display,"%3d %d\'%d\"E",jingdu1,jingdu2,jingdu3 ); //jingdu
-		putText(m_display.m_imgOsd[1],display,
-										Point(1500,35),
-										FONT_HERSHEY_DUPLEX,0.9,
-										cvScalar(0,0,255,255), 1
-					 );
-		sprintf(display,"%3d %d\'%d\"N",weidu1,weidu2,weidu3 ); //weidu
-		putText(m_display.m_imgOsd[1],display,
-								Point(1500,70),
-								FONT_HERSHEY_DUPLEX,0.9,
-								cvScalar(0,0,255,255), 1
-				 );
-		circle(m_display.m_imgOsd[1],Point(1555,15),3,Scalar(0,0,255,255));
-		circle(m_display.m_imgOsd[1],Point(1555,50),3,Scalar(0,0,255,255));
-		//behind the daohangganrao  30S
-		sprintf(display,"%dS",daohangganrao );
-		putText(m_display.m_imgOsd[1],display,
-									Point(1825,70 ),
-									FONT_HERSHEY_SIMPLEX,1.0,
-									cvScalar(0,0,255,255), 2
-					 );
-		//behind the yaokongganrao  30S
-		sprintf(display,"%dS",yaokongganrao );
-		putText(m_display.m_imgOsd[1],display,
-									Point(1825,160 ),
-									FONT_HERSHEY_SIMPLEX,1.0,
-									cvScalar(0,0,255,255), 2
-					 );
-		#if 0
-		putText(m_display.m_imgOsd[1],display,                       //jingweidu
-										Point(n_start.x-22,n_start.y+16 ),
-										FONT_HERSHEY_TRIPLEX,0.6,
-										cvScalar(0,0,0,255), 1
-						 );
-		#endif
-
-		/***********************fuyangjiao*************************/
-		for(i=0;i<9;i++)
-		{
-			n_start.x=36;
-			n_start.y=118+100*i;
-			n_end.x=n_start.x+18;
-			n_end.y=n_start.y;
-			DrawcvLine(frame,&n_start,&n_end,frcolor,1);
-			if(!(i%2)) //dushu //60  40  20  0  -20
-			{
-					sprintf(display,"%d",60-i*10 );
-					switch(i)
-					{
-						case 0:        //60
-							putText(m_display.m_imgOsd[1],display,
-															Point(n_start.x-22,n_start.y+16 ),
-															FONT_HERSHEY_TRIPLEX,0.6,
-															cvScalar(0,0,0,255), 1
-											 );
-							circle(m_display.m_imgOsd[1],Point(n_start.x+5,n_start.y+6),3,Scalar(0,0,0,255));
-							//circle(m_display.m_imgOsd[1],Point(960,540),3,Scalar(0,0,0,255));
-							break;
-						case 2:   //40
-						case 4:    //20
-							putText(m_display.m_imgOsd[1],display,
-														Point(n_start.x-25,n_start.y+5 ),
-														FONT_HERSHEY_TRIPLEX,0.6,
-														cvScalar(0,0,0,255), 1
-										 );
-							circle(m_display.m_imgOsd[1],Point(n_start.x+2,n_start.y-7),3,Scalar(0,0,0,255));
-							break;
-						case 6:     //0
-							putText(m_display.m_imgOsd[1],display,
-														Point(n_start.x-14,n_start.y+5 ),
-														FONT_HERSHEY_TRIPLEX,0.6,
-														cvScalar(0,0,0,255), 1
-										 );
-							circle(m_display.m_imgOsd[1],Point(n_start.x+1,n_start.y-7),3,Scalar(0,0,0,255));
-							break;
-						case 8:    //-20
-							putText(m_display.m_imgOsd[1],display,
-														Point(n_start.x-32,n_start.y-4 ),
-														FONT_HERSHEY_TRIPLEX,0.6,
-														cvScalar(0,0,0,255), 1
-										 );
-							circle(m_display.m_imgOsd[1],Point(n_start.x+10,n_start.y-15),3,Scalar(0,0,0,255));
-							break;
-						default:
-							break;
-					}
-			}//if(!(i%2)) end
-		}//9 horizontal lines of fuyangjiao
-		n_start.x=54;
-		n_start.y=118;
-		n_end.x=n_start.x;
-		n_end.y=n_start.y+800;
-		DrawcvLine(frame,&n_start,&n_end,frcolor,1);
-		/*fuyangjiao move scale  [range of -20~60] */
-		if(input_fuyang>=-20 && input_fuyang<=60)
-		{
-				n_start.x=44;
-				n_start.y=718-10*input_fuyang;
-				n_end.x=n_start.x+20;
-				n_end.y=n_start.y;
-				DrawcvLine(frame,&n_start,&n_end,3,2); //3:red
-		}
-
-		/****************************zoom***********************/
-		n_start.x=1866;    //a
-		n_start.y=318;
-		n_end.x=n_start.x;   //b
-		n_end.y=n_start.y+400;
-		DrawcvLine(frame,&n_start,&n_end,frcolor,1);
-
-		n_start.x=1855;  //e
-		n_start.y=297;
-		n_end.x=n_start.x+22;//f
-		n_end.y=n_start.y;
-		DrawcvLine(frame,&n_start,&n_end,frcolor,2);
-
-		n_start.x=1866;  //h
-		n_start.y=308;
-		n_end.x=n_start.x;//g
-		n_end.y=n_start.y-22;
-		DrawcvLine(frame,&n_start,&n_end,frcolor,2);
-
-		n_start.x=1855;  //c
-		n_start.y=728;
-		n_end.x=n_start.x+22;//d
-		n_end.y=n_start.y;
-		DrawcvLine(frame,&n_start,&n_end,frcolor,2);
-		/*zoom move scale  [range of 1~1000] */
-		if(input_zoom>=1 && input_zoom<=1000)
-		{
-				input_zoom_y=718-0.4*input_zoom;
-				#if 1
-				for(i=0;i<10;i++)
-				{
-							n_start.x=1850;
-							n_start.y=input_zoom_y+i;
-							n_end.x=1882;
-							n_end.y=n_start.y;
-							DrawcvLine(frame,&n_start,&n_end,2,2); //2-white
-				}
-				#endif
-		}
-		//the text of input_zoom
-		if(input_zoom==1000)
-			x=3;
-		else if(input_zoom<1000 && input_zoom>=100)
-			x=2;
-		else if(input_zoom<100 && input_zoom>=10)
-			x=1;
-		else if(input_zoom<10 && input_zoom>=0)
-			x=0;
-		sprintf(display,"%d",input_zoom );
-		putText(m_display.m_imgOsd[1],display,
-					  Point(startTextPosInputZoom[x],265),
-					  FONT_HERSHEY_TRIPLEX,0.8,
-					  cvScalar(0,0,255,255), 1
-					 );
-
-
-		/*******************shuiping ****************** */
-		for(i=0;i<19;i++)
-		{
-			n_start.x=258+78*i;
-			n_start.y=1002;
-			n_end.x=n_start.x;
-			n_end.y=n_start.y+18;
-			DrawcvLine(frame,&n_start,&n_end,frcolor,1);
-			if(!(i%3))
-			{
-						sprintf(display,"%d",horScaleVal[i/3] );
-						switch(i)
-						{
-						case 0:  //270
-						case 3:  //300
-						case 6:  //330
-							putText(m_display.m_imgOsd[1],display,
-																				Point(n_end.x-18,n_end.y+19),
-																				FONT_HERSHEY_TRIPLEX,0.6,
-																				cvScalar(0,0,0,255), 1
-										 );
-							circle(m_display.m_imgOsd[1],Point(n_end.x+21,n_end.y+5),3,Scalar(0,0,0,255));
-							break;
-						case 9:  //0
-							putText(m_display.m_imgOsd[1],display,
-																				Point(n_end.x-6,n_end.y+19),
-																				FONT_HERSHEY_TRIPLEX,0.6,
-																				cvScalar(0,0,0,255), 1
-										 );
-							circle(m_display.m_imgOsd[1],Point(n_end.x+9,n_end.y+5),3,Scalar(0,0,0,255));
-							break;
-						case 12:  //30
-						case 15:  //60
-						case 18:  //90
-							putText(m_display.m_imgOsd[1],display,
-																				Point(n_end.x-12,n_end.y+19),
-																				FONT_HERSHEY_TRIPLEX,0.6,
-																				cvScalar(0,0,0,255), 1
-										 );
-							circle(m_display.m_imgOsd[1],Point(n_end.x+15,n_end.y+5),3,Scalar(0,0,0,255));
-							break;
-						default:
-							break;
-						}
-			} // if(!(i%3))  end
-		} //for(i=0;i<19;i++) end //19 vertical lines of shuiping
-		n_start.x=219;  //a
-		n_start.y=1002;
-		n_end.x=1701;//b
-		n_end.y=n_start.y;
-		DrawcvLine(frame,&n_start,&n_end,frcolor,1);
-		/*shuiping move scale  [range of 270~360 and 0~90 ] */
-		if(input_shuiping>=270 && input_shuiping<=360)
-			n_start.x=input_shuiping*7.8-1848;
-		else if(input_shuiping>=0 && input_shuiping<=90)
-			n_start.x=input_shuiping*7.8+960;
-		else{
-			printf("error: input_shuiping should in the range of 270~360 or 0~90 \n");
-			return;
-		}
-		n_start.y=1002;
-		Point root_points[1][3];
-		root_points[0][0] = Point(n_start.x-10,n_start.y-25);
-		root_points[0][1] = Point(n_start.x+10,n_start.y-25);
-		root_points[0][2] = Point(n_start.x,n_start.y);
-		const Point* ppt[1] = {root_points[0]};
-		int npt[] = {3};
-		polylines(frame, ppt, npt, 1, 1, Scalar(255),1,8,0);
-		fillPoly(frame, ppt, npt, 1, Scalar(0,0,255,255));
-}
