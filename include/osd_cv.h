@@ -18,8 +18,6 @@
 #include "app_osdgrp.h"
 using namespace cv;
 
-
-
 typedef struct
 {
 	int x;
@@ -30,7 +28,6 @@ typedef struct
 void Drawcvcross(Mat frame,Line_Param_fb *lineparm);
  CvScalar  GetcvColour(int colour);
  void DrawcvDashcross(Mat frame,Line_Param_fb *lineparm,int linelength,int dashlength);
- void DrawcvDashliner(Mat frame,int startx,int starty,int endx,int endy,int linelength,int dashlength,int frcolor);
  void drawdashlinepri(Mat frame,int startx,int starty,int endx,int endy,int linelength,int dashlength,int colour);
  void DrawcvLine(Mat frame,Osd_cvPoint *start,Osd_cvPoint *end,int frcolor,int linew);
  void Drawcvcrossaim(Mat frame,Line_Param_fb *lineparm);
