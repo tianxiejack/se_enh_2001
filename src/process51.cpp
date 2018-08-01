@@ -1815,8 +1815,8 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 		}
 		int itmp;
 		//chage acq;
-		m_rcAcq.width		=	pIStuts->AimW[pIStuts->SensorStat];//trkWinWH[pIStuts->SensorStat][pIStuts->AvtTrkAimSize][0];
-		m_rcAcq.height	=	pIStuts->AimH[pIStuts->SensorStat];//trkWinWH[pIStuts->SensorStat][pIStuts->AvtTrkAimSize][1];
+		m_rcAcq.width		=	pIStuts->AimW[pIStuts->SensorStat];
+		m_rcAcq.height	=	pIStuts->AimH[pIStuts->SensorStat];
 
 		m_rcAcq.x=pIStuts->opticAxisPosX[pIStuts->SensorStat]-m_rcAcq.width/2;
 		m_rcAcq.y=pIStuts->opticAxisPosY[pIStuts->SensorStat]-m_rcAcq.height/2;
@@ -2107,18 +2107,14 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 		
 		if(TrkAim43 == true)
 		{
-			rc.x=pIStuts->unitAimX-trkWinWH43[pIStuts->SensorStat][pIStuts->AvtTrkAimSize][0]/2;
-			rc.y=pIStuts->unitAimY-trkWinWH43[pIStuts->SensorStat][pIStuts->AvtTrkAimSize][1]/2;
-			rc.width= trkWinWH43[pIStuts->SensorStat][pIStuts->AvtTrkAimSize][0];
-			rc.height= trkWinWH43[pIStuts->SensorStat][pIStuts->AvtTrkAimSize][1];
 		}
 		else
 		{
 			printf("%s,line:%d   aimx,aimy=(%d,%d)\n",__func__,__LINE__,pIStuts->AvtPosX[0],pIStuts->AvtPosY[0]);
 			if(m_curChId== video_gaoqing)
 			{
-				rc.width= pIStuts->AimW[pIStuts->SensorStat];//trkWinWH[pIStuts->SensorStat][pIStuts->AvtTrkAimSize][0];
-				rc.height=pIStuts->AimW[pIStuts->SensorStat];//trkWinWH[pIStuts->SensorStat][pIStuts->AvtTrkAimSize][1];
+				rc.width= pIStuts->AimW[pIStuts->SensorStat];
+				rc.height=pIStuts->AimW[pIStuts->SensorStat];
 				pIStuts->unitAimX = 1920/2;
 				pIStuts->unitAimY = 1080/2;
 			}
@@ -2235,8 +2231,8 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			UTC_RECT_float rc;
 			if(msgId == MSGID_EXT_INPUT_AIMSIZE)
 			{
-				pIStuts->unitAimW  =  pIStuts->AimW[pIStuts->SensorStat];//trkWinWH[pIStuts->SensorStat][pIStuts->AvtTrkAimSize][0]; //pIStuts->AimW[pIStuts->SensorStat];//
-				pIStuts->unitAimH	  =  pIStuts->AimW[pIStuts->SensorStat];//trkWinWH[pIStuts->SensorStat][pIStuts->AvtTrkAimSize][1]; //pIStuts->AimH[pIStuts->SensorStat];//
+				pIStuts->unitAimW  =  pIStuts->AimW[pIStuts->SensorStat];
+				pIStuts->unitAimH	  =  pIStuts->AimW[pIStuts->SensorStat];
 
 				rc.x	=	pIStuts->unitAimX-pIStuts->unitAimW/2;
 				rc.y	=	pIStuts->unitAimY-pIStuts->unitAimH/2;
@@ -2248,12 +2244,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			{
 				moveStat = true;
 				//printf("----- XY(%d,%d),WH(%d,%d)\n",pIStuts->unitAimX,pIStuts->unitAimY,pIStuts->unitAimW,pIStuts->unitAimH);
-				/*
-				if(pIStuts->unitAimW > trkWinWH[pIStuts->SensorStat][4][0])
-					pIStuts->unitAimW = trkWinWH[pIStuts->SensorStat][4][0];
-				if(pIStuts->unitAimH > trkWinWH[pIStuts->SensorStat][4][1])
-					pIStuts->unitAimH = trkWinWH[pIStuts->SensorStat][4][1];
-				*/
+				
 				printf("111W,H : (%d,%d)\n",pIStuts->unitAimW,pIStuts->unitAimH);
 				rc.width=pIStuts->unitAimW;
 				rc.height=pIStuts->unitAimH;

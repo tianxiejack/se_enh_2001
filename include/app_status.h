@@ -6,7 +6,6 @@
 extern "C" {
 #endif
 
-#include "app_proj_xgs026.h"
 //#include "Ipcctl.h"
 
 #ifndef MTD_TARGET_NUM

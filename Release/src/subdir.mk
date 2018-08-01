@@ -9,7 +9,6 @@ CPP_SRCS += \
 ../src/MultiChVideo.cpp \
 ../src/VideoProcess.cpp \
 ../src/app_ctrl.cpp \
-../src/app_project_xgs026.cpp \
 ../src/cuda_mem.cpp \
 ../src/process51.cpp \
 ../src/test_videoProcess.cpp \
@@ -27,7 +26,6 @@ OBJS += \
 ./src/MultiChVideo.o \
 ./src/VideoProcess.o \
 ./src/app_ctrl.o \
-./src/app_project_xgs026.o \
 ./src/cuda.o \
 ./src/cuda_mem.o \
 ./src/process51.o \
@@ -40,7 +38,6 @@ CPP_DEPS += \
 ./src/MultiChVideo.d \
 ./src/VideoProcess.d \
 ./src/app_ctrl.d \
-./src/app_project_xgs026.d \
 ./src/cuda_mem.d \
 ./src/process51.d \
 ./src/test_videoProcess.d \

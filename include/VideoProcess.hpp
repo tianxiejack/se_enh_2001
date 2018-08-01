@@ -13,6 +13,10 @@
 #include "MMTD.h"
 #include "mvdetectInterface.hpp"
 
+static int vcapWH[2][2] = {{720, 576}, {1920, 1080}};
+
+static int vdisWH[2][2] = {{720, 576}, {1920, 1080}};		// main and picp
+
 typedef struct _main_thr_obj_cxt{
 	bool bTrack;
 	bool bMtd;
