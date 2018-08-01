@@ -41,6 +41,11 @@ void app_ctrl_setTrkStat(CMD_EXT * pInCmd)
 			pIStuts->AvtPosX[pIStuts->SensorStat] = pInCmd->AvtPosX[pIStuts->SensorStat];
 			pIStuts->AvtPosY[pIStuts->SensorStat] = pInCmd->AvtPosY[pIStuts->SensorStat];
 		}
+		
+		if(pInCmd->AvtTrkStat == eTrk_mode_acq)
+			pIStuts->TrkStat = 0;
+		else if(pInCmd->AvtTrkStat == eTrk_mode_target)
+			pIStuts->TrkStat = 1;
 		MSGDRIV_send(MSGID_EXT_INPUT_TRACK, 0);
 	}
 	return ;

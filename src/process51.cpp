@@ -1175,6 +1175,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 		 trackinfo_obj->TrkStat = extInCtrl->AvtTrkStat;
 		 extInCtrl->TrkStat = extInCtrl->AvtTrkStat;
 		 m_SensorStat = extInCtrl->SensorStat;
+		  
 		 int aimw = extInCtrl->AimW[extInCtrl->SensorStat];
 		 int aimh = extInCtrl->AimH[extInCtrl->SensorStat];
 

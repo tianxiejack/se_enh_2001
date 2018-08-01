@@ -181,15 +181,13 @@ void* recv_msg(SENDST *RS422)
 				pMsg->AvtTrkStat =eTrk_mode_target;
 			else
 				pMsg->AvtTrkStat = eTrk_mode_acq;
-			//printf("avt status = %d \n",pMsg->AvtTrkStat);
+
 			if(pMsg->AvtTrkStat == eTrk_mode_acq)
 			{
 				pMsg->AxisPosX[pMsg->SensorStat] = pMsg->opticAxisPosX[pMsg->SensorStat];
 				pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
 				pMsg->AvtPosX[pMsg->SensorStat]  = pMsg->AxisPosX[pMsg->SensorStat];
 				pMsg->AvtPosY[pMsg->SensorStat]  = pMsg->AxisPosY[pMsg->SensorStat];
-				//printf("sensor = %d , avtpos x,y(%d  %d ) \n",pMsg->SensorStat,
-				//	pMsg->AvtPosX[pMsg->SensorStat],pMsg->opticAxisPosY[pMsg->SensorStat]);
 				
 				app_ctrl_setAimPos(pMsg);
 				app_ctrl_setAxisPos(pMsg);
@@ -415,7 +413,7 @@ int send_msg(SENDST *RS422)
 	{
 		case trk:
 			RS422->param[0] = pIStuts.AvtTrkStat;
-			//printf("ack trk  :  %d\n",RS422->param[0]);
+			printf("ack trk  :  %d\n",pIStuts.TrkStat);
 			break;
 			
 		case mmt:
