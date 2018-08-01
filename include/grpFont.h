@@ -4,7 +4,7 @@
  *                        ALL RIGHTS RESERVED                                  *
  *                                                                             *
  ******************************************************************************/
-
+#if 0
 #ifndef _GRP_FONT_H_
 #define _GRP_FONT_H_
 
@@ -3536,4 +3536,4 @@ static OSDUTIL_Font fontDefault[8] =
 
 
 #endif
-
+#endif

@@ -4,9 +4,9 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#define		TRK_TG_NUM		10
-#define  		SAMPLE_NUMBER 	512
-#define		DETECTOR_NUM		4
+#define		TRK_TG_NUM				10
+#define  		SAMPLE_NUMBER 	256
+#define		DETECTOR_NUM		10
 
 #define ASSERT			CV_Assert
 #define TRACE			printf
@@ -60,24 +60,24 @@ typedef struct _pattern_t
 }Pattern;
 
 typedef	struct	 _trk_rect_t{
-	cv::Rect					targetRect;
-	TRK_STATE				trkState;
+	cv::Rect							targetRect;
+	TRK_STATE						trkState;
 	TARGET_TYPE				targetType;
-	double					distance;
-	int						disp_frames;
-	int						trk_frames;
+	double							distance;
+	int									disp_frames;
+	int									trk_frames;
 	WARN_ROI_STATE			warnType;
-	int						index;
+	int									index;
 }TRK_RECT_INFO;
 
 
 typedef	struct _trk_thred_t{
-	float		searchThed;	//鎼滅礌閲嶅彔绯绘暟0.2
-	float		trkThred;		//璺熻釜閲嶅彔绯绘暟0.2
-	int			dispFrames;	//璀︽垝鍚庢樉绀哄抚鏁?5
-	int			totalFrames;	//璀︽垝鎬绘樉绀哄抚鏁?00
-	float		distRoi;			//绂昏鎴掔嚎鏈€澶ц窛绂?.0
-	int			targetSize;		//鏈€灏忚鎴掔洰鏍囬潰绉?00锛屼笉鑳藉お灏忥紝鍚﹀垯涓嶆槗璺熻釜
+	float		searchThed;	//\u641c\u7d20\u91cd\u53e0\u7cfb\u65700.2
+	float		trkThred;		//\u8ddf\u8e2a\u91cd\u53e0\u7cfb\u65700.2
+	int			dispFrames;	//\u8b66\u6212\u540e\u663e\u793a\u5e27\u657015
+	int			totalFrames;	//\u8b66\u6212\u603b\u663e\u793a\u5e27\u6570100
+	float		distRoi;			//\u79bb\u8b66\u6212\u7ebf\u6700\u5927\u8ddd\u79bb2.0
+	int			targetSize;		//\u6700\u5c0f\u8b66\u6212\u76ee\u6807\u9762\u79ef200\uff0c\u4e0d\u80fd\u592a\u5c0f\uff0c\u5426\u5219\u4e0d\u6613\u8ddf\u8e2a
 }TRK_THRED;
 
 
