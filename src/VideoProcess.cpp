@@ -20,7 +20,6 @@ int CVideoProcess::m_mousey = 0;
 CVideoProcess * CVideoProcess::pThis = NULL;
 bool CVideoProcess::m_bTrack = false;
 bool CVideoProcess::m_bMtd = false;
-bool CVideoProcess::m_bBlobDetect = false;
 bool CVideoProcess::m_bMoveDetect = false;
 int CVideoProcess::m_iTrackStat = 0;
 int CVideoProcess::m_iTrackLostCnt = 0;
@@ -119,7 +118,6 @@ void CVideoProcess::main_proc_func()
 		Mat frame = mainFrame[mainProcThrObj.pp^1];
 		bool bTrack = mainProcThrObj.cxt[mainProcThrObj.pp^1].bTrack;
 		bool bMtd = mainProcThrObj.cxt[mainProcThrObj.pp^1].bMtd;
-		bool bBlobDetect = mainProcThrObj.cxt[mainProcThrObj.pp^1].bBlobDetect;
 		bool bMoveDetect = mainProcThrObj.cxt[mainProcThrObj.pp^1].bMoveDetect;
 		int chId = mainProcThrObj.cxt[mainProcThrObj.pp^1].chId;
 		int iTrackStat = mainProcThrObj.cxt[mainProcThrObj.pp^1].iTrackStat;
@@ -133,7 +131,7 @@ void CVideoProcess::main_proc_func()
 		if(!OnPreProcess(chId, frame))
 			continue;
 
-		if(!m_bTrack && !m_bMtd && !m_bBlobDetect&&!m_bMoveDetect){
+		if(!m_bTrack && !m_bMtd &&!m_bMoveDetect){
 			OnProcess(chId, frame);
 			continue;
 		}
@@ -338,11 +336,6 @@ void CVideoProcess::main_proc_func()
 				//OSA_printf("ALL-MTD: time  ID %d  valid=%d x=%d y=%d\n",i,m_tgtBox[i].valid,m_tgtBox[i].Box.x,m_tgtBox[i].Box.y);
 			}
 			
-		}
-		else if (bBlobDetect)
-		{
-			Mat dysrc = frame_gray(Rect(frame_gray.cols/2-75, frame_gray.rows/2-75, 150, 150));					
-			BlobDetect(dysrc, adaptiveThred, m_blobRect);
 		}
 		else if (bMoveDetect)
 		{
@@ -594,9 +587,6 @@ int CVideoProcess::dynamic_config(int type, int iPrm, void* pPrm)
 		break;
 	case VP_CFG_MmtEnable:
 		m_bMtd = iPrm;
-		break;
-	case VP_CFG_BlobEnable:
-		m_bBlobDetect = iPrm;
 		break;
 	case VP_CFG_SubPicpChId:
 		m_curSubChId = iPrm;
@@ -1219,7 +1209,6 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 			mainFrame[mainProcThrObj.pp] = frame;
 			mainProcThrObj.cxt[mainProcThrObj.pp].bTrack = m_bTrack;
 			mainProcThrObj.cxt[mainProcThrObj.pp].bMtd = m_bMtd;
-			mainProcThrObj.cxt[mainProcThrObj.pp].bBlobDetect = m_bBlobDetect;
 			mainProcThrObj.cxt[mainProcThrObj.pp].bMoveDetect = m_bMoveDetect;
 			mainProcThrObj.cxt[mainProcThrObj.pp].iTrackStat = m_iTrackStat;
 			mainProcThrObj.cxt[mainProcThrObj.pp].chId = chId;
@@ -1227,7 +1216,6 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 				mainFrame[mainProcThrObj.pp^1] = frame;
 				mainProcThrObj.cxt[mainProcThrObj.pp^1].bTrack = m_bTrack;
 				mainProcThrObj.cxt[mainProcThrObj.pp^1].bMtd = m_bMtd;
-				mainProcThrObj.cxt[mainProcThrObj.pp^1].bBlobDetect = m_bBlobDetect;
 				mainProcThrObj.cxt[mainProcThrObj.pp^1].bMoveDetect = m_bMoveDetect;
 				mainProcThrObj.cxt[mainProcThrObj.pp^1].iTrackStat = m_iTrackStat;
 				mainProcThrObj.cxt[mainProcThrObj.pp^1].chId = chId;

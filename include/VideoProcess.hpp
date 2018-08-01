@@ -6,8 +6,6 @@
 #include "Displayer.hpp"
 #include "UtcTrack.h"
 #include "multitarget.h"
-#include "BlobDetector.h"
-#include "app_osdgrp.h"
 #include "app_status.h"
 
 #include "MMTD.h"
@@ -20,7 +18,6 @@ static int vdisWH[2][2] = {{720, 576}, {1920, 1080}};		// main and picp
 typedef struct _main_thr_obj_cxt{
 	bool bTrack;
 	bool bMtd;
-	bool bBlobDetect;
 	bool bMoveDetect;
 	int chId;
 	int iTrackStat;
@@ -64,7 +61,6 @@ public:
 		VP_CFG_SubChId,
 		VP_CFG_TrkEnable,
 		VP_CFG_MmtEnable,
-		VP_CFG_BlobEnable,
 		VP_CFG_SubPicpChId,
 		VP_CFG_MvDetect,
 		VP_CFG_Max
@@ -207,7 +203,6 @@ protected: //track
 	UTC_Rect preWarnRect;
 	UTC_Rect MoveAcpSR;
 	UTC_Rect TRKMoveAcpSR;
-	BlobRect		    m_blobRect;
 	int			    m_intervalFrame;
 	int			  m_intervalFrame_change;
 	int 			    m_bakChId;

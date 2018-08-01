@@ -39,7 +39,6 @@ CProcess::CProcess()
 {
 	memset(rcTrackBak, 0, sizeof(rcTrackBak));
 	memset(tgBak, 0, sizeof(tgBak));
-	memset(&blob_rectBak, 0, sizeof(blob_rectBak));
 	memset(&extOutAck, 0, sizeof(ACK_EXT));
 	prisensorstatus=0;//tv
 	m_castTm=0;
@@ -406,46 +405,6 @@ void CProcess::osd_mtd_show(TARGET tg[], bool bShow)
 				Point( result.x+result.width, result.y+result.height),
 				colour, 1, 8);
 		}
-	}
-}
-
-void CProcess::DrawBlob(BlobRect blobRct,  bool bShow /*= true*/)
-{
-	int frcolor=extInCtrl->DispColor[extInCtrl->SensorStat];
-	unsigned char Alpha = (bShow) ? frcolor : 0;
-	CvScalar colour=GetcvColour(Alpha);
-	int startx=0;
-	int starty=0;
-	int endx=0;
-	int endy=0;
-	int sensor=0;
-
-	if(bShow)
-	{
-		sensor=extInCtrl->SensorStat;
-
-	}
-	else
-		{
-			sensor=prisensorstatus;
-
-		}
-
-	if(blobRct.bvalid){
-
-		Point pt1,pt2,center;
-		center.x = blobRct.center.x;
-		center.y = blobRct.center.y;
-
-	 	startx=PiexltoWindowsx(center.x,sensor);
-	 	starty=PiexltoWindowsy(center.y,sensor);
-		pt1.x=startx-10;pt1.y=starty;
-		pt2.x=startx+10;pt2.y=starty;
-		line(m_display.m_imgOsd[extInCtrl->SensorStat], pt1, pt2, colour, 1, 8, 0 );
-		pt1.x=startx;pt1.y=starty-10;
-		pt2.x=startx;pt2.y=starty+10;
-		line(m_display.m_imgOsd[extInCtrl->SensorStat], pt1, pt2, colour, 1, 8, 0 );
-
 	}
 }
 
@@ -1702,15 +1661,6 @@ void CProcess::OnKeyDwn(unsigned char key)
 		printf("pIStuts->MtdState[pIStuts->SensorStat]  = %d\n",pIStuts->MtdState[pIStuts->SensorStat] );
 	}
 
-	if (key == 'o' || key == 'O')
-	{
-		if(pIStuts->ImgBlobDetect[pIStuts->SensorStat])
-			pIStuts->ImgBlobDetect[pIStuts->SensorStat] = eImgAlg_Disable;
-		else
-			pIStuts->ImgBlobDetect[pIStuts->SensorStat] = eImgAlg_Enable;
-		msgdriv_event(MSGID_EXT_INPUT_ENBDT, NULL);
-	}
-
 	if (key == 't' || key == 'T')
 		{
 			if(pIStuts->ImgVideoTrans[pIStuts->SensorStat])
@@ -2179,21 +2129,6 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			dynamic_config(CDisplayer::DS_CFG_EnhEnable, pIStuts->SensorStat, &ENHStatus);
 		else
 			dynamic_config(CDisplayer::DS_CFG_EnhEnable, pIStuts->SensorStat, &ENHStatus);
-	}
-
-	if(msgId == MSGID_EXT_INPUT_ENBDT)
-	{
-		if(prm != NULL)
-		{
-			pInCmd = (CMD_EXT *)prm;
-			pIStuts->ImgBlobDetect[0] = pInCmd->ImgBlobDetect[0];
-			pIStuts->ImgBlobDetect[1] = pInCmd->ImgBlobDetect[1];
-		}
-		int BlobStatus = (pIStuts->ImgBlobDetect[pIStuts->SensorStat]&0x01) ;
-		if(BlobStatus)
-			dynamic_config(VP_CFG_BlobEnable, 1);
-		else
-			dynamic_config(VP_CFG_BlobEnable, 0);
 	}
 
 	if(msgId == MSGID_EXT_INPUT_RST_THETA)

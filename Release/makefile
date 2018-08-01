@@ -14,7 +14,6 @@ RM := rm -rf
 -include src/OSD/subdir.mk
 -include src/OSA_CAP/src/subdir.mk
 -include src/MSGDRI/subdir.mk
--include src/LASERBLOB/subdir.mk
 -include src/DXUTC/subdir.mk
 -include src/APP/subdir.mk
 

@@ -9,7 +9,6 @@ class CProcess : public CVideoProcess
 	UTC_RECT_float rcTrackBak[2],resultTrackBak;
 	TARGET tgBak[MAX_TARGET_NUMBER];
 	TARGETDRAW Mdrawbak[MAX_TARGET_NUMBER];
-	BlobRect blob_rectBak;
 	Osd_cvPoint crossBak;
 	Osd_cvPoint crossWHBak;
 	cv::Rect acqRectBak;
@@ -57,7 +56,6 @@ public:
 protected:
 	void msgdriv_event(MSG_PROC_ID msgId, void *prm);
 	void osd_mtd_show(TARGET tg[], bool bShow = true);
-	void DrawBlob(BlobRect blobRct, bool bShow = true);
 	void DrawCross(cv::Rect rec,int fcolour ,int sensor,bool bShow /*= true*/);
 	void drawmmt(TARGET tg[], bool bShow = true);
 	void drawmmtnew(TARGET tg[], bool bShow = true);
