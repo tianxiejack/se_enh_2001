@@ -305,8 +305,9 @@ void* recv_msg(SENDST *RS422)
 		case sensor:
 			memcpy(&Rsensor,RS422->param,sizeof(Rsensor));
 			printf("recv Rsensor: %d\n",Rsensor.SensorStat);
-			pMsg->SensorStat = Rsensor.SensorStat;	
+			pMsg->SensorStat = Rsensor.SensorStat;
 			app_ctrl_setSensor(pMsg);
+			MSGAPI_msgsend(sensor);
 			break;
 		
 		case pinp:	
@@ -473,6 +474,8 @@ int send_msg(SENDST *RS422)
 			}
 			printf("send ++++++++++ AvtMoveXY = (%02x,%02x)  ++++++++++\n",RS422->param[0],RS422->param[1]);				
 			break;
+		case sensor:
+			RS422->param[0] = pIStuts.SensorStat;	
 		case exit_img:					
 			break;
 		default:
