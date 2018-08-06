@@ -1271,7 +1271,7 @@ int CVideoProcess::process_track(int trackStatus, Mat frame_gray, Mat frame_dis,
 
 	if(trackStatus != 0)
 	{
-		rcResult = UtcTrkProc(m_track, image, &trackStatus);
+		rcResult = UtcTrkProc(m_track, image, &trackStatus);		
 	}
 	else
 	{

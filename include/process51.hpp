@@ -136,6 +136,7 @@ private:
 
 	void initAcqRect();
 	void initAimRect();
+	void set_trktype(CMD_EXT *p, unsigned int stat);
 
 public:
 	void update_param_alg();

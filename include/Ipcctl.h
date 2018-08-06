@@ -51,6 +51,8 @@ typedef enum
     menu,
     read_shm_lkosd,
     mmtLock,
+    BoresightPos,
+    trktype,
     invalid
 }CMD_ID;
 
@@ -309,6 +311,11 @@ typedef struct{
 	volatile unsigned char AvtMoveX;// eTrkRefine (axis or aim) x
 	volatile unsigned char AvtMoveY;// eTrkRefine (axis or aim) y
 }CMD_POSMOVE;
+
+typedef struct{
+	volatile unsigned int BoresightPos_x;
+	volatile unsigned int BoresightPos_y;
+}CMD_BoresightPos;
 
 typedef struct{
 	volatile unsigned char unitTrkX1;// for report and osd text x1
