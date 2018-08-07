@@ -98,6 +98,7 @@ void* recv_msg(SENDST *RS422)
 	CMD_POSMOVE Rposmove;
 	CMD_POSMOVE Raxismove;
 	CMD_ZOOM Rzoom;
+	CMD_BoresightPos Rboresightmove;
 	
 
 	//OSD_param* pOsd = NULL;
@@ -124,6 +125,10 @@ void* recv_msg(SENDST *RS422)
 	printf("cmdID : %d (%02x %02x %02x %02x %02x)\n",cmdID,imgID1,imgID2,imgID3,imgID4,imgID5);
 	switch(cmdID)
 	{	
+		case BoresightPos:
+			memcpy(&Rboresightmove, RS422->param, sizeof(Rboresightmove));
+		break;
+
 		case osdbuffer:
 			memcpy(&disOsdBuf[imgID1],RS422->param,sizeof(osdbuffer_t));
 			setlocale(LC_ALL, "zh_CN.UTF-8");

@@ -2761,7 +2761,6 @@ void CProcess::MSGAPI_inputpositon(long lParam )
 void CProcess::MSGAPI_inputcoast(long lParam )
 {
 
-	
 	sThis->msgdriv_event(MSGID_EXT_INPUT_COAST,NULL);
 	
 	//printf("%s\n",__func__);
