@@ -293,6 +293,7 @@ void* recv_msg(SENDST *RS422)
 					pMsg->AvtTrkStat =eTrk_mode_search;
 					app_ctrl_setTrkStat(pMsg);
 					app_ctrl_setAxisPos(pMsg);
+					MSGAPI_msgsend(sectrk);	
 				}
 				else if(0 == imgID1){
 					pMsg->AvtTrkStat = eTrk_mode_sectrk;

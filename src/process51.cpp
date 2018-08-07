@@ -1332,7 +1332,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 		 
 		 if(m_bTrack && !changesensorCnt)
 		 {
-		 	extInCtrl->TrkStat=m_iTrackStat;
+			set_trktype(extInCtrl,m_iTrackStat);
 			if(m_iTrackStat == 1)
 			{
 				rememflag=false;
@@ -1346,12 +1346,12 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				}
 				
 				if((OSA_getCurTimeInMsec()-rememtime) > 3000)
-				{							
-					extInCtrl->TrkStat=3;	
+				{		
+					set_trktype(extInCtrl,3);
 				}
 				else
 				{
-					extInCtrl->TrkStat=2;
+					set_trktype(extInCtrl,2);
 				}
 			}
 		 	 if((extInCtrl->TrkStat == 1)||(extInCtrl->TrkStat == 2))
@@ -3288,4 +3288,28 @@ void CProcess::update_param_alg()
 void CProcess::MSGAPI_update_camera(long lParam)
 {
 }
+
+#if __TRACK__
+void CProcess::set_trktype(CMD_EXT *p, unsigned int stat)
+{
+	
+	static int old_stat = -1;
+	int flag = 0;
+	SENDST test;
+	test.cmd_ID = trktype;
+
+	p->TrkStat = stat;
+
+	if(old_stat == eTrk_Lost && stat == eTrk_Assi)
+		return;
+		
+	if(old_stat != stat)
+	{
+		old_stat = stat;
+		flag = 1;
+	}
+	if(flag&&(extInCtrl->AvtTrkStat == eTrk_mode_target))
+		ipc_sendmsg(&test,IPC_FRIMG_MSG);
+}
+#endif
 
