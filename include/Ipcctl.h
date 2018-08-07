@@ -265,6 +265,7 @@ typedef struct{
 }CMD_SECTRK;
 
 typedef struct{
+	volatile unsigned char AcqStat;
 	volatile unsigned int BoresightPos_x;
 	volatile unsigned int BoresightPos_y;
 }CMD_AcqBoxPos;

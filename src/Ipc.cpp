@@ -85,6 +85,7 @@ void* recv_msg(SENDST *RS422)
 	unsigned char imgID3 = 0;
 	unsigned char imgID4 = 0;
 	unsigned char imgID5 = 0;	
+	unsigned char imgID6 = 0;
 
 	CMD_SENSOR Rsensor;
 	CMD_PinP Rpinp;
@@ -99,7 +100,7 @@ void* recv_msg(SENDST *RS422)
 	CMD_POSMOVE Raxismove;
 	CMD_ZOOM Rzoom;
 	CMD_BoresightPos Rboresightmove;
-	
+	CMD_AcqBoxPos Racqpos;
 
 	//OSD_param* pOsd = NULL;
 	//pOsd = &m_osd;
@@ -127,7 +128,59 @@ void* recv_msg(SENDST *RS422)
 	{	
 		case BoresightPos:
 			memcpy(&Rboresightmove, RS422->param, sizeof(Rboresightmove));
+
+			pMsg->AxisPosX[pMsg->SensorStat] = Rboresightmove.BoresightPos_x;
+			pMsg->AxisPosY[pMsg->SensorStat] = Rboresightmove.BoresightPos_y;
+			app_ctrl_setAxisPos(pMsg);
+
 		break;
+
+		case AcqPos:
+			memcpy(&Racqpos, RS422->param, sizeof(Racqpos));
+
+			imgID6 = Racqpos.AcqStat;
+
+			printf("imgID6 = %d\n", imgID6);
+				if(1 == imgID6){
+					pMsg->AxisPosX[pMsg->SensorStat] = Racqpos.BoresightPos_x;
+					pMsg->AxisPosY[pMsg->SensorStat] = Racqpos.BoresightPos_y;
+
+					int width = 0,height = 0;
+					if(pMsg->SensorStat == video_pal){
+						width  = VIDEO_IMAGE_WIDTH_0;
+						height = VIDEO_IMAGE_HEIGHT_0;
+					}else{
+						width  = VIDEO_IMAGE_WIDTH_1;
+						height = VIDEO_IMAGE_HEIGHT_1;
+					}
+					if(pMsg->AxisPosX[pMsg->SensorStat] + pMsg->crossAxisWidth/2 > width)
+						pMsg->AxisPosX[pMsg->SensorStat] = width - pMsg->crossAxisWidth/2;
+					if(pMsg->AxisPosY[pMsg->SensorStat] + pMsg->crossAxisHeight/2 > height)
+						pMsg->AxisPosY[pMsg->SensorStat] = height - pMsg->crossAxisHeight/2;
+
+					if(pMsg->AxisPosX[pMsg->SensorStat] <  pMsg->crossAxisWidth/2)
+						pMsg->AxisPosX[pMsg->SensorStat] =  pMsg->crossAxisWidth/2;
+					if(pMsg->AxisPosY[pMsg->SensorStat]  <  pMsg->crossAxisHeight/2)
+						pMsg->AxisPosY[pMsg->SensorStat] =  pMsg->crossAxisHeight/2;
+
+					//pMsg->AvtTrkStat =eTrk_mode_search;
+					//app_ctrl_setTrkStat(pMsg);
+					app_ctrl_setAxisPos(pMsg);
+					//MSGAPI_msgsend(sectrk);
+				}
+				else if(0 == imgID6){
+					pMsg->AvtTrkStat = eTrk_mode_acqmove;
+					pMsg->AvtPosX[pMsg->SensorStat] = Racqpos.BoresightPos_x;
+					pMsg->AvtPosY[pMsg->SensorStat] = Racqpos.BoresightPos_y;
+					app_ctrl_setTrkStat(pMsg);
+					pMsg->AxisPosX[pMsg->SensorStat] = pMsg->opticAxisPosX[pMsg->SensorStat];
+					pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
+					app_ctrl_setAxisPos(pMsg);
+					MSGAPI_msgsend(sectrk);
+				}
+
+
+			break;
 
 		case osdbuffer:
 			memcpy(&disOsdBuf[imgID1],RS422->param,sizeof(osdbuffer_t));

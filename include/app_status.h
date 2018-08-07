@@ -113,6 +113,7 @@ typedef enum Dram_trkMode
     eTrk_mode_mtd       = 0x02,
     eTrk_mode_sectrk    = 0x03,
     eTrk_mode_search    = 0x04,
+    eTrk_mode_acqmove 	= 0x05,
 
     eTrk_mode_switch      = 0x100,
 

@@ -2076,7 +2076,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 				pIStuts->unitAimX = 720/2;
 				pIStuts->unitAimY = 576/2;
 			}
-			if(pIStuts->AvtTrkStat == eTrk_mode_sectrk){
+			if(pIStuts->AvtTrkStat == eTrk_mode_sectrk || pIStuts->AvtTrkStat ==eTrk_mode_acqmove){
 				pIStuts->unitAimX = pIStuts->AvtPosX[pIStuts->SensorStat];
 				pIStuts->unitAimY = pIStuts->AvtPosY[pIStuts->SensorStat];
 			}
