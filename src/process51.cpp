@@ -2071,14 +2071,15 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			}
 			else if(m_curChId == video_pal)
 			{
-				rc.width= pIStuts->AcqRectW[pIStuts->SensorStat];//pIStuts->AimW[pIStuts->SensorStat];
-				rc.height=pIStuts->AcqRectH[pIStuts->SensorStat];//pIStuts->AimW[pIStuts->SensorStat];
+				rc.width= pIStuts->AcqRectW[pIStuts->SensorStat];
+				rc.height=pIStuts->AcqRectH[pIStuts->SensorStat];
 				pIStuts->unitAimX = 720/2;
 				pIStuts->unitAimY = 576/2;
 			}
 			if(pIStuts->AvtTrkStat == eTrk_mode_sectrk || pIStuts->AvtTrkStat ==eTrk_mode_acqmove){
 				pIStuts->unitAimX = pIStuts->AvtPosX[pIStuts->SensorStat];
 				pIStuts->unitAimY = pIStuts->AvtPosY[pIStuts->SensorStat];
+				printf("set set set   x  , y (%d , %d ) \n",pIStuts->unitAimX,pIStuts->unitAimY);
 			}
 
 			rc.x=pIStuts->unitAimX-rc.width/2;

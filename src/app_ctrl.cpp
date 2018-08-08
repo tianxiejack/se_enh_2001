@@ -36,8 +36,9 @@ void app_ctrl_setTrkStat(CMD_EXT * pInCmd)
 		{
 			return ;
 		}	
-		else if(pIStuts->AvtTrkStat==eTrk_mode_sectrk)
+		else if(pIStuts->AvtTrkStat==eTrk_mode_sectrk || pIStuts->AvtTrkStat == eTrk_mode_acqmove)
 		{
+			printf("app_ctrl_setTrkStat  app_ctrl_setTrkStat \n");
 			pIStuts->AvtPosX[pIStuts->SensorStat] = pInCmd->AvtPosX[pIStuts->SensorStat];
 			pIStuts->AvtPosY[pIStuts->SensorStat] = pInCmd->AvtPosY[pIStuts->SensorStat];
 		}
