@@ -1383,13 +1383,13 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 					{
 						if(extInCtrl->SensorStat == video_gaoqing)
 						{
-							extInCtrl->trkerrx = extInCtrl->trkerrx - extInCtrl->opticAxisPosX[extInCtrl->SensorStat];//VIDEO_IMAGE_WIDTH_1/2;
-							extInCtrl->trkerry = extInCtrl->trkerry - extInCtrl->opticAxisPosY[extInCtrl->SensorStat];//VIDEO_IMAGE_HEIGHT_1/2;
+							extInCtrl->trkerrx = extInCtrl->trkerrx - extInCtrl->opticAxisPosX[extInCtrl->SensorStat];
+							extInCtrl->trkerry = extInCtrl->trkerry - extInCtrl->opticAxisPosY[extInCtrl->SensorStat];
 						}
 						else if(extInCtrl->SensorStat == video_pal)
 						{
-							extInCtrl->trkerrx = extInCtrl->trkerrx - VIDEO_IMAGE_WIDTH_0/2;
-							extInCtrl->trkerry = extInCtrl->trkerry - VIDEO_IMAGE_HEIGHT_0/2;
+							extInCtrl->trkerrx = extInCtrl->trkerrx - extInCtrl->opticAxisPosX[extInCtrl->SensorStat];
+							extInCtrl->trkerry = extInCtrl->trkerry - extInCtrl->opticAxisPosX[extInCtrl->SensorStat];
 						}
 					}
 					else
