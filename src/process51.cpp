@@ -1383,8 +1383,8 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 					{
 						if(extInCtrl->SensorStat == video_gaoqing)
 						{
-							extInCtrl->trkerrx = extInCtrl->trkerrx - VIDEO_IMAGE_WIDTH_1/2;
-							extInCtrl->trkerry = extInCtrl->trkerry - VIDEO_IMAGE_HEIGHT_1/2;
+							extInCtrl->trkerrx = extInCtrl->trkerrx - extInCtrl->opticAxisPosX[extInCtrl->SensorStat];//VIDEO_IMAGE_WIDTH_1/2;
+							extInCtrl->trkerry = extInCtrl->trkerry - extInCtrl->opticAxisPosY[extInCtrl->SensorStat];//VIDEO_IMAGE_HEIGHT_1/2;
 						}
 						else if(extInCtrl->SensorStat == video_pal)
 						{
@@ -2061,20 +2061,23 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 		}
 		else
 		{
-			printf("%s,line:%d   aimx,aimy=(%d,%d)\n",__func__,__LINE__,pIStuts->AvtPosX[0],pIStuts->AvtPosY[0]);
+			//printf("%s,line:%d   aimx,aimy=(%d,%d)\n",__func__,__LINE__,pIStuts->AvtPosX[0],pIStuts->AvtPosY[0]);
 			if(m_curChId== video_gaoqing)
 			{
 				rc.width= pIStuts->AimW[pIStuts->SensorStat];
 				rc.height=pIStuts->AimW[pIStuts->SensorStat];
-				pIStuts->unitAimX = 1920/2;
-				pIStuts->unitAimY = 1080/2;
+				pIStuts->unitAimX = pIStuts->AvtPosX[pIStuts->SensorStat];
+				pIStuts->unitAimY = pIStuts->AvtPosY[pIStuts->SensorStat];
+				printf("AvtPosX[%d] , AvtPosY[%d] (%d,%d) \n",pIStuts->SensorStat,pIStuts->SensorStat,pIStuts->AvtPosX[pIStuts->SensorStat],pIStuts->AvtPosY[pIStuts->SensorStat]);
+				printf(" address  x  , y (%x , %x ) \n",pIStuts->AvtPosX,pIStuts->AvtPosY);
+
 			}
 			else if(m_curChId == video_pal)
 			{
 				rc.width= pIStuts->AcqRectW[pIStuts->SensorStat];
 				rc.height=pIStuts->AcqRectH[pIStuts->SensorStat];
-				pIStuts->unitAimX = 720/2;
-				pIStuts->unitAimY = 576/2;
+				pIStuts->unitAimX = pIStuts->AvtPosX[pIStuts->SensorStat];
+				pIStuts->unitAimY = pIStuts->AvtPosY[pIStuts->SensorStat];
 			}
 			if(pIStuts->AvtTrkStat == eTrk_mode_sectrk || pIStuts->AvtTrkStat ==eTrk_mode_acqmove){
 				pIStuts->unitAimX = pIStuts->AvtPosX[pIStuts->SensorStat];
