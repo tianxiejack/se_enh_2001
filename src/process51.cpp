@@ -1923,7 +1923,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			pInCmd = (CMD_EXT *)prm;
 			pIStuts->AvtTrkStat = pInCmd->AvtTrkStat;
 		}
-
+		char procStr[][10] = {"ACQ", "TARGET", "MTD", "SECTRK", "SEARCH", "ROAM", "SCENE", "IMGTRK"};
 		UTC_RECT_float rc;
 		if (pIStuts->AvtTrkStat == eTrk_mode_acq)
 		{
@@ -1981,10 +1981,6 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			dynamic_config(VP_CFG_TrkEnable, 0,NULL);
 			return ;
 			
-			OSA_printf(" %d:%s line:%d set track to [%s]\n", OSA_getCurTimeInMsec(), __func__,
-					   __LINE__,procStr[pIStuts->AvtTrkStat]);
-
-
 			pIStuts->AvtTrkStat = eTrk_mode_target;
 
 			//zoom for mtdTrk change xy 	
@@ -2026,10 +2022,6 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			}
 		}
 
-		OSA_printf(" %d:%s line:%d set track to [%s]\n", OSA_getCurTimeInMsec(), __func__,
-					   __LINE__,procStr[pIStuts->AvtTrkStat]);
-		
-	
 		//printf("%s,line:%d   aimx,aimy=(%d,%d)\n",__func__,__LINE__,pIStuts->AvtPosX[0],pIStuts->AvtPosY[0]);
 		if(m_curChId== video_gaoqing)
 		{
