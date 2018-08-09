@@ -375,6 +375,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
     //glutInitWindowSize(m_mainWinWidth, m_mainWinHeight);
     glutInitWindowSize(m_mainWinWidth_new[video_gaoqing], m_mainWinHeight_new[video_gaoqing]);
     glutCreateWindow("DSS");
+	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(&_display);
 	//glutFullScreen();
 	if(m_initPrm.idlefunc != NULL)

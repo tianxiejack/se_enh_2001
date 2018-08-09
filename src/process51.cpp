@@ -1792,32 +1792,6 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 
 		itmp = pIStuts->PicpSensorStat;//freeze change
 		dynamic_config(VP_CFG_SubChId, itmp, NULL);
-////enhance 
-		if(pIStuts->ImgEnhStat[pIStuts->SensorStat^1] ==0x01)
-		{
-			int ENHStatus=0;
-			if(pIStuts->ImgEnhStat[pIStuts->SensorStat] ==0x00)
-			{
-				ENHStatus=pIStuts->ImgEnhStat[pIStuts->SensorStat]=pIStuts->ImgEnhStat[pIStuts->SensorStat^1];		
-				OSA_printf("the enhstaus=%d  pIStuts->SensorStat=%d\n",ENHStatus,pIStuts->SensorStat);
-				dynamic_config(CDisplayer::DS_CFG_EnhEnable, pIStuts->SensorStat, &ENHStatus);
-			}
-			ENHStatus=0;
-			dynamic_config(CDisplayer::DS_CFG_EnhEnable, pIStuts->SensorStat^1, &ENHStatus);
-			pIStuts->ImgEnhStat[pIStuts->SensorStat^1]=0;			
-		}
-		
-//sec track sync
-		if(pIStuts->SensorStat==0)
-		{
-			pIStuts->AvtPosX[pIStuts->SensorStat] =PiexltoWindowsx( pIStuts->AvtPosX[pIStuts->SensorStat^1],pIStuts->SensorStat^1);
-			pIStuts->AvtPosY[pIStuts->SensorStat] =PiexltoWindowsy( pIStuts->AvtPosY[pIStuts->SensorStat^1],pIStuts->SensorStat^1);
-		}
-		else
-		{
-			pIStuts->AvtPosX[pIStuts->SensorStat] =WindowstoPiexlx( pIStuts->AvtPosX[pIStuts->SensorStat^1],pIStuts->SensorStat);
-			pIStuts->AvtPosY[pIStuts->SensorStat] =WindowstoPiexly( pIStuts->AvtPosY[pIStuts->SensorStat^1],pIStuts->SensorStat);
-		}
 
 //sensor 1 rect
 
@@ -1950,7 +1924,6 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			pIStuts->AvtTrkStat = pInCmd->AvtTrkStat;
 		}
 
-		char procStr[][10] = {"ACQ", "TARGET", "MTD", "SECTRK", "SEARCH", "ROAM", "SCENE", "IMGTRK"};
 		UTC_RECT_float rc;
 		if (pIStuts->AvtTrkStat == eTrk_mode_acq)
 		{
@@ -2056,38 +2029,35 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 		OSA_printf(" %d:%s line:%d set track to [%s]\n", OSA_getCurTimeInMsec(), __func__,
 					   __LINE__,procStr[pIStuts->AvtTrkStat]);
 		
-		if(TrkAim43 == true)
+	
+		//printf("%s,line:%d   aimx,aimy=(%d,%d)\n",__func__,__LINE__,pIStuts->AvtPosX[0],pIStuts->AvtPosY[0]);
+		if(m_curChId== video_gaoqing)
 		{
+			rc.width= pIStuts->AimW[pIStuts->SensorStat];
+			rc.height=pIStuts->AimW[pIStuts->SensorStat];
+			pIStuts->unitAimX = pIStuts->AvtPosX[pIStuts->SensorStat];
+			pIStuts->unitAimY = pIStuts->AvtPosY[pIStuts->SensorStat];
+			printf("AvtPosX[%d] , AvtPosY[%d] (%d,%d) \n",pIStuts->SensorStat,
+				pIStuts->SensorStat,pIStuts->AvtPosX[pIStuts->SensorStat],
+				pIStuts->AvtPosY[pIStuts->SensorStat]);
+
 		}
-		else
+		else if(m_curChId == video_pal)
 		{
-			//printf("%s,line:%d   aimx,aimy=(%d,%d)\n",__func__,__LINE__,pIStuts->AvtPosX[0],pIStuts->AvtPosY[0]);
-			if(m_curChId== video_gaoqing)
-			{
-				rc.width= pIStuts->AimW[pIStuts->SensorStat];
-				rc.height=pIStuts->AimW[pIStuts->SensorStat];
-				pIStuts->unitAimX = pIStuts->AvtPosX[pIStuts->SensorStat];
-				pIStuts->unitAimY = pIStuts->AvtPosY[pIStuts->SensorStat];
-				printf("AvtPosX[%d] , AvtPosY[%d] (%d,%d) \n",pIStuts->SensorStat,pIStuts->SensorStat,pIStuts->AvtPosX[pIStuts->SensorStat],pIStuts->AvtPosY[pIStuts->SensorStat]);
-				printf(" address  x  , y (%x , %x ) \n",pIStuts->AvtPosX,pIStuts->AvtPosY);
-
-			}
-			else if(m_curChId == video_pal)
-			{
-				rc.width= pIStuts->AcqRectW[pIStuts->SensorStat];
-				rc.height=pIStuts->AcqRectH[pIStuts->SensorStat];
-				pIStuts->unitAimX = pIStuts->AvtPosX[pIStuts->SensorStat];
-				pIStuts->unitAimY = pIStuts->AvtPosY[pIStuts->SensorStat];
-			}
-			if(pIStuts->AvtTrkStat == eTrk_mode_sectrk || pIStuts->AvtTrkStat ==eTrk_mode_acqmove){
-				pIStuts->unitAimX = pIStuts->AvtPosX[pIStuts->SensorStat];
-				pIStuts->unitAimY = pIStuts->AvtPosY[pIStuts->SensorStat];
-				printf("set set set   x  , y (%d , %d ) \n",pIStuts->unitAimX,pIStuts->unitAimY);
-			}
-
-			rc.x=pIStuts->unitAimX-rc.width/2;
-			rc.y=pIStuts->unitAimY-rc.height/2;
+			rc.width= pIStuts->AcqRectW[pIStuts->SensorStat];
+			rc.height=pIStuts->AcqRectH[pIStuts->SensorStat];
+			pIStuts->unitAimX = pIStuts->AvtPosX[pIStuts->SensorStat];
+			pIStuts->unitAimY = pIStuts->AvtPosY[pIStuts->SensorStat];
 		}
+		if(pIStuts->AvtTrkStat == eTrk_mode_sectrk || pIStuts->AvtTrkStat ==eTrk_mode_acqmove){
+			pIStuts->unitAimX = pIStuts->AvtPosX[pIStuts->SensorStat];
+			pIStuts->unitAimY = pIStuts->AvtPosY[pIStuts->SensorStat];
+			printf("set set set   x  , y (%d , %d ) \n",pIStuts->unitAimX,pIStuts->unitAimY);
+		}
+
+		rc.x=pIStuts->unitAimX-rc.width/2;
+		rc.y=pIStuts->unitAimY-rc.height/2;
+		
 			
 		OSA_printf("%s,line:%d   rc. xy(%f,%f),wh(%f,%f)\n",__func__,__LINE__,rc.x,rc.y,rc.width,rc.height);
 		dynamic_config(VP_CFG_TrkEnable, 1,&rc);
@@ -2136,25 +2106,6 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			dynamic_config(CDisplayer::DS_CFG_EnhEnable, pIStuts->SensorStat, &ENHStatus);
 	}
 
-	if(msgId == MSGID_EXT_INPUT_RST_THETA)
-	{
-		if(prm != NULL)
-		{
-			pInCmd = (CMD_EXT *)prm;
-		}
-		int videoTrans = (pIStuts->ImgVideoTrans[pIStuts->SensorStat]&0x01);
-		GLfloat result[16];
-		if(videoTrans)
-		{
-			my_rotate(result, 45.0);
-			dynamic_config(CDisplayer::DS_CFG_VideoTransMat, pIStuts->SensorStat, result);
-		}
-		else
-		{
-			my_rotate(result, 0.0);
-			dynamic_config(CDisplayer::DS_CFG_VideoTransMat, pIStuts->SensorStat, result);
-		}
-	}
 
 	if(msgId == MSGID_EXT_INPUT_AIMPOS || msgId == MSGID_EXT_INPUT_AIMSIZE)
 	{
@@ -2310,44 +2261,12 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 
 		return ;
 	}
-	if(msgId ==MSGID_EXT_INPUT_ENFREZZ)
-	{
-		int freeze=pIStuts->ImgFrezzStat[pIStuts->SensorStat];
-		DS_Rect rendposr;
-		//wj20180319
-		#if 0
-		rendposr.x=vdisWH[0][0]*2/3;
-		rendposr.y=vdisWH[0][1]*2/3;
-		rendposr.w=vdisWH[0][0]/3;
-		rendposr.h=vdisWH[0][1]/3;
-		#else
-		rendposr.x=0;
-		rendposr.y=vdisWH[0][1]*2/3;
-		rendposr.w=vdisWH[0][0]/3;
-		rendposr.h=vdisWH[0][1]/3;
-		
-		#endif
-		if(freeze)		//QQQQQQ
-			;//m_display.dynamic_config(CDisplayer::DS_CFG_RenderPosRect, 1, &rendposr);
-		else
-		{
-			rendposr=rendpos[pIStuts->PicpPosStat];
-			//m_display.dynamic_config(CDisplayer::DS_CFG_RenderPosRect, 1, &rendposr);
-		}
-		//tui chu freeze
-		m_display.dynamic_config(CDisplayer::DS_CFG_FreezeEnable, 1, &freeze);
-		m_display.dynamic_config(CDisplayer::DS_CFG_FreezeEnable, 0, &freeze);
-
-	}
+	
 	if(msgId ==MSGID_EXT_INPUT_PICPCROP)
 	{		
 		m_display.dynamic_config(CDisplayer::DS_CFG_RenderPosRect, 1, &rendpos[pIStuts->PicpPosStat]);
 	}
-	if(msgId ==MSGID_EXT_INPUT_COAST)
-	{
-		m_castTm=OSA_getCurTimeInMsec();
-		m_bCast=true;
-	}
+
 	if(msgId ==MSGID_EXT_INPUT_VIDEOEN)
 	{
 		int status=pIStuts->unitFaultStat&0x01;

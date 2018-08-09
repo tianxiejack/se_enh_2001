@@ -249,8 +249,8 @@ void app_ctrl_Sensorchange(CMD_EXT * pInCmd)
 	if(msgextInCtrl==NULL)
 		return ;
 	CMD_EXT *pIStuts = msgextInCtrl;
-	pIStuts->unitAimX=pIStuts->opticAxisPosX[pIStuts->SensorStat];
-	pIStuts->unitAimY=pIStuts->opticAxisPosY[pIStuts->SensorStat];
+	pIStuts->AxisPosX[pIStuts->SensorStat]=pIStuts->opticAxisPosX[pIStuts->SensorStat];
+	pIStuts->AxisPosY[pIStuts->SensorStat]=pIStuts->opticAxisPosY[pIStuts->SensorStat];
 }
 
 void app_ctrl_setReset(CMD_EXT * pInCmd)
@@ -284,7 +284,7 @@ void app_ctrl_setSensor(CMD_EXT * pInCmd)
 		pIStuts->changeSensorFlag = 1;
 		pIStuts->SensorStatpri = pIStuts->SensorStat;
 		pIStuts->SensorStat = pInCmd->SensorStat;
-		app_ctrl_Sensorchange(pInCmd);
+		//app_ctrl_Sensorchange(pInCmd);
 		MSGDRIV_send(MSGID_EXT_INPUT_SENSOR, 0);
 	}
 	return ;

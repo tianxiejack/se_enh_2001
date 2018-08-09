@@ -123,8 +123,6 @@ void* recv_msg(SENDST *RS422)
 	if(startEnable)
 		app_ctrl_getSysData(pMsg);
 
-	printf("1111111111111  pMsg->AvtPosX[1] = %d \n",pMsg->AvtPosX[1]);
-
 	osdbuffer_t* ppppp  = NULL;	
 	printf("cmdID : %d (%02x %02x %02x %02x %02x)\n",cmdID,imgID1,imgID2,imgID3,imgID4,imgID5);
 	switch(cmdID)
@@ -257,7 +255,7 @@ void* recv_msg(SENDST *RS422)
 				app_ctrl_setAimPos(pMsg);
 				app_ctrl_setAxisPos(pMsg);
 			}
-			printf("pMsg->AvtPosX[1] = %d \n",pMsg->AvtPosX[1]);
+
 			app_ctrl_setTrkStat(pMsg); 
 			MSGAPI_msgsend(trk);
 			break;
