@@ -77,6 +77,21 @@ int  send_msgpth(SENDST * RS422)
 	return 0;
 }
 
+void get_acqRect_from_aim(OSDSTATUS *gConfig_Osd_param)
+{
+	gConfig_Osd_param->ch0_acqRect_width = gConfig_Osd_param->ch0_aim_width;
+	gConfig_Osd_param->ch1_acqRect_width = gConfig_Osd_param->ch1_aim_width;
+	gConfig_Osd_param->ch2_acqRect_width = gConfig_Osd_param->ch2_aim_width;
+	gConfig_Osd_param->ch3_acqRect_width = gConfig_Osd_param->ch3_aim_width;
+	gConfig_Osd_param->ch4_acqRect_width = gConfig_Osd_param->ch4_aim_width;
+	gConfig_Osd_param->ch5_acqRect_width = gConfig_Osd_param->ch5_aim_width;
+	gConfig_Osd_param->ch0_acqRect_height = gConfig_Osd_param->ch0_aim_height;
+	gConfig_Osd_param->ch1_acqRect_height = gConfig_Osd_param->ch1_aim_height;
+	gConfig_Osd_param->ch2_acqRect_height = gConfig_Osd_param->ch2_aim_height;
+	gConfig_Osd_param->ch3_acqRect_height = gConfig_Osd_param->ch3_aim_height;
+	gConfig_Osd_param->ch4_acqRect_height = gConfig_Osd_param->ch4_aim_height;
+	gConfig_Osd_param->ch5_acqRect_height = gConfig_Osd_param->ch5_aim_height;
+}
 void* recv_msg(SENDST *RS422)
 {
 	unsigned char cmdID = 0;
@@ -207,11 +222,14 @@ void* recv_msg(SENDST *RS422)
 			break;
 
 		case read_shm_config:
-			if(!startEnable){		
+			//if(!startEnable)
+			{		
 				OSDSTATUS *osdtmp = ipc_getosdstatus_p();
 				UTCTRKSTATUS *utctmp = ipc_getutstatus_p();
 				memcpy(&gConfig_Alg_param,utctmp,sizeof(UTCTRKSTATUS));
-				memcpy(&gConfig_Osd_param,osdtmp,sizeof(OSDSTATUS));
+				memcpy(&gConfig_Osd_param,osdtmp,sizeof(OSDSTATUS));	
+				get_acqRect_from_aim(&gConfig_Osd_param);
+				MSGDRIV_send(MSGID_EXT_UPDATE_OSD, 0);
 				startEnable = 1;
 			}
 			break;
@@ -221,6 +239,8 @@ void* recv_msg(SENDST *RS422)
 				printf("read_shm_osd  \n\n");
 				OSDSTATUS *osdtmp = ipc_getosdstatus_p();
 				memcpy(&gConfig_Osd_param,osdtmp,sizeof(OSDSTATUS));
+				get_acqRect_from_aim(&gConfig_Osd_param);	
+				
 				MSGDRIV_send(MSGID_EXT_UPDATE_OSD, 0);
 			}
 			break;
@@ -393,6 +413,11 @@ void* recv_msg(SENDST *RS422)
 			pMsg->AimW[pMsg->SensorStat] = aimsize.AimW;
 			pMsg->AimH[pMsg->SensorStat]  = aimsize.AimH;
 			app_ctrl_setAimSize(pMsg);	
+
+			pMsg->AcqRectW[pMsg->SensorStat] = aimsize.AimW;
+			pMsg->AcqRectH[pMsg->SensorStat]  = aimsize.AimH;
+			app_ctrl_setAcqRect(pMsg);
+			
 			MSGAPI_msgsend(trkdoor);
 			break;	
 			
@@ -437,6 +462,7 @@ void* recv_msg(SENDST *RS422)
 			break;
 
 		case acqBox:
+			/*
 			AcqBoxWH acqSize;	
 			memcpy(&acqSize,RS422->param,sizeof(acqSize));
 			pMsg->AcqRectW[pMsg->SensorStat] = acqSize.AimW;
@@ -444,7 +470,7 @@ void* recv_msg(SENDST *RS422)
 			app_ctrl_setAcqRect(pMsg);
 			MSGAPI_msgsend(acqBox);
 			break;
-			
+			*/
 		case exit_img:
 			MSGAPI_msgsend(exit_img);
 			ipc_loop = 0;			
