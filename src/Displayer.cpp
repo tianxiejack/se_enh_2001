@@ -1465,11 +1465,11 @@ void CDisplayer::IrisAndFocus()
 	switch(IrisAndFocusAndExit)
 	{
 	case Enable_Iris:
-		chinese_osd(5,5,L"光圈调节",1,6,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
+		chinese_osd(10,1040,L"光圈调节",1,6,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
 		break;
 
 	case Enable_Focus:
-		chinese_osd(5,5,L"聚焦调节",1,6,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
+		chinese_osd(10,1040,L"聚焦调节",1,6,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
 		break;
 	}
 }
