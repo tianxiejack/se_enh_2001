@@ -418,3 +418,16 @@ void app_ctrl_setAcqRect(CMD_EXT * pInCmd)
 		pIStuts->AcqRectH[pIStuts->validChId] = pInCmd->AcqRectH[pInCmd->validChId];
 	}
 }
+
+void app_ctrl_setalgosdrect(CMD_EXT * pInCmd)
+{
+	if(msgextInCtrl==NULL)
+		return ;
+	CMD_EXT *pIStuts = msgextInCtrl;
+	if(pIStuts->Imgalgosdrect != pInCmd->Imgalgosdrect)
+	{
+		pIStuts->Imgalgosdrect = pInCmd->Imgalgosdrect;
+		MSGDRIV_send(MSGID_EXT_INPUT_ALGOSDRECT, 0);
+	}
+
+}

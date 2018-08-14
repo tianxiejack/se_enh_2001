@@ -157,12 +157,13 @@ typedef struct
 	volatile int AcqRectH[eSen_Max];
 	volatile int AimW[eSen_Max];
 	volatile int AimH[eSen_Max];
-	volatile int crossAxisWidth;
-	volatile int crossAxisHeight;
+	volatile int crossAxisWidth[eSen_Max];
+	volatile int crossAxisHeight[eSen_Max];
 	volatile int picpCrossAxisWidth;
 	volatile int picpCrossAxisHeight;
 	volatile bool osdTextShow;
 	volatile bool osdDrawShow;
+	volatile bool crossDrawShow;
 	volatile int osdTextColor;
 	volatile int osdTextAlpha;
 	volatile int osdTextFont;
@@ -229,6 +230,7 @@ typedef struct
 	/***** cmd osd part *****/
 	volatile unsigned int  DispGrp[eSen_Max];       	// eDispGrade
 	volatile unsigned int  DispColor[eSen_Max];  	// eOSDColor or eGRPColor
+	volatile unsigned char Imgalgosdrect;
 	
 	//don't know the usage
 	volatile unsigned int  TrkCoastCount;
@@ -305,6 +307,7 @@ typedef enum
     MSGID_EXT_INPUT_DISPGRADE = 0x00000030,  ///< external cmd, osd show or hide
     MSGID_EXT_INPUT_DISPCOLOR,              ///< external cmd, osd color
     MSGID_EXT_INPUT_COLOR,                 ///< external cmd, switch input video color.
+    MSGID_EXT_INPUT_ALGOSDRECT,
 
     // video control
     MSGID_EXT_INPUT_VIDEOCTRL,              ///< external cmd, video record or replay.

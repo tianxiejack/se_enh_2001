@@ -396,6 +396,7 @@ CVideoProcess::CVideoProcess()
 	tvzoomStat		=0;
 	wFileFlag			=0;
 	preAcpSR	={0};
+	algOsdRect = false;
 	
 	#if __MOVE_DETECT__
 		m_pMovDetector	=NULL;
@@ -524,6 +525,7 @@ int CVideoProcess::init()
 	m_display.init(&dsInit);
 
 	m_display.m_bOsd = true;
+	m_display.m_crossOsd = true;
 	m_dc = m_display.m_imgOsd[0];
 	m_dccv=m_display.m_imgOsd[1];
 	OnInit();

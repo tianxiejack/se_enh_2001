@@ -106,6 +106,7 @@ protected:
 	 static void MSGAPI_update_osd(long IParam);
 	 static void MSGAPI_update_alg(long IParam);
 	 static void MSGAPI_update_camera(long IParam);
+	 static void MSGAPI_input_algosdrect(long lParam);
 
 private:
 	ACK_EXT extOutAck;

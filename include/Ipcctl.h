@@ -41,9 +41,7 @@ typedef enum
     sensor_video_trans,/*21*/
     vframerate,/*22*/
     vquality,/*23*/
-
     osdbuffer,
-
     acqBox,
     Iris,
     focus,
@@ -54,6 +52,7 @@ typedef enum
     BoresightPos,
     trktype,
     AcqPos,
+    algosdrect,
     invalid
 }CMD_ID;
 
@@ -383,6 +382,9 @@ typedef struct{
     volatile unsigned char alpha;
 }CMD_OSDALPHA;
 
+typedef struct{
+	volatile unsigned char Imgalgosdrect;
+}CMD_ALGOSDRECT;
 
 typedef struct{
     unsigned char cmd_ID;
@@ -414,12 +416,13 @@ typedef struct
 	volatile int AcqRectH[ipc_eSen_Max];
 	volatile int AimW[ipc_eSen_Max];
 	volatile int AimH[ipc_eSen_Max];
-	volatile int crossAxisWidth;
-	volatile int crossAxisHeight;
+	volatile int crossAxisWidth[ipc_eSen_Max];
+	volatile int crossAxisHeight[ipc_eSen_Max];
 	volatile int picpCrossAxisWidth;
 	volatile int picpCrossAxisHeight;
 	volatile bool osdTextShow;
 	volatile bool osdDrawShow;
+	volatile bool crossDrawShow;
 	volatile int osdTextColor;
 	volatile int osdTextAlpha;
 	volatile int osdTextFont;
@@ -486,6 +489,7 @@ typedef struct
 	/***** cmd osd part *****/
 	volatile unsigned int  DispGrp[ipc_eSen_Max];       	// eDispGrade
 	volatile unsigned int  DispColor[ipc_eSen_Max];  	// eOSDColor or eGRPColor
+	volatile unsigned char Imgalgosdrect;
 	
 	//don't know the usage
 	volatile unsigned int  TrkCoastCount;
@@ -509,6 +513,7 @@ typedef struct {
 	int OSD_text_font;
 	int OSD_text_size;
 	bool OSD_draw_show;
+	bool CROSS_draw_show;
 	int OSD_draw_color;
 	int CROSS_AXIS_WIDTH;
 	int CROSS_AXIS_HEIGHT;

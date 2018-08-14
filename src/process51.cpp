@@ -1136,7 +1136,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	cv::Rect recIn;
 	static int coastCnt = 1;
 	static int bDraw = 0;
-	algOsdRect = 0;
+	//algOsdRect = 0;
 
 	static int changesensorCnt = 0;
 
@@ -1196,44 +1196,38 @@ bool CProcess::OnProcess(int chId, Mat &frame)
  			}
 		}
 
-
 		if(Osdflag[osdindex]==1)
  		{			
- 			if(extInCtrl->SensorStat==video_gaoqing)
- 			{
-				rectangle( m_dccv,
-					Point( rcTrackBak[extInCtrl->SensorStat].x, rcTrackBak[extInCtrl->SensorStat].y ),
-					Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
-						rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
-					cvScalar(0,0,0, 0), 1, 8 );
- 			}
-			else if(extInCtrl->SensorStat==video_pal)
- 			{
-				rectangle( m_dc,
-					Point( rcTrackBak[extInCtrl->SensorStat].x, rcTrackBak[extInCtrl->SensorStat].y ),
-					Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
-						rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
-					cvScalar(0,0,0, 0), 1, 8 );
- 			}
-			#if 1
-				if(algOsdRect == true)
+				if(extInCtrl->SensorStat==video_gaoqing)
 				{
-					if(extInCtrl->SensorStat==video_gaoqing)
-					{
-						rectangle( m_dccv,
-							Point( resultTrackBak.x, resultTrackBak.y ),
-							Point( resultTrackBak.x+resultTrackBak.width, resultTrackBak.y+resultTrackBak.height),
-							cvScalar(0,0,0,0), 1, 8 );
-					}
-					else if(extInCtrl->SensorStat==video_pal)
-					{
-						rectangle( m_dc,
-							Point( resultTrackBak.x, resultTrackBak.y ),
-							Point( resultTrackBak.x+resultTrackBak.width, resultTrackBak.y+resultTrackBak.height),
-							cvScalar(0,0,0,0), 1, 8 );
-					}
+					rectangle( m_dccv,
+						Point( resultTrackBak.x, resultTrackBak.y ),
+						Point( resultTrackBak.x+resultTrackBak.width, resultTrackBak.y+resultTrackBak.height),
+						cvScalar(0,0,0,0), 1, 8 );
 				}
-			#endif			
+				else if(extInCtrl->SensorStat==video_pal)
+				{
+					rectangle( m_dc,
+						Point( resultTrackBak.x, resultTrackBak.y ),
+						Point( resultTrackBak.x+resultTrackBak.width, resultTrackBak.y+resultTrackBak.height),
+						cvScalar(0,0,0,0), 1, 8 );
+				}
+	 			if(extInCtrl->SensorStat==video_gaoqing)
+	 			{
+					rectangle( m_dccv,
+						Point( rcTrackBak[extInCtrl->SensorStat].x, rcTrackBak[extInCtrl->SensorStat].y ),
+						Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
+							rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
+						cvScalar(0,0,0, 0), 1, 8 );
+	 			}
+				else if(extInCtrl->SensorStat==video_pal)
+	 			{
+					rectangle( m_dc,
+						Point( rcTrackBak[extInCtrl->SensorStat].x, rcTrackBak[extInCtrl->SensorStat].y ),
+						Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
+							rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
+						cvScalar(0,0,0, 0), 1, 8 );
+	 			}
 			Osdflag[osdindex]=0;
 		}
 		 if(m_bTrack)
@@ -1252,12 +1246,12 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			}
 			else if(chId == video_pal)
 			{
-				startx=PiexltoWindowsxzoom_TrkRect(rcResult.x+rcResult.width/2-rcResult_algRect.width/2,extInCtrl->SensorStat);			
-			 	starty=PiexltoWindowsyzoom_TrkRect(rcResult.y+rcResult.height/2-rcResult_algRect.height/2 ,extInCtrl->SensorStat);
-			 	endx  =PiexltoWindowsxzoom_TrkRect(rcResult.x+rcResult.width/2+rcResult_algRect.width/2,extInCtrl->SensorStat);
-		 	 	endy  =PiexltoWindowsyzoom_TrkRect(rcResult.y+rcResult.height/2+rcResult_algRect.height/2 ,extInCtrl->SensorStat);
+				startx=PiexltoWindowsxzoom_TrkRect(rcResult.x+rcResult.width/2-aimw/2,extInCtrl->SensorStat);			
+			 	starty=PiexltoWindowsyzoom_TrkRect(rcResult.y+rcResult.height/2-aimh/2 ,extInCtrl->SensorStat);
+			 	endx  =PiexltoWindowsxzoom_TrkRect(rcResult.x+rcResult.width/2+aimw/2,extInCtrl->SensorStat);
+		 	 	endy  =PiexltoWindowsyzoom_TrkRect(rcResult.y+rcResult.height/2+aimh/2 ,extInCtrl->SensorStat);
 			}
-			
+
 			if(algOsdRect == true)
 			{
 				rcResult_algRect.x = PiexltoWindowsx(rcResult_algRect.x,extInCtrl->SensorStat);
@@ -1267,17 +1261,21 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			}
 
 			if( m_iTrackStat == 1 && !changesensorCnt)
-			{			
-				rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-					Point( startx, starty ),
-					Point( endx, endy),
-					colour, 1, 8 );
-	
+			{		
 				if(algOsdRect == true)
+				{
 					rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
 						Point( rcResult_algRect.x, rcResult_algRect.y ),
 						Point( rcResult_algRect.x+rcResult_algRect.width, rcResult_algRect.y+rcResult_algRect.height),
 						cvScalar(0,255,0,255), 1, 8 );
+				}
+				else
+				{
+					rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
+						Point( startx, starty ),
+						Point( endx, endy),
+						colour, 1, 8 );
+				}
 			}
 			else
 			{
@@ -1290,22 +1288,19 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				}
 				else if(chId == video_pal)
 				{
-					startx=PiexltoWindowsxzoom(extInCtrl->AvtPosX[extInCtrl->SensorStat]-rcResult_algRect.width/2,extInCtrl->SensorStat);			
-					starty=PiexltoWindowsyzoom(extInCtrl->AvtPosY[extInCtrl->SensorStat]-rcResult_algRect.height/2 ,extInCtrl->SensorStat);
-					endx=PiexltoWindowsxzoom(extInCtrl->AvtPosX[extInCtrl->SensorStat]+rcResult_algRect.width/2,extInCtrl->SensorStat);
-					endy=PiexltoWindowsyzoom(extInCtrl->AvtPosY[extInCtrl->SensorStat]+rcResult_algRect.height/2 ,extInCtrl->SensorStat);
+					startx=PiexltoWindowsxzoom(extInCtrl->AvtPosX[extInCtrl->SensorStat]-aimw/2,extInCtrl->SensorStat);			
+					starty=PiexltoWindowsyzoom(extInCtrl->AvtPosY[extInCtrl->SensorStat]-aimh/2 ,extInCtrl->SensorStat);
+					endx=PiexltoWindowsxzoom(extInCtrl->AvtPosX[extInCtrl->SensorStat]+aimw/2,extInCtrl->SensorStat);
+					endy=PiexltoWindowsyzoom(extInCtrl->AvtPosY[extInCtrl->SensorStat]+aimh/2 ,extInCtrl->SensorStat);
 				}
-					
+
 				if(bDraw != 0 && !changesensorCnt)
 				{
-					DrawdashRect(startx,starty,endx,endy,frcolor);	// track lost DashRect				
+					if(algOsdRect == true)
+						DrawdashRect(rcResult_algRect.x,rcResult_algRect.y,rcResult_algRect.x+rcResult_algRect.width,rcResult_algRect.y+rcResult_algRect.height,frcolor);
+					else
+						DrawdashRect(startx,starty,endx,endy,frcolor);	// track lost DashRect				
 				}
-				
-				if(algOsdRect == true)
-					rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-						Point( rcResult_algRect.x, rcResult_algRect.y ),
-						Point( rcResult_algRect.x+rcResult_algRect.width, rcResult_algRect.y+rcResult_algRect.height),
-						cvScalar(0,255,0,255), 1, 8 );		
 			}
 			if(!changesensorCnt){
 				Osdflag[osdindex]=1;
@@ -1314,15 +1309,13 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				rcTrackBak[extInCtrl->SensorStat].width=endx-startx;
 				rcTrackBak[extInCtrl->SensorStat].height=endy-starty;
 			}
-			#if 1
-				if(algOsdRect == true)
-				{
-					resultTrackBak.x = rcResult_algRect.x;
-					resultTrackBak.y = rcResult_algRect.y;
-					resultTrackBak.width = rcResult_algRect.width;
-					resultTrackBak.height = rcResult_algRect.height;
-				}
-			#endif
+			if(algOsdRect == true)
+			{
+				resultTrackBak.x = rcResult_algRect.x;
+				resultTrackBak.y = rcResult_algRect.y;
+				resultTrackBak.width = rcResult_algRect.width;
+				resultTrackBak.height = rcResult_algRect.height;
+			}
 			
 			extInCtrl->unitAimX=rcResult.x+rcResult.width/2;
 			extInCtrl->unitAimY=rcResult.y+rcResult.height/2;
@@ -1478,8 +1471,8 @@ osdindex++;	//cross aim
 		{
 			recIn.x=PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
 	 		recIn.y=PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
-			recIn.width = extInCtrl->crossAxisWidth;
-			recIn.height= extInCtrl->crossAxisHeight;		
+			recIn.width = extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
+			recIn.height= extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
 			crossBak.x = recIn.x;
 			crossBak.y = recIn.y;
 			crossWHBak.x = recIn.width;
@@ -1487,7 +1480,8 @@ osdindex++;	//cross aim
 
 			if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
 			{
-				DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
+				if(m_display.m_crossOsd)
+					DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
 				Osdflag[osdindex]=1;
 			}
 			else if(extInCtrl->AvtTrkStat == eTrk_mode_search)
@@ -2409,6 +2403,10 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			app_ctrl_setMtdStat(&tmpCmd);
 		}
 	}
+	if(msgId == MSGID_EXT_INPUT_ALGOSDRECT)
+	{
+	 	algOsdRect=pIStuts->Imgalgosdrect;
+	}
 	
 }
 
@@ -2449,6 +2447,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_ALG,             		MSGAPI_update_alg,                 	     0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_OSD,             		MSGAPI_update_osd,                 	0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_CAMERA,             	MSGAPI_update_camera,              0);	
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ALGOSDRECT,          MSGAPI_input_algosdrect,              0);	
  
     return 0;
 }
@@ -2797,6 +2796,7 @@ void CProcess::update_param_osd()
 	pIStuts->SensorStatBegin 		= gConfig_Osd_param.MAIN_Sensor;
 	pIStuts->osdTextShow 			= gConfig_Osd_param.OSD_text_show;
 	pIStuts->osdDrawShow 			= gConfig_Osd_param.OSD_draw_show;
+	pIStuts->crossDrawShow 			= gConfig_Osd_param.CROSS_draw_show;
 	pIStuts->osdTextColor 			=  gConfig_Osd_param.OSD_text_color;
 	pIStuts->osdTextAlpha			=  gConfig_Osd_param.OSD_text_alpha;
 	pIStuts->osdTextFont			= gConfig_Osd_param.OSD_text_font;
@@ -2833,11 +2833,19 @@ void CProcess::update_param_osd()
 	
 	m_display.disptimeEnable = gConfig_Osd_param.Timedisp_9;
 	m_display.m_bOsd = pIStuts->osdDrawShow;
+	m_display.m_crossOsd = pIStuts->crossDrawShow;
 
-	pIStuts->crossAxisWidth 		= gConfig_Osd_param.CROSS_AXIS_WIDTH;
-	pIStuts->crossAxisHeight		= gConfig_Osd_param.CROSS_AXIS_HEIGHT;
-	pIStuts->picpCrossAxisWidth		= gConfig_Osd_param.Picp_CROSS_AXIS_WIDTH;
-	pIStuts->picpCrossAxisHeight	= gConfig_Osd_param.Picp_CROSS_AXIS_HEIGHT;
+
+	//pIStuts->crossAxisWidth 		= gConfig_Osd_param.CROSS_AXIS_WIDTH;
+	//pIStuts->crossAxisHeight		= gConfig_Osd_param.CROSS_AXIS_HEIGHT;
+	//pIStuts->picpCrossAxisWidth		= gConfig_Osd_param.Picp_CROSS_AXIS_WIDTH;
+	//pIStuts->picpCrossAxisHeight	= gConfig_Osd_param.Picp_CROSS_AXIS_HEIGHT;
+	pIStuts->crossAxisWidth[video_pal] = 40;
+	pIStuts->crossAxisHeight[video_pal] = 40;
+	pIStuts->crossAxisWidth[video_gaoqing] = 60;
+	pIStuts->crossAxisHeight[video_gaoqing] = 60;
+	pIStuts->picpCrossAxisWidth = 40;
+	pIStuts->picpCrossAxisHeight = 40;
 
 	return;
 }
@@ -2930,10 +2938,12 @@ void CProcess::update_param_alg()
 	else
 		segPixelY = 450;
 
+	/*
 	if(gConfig_Alg_param.algOsdRect_Enable == 1)
 		algOsdRect = true;
 	else
 		algOsdRect = false;
+	*/
 
 	if(gConfig_Alg_param.ScalerLarge > 0)
 		ScalerLarge = gConfig_Alg_param.ScalerLarge;
@@ -3203,7 +3213,10 @@ void CProcess::update_param_alg()
 void CProcess::MSGAPI_update_camera(long lParam)
 {
 }
-
+void CProcess::MSGAPI_input_algosdrect(long lParam)
+{
+	sThis->msgdriv_event(MSGID_EXT_INPUT_ALGOSDRECT,NULL);
+}
 #if __TRACK__
 void CProcess::set_trktype(CMD_EXT *p, unsigned int stat)
 {

@@ -129,6 +129,7 @@ public:
 	bool m_bRun;
 	bool m_bFullScreen;
 	bool m_bOsd;
+	bool m_crossOsd;
 	Mat m_disOsd[DS_DC_CNT];
 	Mat m_imgOsd[DS_DC_CNT];
 	DS_Size m_videoSize[DS_CHAN_MAX];

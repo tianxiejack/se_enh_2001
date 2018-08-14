@@ -59,7 +59,7 @@
 									<listOptionValue builtIn="false" value="ipc"/>
 									<listOptionValue builtIn="false" value="enh"/>
 									<listOptionValue builtIn="false" value="dft"/>
-									<listOptionValue builtIn="false" value="MovDetectLib"/>
+									<listOptionValue builtIn="false" value="MvDetectLib"/>
 									<listOptionValue builtIn="false" value="opencv_legacy"/>
 									<listOptionValue builtIn="false" value="opencv_video"/>
 									<listOptionValue builtIn="false" value="opencv_core"/>
@@ -208,34 +208,13 @@
 					<sass major="2" minor="0"/>
 					<ptx major="2" minor="0"/>
 				</executable>
-				<editor-arch major="3" minor="0"/>
+				<editor-arch major="2" minor="0"/>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="026.com.nvidia.cuda.ide.seven_five.exe.1313330499" name="Executable" projectType="com.nvidia.cuda.ide.seven_five.exe"/>
-	</storageModule>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.debug.1841183871;com.nvidia.cuda.ide.seven_five.configuration.debug.1841183871.;nvcc.compiler.base.384332103;nvcc.compiler.input.c.437892094">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.debug.752347244;com.nvidia.cuda.ide.seven_five.configuration.debug.752347244.;nvcc.compiler.base.740390069;nvcc.compiler.input.cpp.1614986746">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.debug.1841183871;com.nvidia.cuda.ide.seven_five.configuration.debug.1841183871.;nvcc.compiler.base.384332103;nvcc.compiler.input.cpp.568310582">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.debug.1841183871;com.nvidia.cuda.ide.seven_five.configuration.debug.1841183871.;nvcc.compiler.base.384332103;nvcc.compiler.input.cu.350427971">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.debug.752347244;com.nvidia.cuda.ide.seven_five.configuration.debug.752347244.;nvcc.compiler.base.740390069;nvcc.compiler.input.c.1801021486">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.debug.752347244;com.nvidia.cuda.ide.seven_five.configuration.debug.752347244.;nvcc.compiler.base.740390069;nvcc.compiler.input.cu.304571006">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
-		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
@@ -247,4 +226,34 @@
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.debug.1841183871;com.nvidia.cuda.ide.seven_five.configuration.debug.1841183871.;nvcc.compiler.base.384332103;nvcc.compiler.input.c.437892094">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.release.1330404753;com.nvidia.cuda.ide.seven_five.configuration.release.1330404753.;nvcc.compiler.base.807280896;nvcc.compiler.input.cu.67168885">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.release.1330404753;com.nvidia.cuda.ide.seven_five.configuration.release.1330404753.;nvcc.compiler.base.807280896;nvcc.compiler.input.c.594158201">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.debug.752347244;com.nvidia.cuda.ide.seven_five.configuration.debug.752347244.;nvcc.compiler.base.740390069;nvcc.compiler.input.c.1801021486">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.debug.752347244;com.nvidia.cuda.ide.seven_five.configuration.debug.752347244.;nvcc.compiler.base.740390069;nvcc.compiler.input.cu.304571006">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.debug.1841183871;com.nvidia.cuda.ide.seven_five.configuration.debug.1841183871.;nvcc.compiler.base.384332103;nvcc.compiler.input.cpp.568310582">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.debug.752347244;com.nvidia.cuda.ide.seven_five.configuration.debug.752347244.;nvcc.compiler.base.740390069;nvcc.compiler.input.cpp.1614986746">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.debug.1841183871;com.nvidia.cuda.ide.seven_five.configuration.debug.1841183871.;nvcc.compiler.base.384332103;nvcc.compiler.input.cu.350427971">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.nvidia.cuda.ide.seven_five.configuration.release.1330404753;com.nvidia.cuda.ide.seven_five.configuration.release.1330404753.;nvcc.compiler.base.807280896;nvcc.compiler.input.cpp.495488102">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
+		</scannerConfigBuildInfo>
+	</storageModule>
 </cproject>
