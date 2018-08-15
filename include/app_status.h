@@ -15,7 +15,9 @@ extern "C" {
 typedef enum{
 	Disable = 0x00,
 	Enable_Iris,
-	Enable_Focus
+	Enable_Focus,
+	up,
+	down
 }IrisAndFocus;
 
 typedef struct{
