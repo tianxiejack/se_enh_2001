@@ -108,13 +108,14 @@ public :
 	bool tvzoomStat;
 
 	ALGMTD_HANDLE m_mtd[MAX_CHAN];
+public:
+	Mat m_dc;
+	Mat m_dccv;
 	
 protected:
 	MultiChVideo MultiCh;
 	//BigChVideo		BigChannel;
 	CDisplayer m_display;
-	Mat m_dc;
-	Mat m_dccv;
 
 	int adaptiveThred;
 
