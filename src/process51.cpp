@@ -1132,7 +1132,6 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	int endx=0;
 	int endy=0;
 	int detect_num = 0,i;
-	int coastRectx,coastRecty;
 	cv::Rect recIn;
 	static int coastCnt = 1;
 	static int bDraw = 0;
@@ -1234,8 +1233,6 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 		 {
 			extInCtrl->TrkXtmp =rcResult.x + rcResult.width/2;
 			extInCtrl->TrkYtmp = rcResult.y+ rcResult.height/2;
-			coastRectx = extInCtrl->AvtPosX[extInCtrl->SensorStat];
-			coastRecty = extInCtrl->AvtPosY[extInCtrl->SensorStat];
 			
 			if(chId == video_gaoqing)
 			{
@@ -1281,17 +1278,17 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			{
 				if(chId == video_gaoqing)
 				{
-					startx=PiexltoWindowsxzoom(extInCtrl->AvtPosX[extInCtrl->SensorStat]-aimw/2,extInCtrl->SensorStat);			
-					starty=PiexltoWindowsyzoom(extInCtrl->AvtPosY[extInCtrl->SensorStat]-aimh/2 ,extInCtrl->SensorStat);
-					endx=PiexltoWindowsxzoom(extInCtrl->AvtPosX[extInCtrl->SensorStat]+aimw/2,extInCtrl->SensorStat);
-					endy=PiexltoWindowsyzoom(extInCtrl->AvtPosY[extInCtrl->SensorStat]+aimh/2 ,extInCtrl->SensorStat);
+					startx=PiexltoWindowsxzoom(extInCtrl->AxisPosX[extInCtrl->SensorStat]-aimw/2,extInCtrl->SensorStat);			
+					starty=PiexltoWindowsyzoom(extInCtrl->AxisPosY[extInCtrl->SensorStat]-aimh/2 ,extInCtrl->SensorStat);
+					endx=PiexltoWindowsxzoom(extInCtrl->AxisPosX[extInCtrl->SensorStat]+aimw/2,extInCtrl->SensorStat);
+					endy=PiexltoWindowsyzoom(extInCtrl->AxisPosY[extInCtrl->SensorStat]+aimh/2 ,extInCtrl->SensorStat);
 				}
 				else if(chId == video_pal)
 				{
-					startx=PiexltoWindowsxzoom(extInCtrl->AvtPosX[extInCtrl->SensorStat]-aimw/2,extInCtrl->SensorStat);			
-					starty=PiexltoWindowsyzoom(extInCtrl->AvtPosY[extInCtrl->SensorStat]-aimh/2 ,extInCtrl->SensorStat);
-					endx=PiexltoWindowsxzoom(extInCtrl->AvtPosX[extInCtrl->SensorStat]+aimw/2,extInCtrl->SensorStat);
-					endy=PiexltoWindowsyzoom(extInCtrl->AvtPosY[extInCtrl->SensorStat]+aimh/2 ,extInCtrl->SensorStat);
+					startx=PiexltoWindowsxzoom(extInCtrl->AxisPosX[extInCtrl->SensorStat]-aimw/2,extInCtrl->SensorStat);			
+					starty=PiexltoWindowsyzoom(extInCtrl->AxisPosY[extInCtrl->SensorStat]-aimh/2 ,extInCtrl->SensorStat);
+					endx=PiexltoWindowsxzoom(extInCtrl->AxisPosX[extInCtrl->SensorStat]+aimw/2,extInCtrl->SensorStat);
+					endy=PiexltoWindowsyzoom(extInCtrl->AxisPosY[extInCtrl->SensorStat]+aimh/2 ,extInCtrl->SensorStat);
 				}
 
 				if(bDraw != 0 && !changesensorCnt)
@@ -1357,8 +1354,8 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				
 				if(extInCtrl->TrkStat == 2)
 				{
-					extInCtrl->trkerrx=(PiexltoWindowsx(extInCtrl->AvtPosX[extInCtrl->SensorStat] ,extInCtrl->SensorStat));
-					extInCtrl->trkerry=(PiexltoWindowsy(extInCtrl->AvtPosY[extInCtrl->SensorStat] ,extInCtrl->SensorStat));
+					extInCtrl->trkerrx=(PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat] ,extInCtrl->SensorStat));
+					extInCtrl->trkerry=(PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat] ,extInCtrl->SensorStat));
 				}
 
 				extInCtrl->TrkErrFeedback = 1;
