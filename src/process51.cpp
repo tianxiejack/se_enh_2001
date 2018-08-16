@@ -167,9 +167,9 @@ int  CProcess::WindowstoPiexly(int y,int channel)
 
 
 
-int  CProcess::PiexltoWindowsx(int x,int channel)
+float  CProcess::PiexltoWindowsx(int x,int channel)
 {
-	 int ret=0;
+	 float ret=0;
 	 ret= cvRound(x*1.0/vcapWH[channel][0]*vdisWH[channel][0]);
 	 if(ret<0)
  	 {
@@ -187,9 +187,9 @@ int  CProcess::PiexltoWindowsx(int x,int channel)
 	 return ret;
 }
 
-int  CProcess::PiexltoWindowsy(int y,int channel)
+float  CProcess::PiexltoWindowsy(int y,int channel)
 {
-	 int ret=0;
+	 float ret=0;
 	 ret= cvRound(y*1.0/vcapWH[channel][1]*vdisWH[channel][1]);
 
 	 if(ret<0)

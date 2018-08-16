@@ -200,8 +200,8 @@ typedef struct
 	volatile unsigned int  AvtTrkCoast;
 	volatile unsigned int  TrkErrFeedback;  	// eTrkMode 
 
-	volatile int  trkerrx;
-	volatile int  trkerry;	
+	volatile float  trkerrx;
+	volatile float  trkerry;	
 
 	/***** cmd stat part *****/
 	volatile unsigned int SensorStatBegin;

@@ -64,8 +64,8 @@ protected:
 	void DrawdashCross(int x,int y,int fcolour , bool bShow = true);
 	void DrawdashRect(int startx,int starty,int endx,int endy,int colour);
 	void DrawMeanuCross(int x,int y,int fcolour , bool bShow,int centerx,int centery);
-	int  PiexltoWindowsx(int x,int channel);
-	int  PiexltoWindowsy(int y,int channel);
+	float  PiexltoWindowsx(int x,int channel);
+	float  PiexltoWindowsy(int y,int channel);
 	int  PiexltoWindowsxzoom(int x,int channel);
 	int  PiexltoWindowsyzoom(int y,int channel);
 	int  PiexltoWindowsxzoom_TrkRect(int x,int channel);

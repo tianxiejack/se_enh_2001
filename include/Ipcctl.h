@@ -457,8 +457,8 @@ typedef struct
 	volatile unsigned int  AvtTrkCoast;
 	volatile unsigned int  TrkErrFeedback;  	// eTrkMode 
 
-	volatile int  trkerrx;
-	volatile int  trkerry;	
+	volatile float  trkerrx;
+	volatile float  trkerry;	
 
 	/***** cmd stat part *****/
 	volatile unsigned int SensorStatBegin;
@@ -716,8 +716,8 @@ typedef struct osdbuffer
 
 
 
-int ipc_settrack(unsigned int trackstatus, int trackposx, int trackposy);
-int ipc_gettrack(unsigned int* trackstatus, int* trackposx, int* trackposy);
+int ipc_settrack(unsigned int trackstatus, float trackposx, float trackposy);
+int ipc_gettrack(unsigned int* trackstatus, float* trackposx, float* trackposy);
 int ipc_setSensorstat(unsigned int unitFaultStat);
 int ipc_getSensorstat(unsigned int* unitFaultStat);
 int ipc_sendmsg(SENDST* Param,int Mesgthe );
