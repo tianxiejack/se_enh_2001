@@ -158,81 +158,8 @@ void CVideoProcess::main_proc_func()
 		#if __TRACK__
 			iTrackStat = ReAcqTarget();
 			if(Movedetect&&(iTrackStat==0))
-			{
-				#if 1
-					IMG_MAT image;
-					image.data_u8 = frame_gray.data;
-					image.width = frame_gray.cols;
-					image.height = frame_gray.rows;
-					image.channels = 1;
-					image.step[0] = image.width;
-					image.dtype = 0;
-					image.size = frame_gray.cols*frame_gray.rows;
-					Movedetect = UtcAcqTarget(m_track,image,acqRect,&TRKMoveAcpSR);
-					if(Movedetect)
-						MoveAcpSR=TRKMoveAcpSR;
-				#endif
-				moveStat=0;
-				Movedetect=FALSE;
-
-				if(moveDetectRect)
-					rectangle( m_display.m_imgOsd[1],
-						Point( preAcpSR.x, preAcpSR.y ),
-						Point( preAcpSR.x+preAcpSR.width, preAcpSR.y+preAcpSR.height),
-						cvScalar(0,0,0,0), 1, 8 );
-				
-				unsigned int currentx=MoveAcpSR.x+MoveAcpSR.width/2;
-				unsigned int currenty=MoveAcpSR.y+MoveAcpSR.height/2;
-				if((m_rcTrack.x+m_rcTrack.width>MoveAcpSR.x&&
-					m_rcTrack.x<MoveAcpSR.x+MoveAcpSR.width)||
-					(m_rcTrack.y+m_rcTrack.height>MoveAcpSR.y&&
-					m_rcTrack.y<MoveAcpSR.y+MoveAcpSR.height))
-					{
-						MoveAcpSR.width=MoveAcpSR.width*1.4;
-						MoveAcpSR.height=MoveAcpSR.height*1.4;
-						
-						if(MoveAcpSR.width<m_rcTrack.width/2)
-						{
-							MoveAcpSR.width=m_rcTrack.width/2;
-						}
-						else if(MoveAcpSR.width>m_rcTrack.width)
-						{
-							MoveAcpSR.width=m_rcTrack.width;
-						}
-						if(MoveAcpSR.width<16)
-						{
-							MoveAcpSR.width=16;
-						}
-						if(MoveAcpSR.height<m_rcTrack.height/2)
-						{
-							MoveAcpSR.height=m_rcTrack.height/2;
-						}
-						else if(MoveAcpSR.height>m_rcTrack.height)
-						{
-							MoveAcpSR.height=m_rcTrack.height;
-						}
-						if(MoveAcpSR.height<16)
-						{
-							MoveAcpSR.height=16;
-						}
-						if(MoveAcpSR.width*1.0/MoveAcpSR.height>1.333)
-						{
-							MoveAcpSR.height=MoveAcpSR.width/1.333;
-						}
-						else if(MoveAcpSR.height*1.0/MoveAcpSR.width>1.333)
-						{
-							MoveAcpSR.width=MoveAcpSR.height/1.333;
-						}
-						
-						m_rcTrack.x=currentx-MoveAcpSR.width/2;
-						m_rcTrack.y=currenty-MoveAcpSR.height/2;
-						m_rcTrack.width =MoveAcpSR.width;
-						m_rcTrack.height=MoveAcpSR.height;
-					}
-					else
-						moveStat=1;		
-
-			}
+				{
+				}
 			int64 trktime = 0;
 			if(algOsdRect == true)
 				trktime = getTickCount();//OSA_getCurTimeInMsec();
@@ -244,7 +171,7 @@ void CVideoProcess::main_proc_func()
 			{
 				m_searchmod=0;
 			}
-			m_iTrackStat = process_track(iTrackStat, frame_gray, m_dc, m_rcTrack);
+			m_iTrackStat = process_track(iTrackStat, frame_gray, m_dccv, m_rcTrack);
 	
 
 			UtcGetSceneMV(m_track, &speedx, &speedy);
@@ -673,309 +600,6 @@ int CVideoProcess::configEnhFromFile()
 #endif
 
 
-int CVideoProcess::configAvtFromFile()
-{
-	string cfgAvtFile;
-	cfgAvtFile = "avt.yml";
-
-    char cfg_avt[16] = "cfg_avt_";
-    int configId_Max=128;
-    float cfg_blk_val[128];
-
-	FILE *fp = fopen(cfgAvtFile.c_str(), "rt");
-	if(fp != NULL)
-	{
-		fseek(fp, 0, SEEK_END);
-		int len = ftell(fp);
-		fclose(fp);
-
-		if(len < 10)
-			return -1;
-		else
-		{
-			FileStorage fr(cfgAvtFile, FileStorage::READ);
-			if(fr.isOpened())
-			{
-				for(int i=0; i<configId_Max; i++){
-					sprintf(cfg_avt, "cfg_avt_%d", i);
-					cfg_blk_val[i] = (float)fr[cfg_avt];
-					//printf(" update cfg [%d] %f \n", i, cfg_blk_val[i]);
-				}
-			}else
-				return -1;
-		}
-#if __TRACK__
-		UTC_DYN_PARAM dynamicParam;
-		if(cfg_blk_val[0] > 0)
-			dynamicParam.occlusion_thred = cfg_blk_val[0];
-		else
-			dynamicParam.occlusion_thred = 0.28;
-		if(cfg_blk_val[1] > 0)
-			dynamicParam.retry_acq_thred = cfg_blk_val[1];
-		else
-			dynamicParam.retry_acq_thred = 0.38;
-		UtcSetDynParam(m_track, dynamicParam);
-		float up_factor;
-		if(cfg_blk_val[2] > 0)
-			up_factor = cfg_blk_val[2];
-		else
-			up_factor = 0.0125;
-		UtcSetUpFactor(m_track, up_factor);
-		TRK_SECH_RESTRAINT resTraint;
-		if(cfg_blk_val[3] > 0)
-			resTraint.res_distance = (int)(cfg_blk_val[3]);
-		else
-			resTraint.res_distance = 80;
-		if(cfg_blk_val[4] > 0)
-			resTraint.res_area = (int)(cfg_blk_val[4]);
-		else
-			resTraint.res_area = 5000;
-		//printf("UtcSetRestraint: distance=%d area=%d \n", resTraint.res_distance, resTraint.res_area);
-		UtcSetRestraint(m_track, resTraint);
-
-		int gapframe;
-		if(cfg_blk_val[5] > 0)
-			gapframe = (int)cfg_blk_val[5];
-		else
-			gapframe = 10;
-		UtcSetIntervalFrame(m_track, gapframe);
-
-        bool enhEnable;
-		if(cfg_blk_val[6] > -1)
-			enhEnable = (bool)cfg_blk_val[6];
-		else
-			enhEnable = 1;
-		UtcSetEnhance(m_track, enhEnable);
-
-		float cliplimit;
-		if(cfg_blk_val[7] > 0)
-			cliplimit = cfg_blk_val[7];
-		else
-			cliplimit = 4.0;
-		UtcSetEnhfClip(m_track, cliplimit);	
-
-		bool dictEnable;
-
-		dictEnable = (bool)cfg_blk_val[8];
-
-		UtcSetPredict(m_track, dictEnable);
-
-		
-		int moveX,moveY;
-
-		moveX = (int)cfg_blk_val[9];
-		moveY = (int)cfg_blk_val[10];
-
-		UtcSetMvPixel(m_track,moveX,moveY);
-
-		int moveX2,moveY2;
-		
-		moveX2 = (int)cfg_blk_val[11];
-		moveY2 = (int)cfg_blk_val[12];		
-
-		UtcSetMvPixel2(m_track,moveX2,moveY2);
-
-
-		int segPixelX,segPixelY;
-
-		segPixelX = (int)cfg_blk_val[13];
-		segPixelY = (int)cfg_blk_val[14];		
-		UtcSetSegPixelThred(m_track,segPixelX,segPixelY);
-
-		if(cfg_blk_val[15] == 1)
-			algOsdRect = true;
-		else
-			algOsdRect = false;
-
-
-		ScalerLarge = (int)cfg_blk_val[16];
-		ScalerMid = (int)cfg_blk_val[17];		
-		ScalerSmall = (int)cfg_blk_val[18];
-		UtcSetSalientScaler(m_track, ScalerLarge, ScalerMid, ScalerSmall);
-
-		int Scatter ;
-		Scatter = (int)cfg_blk_val[19];
-		UtcSetSalientScatter(m_track, Scatter);
-
-		float ratio;
-		ratio = cfg_blk_val[20];
-		UtcSetSRAcqRatio(m_track, ratio);
-
-		bool FilterEnable;
-		FilterEnable = (bool)cfg_blk_val[21];
-		UtcSetBlurFilter(m_track,FilterEnable);
-
-		bool BigSecEnable;
-		BigSecEnable = (bool)cfg_blk_val[22];
-		UtcSetBigSearch(m_track, BigSecEnable);
-
-		int SalientThred;
-		SalientThred = (int)cfg_blk_val[23];
-		UtcSetSalientThred(m_track,SalientThred);
-
-		int ScalerEnable;
-		ScalerEnable = (int)cfg_blk_val[24];
-		UtcSetMultScaler(m_track, ScalerEnable);
-
-		bool DynamicRatioEnable;
-		DynamicRatioEnable = (bool)cfg_blk_val[25];
-		UtcSetDynamicRatio(m_track, DynamicRatioEnable);
-
-
-		UTC_SIZE acqSize;
-		acqSize.width = (int)cfg_blk_val[26];
-		acqSize.height = (int)cfg_blk_val[27];		
-		UtcSetSRMinAcqSize(m_track,acqSize);
-
-		if(cfg_blk_val[28] == 1)
-			TrkAim43 = true;
-		else
-			TrkAim43 = false;
-
-		bool SceneMVEnable;
-		SceneMVEnable = (bool)cfg_blk_val[29];
-		UtcSetSceneMV(m_track, SceneMVEnable);
-
-		bool BackTrackEnable;
-		BackTrackEnable = (bool)cfg_blk_val[30];
-		UtcSetBackTrack(m_track, BackTrackEnable);
-
-		bool  bAveTrkPos;
-		bAveTrkPos = (bool)cfg_blk_val[31];
-		UtcSetAveTrkPos(m_track, bAveTrkPos);
-
-
-		float fTau;
-		fTau = cfg_blk_val[32];
-		UtcSetDetectftau(m_track, fTau);
-
-
-		int  buildFrms;
-		buildFrms = (int)cfg_blk_val[33];
-		UtcSetDetectBuildFrms(m_track, buildFrms);
-		
-		int  LostFrmThred;
-		LostFrmThred = (int)cfg_blk_val[34];
-		UtcSetLostFrmThred(m_track, LostFrmThred);
-
-		float  histMvThred;
-		histMvThred = cfg_blk_val[35];
-		UtcSetHistMVThred(m_track, histMvThred);
-
-		int  detectFrms;
-		detectFrms = (int)cfg_blk_val[36];
-		UtcSetDetectFrmsThred(m_track, detectFrms);
-
-		int  stillFrms;
-		stillFrms = (int)cfg_blk_val[37];
-		UtcSetStillFrmsThred(m_track, stillFrms);
-
-		float  stillThred;
-		stillThred = cfg_blk_val[38];
-		UtcSetStillPixThred(m_track, stillThred);
-
-
-		bool  bKalmanFilter;
-		bKalmanFilter = (bool)cfg_blk_val[39];
-		UtcSetKalmanFilter(m_track, bKalmanFilter);
-
-		float xMVThred, yMVThred;
-		xMVThred = cfg_blk_val[40];
-		yMVThred = cfg_blk_val[41];
-		UtcSetKFMVThred(m_track, xMVThred, yMVThred);
-
-		float xStillThred, yStillThred;
-		xStillThred = cfg_blk_val[42];
-		yStillThred = cfg_blk_val[43];
-		UtcSetKFStillThred(m_track, xStillThred, yStillThred);
-
-		float slopeThred;
-		slopeThred = cfg_blk_val[44];
-		UtcSetKFSlopeThred(m_track, slopeThred);
-
-		float kalmanHistThred;
-		kalmanHistThred = cfg_blk_val[45];
-		UtcSetKFHistThred(m_track, kalmanHistThred);
-
-		float kalmanCoefQ, kalmanCoefR;
-		kalmanCoefQ = cfg_blk_val[46];
-		kalmanCoefR = cfg_blk_val[47];
-		UtcSetKFCoefQR(m_track, kalmanCoefQ, kalmanCoefR);
-
-		bool  bSceneMVRecord;
-		bSceneMVRecord = (bool)cfg_blk_val[48];
-		
-		if(bSceneMVRecord == true)
-			wFileFlag = true;
-		
-		UtcSetSceneMVRecord(m_track, bSceneMVRecord);
-
-		UtcSetRoiMaxWidth(m_track, 400);
-
-		UtcSetPLT_BS(m_track, tPLT_WRK, BoreSight_Mid);
-#endif
-		return 0;
-
-	}
-	else
-		return -1;
-
-	
-	return 0;
-}
-
-int CVideoProcess::Algconfig()
-{
-//enhment
-	if(0==configEnhFromFile())
-	{
-		switch(Enhmod)
-		{
-			case 0:
-				m_display.enhancemod=0;
-				break;
-			case 1:
-				m_display.enhancemod=1;
-				break;
-			case 2:
-				m_display.enhancemod=2;
-				break;
-			default:
-				m_display.enhancemod=1;
-		}
-		if((Enhparm>0.0)&&(Enhparm<5.0))
-			m_display.enhanceparam=Enhparm;
-		else
-			m_display.enhanceparam=3.5;
-
-		if((DetectGapparm<0) || (DetectGapparm>15))
-			DetectGapparm = 10;
-		m_MMTDObj.SetSRDetectGap(DetectGapparm);
-
-
-		m_MMTDObj.SetConRegMinMaxArea(MinArea, MaxArea);
-
-		m_MMTDObj.SetMoveThred(stillPixel, movePixel);
-
-		m_MMTDObj.SetLapScaler(lapScaler);
-
-		m_MMTDObj.SetSRLumThred(lumThred);
-		OSA_printf("DetectGapparm, MinArea, MaxArea,stillPixel, movePixel,lapScaler,lumThred = %d,%d,%d,%d,%d,%f,%d\n",DetectGapparm, MinArea, MaxArea,stillPixel, movePixel,lapScaler,lumThred);
-
-	}
-	else
-	{
-		m_display.enhancemod=1;
-		m_display.enhanceparam=3.5;
-	}
-	
-//avtrack
-#if __TRACK__
-	configAvtFromFile();
-#endif
-
-}
-
 int CVideoProcess::run()
 {
 	MultiCh.run();
@@ -984,7 +608,7 @@ int CVideoProcess::run()
 	#if __TRACK__
 	m_track = CreateUtcTrk();
 	#endif
-	//Algconfig();
+	
 	for(int i=0; i<MAX_CHAN; i++){
 		m_mtd[i] = (target_t *)malloc(sizeof(target_t));
 		if(m_mtd[i] != NULL)
@@ -1326,15 +950,15 @@ int CVideoProcess::process_track(int trackStatus, Mat frame_gray, Mat frame_dis,
 		//OSA_printf("---*****Enter UtcTrkAcq*****---\n");
 		//rcResult = UtcTrkAcq(m_track, image, acq);
 
-		if(moveStat == true)
+		//if(moveStat == true)
 		{
-			printf("=========movestat = %d\n",moveStat);
+			//printf("=========movestat = %d\n",moveStat);
 			rcResult = UtcTrkAcq(m_track, image, acq);
 			moveStat = false;
 		}
 		//if((m_curChId== 0))
 		//{
-			rcResult = UtcTrkAcqSR(m_track, image, acq, true);
+		//	rcResult = UtcTrkAcqSR(m_track, image, acq, true);
 		//}
 		trackStatus = 1;
 	}

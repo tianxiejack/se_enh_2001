@@ -2859,17 +2859,22 @@ void CProcess::update_param_alg()
 		dynamicParam.occlusion_thred = gConfig_Alg_param.occlusion_thred;
 	else
 		dynamicParam.occlusion_thred = 0.28;
+
+	//dynamicParam.occlusion_thred = 0.30;
 	
 	if(gConfig_Alg_param.retry_acq_thred> 0.0001)
 		dynamicParam.retry_acq_thred = gConfig_Alg_param.retry_acq_thred;
 	else
 		dynamicParam.retry_acq_thred = 0.38;
+
+	//dynamicParam.retry_acq_thred = 0.40;
 	
 	float up_factor;
 	if(gConfig_Alg_param.up_factor > 0.0001)
 		up_factor = gConfig_Alg_param.up_factor;
 	else
 		up_factor = 0.0125;
+	//up_factor = 0.025;
 
 	TRK_SECH_RESTRAINT resTraint;
 	if(gConfig_Alg_param.res_distance > 0)
@@ -3160,6 +3165,12 @@ void CProcess::update_param_alg()
 		lumThred = 50;
 	m_MMTDObj.SetSRLumThred(lumThred);
 
+	UtcSetDynParam(m_track, dynamicParam);
+	UtcSetUpFactor(m_track, up_factor);
+	UtcSetUpFactor(m_track, up_factor);
+	UtcSetBlurFilter(m_track,FilterEnable);
+	UtcSetBigSearch(m_track, BigSecEnable);
+	
 #if UTCPARM
 
 	UtcSetDynParam(m_track, dynamicParam);

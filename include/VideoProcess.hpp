@@ -147,8 +147,6 @@ protected:
 	int lumThred;
 
 	int configEnhFromFile();
-	int configAvtFromFile();
-	int Algconfig();
 	
 	void process_event(int type, int iPrm, void *pPrm);
 	int process_frame(int chId, int virchID, Mat frame);
