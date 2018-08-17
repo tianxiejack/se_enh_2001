@@ -32,6 +32,7 @@
 
 static CDisplayer *gThis = NULL;
 extern int IrisAndFocusAndExit;
+extern CMD_triangle cmd_triangle;
 extern OSD_param m_osd;
 extern CProcess* plat;
 
@@ -1463,8 +1464,6 @@ void CDisplayer::gl_display(void)
 
 void CDisplayer::IrisAndFocus()
 {
-	CMD_triangle cmd_triangle;
-	//memset(&cmd_triangle, 0, sizeof(cmd_triangle));
 	switch(IrisAndFocusAndExit)
 	{
 	case Enable_Iris:
@@ -1473,6 +1472,7 @@ void CDisplayer::IrisAndFocus()
 			drawtriangle(plat->m_dc, cmd_triangle.dir, cmd_triangle.alpha);
 		else
 			drawtriangle(plat->m_dccv, cmd_triangle.dir, cmd_triangle.alpha);
+		printf("cmd_triangle.dir  = %d   cmd_triangle.alpha  = %d\n", cmd_triangle.dir, cmd_triangle.alpha);
 		break;
 
 	case Enable_Focus:
@@ -1563,15 +1563,15 @@ void CDisplayer::drawtriangle(Mat frame, char direction, char alpha)
 	switch(direction)
 	{
 	case up:
-	root_points[0][0] = Point(115,1020);
-	root_points[0][1] = Point(105,1040);
-	root_points[0][2] = Point(125,1040);
+	root_points[0][0] = Point(120,1047);
+	root_points[0][1] = Point(110,1067);
+	root_points[0][2] = Point(130,1067);
 	break;
 
 	case down:
-		root_points[0][0] = Point(115,1040);
-		root_points[0][1] = Point(105,1020);
-		root_points[0][2] = Point(125,1020);
+		root_points[0][0] = Point(120,1067);
+		root_points[0][1] = Point(110,1047);
+		root_points[0][2] = Point(130,1047);
 		break;
 		default:
 		break;
