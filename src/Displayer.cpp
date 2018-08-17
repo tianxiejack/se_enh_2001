@@ -111,7 +111,6 @@ m_bRun(false),m_bFullScreen(false),m_bOsd(false),
 	m_mainWinWidth_new[eSen_CH5]=VIDEO_IMAGE_ARR[video_gaoqing][0];
 	m_mainWinHeight_new[eSen_CH5]=VIDEO_IMAGE_ARR[video_gaoqing][1];
 
-	m_dccv = m_imgOsd[1];
 }
 
 CDisplayer::~CDisplayer()
@@ -1464,22 +1463,24 @@ void CDisplayer::gl_display(void)
 
 void CDisplayer::IrisAndFocus()
 {
+	CMD_triangle cmd_triangle;
+	//memset(&cmd_triangle, 0, sizeof(cmd_triangle));
 	switch(IrisAndFocusAndExit)
 	{
 	case Enable_Iris:
 		chinese_osd(10,1040,L"光圈调节",1,6,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
 		if(plat->extInCtrl->SensorStat == video_pal)
-			drawtriangle(plat->m_dc, up);
+			drawtriangle(plat->m_dc, cmd_triangle.dir, cmd_triangle.alpha);
 		else
-			drawtriangle(plat->m_dccv, up);
+			drawtriangle(plat->m_dccv, cmd_triangle.dir, cmd_triangle.alpha);
 		break;
 
 	case Enable_Focus:
 		chinese_osd(10,1040,L"聚焦调节",1,6,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
 		if(plat->extInCtrl->SensorStat==video_pal)
-			drawtriangle(plat->m_dc, down);
+			drawtriangle(plat->m_dc, cmd_triangle.dir, cmd_triangle.alpha);
 		else
-			drawtriangle(plat->m_dccv, down);
+			drawtriangle(plat->m_dccv, cmd_triangle.dir, cmd_triangle.alpha);
 		break;
 	}
 }
@@ -1554,10 +1555,11 @@ int CDisplayer::OSDFunc()
 	return 0;
 }
 
-void CDisplayer::drawtriangle(Mat frame, char direction)
+void CDisplayer::drawtriangle(Mat frame, char direction, char alpha)
 {
 	Point root_points[1][3];
 	int npt[] = {3};
+
 	switch(direction)
 	{
 	case up:
@@ -1576,7 +1578,7 @@ void CDisplayer::drawtriangle(Mat frame, char direction)
 	}
 	const Point* ppt[1] = {root_points[0]};
 	polylines(frame, ppt, npt, 1, 1, Scalar(255),1,8,0);
-	fillPoly(frame, ppt, npt, 1, Scalar(0,0,255,255));
+	fillPoly(frame, ppt, npt, 1, Scalar(0,0,255,alpha));
 }
 
 //////////////////////////////////////////////////////////////////////////

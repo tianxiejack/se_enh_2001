@@ -132,7 +132,6 @@ public:
 	bool m_crossOsd;
 	Mat m_disOsd[DS_DC_CNT];
 	Mat m_imgOsd[DS_DC_CNT];
-	Mat m_dccv;
 	DS_Size m_videoSize[DS_CHAN_MAX];
 	GLuint buffId_input[DS_CHAN_MAX];
 	bool m_bEnh[DS_CHAN_MAX];
@@ -242,7 +241,7 @@ public:
 
 	void IrisAndFocus();
 	int OSDFunc();
-	void drawtriangle(Mat frame, char direction);
+	void drawtriangle(Mat frame, char direction, char alpha);
 
 	
 };

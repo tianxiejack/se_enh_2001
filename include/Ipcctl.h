@@ -63,6 +63,11 @@ typedef enum
 	shm_rdwr
 }shm_perms;
 
+typedef struct{
+	volatile int dir;
+	volatile int alpha;
+}CMD_triangle;
+
 typedef enum
 {
     TRK_MODE,
