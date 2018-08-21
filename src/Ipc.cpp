@@ -19,6 +19,7 @@ extern  bool startEnable;
 extern OSDSTATUS gConfig_Osd_param ;
 extern UTCTRKSTATUS gConfig_Alg_param;
 int IrisAndFocusAndExit = 0;
+CMD_triangle cmd_triangle;
 OSD_param m_osd;
 int ipc_loop = 1;
 extern void inputtmp(unsigned char cmdid);
@@ -212,14 +213,17 @@ void* recv_msg(SENDST *RS422)
 
 		case Iris:
 			IrisAndFocusAndExit = Enable_Iris;
+			memcpy(&cmd_triangle, RS422->param, sizeof(cmd_triangle));
 			break;
 
 		case focus:
 			IrisAndFocusAndExit = Enable_Focus;
+			memcpy(&cmd_triangle, RS422->param, sizeof(cmd_triangle));
 			break;
 
 		case exit_IrisAndFocus:
 			IrisAndFocusAndExit = Disable;
+			memcpy(&cmd_triangle, RS422->param, sizeof(cmd_triangle));
 			break;
 
 		case read_shm_config:
