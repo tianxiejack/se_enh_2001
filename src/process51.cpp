@@ -1231,8 +1231,8 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 		}
 		 if(m_bTrack)
 		 {
-			extInCtrl->TrkXtmp =rcResult.x + rcResult.width/2;
-			extInCtrl->TrkYtmp = rcResult.y+ rcResult.height/2;
+			extInCtrl->TrkXtmp = rcResult.x + rcResult.width/2;
+			extInCtrl->TrkYtmp = rcResult.y + rcResult.height/2;
 			
 			if(chId == video_gaoqing)
 			{
@@ -1278,6 +1278,22 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			{
 				if(chId == video_gaoqing)
 				{
+					startx=PiexltoWindowsxzoom(extInCtrl->TrkXtmp-aimw/2,extInCtrl->SensorStat);			
+					starty=PiexltoWindowsyzoom(extInCtrl->TrkYtmp-aimh/2 ,extInCtrl->SensorStat);
+					endx=PiexltoWindowsxzoom(extInCtrl->TrkXtmp+aimw/2,extInCtrl->SensorStat);
+					endy=PiexltoWindowsyzoom(extInCtrl->TrkYtmp+aimh/2 ,extInCtrl->SensorStat);
+				}
+				else if(chId == video_pal)
+				{
+					startx=PiexltoWindowsxzoom(extInCtrl->TrkXtmp-aimw/2,extInCtrl->SensorStat);			
+					starty=PiexltoWindowsyzoom(extInCtrl->TrkYtmp-aimh/2 ,extInCtrl->SensorStat);
+					endx=PiexltoWindowsxzoom(extInCtrl->TrkXtmp+aimw/2,extInCtrl->SensorStat);
+					endy=PiexltoWindowsyzoom(extInCtrl->TrkYtmp+aimh/2 ,extInCtrl->SensorStat);
+				}
+
+				#if 0
+				if(chId == video_gaoqing)
+				{
 					startx=PiexltoWindowsxzoom(extInCtrl->AxisPosX[extInCtrl->SensorStat]-aimw/2,extInCtrl->SensorStat);			
 					starty=PiexltoWindowsyzoom(extInCtrl->AxisPosY[extInCtrl->SensorStat]-aimh/2 ,extInCtrl->SensorStat);
 					endx=PiexltoWindowsxzoom(extInCtrl->AxisPosX[extInCtrl->SensorStat]+aimw/2,extInCtrl->SensorStat);
@@ -1290,6 +1306,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 					endx=PiexltoWindowsxzoom(extInCtrl->AxisPosX[extInCtrl->SensorStat]+aimw/2,extInCtrl->SensorStat);
 					endy=PiexltoWindowsyzoom(extInCtrl->AxisPosY[extInCtrl->SensorStat]+aimh/2 ,extInCtrl->SensorStat);
 				}
+				#endif				
 
 				if(bDraw != 0 && !changesensorCnt)
 				{
@@ -3110,7 +3127,7 @@ void CProcess::update_param_alg()
 	
 	
 
-	UtcSetPLT_BS(m_track, tPLT_WRK, BoreSight_Mid);
+	UtcSetPLT_BS(m_track, tPLT_TST, BoreSight_Mid);
 
 
 
