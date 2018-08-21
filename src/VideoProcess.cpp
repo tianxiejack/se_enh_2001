@@ -84,6 +84,8 @@ void extractUYVY2Gray(Mat src, Mat dst)
 	}
 }
 
+char trkINFODisplay[256];
+
 void CVideoProcess::main_proc_func()
 {
 	OSA_printf("%s: Main Proc Tsk Is Entering...\n",__func__);
@@ -172,7 +174,42 @@ void CVideoProcess::main_proc_func()
 				m_searchmod=0;
 			}
 			m_iTrackStat = process_track(iTrackStat, frame_gray, m_dccv, m_rcTrack);
-	
+
+
+
+
+			if(chId == video_gaoqing){
+				
+				putText(m_dccv,trkINFODisplay,
+					Point( 10, 25),
+					FONT_HERSHEY_TRIPLEX,0.8,
+					cvScalar(0,0,0,0), 1
+				);
+				sprintf(trkINFODisplay, "trkStatus:%u,trkErrorX=%f,trkErrorY=%f",
+					iTrackStat,m_rcTrack.x,m_rcTrack.y);
+
+				putText(m_dccv,trkINFODisplay,
+					Point( 10, 25),
+					FONT_HERSHEY_TRIPLEX,0.8,
+					cvScalar(255,255,0,255), 1
+				);
+			}else if(chId == video_pal){
+
+				putText(m_dc,trkINFODisplay,
+					Point( 10, 25),
+					FONT_HERSHEY_TRIPLEX,0.8,
+					cvScalar(0,0,0,0), 1
+				);
+				sprintf(trkINFODisplay, "trkStatus:%u,trkErrorX=%f,trkErrorY=%f",
+					iTrackStat,m_rcTrack.x,m_rcTrack.y);
+
+				putText(m_dc,trkINFODisplay,
+					Point( 10, 25),
+					FONT_HERSHEY_TRIPLEX,0.8,
+					cvScalar(255,255,0,255), 1
+				);
+			}
+			
 
 			UtcGetSceneMV(m_track, &speedx, &speedy);
 			UtcGetOptValue(m_track, &optValue);
@@ -186,15 +223,15 @@ void CVideoProcess::main_proc_func()
 			{								
 				if(m_iTrackLostCnt > 3)
 				{					
-					m_rcTrack.x = msgextInCtrl->AvtPosX[chId]- m_rcTrack.width/2;
-					m_rcTrack.y = msgextInCtrl->AvtPosY[chId]- m_rcTrack.height/2;
+					//m_rcTrack.x = msgextInCtrl->AvtPosX[chId]- m_rcTrack.width/2;
+					//m_rcTrack.y = msgextInCtrl->AvtPosY[chId]- m_rcTrack.height/2;
 					//OSA_printf(">3 -> TrkStat = %d  ImageAxisxy = (%d,%d)\n",m_iTrackStat,m_ImageAxisx[chId],m_ImageAxisy[chId]);
 				}
 				else
 				{
 					m_iTrackStat = 1;
-					m_rcTrack.x = msgextInCtrl->AvtPosX[chId] - m_rcTrack.width/2;
-					m_rcTrack.y = msgextInCtrl->AvtPosY[chId] - m_rcTrack.height/2;
+					//m_rcTrack.x = msgextInCtrl->AvtPosX[chId] - m_rcTrack.width/2;
+					//m_rcTrack.y = msgextInCtrl->AvtPosY[chId] - m_rcTrack.height/2;
 					//OSA_printf("<3 ->ImageAxisxy = (%d,%d)\n",m_ImageAxisx[chId],m_ImageAxisy[chId]);
 				}
 			}
@@ -947,19 +984,12 @@ int CVideoProcess::process_track(int trackStatus, Mat frame_gray, Mat frame_dis,
 				acq.rcWin.y=image.height-acq.rcWin.height;
 			}
 
-		//OSA_printf("---*****Enter UtcTrkAcq*****---\n");
-		//rcResult = UtcTrkAcq(m_track, image, acq);
-
-		//if(moveStat == true)
 		{
 			//printf("=========movestat = %d\n",moveStat);
 			rcResult = UtcTrkAcq(m_track, image, acq);
 			moveStat = false;
 		}
-		//if((m_curChId== 0))
-		//{
-		//	rcResult = UtcTrkAcqSR(m_track, image, acq, true);
-		//}
+		
 		trackStatus = 1;
 	}
 

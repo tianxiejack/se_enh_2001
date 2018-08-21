@@ -1168,22 +1168,19 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	Point start,end;
 	Osd_cvPoint start1,end1;
 	
-	center.x =1920/2;
-	center.y = 1080/2;
-	int radius = 4;
-	circle(m_dccv,center,radius ,cvScalar(0,0,255,255),6,8,0);
 
 #if __TRACK__
 	osdindex++;
 	{
 		 UTC_RECT_float rcResult = m_rcTrack;
 		 UTC_RECT_float rcResult_algRect = m_rcTrack;
-	 
+
 		 trackinfo_obj->trackrect=m_rcTrack;
 		 trackinfo_obj->TrkStat = extInCtrl->AvtTrkStat;
 		 extInCtrl->TrkStat = extInCtrl->AvtTrkStat;
 		 m_SensorStat = extInCtrl->SensorStat;
-		  
+
+	  
 		 int aimw = extInCtrl->AimW[extInCtrl->SensorStat];
 		 int aimh = extInCtrl->AimH[extInCtrl->SensorStat];
 
@@ -1588,6 +1585,12 @@ osdindex++;	//acqRect
 			DrawMoveDetect = 0 ;
 	}
 #endif
+	
+	center.x = 1920/2;
+	center.y = 1080/2;
+	int radius = 4;
+	cv::circle(m_dccv,center,radius ,cvScalar(255,0,255,255),8,8,0);
+
 	prisensorstatus=extInCtrl->SensorStat;
 
 	static unsigned int count = 0;
@@ -3136,7 +3139,7 @@ void CProcess::update_param_alg()
 	
 	
 
-	UtcSetPLT_BS(m_track, tPLT_TST, BoreSight_Mid);
+	UtcSetPLT_BS(m_track, tPLT_WRK, BoreSight_Mid);
 
 
 
