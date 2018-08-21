@@ -1164,6 +1164,15 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 
 	osdindex=0;	
 
+	Point center;
+	Point start,end;
+	Osd_cvPoint start1,end1;
+	
+	center.x =1920/2;
+	center.y = 1080/2;
+	int radius = 4;
+	circle(m_dccv,center,radius ,cvScalar(0,0,255,255),6,8,0);
+
 #if __TRACK__
 	osdindex++;
 	{
