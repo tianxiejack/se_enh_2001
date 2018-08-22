@@ -11,28 +11,32 @@
 #include "freetype.hpp"
 
 FreeTypeFont*	_font_hd_big_st;
+FreeTypeFont*	_font_hd_mid_st;
 FreeTypeFont*	_font_hd_small_st;
-FreeTypeFont*	_font_pal_big_st;
-FreeTypeFont*	_font_pal_small_st;
 
 FreeTypeFont*	_font_hd_big_ht;
+FreeTypeFont*	_font_hd_mid_ht;
 FreeTypeFont*	_font_hd_small_ht;
-FreeTypeFont*	_font_pal_big_ht;
-FreeTypeFont*	_font_pal_small_ht;
 
 void OSDCreatText()
 {
 	_font_hd_big_st   =   new FreeTypeFont();
 	_font_hd_big_st->create("simsun.ttc",40,512,512);
+
+	_font_hd_mid_st   =   new FreeTypeFont();
+	_font_hd_mid_st->create("simsun.ttc",32,512,512);	
 	
 	_font_hd_small_st   =   new FreeTypeFont();
 	_font_hd_small_st->create("simsun.ttc",25,512,512);
 	
 	_font_hd_big_ht   =   new FreeTypeFont();
-	_font_hd_big_ht->create("FZLTCXHJW.TTF",40,512,512);
+	_font_hd_big_ht->create("SIMLI.TTF",40,512,512);
+
+	_font_hd_mid_ht   =   new FreeTypeFont();
+	_font_hd_mid_ht->create("SIMLI.TTF",32,512,512);
 	
 	_font_hd_small_ht   =   new FreeTypeFont();
-	_font_hd_small_ht->create("FZLTCXHJW.TTF",25,512,512);
+	_font_hd_small_ht->create("SIMLI.TTF",25,512,512);
 	
 }
 
@@ -41,13 +45,17 @@ void OSDdrawText(int x,int y,wchar_t* text,char font,char fontsize,int win_width
 	FreeTypeFont* pTmp  = NULL;
 
 	if(font == 0x02){
-		if(fontsize == 0x06)
+		if(fontsize == 0x01)
 			pTmp = _font_hd_small_ht;
+		else if(fontsize == 0x02)
+			pTmp = _font_hd_mid_ht;
 		else
 			pTmp = _font_hd_big_ht;
 	}else{
-		if(fontsize == 0x06)
+		if(fontsize == 0x01)
 			pTmp = _font_hd_small_st;
+		else if(fontsize == 0x02)
+			pTmp = _font_hd_mid_st;
 		else
 			pTmp = _font_hd_big_st;
 	}
