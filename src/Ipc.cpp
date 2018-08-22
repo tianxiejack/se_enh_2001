@@ -195,7 +195,12 @@ void* recv_msg(SENDST *RS422)
 				app_ctrl_setAxisPos(pMsg);
 				MSGAPI_msgsend(sectrk);
 			}
-
+			else if(0 == imgID6){
+				pMsg->AxisPosX[pMsg->SensorStat] = Racqpos.BoresightPos_x;
+				pMsg->AxisPosY[pMsg->SensorStat] = Racqpos.BoresightPos_y;
+				pMsg->AvtTrkStat = eTrk_mode_acq;
+				app_ctrl_setAxisPos(pMsg);
+			}
 			break;
 
 		case osdbuffer:
