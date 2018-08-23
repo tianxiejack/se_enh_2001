@@ -491,12 +491,11 @@ void* recv_msg(SENDST *RS422)
 
 		case ipcwordFont:
 			pMsg->osdTextFont = imgID1 ; 
-			app_ctrl_setWordFont(pMsg);
+			app_ctrl_setWordFont(pMsg);		
 			break;
 		case ipcwordSize:
 			pMsg->osdTextSize = imgID1 ; 
-			app_ctrl_setWordFont(pMsg);
-			printf(" wordsize  = %d \n",imgID1);
+			app_ctrl_setWordSize(pMsg);		
 			break;
 		default:
 			break;
