@@ -45,19 +45,19 @@ void OSDdrawText(int x,int y,wchar_t* text,char font,char fontsize,int win_width
 	FreeTypeFont* pTmp  = NULL;
 
 	if(font == 0x02){
-		if(fontsize == 0x01)
-			pTmp = _font_hd_small_ht;
+		if(fontsize == 0x03)
+			pTmp = _font_hd_big_ht;
 		else if(fontsize == 0x02)
 			pTmp = _font_hd_mid_ht;
 		else
-			pTmp = _font_hd_big_ht;
+			pTmp = _font_hd_small_ht;
 	}else{
-		if(fontsize == 0x01)
-			pTmp = _font_hd_small_st;
+		if(fontsize == 0x03)
+			pTmp = _font_hd_big_st;
 		else if(fontsize == 0x02)
 			pTmp = _font_hd_mid_st;
 		else
-			pTmp = _font_hd_big_st;
+			pTmp = _font_hd_small_st;
 	}
 	
 	pTmp->begin(win_width,win_height);

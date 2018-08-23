@@ -2,7 +2,6 @@
 #include"app_ctrl.h"
 #include"osa.h"
 #include "msgDriv.h"
-
 #include "configable.h"
 
 CMD_EXT *msgextInCtrl;
@@ -430,4 +429,26 @@ void app_ctrl_setalgosdrect(CMD_EXT * pInCmd)
 		MSGDRIV_send(MSGID_EXT_INPUT_ALGOSDRECT, 0);
 	}
 
+}
+
+void app_ctrl_setWordFont(CMD_EXT * pInCmd)
+{
+	if(msgextInCtrl==NULL)
+		return ;
+	CMD_EXT *pIStuts = msgextInCtrl;
+	if(pIStuts->osdTextFont != pInCmd->osdTextFont)
+	{
+		pIStuts->osdTextFont = pInCmd->osdTextFont;
+	}
+}
+
+void app_ctrl_setWordSize(CMD_EXT * pInCmd)
+{
+	if(msgextInCtrl==NULL)
+		return ;
+	CMD_EXT *pIStuts = msgextInCtrl;
+	if(pIStuts->osdTextSize != pInCmd->osdTextSize)
+	{
+		pIStuts->osdTextSize = pInCmd->osdTextSize;
+	}
 }

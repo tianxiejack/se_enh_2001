@@ -36,7 +36,6 @@ extern CMD_triangle cmd_triangle;
 extern OSD_param m_osd;
 extern CProcess* plat;
 
-
 double capTime = 0;
 
 GLint Uniform_tex_in = -1;
@@ -1501,8 +1500,8 @@ int CDisplayer::OSDFunc()
 			 y = disOsdBufbak[i].posy;
 		 	 a = disOsdBufbak[i].alpha;
 			 color = disOsdBufbak[i].color;
-			 font = disOsdBufbak[i].font;
-			 fontsize = disOsdBufbak[i].fontsize;
+			 font = plat->extInCtrl->osdTextFont;
+			 fontsize = plat->extInCtrl->osdTextSize;
 
 			switch(color)
 			{

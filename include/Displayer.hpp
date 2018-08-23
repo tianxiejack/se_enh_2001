@@ -169,8 +169,6 @@ public:
 	OSA_BufCreate tskSendBufCreatepal;
 	OSA_BufHndl tskSendBufpal;
 	
-	
-	//bool firvideo;
 protected:
 	DS_InitPrm m_initPrm;
 	DS_Render m_renders[DS_RENDER_MAX];

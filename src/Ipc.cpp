@@ -29,7 +29,6 @@ extern osdbuffer_t disOsdBufbak[32];
 extern wchar_t disOsd[32][33];
 
 
-
 OSA_BufCreate msgSendBufCreate;
 OSA_BufHndl msgSendBuf;
 
@@ -488,6 +487,16 @@ void* recv_msg(SENDST *RS422)
 		case exit_img:
 			MSGAPI_msgsend(exit_img);
 			ipc_loop = 0;			
+			break;
+
+		case ipcwordFont:
+			pMsg->osdTextFont = imgID1 ; 
+			app_ctrl_setWordFont(pMsg);
+			break;
+		case ipcwordSize:
+			pMsg->osdTextSize = imgID1 ; 
+			app_ctrl_setWordFont(pMsg);
+			printf(" wordsize  = %d \n",imgID1);
 			break;
 		default:
 			break;

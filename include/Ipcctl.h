@@ -53,6 +53,8 @@ typedef enum
     trktype,
     AcqPos,
     algosdrect,
+	ipcwordFont,
+	ipcwordSize,
     invalid
 }CMD_ID;
 
