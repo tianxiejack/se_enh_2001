@@ -27,8 +27,7 @@ extern void inputtmp(unsigned char cmdid);
 extern osdbuffer_t disOsdBuf[32];
 extern osdbuffer_t disOsdBufbak[32];
 extern wchar_t disOsd[32][33];
-
-
+extern int glosttime;
 OSA_BufCreate msgSendBufCreate;
 OSA_BufHndl msgSendBuf;
 
@@ -257,6 +256,11 @@ void* recv_msg(SENDST *RS422)
 			break;
 
 		case read_shm_camera:
+			break;
+		case ipclosttime:
+			int losttime;
+			memcpy(&losttime,RS422->param,4);
+			glosttime = losttime;
 			break;
 			
 		case trk:	

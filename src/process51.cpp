@@ -19,6 +19,7 @@ extern int ScalerLarge,ScalerMid,ScalerSmall;
 CProcess * CProcess::sThis = NULL;
 static bool DrawMoveDetect = 0;
 CProcess* plat = NULL;
+int glosttime = 3000;
 
 SENDST trkmsg={0};
 
@@ -1358,7 +1359,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 					rememtime=OSA_getCurTimeInMsec();
 				}
 				
-				if((OSA_getCurTimeInMsec()-rememtime) > 3000)
+				if((OSA_getCurTimeInMsec()-rememtime) > glosttime)
 				{		
 					set_trktype(extInCtrl,3);
 				}
