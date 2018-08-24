@@ -19,7 +19,7 @@
 
 #define AVT_TRK_AIM_SIZE			2
 
-#define MAIN_CHID					0
+#define MAIN_CHID					1
 #define PAL_VIRCHID					1
 
 

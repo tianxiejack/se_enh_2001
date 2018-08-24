@@ -1466,16 +1466,15 @@ void CDisplayer::IrisAndFocus()
 	switch(IrisAndFocusAndExit)
 	{
 	case Enable_Iris:
-		chinese_osd(10,1040,L"光圈调节",1,6,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
+		chinese_osd(905,1000,L"光圈调节",1,4,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
 		if(plat->extInCtrl->SensorStat == video_pal)
 			drawtriangle(plat->m_dc, cmd_triangle.dir, cmd_triangle.alpha);
 		else
 			drawtriangle(plat->m_dccv, cmd_triangle.dir, cmd_triangle.alpha);
-		printf("cmd_triangle.dir  = %d   cmd_triangle.alpha  = %d\n", cmd_triangle.dir, cmd_triangle.alpha);
 		break;
 
 	case Enable_Focus:
-		chinese_osd(10,1040,L"聚焦调节",1,6,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
+		chinese_osd(905,1000,L"聚焦调节",1,4,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
 		if(plat->extInCtrl->SensorStat==video_pal)
 			drawtriangle(plat->m_dc, cmd_triangle.dir, cmd_triangle.alpha);
 		else
@@ -1562,15 +1561,15 @@ void CDisplayer::drawtriangle(Mat frame, char direction, char alpha)
 	switch(direction)
 	{
 	case up:
-	root_points[0][0] = Point(120,1047);
-	root_points[0][1] = Point(110,1067);
-	root_points[0][2] = Point(130,1067);
+	root_points[0][0] = Point(1015,1007);
+	root_points[0][1] = Point(1005,1027);
+	root_points[0][2] = Point(1025,1027);
 	break;
 
 	case down:
-		root_points[0][0] = Point(120,1067);
-		root_points[0][1] = Point(110,1047);
-		root_points[0][2] = Point(130,1047);
+		root_points[0][0] = Point(1015,1027);
+		root_points[0][1] = Point(1005,1007);
+		root_points[0][2] = Point(1025,1007);
 		break;
 		default:
 		break;

@@ -18,6 +18,8 @@ FreeTypeFont*	_font_hd_big_ht;
 FreeTypeFont*	_font_hd_mid_ht;
 FreeTypeFont*	_font_hd_small_ht;
 
+FreeTypeFont* _font_hd_IrisFocus_ht;
+
 void OSDCreatText()
 {
 	_font_hd_big_st   =   new FreeTypeFont();
@@ -38,6 +40,9 @@ void OSDCreatText()
 	_font_hd_small_ht   =   new FreeTypeFont();
 	_font_hd_small_ht->create("SIMLI.TTF",20,512,512);
 	
+	_font_hd_IrisFocus_ht = new FreeTypeFont();
+	_font_hd_IrisFocus_ht->create("simsun.ttc",25,512,512);
+
 }
 
 void OSDdrawText(int x,int y,wchar_t* text,char font,char fontsize,int win_width,int win_height)
@@ -55,6 +60,8 @@ void OSDdrawText(int x,int y,wchar_t* text,char font,char fontsize,int win_width
 			pTmp = _font_hd_big_st;
 		else if(fontsize == 0x02)
 			pTmp = _font_hd_mid_st;
+		else if(fontsize == 0x04)
+			pTmp = _font_hd_IrisFocus_ht;
 		else
 			pTmp = _font_hd_small_st;
 	}
