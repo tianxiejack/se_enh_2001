@@ -1480,6 +1480,12 @@ void CDisplayer::IrisAndFocus()
 		else
 			drawtriangle(plat->m_dccv, cmd_triangle.dir, cmd_triangle.alpha);
 		break;
+	case Disable:
+		if(plat->extInCtrl->SensorStat==video_pal)
+			drawtriangle(plat->m_dc, cmd_triangle.dir, cmd_triangle.alpha);
+		else
+			drawtriangle(plat->m_dccv, cmd_triangle.dir, cmd_triangle.alpha);
+		break;
 	}
 }
 
