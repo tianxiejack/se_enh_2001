@@ -1561,15 +1561,15 @@ void CDisplayer::drawtriangle(Mat frame, char direction, char alpha)
 	switch(direction)
 	{
 	case up:
-	root_points[0][0] = Point(1015,1007);
-	root_points[0][1] = Point(1005,1027);
-	root_points[0][2] = Point(1025,1027);
+	root_points[0][0] = Point(1015,1006);
+	root_points[0][1] = Point(1005,1026);
+	root_points[0][2] = Point(1025,1026);
 	break;
 
 	case down:
-		root_points[0][0] = Point(1015,1027);
-		root_points[0][1] = Point(1005,1007);
-		root_points[0][2] = Point(1025,1007);
+		root_points[0][0] = Point(1015,1026);
+		root_points[0][1] = Point(1005,1006);
+		root_points[0][2] = Point(1025,1006);
 		break;
 		default:
 		break;
