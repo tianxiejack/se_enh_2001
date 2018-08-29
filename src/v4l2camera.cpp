@@ -42,7 +42,10 @@ imgheight(IMAGE_HEIGHT),imgformat(V4L2_PIX_FMT_UYVY),buffers(NULL),memType(MEMOR
 force_format(1),m_devFd(-1),n_buffers(0),bufSize(INPUT_IMAGE_WIDTH*INPUT_IMAGE_HEIGHT),bRun(false),
 Id(/*devId*/0)
 {
-	sprintf(dev_name, "/dev/video%d",devId);
+	if(0 == devId)
+		sprintf(dev_name, "/dev/video4");
+	else
+		sprintf(dev_name, "/dev/video%d",devId);
 	// for axgs021
 	switch(devId){
 		case video_pal:

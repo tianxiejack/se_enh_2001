@@ -1629,7 +1629,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 
 	if(key == 'a' || key == 'A')
 	{
-		tmpCmd.SensorStat = (pIStuts->SensorStat + 1)%eSen_Max;
+		tmpCmd.SensorStat = (pIStuts->SensorStat + 1)%5;
 		app_ctrl_setSensor(&tmpCmd);		
 	}
 
