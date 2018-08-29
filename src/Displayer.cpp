@@ -1213,90 +1213,19 @@ void CDisplayer::gl_textureLoad(void)
 
 
 				
-				if(m_bEnh[chId])
-				{
-					//m_bEnh[chId^1]=m_bEnh[chId];
-					Mat dst = dism_img[chId];
-					//dst.data = dev_pbo;
-					dst.data = x11m_img.data;
 
-
-					//Mat dst = m_img[chId];
-					//dst.data = dev_pbo;
-					cuClahe( dism_img[chId],dism_img[chId], 8,8,enhanceparam,1);
-					//enhancetime = getTickCount();
-					//int64 enhtstart = getTickCount();
-					
-					#if 0
-					#if HISTEN
-					cuHistEnh( m_img[chId], dst);
-					#elif CLAHEH 
-					cuClahe( m_img[chId], dst,8,8,3.5,1);
-					#elif DARKEN
-					cuUnhazed( m_img[chId], dst);
-					#else
-					cuHistEnh( m_img[chId], dst);
-					#endif
-					#else
-					/*
-					if(chId==0)//tv enh
-					{	
-						if(enhancemod==0)
-							cuHistEnh( dism_img[chId], dst);
-						else if(enhancemod==1)
-							cuClahe( dism_img[chId], dst,4,4,enhanceparam,1);
-						else if(enhancemod==2)
-							cuUnhazed( dism_img[chId], dst);
-						else if(enhancemod==3)
-						{
-							Mat mid = dism_img[chId];
-							unsigned char *d_src_rgb = NULL;
-							int nChannel = dism_img[chId].channels();
-							unsigned int byteCount2 = dism_img[chId].rows * dism_img[chId].cols * nChannel * sizeof(unsigned char);
-							cudaMalloc_share((void**)&d_src_rgb, byteCount2, 12);
-							mid.data = d_src_rgb;
-							cuUnhazed( dism_img[chId], mid);
-							cuClahe( mid, dst, 4, 4, 3.0, 1);
-							cudaFree_share(d_src_rgb, 12);
-						}
-						else
-							cuHistEnh( dism_img[chId], dst);
-					}
-					else
-						cuUnhazed( dism_img[chId], dst);
-					*/
-						
-					
-					if(m_renders[chId].videodect)
-					{
-						cudaMemcpy(x11disbuffer, dism_img[chId].data, byteCount, cudaMemcpyDeviceToHost);
-					}
-					else
-					{
-						//cudaMemcpy(dev_pbo, m_img_novideo.data, byteCount, cudaMemcpyDeviceToDevice);
-						cudaMemcpy(x11disbuffer, m_img_novideo.data,byteCount, cudaMemcpyDeviceToHost);
-					}
-
-
-
-
-					#endif
-					//m_initPrm.timerInterval=16;
-					//OSA_printf("chId = %d, enhance: time = %f sec \n", chId, ( (getTickCount() - enhancetime)/getTickFrequency()) );
-				}
-				else
-				{
-					if(m_renders[chId].videodect)
-					{
-						//cudaMemcpy(dev_pbo, m_img[chId].data, byteCount, cudaMemcpyDeviceToDevice);
-						cudaMemcpy(x11disbuffer, dism_img[chId].data,byteCount, cudaMemcpyDeviceToHost);
-					}
-					else
-					{
-						//cudaMemcpy(dev_pbo, m_img_novideo.data, byteCount, cudaMemcpyDeviceToDevice);
-						cudaMemcpy(x11disbuffer, m_img_novideo.data,byteCount, cudaMemcpyDeviceToHost);
-					}
-				}
+		
+			if(m_renders[chId].videodect)
+			{
+				//cudaMemcpy(dev_pbo, m_img[chId].data, byteCount, cudaMemcpyDeviceToDevice);
+				cudaMemcpy(x11disbuffer, dism_img[chId].data,byteCount, cudaMemcpyDeviceToHost);
+			}
+			else
+			{
+				//cudaMemcpy(dev_pbo, m_img_novideo.data, byteCount, cudaMemcpyDeviceToDevice);
+				cudaMemcpy(x11disbuffer, m_img_novideo.data,byteCount, cudaMemcpyDeviceToHost);
+			}
+				
 
 				//add for kaidun
 				#if 1
