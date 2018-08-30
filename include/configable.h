@@ -19,17 +19,20 @@
 
 #define AVT_TRK_AIM_SIZE			2
 
-#define MAIN_CHID					1
-#define PAL_VIRCHID					0
+
 
 
 enum devvideo{
-	video_pal,
+	video_gaoqing0=0,
 	video_gaoqing,
+	video_gaoqing2,
+	video_gaoqing3,
+	video_pal,
 	MAX_CHAN,
 };
 
-
+#define MAIN_CHID					video_gaoqing
+#define PAL_VIRCHID					0
 
 
 #if 0

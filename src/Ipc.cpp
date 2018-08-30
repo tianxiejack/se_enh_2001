@@ -167,7 +167,7 @@ void* recv_msg(SENDST *RS422)
 				if(pMsg->SensorStat == video_pal){
 					width  = VIDEO_IMAGE_WIDTH_0;
 					height = VIDEO_IMAGE_HEIGHT_0;
-				}else{
+				}else if((pMsg->SensorStat == video_gaoqing0)||(pMsg->SensorStat == video_gaoqing)||(pMsg->SensorStat == video_gaoqing2)||(pMsg->SensorStat == video_gaoqing3)){
 					width  = VIDEO_IMAGE_WIDTH_1;
 					height = VIDEO_IMAGE_HEIGHT_1;
 				}
@@ -361,7 +361,7 @@ void* recv_msg(SENDST *RS422)
 					if(pMsg->SensorStat == video_pal){
 						width  = VIDEO_IMAGE_WIDTH_0;
 						height = VIDEO_IMAGE_HEIGHT_0;
-					}else{
+					}else if((pMsg->SensorStat == video_gaoqing0)||(pMsg->SensorStat == video_gaoqing)||(pMsg->SensorStat == video_gaoqing2)||(pMsg->SensorStat == video_gaoqing3)){
 						width  = VIDEO_IMAGE_WIDTH_1;
 						height = VIDEO_IMAGE_HEIGHT_1;
 					}

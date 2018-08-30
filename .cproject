@@ -44,7 +44,7 @@
 								</option>
 								<option id="nvcc.compiler.def.symbols.395705433" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__IPC__=1"/>
-									<listOptionValue builtIn="false" value="__MOVE_DETECT__=1"/>
+									<listOptionValue builtIn="false" value="__MOVE_DETECT__=0"/>
 									<listOptionValue builtIn="false" value="__TRACK__=1"/>
 								</option>
 								<inputType id="nvcc.compiler.input.cu.304571006" superClass="nvcc.compiler.input.cu"/>
@@ -55,12 +55,9 @@
 								<option id="nvcc.linker.option.libs.302965794" name="Libraries (-l)" superClass="nvcc.linker.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="opencv_highgui"/>
 									<listOptionValue builtIn="false" value="freetype"/>
-									<listOptionValue builtIn="false" value="detect"/>
-									<listOptionValue builtIn="false" value="ipc"/>
-									<listOptionValue builtIn="false" value="enh"/>
-									<listOptionValue builtIn="false" value="dft"/>
-									<listOptionValue builtIn="false" value="MvDetectLib"/>
+									<listOptionValue builtIn="false" value="GLU"/>
 									<listOptionValue builtIn="false" value="opencv_legacy"/>
+									<listOptionValue builtIn="false" value="ipc"/>
 									<listOptionValue builtIn="false" value="opencv_video"/>
 									<listOptionValue builtIn="false" value="opencv_core"/>
 									<listOptionValue builtIn="false" value="opencv_imgproc"/>
@@ -68,6 +65,7 @@
 									<listOptionValue builtIn="false" value="GL"/>
 									<listOptionValue builtIn="false" value="GLEW"/>
 									<listOptionValue builtIn="false" value="glut"/>
+									<listOptionValue builtIn="false" value="dft"/>
 									<listOptionValue builtIn="false" value="MMTD"/>
 									<listOptionValue builtIn="false" value="nppi"/>
 									<listOptionValue builtIn="false" value="nppc"/>
@@ -150,7 +148,7 @@
 								<option id="nvcc.compiler.def.symbols.1717725089" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__IPC__=1"/>
 									<listOptionValue builtIn="false" value="__TRACK__=1"/>
-									<listOptionValue builtIn="false" value="__MOVE_DETECT__=1"/>
+									<listOptionValue builtIn="false" value="__MOVE_DETECT__=0"/>
 								</option>
 								<inputType id="nvcc.compiler.input.cu.67168885" superClass="nvcc.compiler.input.cu"/>
 								<inputType id="nvcc.compiler.input.cpp.495488102" superClass="nvcc.compiler.input.cpp"/>
@@ -160,8 +158,6 @@
 								<option id="nvcc.linker.option.libs.1767236211" name="Libraries (-l)" superClass="nvcc.linker.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="opencv_highgui"/>
 									<listOptionValue builtIn="false" value="freetype"/>
-									<listOptionValue builtIn="false" value="detect"/>
-									<listOptionValue builtIn="false" value="MvDetectLib"/>
 									<listOptionValue builtIn="false" value="GLU"/>
 									<listOptionValue builtIn="false" value="opencv_legacy"/>
 									<listOptionValue builtIn="false" value="ipc"/>
@@ -173,7 +169,6 @@
 									<listOptionValue builtIn="false" value="GLEW"/>
 									<listOptionValue builtIn="false" value="glut"/>
 									<listOptionValue builtIn="false" value="dft"/>
-									<listOptionValue builtIn="false" value="enh"/>
 									<listOptionValue builtIn="false" value="MMTD"/>
 									<listOptionValue builtIn="false" value="nppi"/>
 									<listOptionValue builtIn="false" value="nppc"/>

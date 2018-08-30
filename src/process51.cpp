@@ -51,10 +51,16 @@ CProcess::CProcess()
 	memset(extInCtrl,0,sizeof(CMD_EXT));
 	CMD_EXT *pIStuts = extInCtrl;
 	
-	pIStuts->opticAxisPosX[0]   = VIDEO_IMAGE_WIDTH_0/2;
-	pIStuts->opticAxisPosY[0]   = VIDEO_IMAGE_HEIGHT_0/2;
-	pIStuts->opticAxisPosX[1]   = VIDEO_IMAGE_WIDTH_1/2;
-	pIStuts->opticAxisPosY[1]   = VIDEO_IMAGE_HEIGHT_1/2;
+	pIStuts->opticAxisPosX[video_pal]   = VIDEO_IMAGE_WIDTH_0/2;
+	pIStuts->opticAxisPosY[video_pal]   = VIDEO_IMAGE_HEIGHT_0/2;
+	pIStuts->opticAxisPosX[video_gaoqing0]   = VIDEO_IMAGE_WIDTH_1/2;
+	pIStuts->opticAxisPosY[video_gaoqing0]   = VIDEO_IMAGE_HEIGHT_1/2;
+	pIStuts->opticAxisPosX[video_gaoqing]   = VIDEO_IMAGE_WIDTH_1/2;
+	pIStuts->opticAxisPosY[video_gaoqing]   = VIDEO_IMAGE_HEIGHT_1/2;
+	pIStuts->opticAxisPosX[video_gaoqing2]   = VIDEO_IMAGE_WIDTH_1/2;
+	pIStuts->opticAxisPosY[video_gaoqing2]   = VIDEO_IMAGE_HEIGHT_1/2;
+	pIStuts->opticAxisPosX[video_gaoqing3]   = VIDEO_IMAGE_WIDTH_1/2;
+	pIStuts->opticAxisPosY[video_gaoqing3]   = VIDEO_IMAGE_HEIGHT_1/2;
 	
 	pIStuts->unitAimW 		= 	AIM_WIDTH;
 	pIStuts->unitAimH 		= 	AIM_HEIGHT;
@@ -70,15 +76,11 @@ CProcess::CProcess()
 	crossBak.y = pIStuts->opticAxisPosY[pIStuts->SensorStat ];
 	pIStuts->AvtTrkAimSize= AVT_TRK_AIM_SIZE;
 
-	pIStuts->AvtPosX[0]		=VIDEO_IMAGE_WIDTH_0/2;
-	pIStuts->AvtPosY[0]		=VIDEO_IMAGE_HEIGHT_0/2;
-	pIStuts->AvtPosX[1]		=VIDEO_IMAGE_WIDTH_1/2;
-	pIStuts->AvtPosY[1]		=VIDEO_IMAGE_HEIGHT_1/2;
-
-	pIStuts->AxisPosX[0]	=VIDEO_IMAGE_WIDTH_0/2;
-	pIStuts->AxisPosY[0]	=VIDEO_IMAGE_HEIGHT_0/2;
-	pIStuts->AxisPosX[1]	=VIDEO_IMAGE_WIDTH_1/2;
-	pIStuts->AxisPosY[1]	=VIDEO_IMAGE_HEIGHT_1/2;
+	for(int i = 0; i < MAX_CHAN; i++)
+	{
+		pIStuts->AvtPosX[i] = pIStuts->AxisPosX[i] = pIStuts->opticAxisPosX[i];
+		pIStuts->AvtPosY[i] = pIStuts->AxisPosY[i] = pIStuts->opticAxisPosY[i];
+	}
 	
 	pIStuts->PicpPosStat = 0;
 	pIStuts->validChId = pIStuts->SensorStatBegin;
@@ -419,7 +421,7 @@ void CProcess::DrawCross(cv::Rect rec,int fcolour ,int sensor,bool bShow /*= tru
 	lineparm.width	=	rec.width;
 	lineparm.height	=	rec.height;
 	lineparm.frcolor	=	colour;
-	if(sensor>1)
+	if(sensor>=MAX_CHAN)
 		sensor = 1;
 	Drawcvcrossaim(m_display.m_imgOsd[sensor],&lineparm);
 }
@@ -1069,10 +1071,7 @@ void CProcess::DrawdashCross(int x,int y,int fcolour ,bool bShow /*= true*/)
 	{
 		lineparm.x=secBak[1].x;
 		lineparm.y=secBak[1].y;
-		if(extInCtrl->SensorStat==video_gaoqing)
-			DrawcvDashcross(m_dccv,&lineparm,dashlen,dashlen);
-		else if(extInCtrl->SensorStat==video_pal)
-			DrawcvDashcross(m_dc,&lineparm,dashlen,dashlen);
+		DrawcvDashcross(m_display.m_imgOsd[extInCtrl->SensorStat],&lineparm,dashlen,dashlen);
 		startx=secBak[0].x;
 		starty=secBak[0].y;
 		endx=secBak[1].x;
@@ -1083,18 +1082,12 @@ void CProcess::DrawdashCross(int x,int y,int fcolour ,bool bShow /*= true*/)
 
 	else if(extInCtrl->DispGrp[extInCtrl->SensorStat]<3)
 	{
-		if(extInCtrl->SensorStat==video_gaoqing)
-			DrawcvDashcross(m_dccv,&lineparm,dashlen,dashlen);
-		else if(extInCtrl->SensorStat==video_pal)
-			DrawcvDashcross(m_dc,&lineparm,dashlen,dashlen);
+		DrawcvDashcross(m_display.m_imgOsd[extInCtrl->SensorStat],&lineparm,dashlen,dashlen);
 		startx=PiexltoWindowsxzoom(extInCtrl->AvtPosX[extInCtrl->SensorStat ],extInCtrl->SensorStat);
 		starty=PiexltoWindowsyzoom(extInCtrl->AvtPosY[extInCtrl->SensorStat ],extInCtrl->SensorStat);
 		endx=lineparm.x;
 		endy=lineparm.y;
-		if(extInCtrl->SensorStat==video_gaoqing)
-			drawdashlinepri(m_dccv,startx,starty,endx,endy,dashlen,dashlen,colour);
-		else
-			drawdashlinepri(m_dc,startx,starty,endx,endy,dashlen,dashlen,colour);
+		drawdashlinepri(m_display.m_imgOsd[extInCtrl->SensorStat],startx,starty,endx,endy,dashlen,dashlen,colour);
 
 		secBak[0].x=startx;
 		secBak[0].y=starty;
@@ -1109,20 +1102,10 @@ void CProcess::DrawdashCross(int x,int y,int fcolour ,bool bShow /*= true*/)
 void CProcess::DrawdashRect(int startx,int starty,int endx,int endy,int colour)
 {
 	int dashlen=3;
-	if(extInCtrl->SensorStat==video_gaoqing)
-	{
-		drawdashlinepri(m_dccv,startx,starty,endx,starty,dashlen,dashlen,colour);
-		drawdashlinepri(m_dccv,startx,endy,endx,endy,dashlen,dashlen,colour);
-		drawdashlinepri(m_dccv,endx,starty,endx,endy,dashlen,dashlen,colour);
-		drawdashlinepri(m_dccv,startx,starty,startx,endy,dashlen,dashlen,colour);
-	}
-	else if(extInCtrl->SensorStat==video_pal)
-	{
-		drawdashlinepri(m_dc,startx,starty,endx,starty,dashlen,dashlen,colour);
-		drawdashlinepri(m_dc,startx,endy,endx,endy,dashlen,dashlen,colour);
-		drawdashlinepri(m_dc,endx,starty,endx,endy,dashlen,dashlen,colour);
-		drawdashlinepri(m_dc,startx,starty,startx,endy,dashlen,dashlen,colour);
-	}
+	drawdashlinepri(m_display.m_imgOsd[extInCtrl->SensorStat],startx,starty,endx,starty,dashlen,dashlen,colour);
+	drawdashlinepri(m_display.m_imgOsd[extInCtrl->SensorStat],startx,endy,endx,endy,dashlen,dashlen,colour);
+	drawdashlinepri(m_display.m_imgOsd[extInCtrl->SensorStat],endx,starty,endx,endy,dashlen,dashlen,colour);
+	drawdashlinepri(m_display.m_imgOsd[extInCtrl->SensorStat],startx,starty,startx,endy,dashlen,dashlen,colour);
 }
 
 bool CProcess::OnProcess(int chId, Mat &frame)
@@ -1186,54 +1169,24 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 		 int aimh = extInCtrl->AimH[extInCtrl->SensorStat];
 
 		if(changesensorCnt){
-			if(extInCtrl->SensorStatpri == video_gaoqing){
-				rectangle( m_dccv,
-					Point( rcTrackBak[extInCtrl->SensorStatpri].x, rcTrackBak[extInCtrl->SensorStatpri].y ),
-					Point( rcTrackBak[extInCtrl->SensorStatpri].x+rcTrackBak[extInCtrl->SensorStatpri].width, 
-						rcTrackBak[extInCtrl->SensorStatpri].y+rcTrackBak[extInCtrl->SensorStatpri].height),
-					cvScalar(0,0,0, 0), 1, 8 );
- 			}
-			else if(extInCtrl->SensorStatpri == video_pal){
-				rectangle( m_dc,
-					Point( rcTrackBak[extInCtrl->SensorStatpri].x, rcTrackBak[extInCtrl->SensorStatpri].y ),
-					Point( rcTrackBak[extInCtrl->SensorStatpri].x+rcTrackBak[extInCtrl->SensorStatpri].width, 
-						rcTrackBak[extInCtrl->SensorStatpri].y+rcTrackBak[extInCtrl->SensorStatpri].height),
-					cvScalar(0,0,0, 0), 1, 8 );
- 			}
+			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
+				Point( rcTrackBak[extInCtrl->SensorStatpri].x, rcTrackBak[extInCtrl->SensorStatpri].y ),
+				Point( rcTrackBak[extInCtrl->SensorStatpri].x+rcTrackBak[extInCtrl->SensorStatpri].width, 
+					rcTrackBak[extInCtrl->SensorStatpri].y+rcTrackBak[extInCtrl->SensorStatpri].height),
+				cvScalar(0,0,0, 0), 1, 8 );
 		}
 
 		if(Osdflag[osdindex]==1)
  		{			
-				if(extInCtrl->SensorStat==video_gaoqing)
-				{
-					rectangle( m_dccv,
-						Point( resultTrackBak.x, resultTrackBak.y ),
-						Point( resultTrackBak.x+resultTrackBak.width, resultTrackBak.y+resultTrackBak.height),
-						cvScalar(0,0,0,0), 1, 8 );
-				}
-				else if(extInCtrl->SensorStat==video_pal)
-				{
-					rectangle( m_dc,
-						Point( resultTrackBak.x, resultTrackBak.y ),
-						Point( resultTrackBak.x+resultTrackBak.width, resultTrackBak.y+resultTrackBak.height),
-						cvScalar(0,0,0,0), 1, 8 );
-				}
-	 			if(extInCtrl->SensorStat==video_gaoqing)
-	 			{
-					rectangle( m_dccv,
-						Point( rcTrackBak[extInCtrl->SensorStat].x, rcTrackBak[extInCtrl->SensorStat].y ),
-						Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
-							rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
-						cvScalar(0,0,0, 0), 1, 8 );
-	 			}
-				else if(extInCtrl->SensorStat==video_pal)
-	 			{
-					rectangle( m_dc,
-						Point( rcTrackBak[extInCtrl->SensorStat].x, rcTrackBak[extInCtrl->SensorStat].y ),
-						Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
-							rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
-						cvScalar(0,0,0, 0), 1, 8 );
-	 			}
+			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
+				Point( resultTrackBak.x, resultTrackBak.y ),
+				Point( resultTrackBak.x+resultTrackBak.width, resultTrackBak.y+resultTrackBak.height),
+				cvScalar(0,0,0,0), 1, 8 );
+			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
+				Point( rcTrackBak[extInCtrl->SensorStat].x, rcTrackBak[extInCtrl->SensorStat].y ),
+				Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
+					rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
+				cvScalar(0,0,0, 0), 1, 8 );
 			Osdflag[osdindex]=0;
 		}
 		 if(m_bTrack)
@@ -1241,20 +1194,10 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			extInCtrl->TrkXtmp = rcResult.x + rcResult.width/2;
 			extInCtrl->TrkYtmp = rcResult.y + rcResult.height/2;
 			
-			if(chId == video_gaoqing)
-			{
-				 startx=PiexltoWindowsxzoom_TrkRect(rcResult.x+rcResult.width/2-aimw/2,extInCtrl->SensorStat);			
-				 starty=PiexltoWindowsyzoom_TrkRect(rcResult.y+rcResult.height/2-aimh/2 ,extInCtrl->SensorStat);
-				 endx  =PiexltoWindowsxzoom_TrkRect(rcResult.x+rcResult.width/2+aimw/2,extInCtrl->SensorStat);
-			 	 endy  =PiexltoWindowsyzoom_TrkRect(rcResult.y+rcResult.height/2+aimh/2 ,extInCtrl->SensorStat);
-			}
-			else if(chId == video_pal)
-			{
-				startx=PiexltoWindowsxzoom_TrkRect(rcResult.x+rcResult.width/2-aimw/2,extInCtrl->SensorStat);			
-			 	starty=PiexltoWindowsyzoom_TrkRect(rcResult.y+rcResult.height/2-aimh/2 ,extInCtrl->SensorStat);
-			 	endx  =PiexltoWindowsxzoom_TrkRect(rcResult.x+rcResult.width/2+aimw/2,extInCtrl->SensorStat);
-		 	 	endy  =PiexltoWindowsyzoom_TrkRect(rcResult.y+rcResult.height/2+aimh/2 ,extInCtrl->SensorStat);
-			}
+			startx=PiexltoWindowsxzoom_TrkRect(rcResult.x+rcResult.width/2-aimw/2,extInCtrl->SensorStat);			
+			starty=PiexltoWindowsyzoom_TrkRect(rcResult.y+rcResult.height/2-aimh/2 ,extInCtrl->SensorStat);
+			endx  =PiexltoWindowsxzoom_TrkRect(rcResult.x+rcResult.width/2+aimw/2,extInCtrl->SensorStat);
+		 	endy  =PiexltoWindowsyzoom_TrkRect(rcResult.y+rcResult.height/2+aimh/2 ,extInCtrl->SensorStat);
 
 			if(algOsdRect == true)
 			{
@@ -1283,37 +1226,10 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			}
 			else
 			{
-				if(chId == video_gaoqing)
-				{
-					startx=PiexltoWindowsxzoom(extInCtrl->TrkXtmp-aimw/2,extInCtrl->SensorStat);			
-					starty=PiexltoWindowsyzoom(extInCtrl->TrkYtmp-aimh/2 ,extInCtrl->SensorStat);
-					endx=PiexltoWindowsxzoom(extInCtrl->TrkXtmp+aimw/2,extInCtrl->SensorStat);
-					endy=PiexltoWindowsyzoom(extInCtrl->TrkYtmp+aimh/2 ,extInCtrl->SensorStat);
-				}
-				else if(chId == video_pal)
-				{
-					startx=PiexltoWindowsxzoom(extInCtrl->TrkXtmp-aimw/2,extInCtrl->SensorStat);			
-					starty=PiexltoWindowsyzoom(extInCtrl->TrkYtmp-aimh/2 ,extInCtrl->SensorStat);
-					endx=PiexltoWindowsxzoom(extInCtrl->TrkXtmp+aimw/2,extInCtrl->SensorStat);
-					endy=PiexltoWindowsyzoom(extInCtrl->TrkYtmp+aimh/2 ,extInCtrl->SensorStat);
-				}
-
-				#if 0
-				if(chId == video_gaoqing)
-				{
-					startx=PiexltoWindowsxzoom(extInCtrl->AxisPosX[extInCtrl->SensorStat]-aimw/2,extInCtrl->SensorStat);			
-					starty=PiexltoWindowsyzoom(extInCtrl->AxisPosY[extInCtrl->SensorStat]-aimh/2 ,extInCtrl->SensorStat);
-					endx=PiexltoWindowsxzoom(extInCtrl->AxisPosX[extInCtrl->SensorStat]+aimw/2,extInCtrl->SensorStat);
-					endy=PiexltoWindowsyzoom(extInCtrl->AxisPosY[extInCtrl->SensorStat]+aimh/2 ,extInCtrl->SensorStat);
-				}
-				else if(chId == video_pal)
-				{
-					startx=PiexltoWindowsxzoom(extInCtrl->AxisPosX[extInCtrl->SensorStat]-aimw/2,extInCtrl->SensorStat);			
-					starty=PiexltoWindowsyzoom(extInCtrl->AxisPosY[extInCtrl->SensorStat]-aimh/2 ,extInCtrl->SensorStat);
-					endx=PiexltoWindowsxzoom(extInCtrl->AxisPosX[extInCtrl->SensorStat]+aimw/2,extInCtrl->SensorStat);
-					endy=PiexltoWindowsyzoom(extInCtrl->AxisPosY[extInCtrl->SensorStat]+aimh/2 ,extInCtrl->SensorStat);
-				}
-				#endif				
+				startx=PiexltoWindowsxzoom(extInCtrl->TrkXtmp-aimw/2,extInCtrl->SensorStat);			
+				starty=PiexltoWindowsyzoom(extInCtrl->TrkYtmp-aimh/2 ,extInCtrl->SensorStat);
+				endx=PiexltoWindowsxzoom(extInCtrl->TrkXtmp+aimw/2,extInCtrl->SensorStat);
+				endy=PiexltoWindowsyzoom(extInCtrl->TrkYtmp+aimh/2 ,extInCtrl->SensorStat);			
 
 				if(bDraw != 0 && !changesensorCnt)
 				{
@@ -1395,16 +1311,8 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			#if __IPC__
 					if(extInCtrl->TrkStat != 3)
 					{
-						if(extInCtrl->SensorStat == video_gaoqing)
-						{
-							extInCtrl->trkerrx = extInCtrl->trkerrx - extInCtrl->opticAxisPosX[extInCtrl->SensorStat];
-							extInCtrl->trkerry = extInCtrl->trkerry - extInCtrl->opticAxisPosY[extInCtrl->SensorStat];
-						}
-						else if(extInCtrl->SensorStat == video_pal)
-						{
 							extInCtrl->trkerrx = extInCtrl->trkerrx - extInCtrl->opticAxisPosX[extInCtrl->SensorStat];
 							extInCtrl->trkerry = extInCtrl->trkerry - extInCtrl->opticAxisPosX[extInCtrl->SensorStat];
-						}
 					}
 					else
 					{
@@ -1519,14 +1427,14 @@ osdindex++;	//acqRect
 	{
 		if(changesensorCnt){
 			recIn = acqRectBak;
-			if(extInCtrl->SensorStatpri>1)
+			if(extInCtrl->SensorStatpri>MAX_CHAN)
 				extInCtrl->SensorStatpri = 1;
 			DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStatpri],recIn,frcolor,false);
 		}
 		
 	 	if(Osdflag[osdindex]==1){
 			recIn = acqRectBak;
-			if(extInCtrl->SensorStat>1)
+			if(extInCtrl->SensorStat>=MAX_CHAN)
 				extInCtrl->SensorStat = 1;
 			DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,false);
 			Osdflag[osdindex]=0;
@@ -1542,12 +1450,7 @@ osdindex++;	//acqRect
 				recIn.height++;
 			recIn.x = recIn.x  - recIn.width/2;
 			recIn.y = recIn.y  + recIn.height/2;
-			if(extInCtrl->SensorStat == video_gaoqing)
-				DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,true);
-			else if(extInCtrl->SensorStat == video_pal)
-			{
-				DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,true);
-			}
+			DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,true);
 			acqRectBak = recIn;
 			Osdflag[osdindex]=1;
 
@@ -1589,8 +1492,13 @@ osdindex++;	//acqRect
 	
 	center.x = 1920/2;
 	center.y = 1080/2;
+	if(extInCtrl->SensorStat == video_pal)
+	{
+		center.x = 720/2;
+		center.y = 576/2;
+	}
 	int radius = 4;
-	cv::circle(m_dccv,center,radius ,cvScalar(255,0,255,255),8,8,0);
+	cv::circle(m_display.m_imgOsd[extInCtrl->SensorStat],center,radius ,cvScalar(255,0,255,255),8,8,0);
 
 	prisensorstatus=extInCtrl->SensorStat;
 
@@ -1629,7 +1537,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 
 	if(key == 'a' || key == 'A')
 	{
-		tmpCmd.SensorStat = (pIStuts->SensorStat + 1)%5;
+		tmpCmd.SensorStat = (pIStuts->SensorStat + 1)%MAX_CHAN;
 		app_ctrl_setSensor(&tmpCmd);		
 	}
 
@@ -2044,7 +1952,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 		}
 
 		//printf("%s,line:%d   aimx,aimy=(%d,%d)\n",__func__,__LINE__,pIStuts->AvtPosX[0],pIStuts->AvtPosY[0]);
-		if(m_curChId== video_gaoqing)
+		if((m_curChId== video_gaoqing0)||(m_curChId== video_gaoqing)||(m_curChId== video_gaoqing2)||(m_curChId== video_gaoqing3))
 		{
 			rc.width= pIStuts->AimW[pIStuts->SensorStat];
 			rc.height=pIStuts->AimW[pIStuts->SensorStat];
@@ -2566,7 +2474,7 @@ void CProcess::MSGAPI_setMtdState(long lParam )
 	CMD_EXT *pIStuts = sThis->extInCtrl;
 	if(pIStuts->MtdState[pIStuts->validChId] == 0)
 	{
-		rectangle( sThis->m_display.m_imgOsd[1],
+		rectangle( sThis->m_display.m_imgOsd[sThis->extInCtrl->SensorStat],
 			Point( sThis->preWarnRect.x, sThis->preWarnRect.y ),
 			Point( sThis->preWarnRect.x+sThis->preWarnRect.width, sThis->preWarnRect.y+sThis->preWarnRect.height),
 			cvScalar(0,0,0,0), 2, 8 );
@@ -2715,7 +2623,7 @@ void CProcess::MSGAPI_inputfovselect(long lParam )
 	if(pIStuts->changeSensorFlag == 0)
 	{
 		//OSA_printf("FovStat = %d SensorStat=%d\n",pIStuts->FovStat,pIStuts->SensorStat);
-		if(pIStuts->SensorStat == 0)
+		if(video_pal == pIStuts->SensorStat)
 		{
 		#if __TRACK__
 			if(pIStuts->FovStat == 1)
@@ -2729,7 +2637,7 @@ void CProcess::MSGAPI_inputfovselect(long lParam )
 			
 		#endif
 		}
-		else if(pIStuts->SensorStat == 1){
+		else if((video_gaoqing0 == pIStuts->SensorStat)||(video_gaoqing == pIStuts->SensorStat)||(video_gaoqing2 == pIStuts->SensorStat)||(video_gaoqing3 == pIStuts->SensorStat)){
 		#if __TRACK__
 			if(pIStuts->FovStat == 1)
 				sThis->Track_fovreacq( 4000,pIStuts->SensorStat,0);
@@ -2869,8 +2777,14 @@ void CProcess::update_param_osd()
 	//pIStuts->picpCrossAxisHeight	= gConfig_Osd_param.Picp_CROSS_AXIS_HEIGHT;
 	pIStuts->crossAxisWidth[video_pal] = 40;
 	pIStuts->crossAxisHeight[video_pal] = 40;
+	pIStuts->crossAxisWidth[video_gaoqing0] = 60;
+	pIStuts->crossAxisHeight[video_gaoqing0] = 60;
 	pIStuts->crossAxisWidth[video_gaoqing] = 60;
 	pIStuts->crossAxisHeight[video_gaoqing] = 60;
+	pIStuts->crossAxisWidth[video_gaoqing2] = 60;
+	pIStuts->crossAxisHeight[video_gaoqing2] = 60;
+	pIStuts->crossAxisWidth[video_gaoqing3] = 60;
+	pIStuts->crossAxisHeight[video_gaoqing3] = 60;
 	pIStuts->picpCrossAxisWidth = 40;
 	pIStuts->picpCrossAxisHeight = 40;
 

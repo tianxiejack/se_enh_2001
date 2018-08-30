@@ -145,7 +145,7 @@ void CVideoProcess::main_proc_func()
 
 		if(channel == 2)
 		{
-		if(chId == video_gaoqing)
+		if((chId == video_gaoqing0)||(chId == video_gaoqing)||(chId == video_gaoqing2)||(chId == video_gaoqing3))
 			extractYUYV2Gray2(frame, frame_gray);
 		else if(chId == video_pal)
 			extractUYVY2Gray(frame, frame_gray);
@@ -173,42 +173,21 @@ void CVideoProcess::main_proc_func()
 			{
 				m_searchmod=0;
 			}
-			m_iTrackStat = process_track(iTrackStat, frame_gray, m_dccv, m_rcTrack);
+			m_iTrackStat = process_track(iTrackStat, frame_gray, frame_gray, m_rcTrack);
 
+			putText(m_display.m_imgOsd[msgextInCtrl->SensorStat],trkINFODisplay,
+				Point( 10, 25),
+				FONT_HERSHEY_TRIPLEX,0.8,
+				cvScalar(0,0,0,0), 1
+			);
+			sprintf(trkINFODisplay, "trkStatus:%u,trkErrorX=%f,trkErrorY=%f",
+				iTrackStat,m_rcTrack.x,m_rcTrack.y);
+			putText(m_display.m_imgOsd[msgextInCtrl->SensorStat],trkINFODisplay,
+				Point( 10, 25),
+				FONT_HERSHEY_TRIPLEX,0.8,
+				cvScalar(255,255,0,255), 1
+			);
 
-
-
-			if(chId == video_gaoqing){
-				
-				putText(m_dccv,trkINFODisplay,
-					Point( 10, 25),
-					FONT_HERSHEY_TRIPLEX,0.8,
-					cvScalar(0,0,0,0), 1
-				);
-				sprintf(trkINFODisplay, "trkStatus:%u,trkErrorX=%f,trkErrorY=%f",
-					iTrackStat,m_rcTrack.x,m_rcTrack.y);
-
-				putText(m_dccv,trkINFODisplay,
-					Point( 10, 25),
-					FONT_HERSHEY_TRIPLEX,0.8,
-					cvScalar(255,255,0,255), 1
-				);
-			}else if(chId == video_pal){
-
-				putText(m_dc,trkINFODisplay,
-					Point( 10, 25),
-					FONT_HERSHEY_TRIPLEX,0.8,
-					cvScalar(0,0,0,0), 1
-				);
-				sprintf(trkINFODisplay, "trkStatus:%u,trkErrorX=%f,trkErrorY=%f",
-					iTrackStat,m_rcTrack.x,m_rcTrack.y);
-
-				putText(m_dc,trkINFODisplay,
-					Point( 10, 25),
-					FONT_HERSHEY_TRIPLEX,0.8,
-					cvScalar(255,255,0,255), 1
-				);
-			}
 			
 
 			UtcGetSceneMV(m_track, &speedx, &speedy);
@@ -490,8 +469,6 @@ int CVideoProcess::init()
 
 	m_display.m_bOsd = true;
 	m_display.m_crossOsd = true;
-	m_dc = m_display.m_imgOsd[0];
-	m_dccv=m_display.m_imgOsd[1];
 	OnInit();
 	prichnalid=1;//fir
 
@@ -846,7 +823,7 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 
 	if(channel == 2){
 //		cvtColor(frame,frame,CV_YUV2BGR_YUYV);
-		if(chId == video_gaoqing)
+		if((chId == video_gaoqing0)||(chId == video_gaoqing)||(chId == video_gaoqing2)||(chId == video_gaoqing3))
 			format = CV_YUV2BGR_YUYV;
 		else if(chId == video_pal)
 			format = CV_YUV2BGR_UYVY;

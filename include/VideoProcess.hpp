@@ -11,9 +11,9 @@
 #include "MMTD.h"
 #include "mvdetectInterface.hpp"
 
-static int vcapWH[2][2] = {{720, 576}, {1920, 1080}};
+static int vcapWH[5][2] = {{1920, 1080},{1920, 1080},{1920, 1080},{1920, 1080},{720, 576}};
 
-static int vdisWH[2][2] = {{720, 576}, {1920, 1080}};		// main and picp
+static int vdisWH[5][2] = {{1920, 1080},{1920, 1080},{1920, 1080},{1920, 1080},{720, 576}};		// main and picp
 
 typedef struct _main_thr_obj_cxt{
 	bool bTrack;
@@ -109,14 +109,11 @@ public :
 
 	ALGMTD_HANDLE m_mtd[MAX_CHAN];
 public:
-	Mat m_dc;
-	Mat m_dccv;
-	
+	CDisplayer m_display;
 protected:
 	MultiChVideo MultiCh;
 	//BigChVideo		BigChannel;
-	CDisplayer m_display;
-
+	
 	int adaptiveThred;
 
 	UTCTRACK_HANDLE m_track;

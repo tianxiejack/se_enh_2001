@@ -3,11 +3,11 @@
 #define DISPLAYER_HPP_
 
 #define DS_RENDER_MAX		(9)
-#define DS_CHAN_MAX         (4)
+#define DS_CHAN_MAX         (5)
 //4
 #define DS_CUSTREAM_CNT		(4)
 
-#define DS_DC_CNT		(2)
+#define DS_DC_CNT		(5)
 #include "osa.h"
 #include <osa_sem.h>
 #include <cuda.h>
@@ -139,7 +139,10 @@ public:
 	bool  Videoeable[DS_CHAN_MAX];
 	unsigned int dismodchanag;
 	unsigned int dismodchanagcount;
-	 int tv_pribuffid;
+	 int tv_pribuffid0;
+	 int tv_pribuffid1;
+	 int tv_pribuffid2;
+	 int tv_pribuffid3;
 	 int fir_pribuffid;
 	 int pal_pribuffid;
 	unsigned  int freezeonece;
@@ -160,8 +163,14 @@ public:
 	char dispstrDisplay[128];
 	int disptimeEnable;
 
-		 OSA_BufCreate tskSendBufCreatetv;
-        OSA_BufHndl tskSendBuftv;
+	OSA_BufCreate tskSendBufCreatetv0;
+       OSA_BufHndl tskSendBuftv0;
+	OSA_BufCreate tskSendBufCreatetv1;
+       OSA_BufHndl tskSendBuftv1;
+	OSA_BufCreate tskSendBufCreatetv2;
+       OSA_BufHndl tskSendBuftv2;
+	OSA_BufCreate tskSendBufCreatetv3;
+       OSA_BufHndl tskSendBuftv3;
 
 	OSA_BufCreate tskSendBufCreatefir;
         OSA_BufHndl tskSendBuffir;

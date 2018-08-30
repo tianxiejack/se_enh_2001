@@ -42,10 +42,7 @@ imgheight(IMAGE_HEIGHT),imgformat(V4L2_PIX_FMT_UYVY),buffers(NULL),memType(MEMOR
 force_format(1),m_devFd(-1),n_buffers(0),bufSize(INPUT_IMAGE_WIDTH*INPUT_IMAGE_HEIGHT),bRun(false),
 Id(/*devId*/0)
 {
-	if(0 == devId)
-		sprintf(dev_name, "/dev/video4");
-	else
-		sprintf(dev_name, "/dev/video%d",devId);
+	sprintf(dev_name, "/dev/video%d",devId);
 	// for axgs021
 	switch(devId){
 		case video_pal:
@@ -57,9 +54,12 @@ Id(/*devId*/0)
 			imgtype   	= CV_8UC2;
 			memType 	= MEMORY_LOCKED;
 			bufferCount 	= 8;
-			Id 			= video_pal;
+			Id 			= devId;
 			break;
+		case video_gaoqing0:
 		case video_gaoqing:
+		case video_gaoqing2:
+		case video_gaoqing3:
 			imgformat 	= V4L2_PIX_FMT_YUYV;
 			imgwidth  	= INPUT_IMAGE_WIDTH;
 			imgheight 	= INPUT_IMAGE_HEIGHT;
@@ -68,7 +68,7 @@ Id(/*devId*/0)
 			imgtype     	= CV_8UC2;
 			memType 	= MEMORY_LOCKED;
 			bufferCount  = 8;
-			Id			= video_gaoqing;
+			Id			= devId;
 			break;
 		default:
 			printf("No such device:%s !!\n", dev_name);

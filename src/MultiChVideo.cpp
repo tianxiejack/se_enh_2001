@@ -35,10 +35,10 @@ static int frameflag = 0;
 
 int MultiChVideo::creat()
 {
-	VCap[video_pal] = new v4l2_camera(video_pal);
-	VCap[video_pal]->creat();
-	VCap[video_gaoqing] = new v4l2_camera(video_gaoqing);
-	VCap[video_gaoqing]->creat();
+	for(int i=0; i<MAX_CHAN; i++){	
+		VCap[i] = new v4l2_camera(i);
+		VCap[i]->creat();
+	}
 	return 0;
 }
 
@@ -60,18 +60,19 @@ int MultiChVideo::run()
 {
 	int iRet = 0;
 
-	for(int i=0; i<MAX_CHAN; i++){
+	for(int i=0; i<MAX_CHAN; i++){	
 		VCap[i]->run();
 		m_thrCxt[i].pUser = this;
 		m_thrCxt[i].chId = i;
 		iRet = OSA_thrCreate(&m_thrCap[i], capThreadFunc, 0, 0, &m_thrCxt[i]);
 		if(i == video_pal)
 		{
-			for(int i=0; i<4; i++){
-				m_palthrCxt[i].pUser = this;
-				m_palthrCxt[i].chId = i;
-				iRet = OSA_thrCreate(&m_palthrCap[i], cappal4ThreadFunc, 0, 0, &m_palthrCxt[i]);
-			}
+			//for(int j=0; j<4; j++){
+			int j = 0;
+				m_palthrCxt[j].pUser = this;
+				m_palthrCxt[j].chId = j;
+				iRet = OSA_thrCreate(&m_palthrCap[j], cappal4ThreadFunc, 0, 0, &m_palthrCxt[j]);
+			//}
 		}
 	}
 
@@ -214,7 +215,7 @@ void MultiChVideo::process(int chId)
 		else
 		{
 			if(m_usrFunc != NULL){
-				if(chId == video_gaoqing)
+				if((chId == video_gaoqing0)||(chId == video_gaoqing)||(chId == video_gaoqing2)||(chId == video_gaoqing3))
 				{
 					frame = cv::Mat(VCap[chId]->imgheight, VCap[chId]->imgwidth, VCap[chId]->imgtype,
 							VCap[chId]->buffers[buf.index].start);
@@ -260,6 +261,7 @@ void MultiChVideo::pal4process(int chid)
 				height	= VCap[chId]->m_bufferHndl->bufInfo[bufId].height;
 				frame = cv::Mat(576, 720, VCap[chId]->imgtype,
 						bufdata);
+				CHID %= (4*video_pal);
 				m_usrFunc(m_user, video_pal, CHID, frame);
 				OSA_bufPutEmpty(VCap[chId]->m_bufferHndl, bufId);
 				nProcess ++;
