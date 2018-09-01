@@ -1312,14 +1312,13 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 					if(extInCtrl->TrkStat != 3)
 					{
 							extInCtrl->trkerrx = extInCtrl->trkerrx - extInCtrl->opticAxisPosX[extInCtrl->SensorStat];
-							extInCtrl->trkerry = extInCtrl->trkerry - extInCtrl->opticAxisPosX[extInCtrl->SensorStat];
+							extInCtrl->trkerry = extInCtrl->trkerry - extInCtrl->opticAxisPosY[extInCtrl->SensorStat];
 					}
 					else
 					{
 						extInCtrl->trkerrx = 0;
 						extInCtrl->trkerry = 0;
 					}
-					
 					ipc_settrack(extInCtrl->TrkStat, extInCtrl->trkerrx, extInCtrl->trkerry);
 					trkmsg.cmd_ID = read_shm_trkpos;
 					//printf("ack the trackerr to mainThr\n");
