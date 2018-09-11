@@ -53,8 +53,8 @@ typedef enum
     trktype,
     AcqPos,
     algosdrect,
-	ipcwordFont,
-	ipcwordSize,
+    ipcwordFont,
+    ipcwordSize,
 	ipclosttime,
     ipcresolution,
     invalid
@@ -499,7 +499,7 @@ typedef struct
 	volatile unsigned char  Mmttargetnum; 			
 
 	volatile unsigned char  MtdState[ipc_eSen_Max];	//record moving obj detect state of each channel
-	volatile int losttime;
+
 	/***** cmd osd part *****/
 	volatile unsigned int  DispGrp[ipc_eSen_Max];       	// eDispGrade
 	volatile unsigned int  DispColor[ipc_eSen_Max];  	// eOSDColor or eGRPColor
@@ -575,7 +575,7 @@ typedef struct {
 	int moveY2;
 	int segPixelX;
 	int segPixelY;
-	bool algOsdRect_Enable;  //9--15
+	bool  algOsdRect_Enable;  //9--15
 	
 	int	ScalerLarge;//10--0
 	int	ScalerMid; 
@@ -620,6 +620,7 @@ typedef struct {
 	int Mmtdparm_6;
 	float Mmtdparm_7;
 	int Mmtdparm_8; //12--8
+
 }UTCTRKSTATUS;
 
 typedef struct{
