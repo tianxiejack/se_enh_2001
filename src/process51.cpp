@@ -31,8 +31,8 @@ void inputtmp(unsigned char cmdid)
 void getMmtTg(unsigned char index,int *x,int *y)
 {
 	int cur_x = 
-	*x = (int)plat->m_mtd[0]->tg[index].cur_x%VIDEO_IMAGE_WIDTH_0;
-	*y = (int)plat->m_mtd[0]->tg[index].cur_y%VIDEO_IMAGE_HEIGHT_0;
+	*x = (int)plat->m_mtd[0]->tg[index].cur_x%vdisWH[plat->extInCtrl->SensorStat][0];
+	*y = (int)plat->m_mtd[0]->tg[index].cur_y%vdisWH[plat->extInCtrl->SensorStat][1];
 	return ;
 }
 
@@ -51,21 +51,16 @@ CProcess::CProcess()
 	memset(extInCtrl,0,sizeof(CMD_EXT));
 	CMD_EXT *pIStuts = extInCtrl;
 	
-	pIStuts->opticAxisPosX[video_pal]   = VIDEO_IMAGE_WIDTH_0/2;
-	pIStuts->opticAxisPosY[video_pal]   = VIDEO_IMAGE_HEIGHT_0/2;
-	pIStuts->opticAxisPosX[video_gaoqing0]   = VIDEO_IMAGE_WIDTH_1/2;
-	pIStuts->opticAxisPosY[video_gaoqing0]   = VIDEO_IMAGE_HEIGHT_1/2;
-	pIStuts->opticAxisPosX[video_gaoqing]   = VIDEO_IMAGE_WIDTH_1/2;
-	pIStuts->opticAxisPosY[video_gaoqing]   = VIDEO_IMAGE_HEIGHT_1/2;
-	pIStuts->opticAxisPosX[video_gaoqing2]   = VIDEO_IMAGE_WIDTH_1/2;
-	pIStuts->opticAxisPosY[video_gaoqing2]   = VIDEO_IMAGE_HEIGHT_1/2;
-	pIStuts->opticAxisPosX[video_gaoqing3]   = VIDEO_IMAGE_WIDTH_1/2;
-	pIStuts->opticAxisPosY[video_gaoqing3]   = VIDEO_IMAGE_HEIGHT_1/2;
+	for(int i = 0; i < MAX_CHAN; i++)
+	{
+		pIStuts->opticAxisPosX[i] = vdisWH[i][0]/2;
+		pIStuts->opticAxisPosY[i] = vdisWH[i][1]/2;
+	}
 	
 	pIStuts->unitAimW 		= 	AIM_WIDTH;
 	pIStuts->unitAimH 		= 	AIM_HEIGHT;
-	pIStuts->unitAimX		=	VIDEO_IMAGE_WIDTH_0/2;
-	pIStuts->unitAimY		=	VIDEO_IMAGE_HEIGHT_0/2;
+	pIStuts->unitAimX		=	vdisWH[video_pal][0]/2;
+	pIStuts->unitAimY		=	vdisWH[video_pal][1]/2;
 
 	pIStuts->SensorStat 	=   MAIN_CHID;
 	pIStuts->SensorStatpri  =   pIStuts->SensorStat;
@@ -399,8 +394,8 @@ void CProcess::osd_mtd_show(TARGET tg[], bool bShow)
 			cv::Rect result;
 			result.width = 32;
 			result.height = 32;
-			result.x = ((int)tg[i].cur_x) % VIDEO_IMAGE_WIDTH_0;
-			result.y = ((int)tg[i].cur_y ) % VIDEO_IMAGE_HEIGHT_0;
+			result.x = ((int)tg[i].cur_x) % vdisWH[extInCtrl->SensorStat][0];
+			result.y = ((int)tg[i].cur_y ) % vdisWH[extInCtrl->SensorStat][1];
 			result.x = result.x - result.width/2;
 			result.y = result.y - result.height/2;
 			rectangle(m_display.m_imgOsd[extInCtrl->SensorStat],
@@ -536,8 +531,8 @@ void CProcess::erassdrawmmt(TARGET tg[],bool bShow)
 							//majormmtid=i;
 							result.width = 32;
 							result.height = 32;
-							tempmmtx=result.x = ((int)tg[primajormmtid].cur_x) % VIDEO_IMAGE_WIDTH_0;
-							tempmmty=result.y = ((int)tg[primajormmtid].cur_y ) % VIDEO_IMAGE_HEIGHT_0;
+							tempmmtx=result.x = ((int)tg[primajormmtid].cur_x) % vdisWH[extInCtrl->SensorStat][0];
+							tempmmty=result.y = ((int)tg[primajormmtid].cur_y ) % vdisWH[extInCtrl->SensorStat][1];
 
 
 							extInCtrl->MmtPixelX=result.x;
@@ -564,8 +559,8 @@ void CProcess::erassdrawmmt(TARGET tg[],bool bShow)
 								testid++;
 								result.width = 32;
 								result.height = 32;
-								tempmmtx=result.x = ((int)tg[tempdata].cur_x) % VIDEO_IMAGE_WIDTH_0;
-								tempmmty=result.y = ((int)tg[tempdata].cur_y ) % VIDEO_IMAGE_HEIGHT_0;
+								tempmmtx=result.x = ((int)tg[tempdata].cur_x) % vdisWH[extInCtrl->SensorStat][0];
+								tempmmty=result.y = ((int)tg[tempdata].cur_y ) % vdisWH[extInCtrl->SensorStat][1];
 
 								 startx=PiexltoWindowsx(result.x,prisensorstatus);
 								 starty=PiexltoWindowsy(result.y,prisensorstatus);
@@ -632,8 +627,8 @@ void CProcess::drawmmt(TARGET tg[],bool bShow)
 			//majormmtid=i;
 			result.width = 32;
 			result.height = 32;
-			tempmmtx=result.x = ((int)tg[majormmtid].cur_x) % VIDEO_IMAGE_WIDTH_0;
-			tempmmty=result.y = ((int)tg[majormmtid].cur_y ) % VIDEO_IMAGE_HEIGHT_0;
+			tempmmtx=result.x = ((int)tg[majormmtid].cur_x) % vdisWH[extInCtrl->SensorStat][0];
+			tempmmty=result.y = ((int)tg[majormmtid].cur_y ) % vdisWH[extInCtrl->SensorStat][1];
 
 
 			extInCtrl->MmtPixelX=result.x;
@@ -669,8 +664,8 @@ void CProcess::drawmmt(TARGET tg[],bool bShow)
 			testid++;
 			result.width = 32;
 			result.height = 32;
-			tempmmtx=result.x = ((int)tg[tempdata].cur_x) % VIDEO_IMAGE_WIDTH_0;
-			tempmmty=result.y = ((int)tg[tempdata].cur_y ) % VIDEO_IMAGE_HEIGHT_0;
+			tempmmtx=result.x = ((int)tg[tempdata].cur_x) % vdisWH[extInCtrl->SensorStat][0];
+			tempmmty=result.y = ((int)tg[tempdata].cur_y ) % vdisWH[extInCtrl->SensorStat][1];
 
 			 startx=PiexltoWindowsx(result.x,extInCtrl->SensorStat);
 			 starty=PiexltoWindowsy(result.y,extInCtrl->SensorStat);
@@ -833,8 +828,8 @@ void CProcess::drawmmtnew(TARGET tg[],bool bShow)
 				result.width 	= 16;
 				result.height 	= 16;
 			}
-			tempmmtx=result.x = ((int)tg[majormmtid].cur_x) % VIDEO_IMAGE_WIDTH_0;
-			tempmmty=result.y = ((int)tg[majormmtid].cur_y ) % VIDEO_IMAGE_HEIGHT_0;
+			tempmmtx=result.x = ((int)tg[majormmtid].cur_x) % vdisWH[extInCtrl->SensorStat][0];
+			tempmmty=result.y = ((int)tg[majormmtid].cur_y ) % vdisWH[extInCtrl->SensorStat][1];
 
 			
 			//mmt track target set
@@ -909,8 +904,8 @@ void CProcess::drawmmtnew(TARGET tg[],bool bShow)
 
 			}
 			
-			tempmmtx=result.x = ((int)tg[i].cur_x) % VIDEO_IMAGE_WIDTH_0;
-			tempmmty=result.y = ((int)tg[i].cur_y ) % VIDEO_IMAGE_HEIGHT_0;		
+			tempmmtx=result.x = ((int)tg[i].cur_x) % vdisWH[extInCtrl->SensorStat][0];
+			tempmmty=result.y = ((int)tg[i].cur_y ) % vdisWH[extInCtrl->SensorStat][1];		
 
 			//OSA_printf("+++++++++++++++the num  majormmtid=%d x=%d y=%d w=%d h=%d\n",majormmtid,
 			//result.x,result.y,result.width,result.height);
@@ -957,8 +952,8 @@ void CProcess::drawmmtnew(TARGET tg[],bool bShow)
 		}
 
 		//mmt show
-		tempmmtx=result.x = ((int)tg[i].cur_x) % VIDEO_IMAGE_WIDTH_0;
-		tempmmty=result.y = ((int)tg[i].cur_y ) % VIDEO_IMAGE_HEIGHT_0;
+		tempmmtx=result.x = ((int)tg[i].cur_x) % vdisWH[extInCtrl->SensorStat][0];
+		tempmmty=result.y = ((int)tg[i].cur_y ) % vdisWH[extInCtrl->SensorStat][1];
 		Mmtpos[i].x=tempmmtx-result.width/2;
 		Mmtpos[i].y=tempmmty-result.height/2;
 		Mmtpos[i].w=result.width;
@@ -1753,10 +1748,10 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 //picp position
 		lay_rect=rendpos[pIStuts->PicpPosStat];
 		
-		lay_rect.w = VIDEO_IMAGE_WIDTH_1/3;
-		lay_rect.h =VIDEO_IMAGE_HEIGHT_1/3;
-		lay_rect.x = VIDEO_IMAGE_WIDTH_1*2/3;
-		lay_rect.y = VIDEO_IMAGE_HEIGHT_1*2/3;
+		lay_rect.w = VIDEO_DIS_WIDTH/3;
+		lay_rect.h =VIDEO_DIS_HEIGHT/3;
+		lay_rect.x = VIDEO_DIS_WIDTH*2/3;
+		lay_rect.y = VIDEO_DIS_HEIGHT*2/3;
 		m_display.dynamic_config(CDisplayer::DS_CFG_RenderPosRect, 1, &lay_rect);
 
 ///sensor zoom

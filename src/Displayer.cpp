@@ -68,8 +68,7 @@ osdbuffer_t disOsdBufbak[32] = {0};
 wchar_t disOsd[32][33];
 
 CDisplayer::CDisplayer()
-:m_mainWinWidth(VIDEO_IMAGE_WIDTH_1),m_mainWinHeight(VIDEO_IMAGE_HEIGHT_1),m_renderCount(0),
-m_bRun(false),m_bFullScreen(false),m_bOsd(false),
+:m_renderCount(0),m_bRun(false),m_bFullScreen(false),m_bOsd(false),
  m_glProgram(0), m_bUpdateVertex(false)
 {
 	int i;
@@ -134,16 +133,12 @@ int CDisplayer::create()
 		}
 	//tvvideo=1;
 	//firvideo=1;
-
-	//unsigned int byteCount = m_mainWinWidth * m_mainWinHeight * 3 * sizeof(unsigned char);
 	unsigned int byteCount = mallocwidth * mallocheight* 3 * sizeof(unsigned char);
 	
 	cudaMalloc_share((void**)&d_src_rgb_novideo, byteCount, 5 + DS_CHAN_MAX);
-	//m_img_novideo= cv::Mat(m_mainWinWidth,m_mainWinHeight, CV_8UC3, d_src_rgb_novideo);
 	m_img_novideo= cv::Mat(mallocheight,mallocwidth, CV_8UC3, d_src_rgb_novideo);
 
 	cudaMalloc((void **)&d_src_rgb_novideo,byteCount);
-	//x11m_img=cv::Mat(m_mainWinWidth,m_mainWinWidth, CV_8UC3, d_src_rgb_novideo);
 	m_img_novideo= cv::Mat(mallocheight,mallocwidth, CV_8UC3, d_src_rgb_novideo);
 
 	OSA_mutexCreate(&m_mutex);
@@ -359,12 +354,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 
 	if(pPrm != NULL)
 		memcpy(&m_initPrm, pPrm, sizeof(DS_InitPrm));
-
-	/*if(m_initPrm.winWidth > 0)
-		m_mainWinWidth = m_initPrm.winWidth;
-	if(m_initPrm.winHeight > 0)
-		m_mainWinHeight = m_initPrm.winHeight;*/
-		
+	
 	m_mainWinWidth_new[video_pal] = vdisWH[video_pal][0];
 	m_mainWinHeight_new[video_pal] = vdisWH[video_pal][1];
 	m_mainWinWidth_new[video_gaoqing0] = vdisWH[video_gaoqing0][0];
@@ -380,7 +370,6 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		m_initPrm.timerInterval = 40;
 
     //glutInitWindowPosition(m_initPrm.winPosX, m_initPrm.winPosY);
-    //glutInitWindowSize(m_mainWinWidth, m_mainWinHeight);
     glutInitWindowSize(VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
     glutCreateWindow("DSS");
 	glutSetCursor(GLUT_CURSOR_NONE);
@@ -1449,8 +1438,6 @@ void CDisplayer::gl_display(void)
 			glVertexAttribPointer(ATTRIB_TEXTURE, 2, GL_FLOAT, GL_FALSE, 0, m_glvTexCoordsDefault);
 			glEnableVertexAttribArray(ATTRIB_VERTEX);
 			glEnableVertexAttribArray(ATTRIB_TEXTURE);
-
-			//glViewport(0, 0, m_mainWinWidth, m_mainWinHeight);
 			glViewport(0, 0, m_mainWinWidth_new[i], m_mainWinHeight_new[i]);
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		}
@@ -1474,12 +1461,12 @@ void CDisplayer::IrisAndFocus()
 	switch(IrisAndFocusAndExit)
 	{
 	case Enable_Iris:
-		chinese_osd(905,1000,L"光圈调节",1,4,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
+		chinese_osd(905,1000,L"光圈调节",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
 		drawtriangle(plat->m_display.m_imgOsd[plat->extInCtrl->SensorStat], cmd_triangle.dir, cmd_triangle.alpha);
 		break;
 
 	case Enable_Focus:
-		chinese_osd(905,1000,L"聚焦调节",1,4,255,0,0,255,VIDEO_IMAGE_WIDTH_1,VIDEO_IMAGE_HEIGHT_1);
+		chinese_osd(905,1000,L"聚焦调节",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
 		drawtriangle(plat->m_display.m_imgOsd[plat->extInCtrl->SensorStat], cmd_triangle.dir, cmd_triangle.alpha);
 		break;
 	case Disable:
@@ -1551,7 +1538,7 @@ int CDisplayer::OSDFunc()
 			else
 				a = 255 - a*16;
 			
-			chinese_osd(x, y, disOsd[i],font ,fontsize, r, g, b, a, VIDEO_IMAGE_WIDTH_1, VIDEO_IMAGE_HEIGHT_1);
+			chinese_osd(x, y, disOsd[i],font ,fontsize, r, g, b, a, VIDEO_DIS_WIDTH, VIDEO_DIS_HEIGHT);
 		}
 	}
 

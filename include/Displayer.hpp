@@ -122,8 +122,6 @@ public:
 	void reDisplay(void);
 	void UpDateOsd(int idc);
 
-	int m_mainWinWidth;
-	int m_mainWinHeight;
 	int m_mainWinWidth_new[eSen_Max];
 	int m_mainWinHeight_new[eSen_Max];
 	bool m_bRun;

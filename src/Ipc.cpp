@@ -165,12 +165,9 @@ void* recv_msg(SENDST *RS422)
 				pMsg->AxisPosY[pMsg->SensorStat] = Racqpos.BoresightPos_y;
 				pMsg->AvtTrkStat = eTrk_mode_search;
 				int width = 0,height = 0;
-				if(pMsg->SensorStat == video_pal){
-					width  = VIDEO_IMAGE_WIDTH_0;
-					height = VIDEO_IMAGE_HEIGHT_0;
-				}else if((pMsg->SensorStat == video_gaoqing0)||(pMsg->SensorStat == video_gaoqing)||(pMsg->SensorStat == video_gaoqing2)||(pMsg->SensorStat == video_gaoqing3)){
-					width  = VIDEO_IMAGE_WIDTH_1;
-					height = VIDEO_IMAGE_HEIGHT_1;
+				if((pMsg->SensorStat == video_pal)||(pMsg->SensorStat == video_gaoqing0)||(pMsg->SensorStat == video_gaoqing)||(pMsg->SensorStat == video_gaoqing2)||(pMsg->SensorStat == video_gaoqing3)){
+					width  = vdisWH[pMsg->SensorStat][0];
+					height = vdisWH[pMsg->SensorStat][1];
 				}
 				if(pMsg->AxisPosX[pMsg->SensorStat] + pMsg->crossAxisWidth[pMsg->SensorStat]/2 > width)
 					pMsg->AxisPosX[pMsg->SensorStat] = width - pMsg->crossAxisWidth[pMsg->SensorStat]/2;
@@ -359,12 +356,9 @@ void* recv_msg(SENDST *RS422)
 					pMsg->AxisPosY[pMsg->SensorStat] = Rsectrk.ImgPixelY;
 
 					int width = 0,height = 0;
-					if(pMsg->SensorStat == video_pal){
-						width  = VIDEO_IMAGE_WIDTH_0;
-						height = VIDEO_IMAGE_HEIGHT_0;
-					}else if((pMsg->SensorStat == video_gaoqing0)||(pMsg->SensorStat == video_gaoqing)||(pMsg->SensorStat == video_gaoqing2)||(pMsg->SensorStat == video_gaoqing3)){
-						width  = VIDEO_IMAGE_WIDTH_1;
-						height = VIDEO_IMAGE_HEIGHT_1;
+					if((pMsg->SensorStat == video_pal)||(pMsg->SensorStat == video_gaoqing0)||(pMsg->SensorStat == video_gaoqing)||(pMsg->SensorStat == video_gaoqing2)||(pMsg->SensorStat == video_gaoqing3)){
+						width  = vdisWH[pMsg->SensorStat][0];
+						height = vdisWH[pMsg->SensorStat][1];
 					}
 					if(pMsg->AxisPosX[pMsg->SensorStat] + pMsg->crossAxisWidth[pMsg->SensorStat]/2 > width)
 						pMsg->AxisPosX[pMsg->SensorStat] = width - pMsg->crossAxisWidth[pMsg->SensorStat]/2;
