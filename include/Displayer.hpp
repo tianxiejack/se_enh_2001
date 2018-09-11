@@ -252,14 +252,9 @@ public:
 
 	
 };
-#define picwidhttv VIDEO_IMAGE_WIDTH_1
-#define picheightttv VIDEO_IMAGE_HEIGHT_1
 
-#define picwidhtfir 640
-#define picheightfir 512
-
-#define picwidhtpal 720
-#define picheightpal 576
+#define mallocwidth 1920
+#define mallocheight 1080
 
 #define PICBUFFERCOUNT 4
 

@@ -34,6 +34,8 @@ enum devvideo{
 #define MAIN_CHID					video_gaoqing
 #define PAL_VIRCHID					0
 
+static int vcapWH[5][2] = {{1920, 1080},{1920, 1080},{1920, 1080},{1920, 1080},{720, 576}};
+static int vdisWH[5][2] = {{1920, 1080},{1920, 1080},{1920, 1080},{1920, 1080},{720, 576}};
 
 #if 0
 typedef struct {

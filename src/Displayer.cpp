@@ -153,15 +153,15 @@ int CDisplayer::create()
 	//firvideo=1;
 
 	//unsigned int byteCount = m_mainWinWidth * m_mainWinHeight * 3 * sizeof(unsigned char);
-	unsigned int byteCount = m_mainWinWidth_new[video_gaoqing] * m_mainWinHeight_new[video_gaoqing]* 3 * sizeof(unsigned char);
+	unsigned int byteCount = mallocwidth * mallocheight* 3 * sizeof(unsigned char);
 	
 	cudaMalloc_share((void**)&d_src_rgb_novideo, byteCount, 5 + DS_CHAN_MAX);
 	//m_img_novideo= cv::Mat(m_mainWinWidth,m_mainWinHeight, CV_8UC3, d_src_rgb_novideo);
-	m_img_novideo= cv::Mat(m_mainWinWidth_new[video_gaoqing],m_mainWinHeight_new[video_gaoqing], CV_8UC3, d_src_rgb_novideo);
+	m_img_novideo= cv::Mat(mallocheight,mallocwidth, CV_8UC3, d_src_rgb_novideo);
 
 	cudaMalloc((void **)&d_src_rgb_novideo,byteCount);
 	//x11m_img=cv::Mat(m_mainWinWidth,m_mainWinWidth, CV_8UC3, d_src_rgb_novideo);
-	m_img_novideo= cv::Mat(m_mainWinWidth_new[video_gaoqing],m_mainWinHeight_new[video_gaoqing], CV_8UC3, d_src_rgb_novideo);
+	m_img_novideo= cv::Mat(mallocheight,mallocwidth, CV_8UC3, d_src_rgb_novideo);
 
 	OSA_mutexCreate(&m_mutex);
 
@@ -326,7 +326,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	tskSendBufCreatetv0.numBuf = PICBUFFERCOUNT;
        for (int i = 0; i < tskSendBufCreatetv0.numBuf; i++)
        {
-           cudaMalloc((void **)&tskSendBufCreatetv0.bufVirtAddr[i],picwidhttv*picwidhttv*3);
+           cudaMalloc((void **)&tskSendBufCreatetv0.bufVirtAddr[i],mallocwidth*mallocheight*3);
            OSA_assert(tskSendBufCreatetv0.bufVirtAddr[i] != NULL);
        }
        OSA_bufCreate(&tskSendBuftv0, &tskSendBufCreatetv0);
@@ -334,7 +334,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	tskSendBufCreatetv1.numBuf = PICBUFFERCOUNT;
        for (int i = 0; i < tskSendBufCreatetv1.numBuf; i++)
        {
-           cudaMalloc((void **)&tskSendBufCreatetv1.bufVirtAddr[i],picwidhttv*picwidhttv*3);
+           cudaMalloc((void **)&tskSendBufCreatetv1.bufVirtAddr[i],mallocwidth*mallocheight*3);
            OSA_assert(tskSendBufCreatetv1.bufVirtAddr[i] != NULL);
        }
        OSA_bufCreate(&tskSendBuftv1, &tskSendBufCreatetv1);
@@ -342,7 +342,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	tskSendBufCreatetv2.numBuf = PICBUFFERCOUNT;
        for (int i = 0; i < tskSendBufCreatetv2.numBuf; i++)
        {
-           cudaMalloc((void **)&tskSendBufCreatetv2.bufVirtAddr[i],picwidhttv*picwidhttv*3);
+           cudaMalloc((void **)&tskSendBufCreatetv2.bufVirtAddr[i],mallocwidth*mallocheight*3);
            OSA_assert(tskSendBufCreatetv2.bufVirtAddr[i] != NULL);
        }
        OSA_bufCreate(&tskSendBuftv2, &tskSendBufCreatetv2);
@@ -350,7 +350,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	tskSendBufCreatetv3.numBuf = PICBUFFERCOUNT;
        for (int i = 0; i < tskSendBufCreatetv3.numBuf; i++)
        {
-           cudaMalloc((void **)&tskSendBufCreatetv3.bufVirtAddr[i],picwidhttv*picwidhttv*3);
+           cudaMalloc((void **)&tskSendBufCreatetv3.bufVirtAddr[i],mallocwidth*mallocheight*3);
            OSA_assert(tskSendBufCreatetv3.bufVirtAddr[i] != NULL);
        }
        OSA_bufCreate(&tskSendBuftv3, &tskSendBufCreatetv3);
@@ -359,7 +359,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	tskSendBufCreatefir.numBuf = PICBUFFERCOUNT;
        for (int i = 0; i < tskSendBufCreatefir.numBuf; i++)
        {
-           cudaMalloc((void **)&tskSendBufCreatefir.bufVirtAddr[i],picwidhtfir*picwidhtfir*3);
+           cudaMalloc((void **)&tskSendBufCreatefir.bufVirtAddr[i],mallocwidth*mallocheight*3);
            OSA_assert(tskSendBufCreatefir.bufVirtAddr[i] != NULL);
        }
        OSA_bufCreate(&tskSendBuffir, &tskSendBufCreatefir);
@@ -367,7 +367,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	tskSendBufCreatepal.numBuf = PICBUFFERCOUNT;
        for (int i = 0; i < tskSendBufCreatepal.numBuf; i++)
        {
-           cudaMalloc((void **)&tskSendBufCreatepal.bufVirtAddr[i],picwidhtpal*picwidhtpal*3);
+           cudaMalloc((void **)&tskSendBufCreatepal.bufVirtAddr[i],mallocwidth*mallocheight*3);
            OSA_assert(tskSendBufCreatepal.bufVirtAddr[i] != NULL);
           
        }
@@ -926,7 +926,7 @@ void CDisplayer::gl_init()
 
 	}
 	
-	x11disbuffer=(unsigned char *)malloc(1920*1080*4);
+	x11disbuffer=(unsigned char *)malloc(mallocwidth*mallocheight*4);
 
 	for(i=0; i<DS_CHAN_MAX; i++){
 		memcpy(m_glmat44fTrans[i], m_glmat44fTransDefault, sizeof(m_glmat44fTransDefault));
