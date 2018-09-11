@@ -62,9 +62,6 @@ GLfloat _fontColor[4] = {1.0,1.0,1.0,1.0};
 static GLfloat m_glvVertsDefault[8] = {-1.0f, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f};
 static GLfloat m_glvTexCoordsDefault[8] = {0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f};
 
-int VIDEO_IMAGE_ARR[5][2] = {{1920,1080},{1920,1080},{1920,1080},{1920,1080},{720,576}};
-
-
 osdbuffer_t disOsdBuf[32]={0};
 //char disOsdBuf[32][128] = {0};
 osdbuffer_t disOsdBufbak[32] = {0};
@@ -96,20 +93,6 @@ m_bRun(false),m_bFullScreen(false),m_bOsd(false),
 
 	frameCount = 0;
 	frameRate = 0.0;
-	m_mainWinWidth_new[video_pal]=VIDEO_IMAGE_ARR[video_pal][0];
-	m_mainWinHeight_new[video_pal]=VIDEO_IMAGE_ARR[video_pal][1];
-	
-	m_mainWinWidth_new[video_gaoqing0]=VIDEO_IMAGE_ARR[video_gaoqing0][0];
-	m_mainWinHeight_new[video_gaoqing0]=VIDEO_IMAGE_ARR[video_gaoqing0][1];
-
-	m_mainWinWidth_new[video_gaoqing]=VIDEO_IMAGE_ARR[video_gaoqing][0];
-	m_mainWinHeight_new[video_gaoqing]=VIDEO_IMAGE_ARR[video_gaoqing][1];
-
-	m_mainWinWidth_new[video_gaoqing2]=VIDEO_IMAGE_ARR[video_gaoqing2][0];
-	m_mainWinHeight_new[video_gaoqing2]=VIDEO_IMAGE_ARR[video_gaoqing2][1];
-
-	m_mainWinWidth_new[video_gaoqing3]=VIDEO_IMAGE_ARR[video_gaoqing3][0];
-	m_mainWinHeight_new[video_gaoqing3]=VIDEO_IMAGE_ARR[video_gaoqing3][1];
 }
 
 CDisplayer::~CDisplayer()
@@ -231,8 +214,8 @@ int CDisplayer::initRender(bool bInitBind)
 		m_renders[chId].video_chId = -1;
 		m_renders[chId].displayrect.x = 0;
 		m_renders[chId].displayrect.y = 0;
-		m_renders[chId].displayrect.w = VIDEO_IMAGE_WIDTH_1/2;
-		m_renders[chId].displayrect.h =  VIDEO_IMAGE_HEIGHT_1/2;
+		m_renders[chId].displayrect.w = VIDEO_DIS_WIDTH/2;
+		m_renders[chId].displayrect.h =  VIDEO_DIS_HEIGHT/2;
 
 		m_renders[chId].bFreeze=0;
 	}
@@ -244,15 +227,15 @@ int CDisplayer::initRender(bool bInitBind)
 	m_renders[0].video_chId = MAIN_CHID;
 	m_renders[0].displayrect.x = 0;
 	m_renders[0].displayrect.y = 0;
-	m_renders[0].displayrect.w = m_mainWinWidth_new[video_gaoqing];
-	m_renders[0].displayrect.h = m_mainWinHeight_new[video_gaoqing];
+	m_renders[0].displayrect.w = VIDEO_DIS_WIDTH;
+	m_renders[0].displayrect.h = VIDEO_DIS_HEIGHT;
 	m_renders[0].videodect=1;
 
 	m_renders[1].video_chId = -1;
-	m_renders[1].displayrect.x = VIDEO_IMAGE_WIDTH_1*2/3;
-	m_renders[1].displayrect.y = VIDEO_IMAGE_HEIGHT_1*2/3;
-	m_renders[1].displayrect.w = VIDEO_IMAGE_WIDTH_1/3;
-	m_renders[1].displayrect.h = VIDEO_IMAGE_HEIGHT_1/3;
+	m_renders[1].displayrect.x = VIDEO_DIS_WIDTH*2/3;
+	m_renders[1].displayrect.y = VIDEO_DIS_HEIGHT*2/3;
+	m_renders[1].displayrect.w = VIDEO_DIS_WIDTH/3;
+	m_renders[1].displayrect.h = VIDEO_DIS_HEIGHT/3;
 	m_renders[1].videodect=1;
 
 	m_renders[2].videodect=1;
