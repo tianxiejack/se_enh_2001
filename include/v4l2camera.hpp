@@ -34,8 +34,6 @@ using namespace cv;
 #define LARGE_PHOTO_WIDTH  (4096)
 #define LARGE_PHOTO_HEIGHT (3072)
 #define CAP_CH_NUM 		(1)
-#define IMAGE_WIDTH  	1920
-#define IMAGE_HEIGHT 	1080
 #define CAP_CHPAL_NUM 		(4)
 
 #ifndef V4L2_PIX_FMT_H264

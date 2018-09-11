@@ -37,13 +37,9 @@
 #define IMAGE_HEIGHT 576
 
 
-v4l2_camera::v4l2_camera(int devId):io(IO_METHOD_USERPTR/*IO_METHOD_MMAP*/),imgwidth(IMAGE_WIDTH),imgstride(IMAGE_WIDTH),
-imgheight(IMAGE_HEIGHT),imgformat(V4L2_PIX_FMT_UYVY),buffers(NULL),memType(MEMORY_NORMAL),bufferCount(6),
-force_format(1),m_devFd(-1),n_buffers(0),bufSize(INPUT_IMAGE_WIDTH*INPUT_IMAGE_HEIGHT),bRun(false),
-Id(/*devId*/0)
+v4l2_camera::v4l2_camera(int devId):io(IO_METHOD_USERPTR),buffers(NULL),force_format(1),m_devFd(-1),n_buffers(0),bRun(false)
 {
 	sprintf(dev_name, "/dev/video%d",devId);
-	// for axgs021
 	switch(devId){
 		case video_pal:
 			imgformat 	= V4L2_PIX_FMT_UYVY;
