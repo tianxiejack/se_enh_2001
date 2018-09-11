@@ -56,6 +56,7 @@ typedef enum
 	ipcwordFont,
 	ipcwordSize,
 	ipclosttime,
+    ipcresolution,
     invalid
 }CMD_ID;
 
@@ -393,6 +394,11 @@ typedef struct{
 typedef struct{
 	volatile unsigned char Imgalgosdrect;
 }CMD_ALGOSDRECT;
+
+typedef struct{
+	volatile unsigned char SensorStat;
+	volatile unsigned char resolution;
+}CMD_IPCRESOLUTION;
 
 typedef struct{
     unsigned char cmd_ID;

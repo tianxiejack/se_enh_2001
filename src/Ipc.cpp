@@ -116,6 +116,7 @@ void* recv_msg(SENDST *RS422)
 	CMD_BoresightPos Rboresightmove;
 	CMD_AcqBoxPos Racqpos;
 	CMD_ALGOSDRECT Ralgosdrect;
+	CMD_IPCRESOLUTION Rresolution;
 
 	//OSD_param* pOsd = NULL;
 	//pOsd = &m_osd;
@@ -501,6 +502,10 @@ void* recv_msg(SENDST *RS422)
 			pMsg->osdTextSize = imgID1 ; 
 			app_ctrl_setWordSize(pMsg);		
 			break;
+		case ipcresolution:
+			memcpy(&Rresolution,RS422->param,sizeof(Rresolution));
+			imgID1 = Rresolution.SensorStat;
+			imgID2 = Rresolution.resolution;	
 		default:
 			break;
 		}
