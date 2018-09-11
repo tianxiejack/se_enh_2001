@@ -498,8 +498,40 @@ void* recv_msg(SENDST *RS422)
 			break;
 		case ipcresolution:
 			memcpy(&Rresolution,RS422->param,sizeof(Rresolution));
-			imgID1 = Rresolution.SensorStat;
-			imgID2 = Rresolution.resolution;	
+			switch(Rresolution.SensorStat)
+			{
+				case video_gaoqing0:
+				case video_gaoqing:
+				case video_gaoqing2:
+				case video_gaoqing3:
+					if((0 == Rresolution.resolution)||(1 == Rresolution.resolution))
+					{
+						vcapWH[Rresolution.SensorStat][0] = 1920;
+						vcapWH[Rresolution.SensorStat][1] = 1080;
+						vdisWH[Rresolution.SensorStat][0] = 1920;
+						vdisWH[Rresolution.SensorStat][1] = 1080;
+					}
+					else if((2 == Rresolution.resolution)||(3 == Rresolution.resolution))
+					{
+						vcapWH[Rresolution.SensorStat][0] = 1280;
+						vcapWH[Rresolution.SensorStat][1] = 720;
+						vdisWH[Rresolution.SensorStat][0] = 1280;
+						vdisWH[Rresolution.SensorStat][1] = 720;
+					}
+					break;
+				case video_pal:
+					if(0 == Rresolution.resolution)
+					{
+						vcapWH[Rresolution.SensorStat][0] = 720;
+						vcapWH[Rresolution.SensorStat][1] = 576;
+						vdisWH[Rresolution.SensorStat][0] = 720;
+						vdisWH[Rresolution.SensorStat][1] = 576;
+					}
+					break;
+				default:
+					break;		
+			}
+			break;
 		default:
 			break;
 		}
