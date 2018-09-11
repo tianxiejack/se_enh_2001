@@ -20,13 +20,6 @@
 #include <cuda_runtime.h>
 #include <malloc.h>
 
-#define INPUT_IMAGE_HEIGHT		(1080)	
-#define INPUT_IMAGE_WIDTH			(1920)	
-
-#define INPUT_IMAGE_FIRHEIGHT		(1080)	//)(576)
-#define INPUT_IMAGE_FIRWIDTH		(1920)	//(720)
-#define INPUT_IMAGE_PALHEIGHT		(576)
-#define INPUT_IMAGE_PALWIDTH		(720)
 #define BUFFER_NUM_MAX			(CAP_CH_NUM*4)
 
 
@@ -57,8 +50,8 @@ v4l2_camera::v4l2_camera(int devId):io(IO_METHOD_USERPTR),buffers(NULL),force_fo
 		case video_gaoqing2:
 		case video_gaoqing3:
 			imgformat 	= V4L2_PIX_FMT_YUYV;
-			imgwidth  	= INPUT_IMAGE_WIDTH;
-			imgheight 	= INPUT_IMAGE_HEIGHT;
+			imgwidth  	= vcapWH[devId][0];
+			imgheight 	= vcapWH[devId][1];
 			imgstride 	= imgwidth*2;
 			bufSize 		= imgwidth * imgheight * 2;
 			imgtype     	= CV_8UC2;
@@ -78,9 +71,9 @@ v4l2_camera::v4l2_camera(int devId):io(IO_METHOD_USERPTR),buffers(NULL),force_fo
 		m_bufferHndl = (OSA_BufHndl *)malloc(sizeof(OSA_BufHndl));
 		OSA_assert(m_bufferHndl != NULL);
 		memset(&m_bufferCreate, 0, sizeof(OSA_BufCreate));
-		m_bufferCreate.width = INPUT_IMAGE_PALWIDTH;
-		m_bufferCreate.height = INPUT_IMAGE_PALHEIGHT;
-		m_bufferCreate.stride = INPUT_IMAGE_PALWIDTH*2;
+		m_bufferCreate.width = vcapWH[video_pal][0];
+		m_bufferCreate.height = vcapWH[video_pal][1];
+		m_bufferCreate.stride = vcapWH[video_pal][0]*2;
 		m_bufferCreate.numBuf = 8;
 
 		for(int k=0; k < m_bufferCreate.numBuf; k++)

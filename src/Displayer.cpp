@@ -903,15 +903,15 @@ void CDisplayer::gl_init()
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);//GL_NEAREST);//GL_NEAREST_MIPMAP_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);//GL_CLAMP);//GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);//GL_CLAMP);//GL_CLAMP_TO_EDGE);
-		glTexImage2D(GL_TEXTURE_2D, 0,3, VIDEO_IMAGE_ARR[i][0], VIDEO_IMAGE_ARR[i][1], 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0,3, vcapWH[i][0], vcapWH[i][1], 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, NULL);
 	}
 	glGenBuffers(DS_DC_CNT, buffId_osd);
 	glGenTextures(DS_DC_CNT, textureId_osd); 
 
 	for(i=0; i<DS_DC_CNT; i++)
 	{
-		m_disOsd[i]    = cv::Mat(VIDEO_IMAGE_ARR[i][1], VIDEO_IMAGE_ARR[i][0], CV_8UC4, cv::Scalar(0,0,0,0));
-		m_imgOsd[i] = cv::Mat(VIDEO_IMAGE_ARR[i][1], VIDEO_IMAGE_ARR[i][0], CV_8UC4, cv::Scalar(0,0,0,0));
+		m_disOsd[i]    = cv::Mat(vcapWH[i][1], vcapWH[i][0], CV_8UC4, cv::Scalar(0,0,0,0));
+		m_imgOsd[i] = cv::Mat(vcapWH[i][1], vcapWH[i][0], CV_8UC4, cv::Scalar(0,0,0,0));
 		
 		glBindTexture(GL_TEXTURE_2D, textureId_osd[i]);
 		assert(glIsTexture(textureId_osd[i]));

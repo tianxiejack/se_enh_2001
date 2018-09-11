@@ -259,8 +259,7 @@ void MultiChVideo::pal4process(int chid)
 				CHID = *BUFFER_CHID(VCap[chId]->m_bufferHndl->bufInfo[bufId].virtAddr);
 				width	= VCap[chId]->m_bufferHndl->bufInfo[bufId].width;
 				height	= VCap[chId]->m_bufferHndl->bufInfo[bufId].height;
-				frame = cv::Mat(576, 720, VCap[chId]->imgtype,
-						bufdata);
+				frame = cv::Mat(vdisWH[video_pal][1], vdisWH[video_pal][0], VCap[chId]->imgtype,bufdata);
 				CHID %= (4*video_pal);
 				m_usrFunc(m_user, video_pal, CHID, frame);
 				OSA_bufPutEmpty(VCap[chId]->m_bufferHndl, bufId);
