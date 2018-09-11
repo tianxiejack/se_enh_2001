@@ -1488,14 +1488,8 @@ osdindex++;	//acqRect
 			DrawMoveDetect = 0 ;
 	}
 #endif
-	
-	center.x = 1920/2;
-	center.y = 1080/2;
-	if(extInCtrl->SensorStat == video_pal)
-	{
-		center.x = 720/2;
-		center.y = 576/2;
-	}
+	center.x = vdisWH[extInCtrl->SensorStat][0]/2;
+	center.y = vdisWH[extInCtrl->SensorStat][1]/2;
 	int radius = 4;
 	cv::circle(m_display.m_imgOsd[extInCtrl->SensorStat],center,radius ,cvScalar(255,0,255,255),8,8,0);
 

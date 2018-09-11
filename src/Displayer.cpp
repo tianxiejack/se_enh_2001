@@ -381,7 +381,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 
     //glutInitWindowPosition(m_initPrm.winPosX, m_initPrm.winPosY);
     //glutInitWindowSize(m_mainWinWidth, m_mainWinHeight);
-    glutInitWindowSize(m_mainWinWidth_new[video_gaoqing], m_mainWinHeight_new[video_gaoqing]);
+    glutInitWindowSize(VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
     glutCreateWindow("DSS");
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(&_display);
