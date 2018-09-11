@@ -180,6 +180,7 @@ void CVideoProcess::main_proc_func()
 				FONT_HERSHEY_TRIPLEX,0.8,
 				cvScalar(0,0,0,0), 1
 			);
+#if 0
 			sprintf(trkINFODisplay, "trkStatus:%u,trkErrorX=%f,trkErrorY=%f",
 				iTrackStat,m_rcTrack.x,m_rcTrack.y);
 			putText(m_display.m_imgOsd[msgextInCtrl->SensorStat],trkINFODisplay,
@@ -187,7 +188,7 @@ void CVideoProcess::main_proc_func()
 				FONT_HERSHEY_TRIPLEX,0.8,
 				cvScalar(255,255,0,255), 1
 			);
-
+#endif
 			
 
 			UtcGetSceneMV(m_track, &speedx, &speedy);
