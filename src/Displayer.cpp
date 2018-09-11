@@ -271,8 +271,6 @@ void CDisplayer::_reshape(int width, int height)
 {
 	assert(gThis != NULL);
 	glViewport(0, 0, width, height);
-	//gThis->m_mainWinWidth = width;
-	//gThis->m_mainWinHeight = height;
 	gThis->m_mainWinWidth_new[video_pal] = width;
 	gThis->m_mainWinHeight_new[video_pal] = height;
 	gThis->m_mainWinWidth_new[video_gaoqing0] = width;
@@ -354,17 +352,6 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 
 	if(pPrm != NULL)
 		memcpy(&m_initPrm, pPrm, sizeof(DS_InitPrm));
-	
-	m_mainWinWidth_new[video_pal] = vdisWH[video_pal][0];
-	m_mainWinHeight_new[video_pal] = vdisWH[video_pal][1];
-	m_mainWinWidth_new[video_gaoqing0] = vdisWH[video_gaoqing0][0];
-	m_mainWinHeight_new[video_gaoqing0] = vdisWH[video_gaoqing0][1];
-	m_mainWinWidth_new[video_gaoqing] = vdisWH[video_gaoqing][0];
-	m_mainWinHeight_new[video_gaoqing] = vdisWH[video_gaoqing][1];
-	m_mainWinWidth_new[video_gaoqing2] = vdisWH[video_gaoqing2][0];
-	m_mainWinHeight_new[video_gaoqing2] = vdisWH[video_gaoqing2][1];
-	m_mainWinWidth_new[video_gaoqing3] = vdisWH[video_gaoqing3][0];
-	m_mainWinHeight_new[video_gaoqing3] = vdisWH[video_gaoqing3][1];
 	
 	if(m_initPrm.timerInterval<=0)
 		m_initPrm.timerInterval = 40;

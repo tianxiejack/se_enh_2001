@@ -22,8 +22,6 @@
 
 #define BUFFER_NUM_MAX			(CAP_CH_NUM*4)
 
-
-
 #define FRAME_WIDTH  1448
 #define FRAME_HEIGHT 1156
 #define IMAGE_WIDTH  1440
