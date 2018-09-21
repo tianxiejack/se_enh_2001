@@ -498,43 +498,34 @@ void* recv_msg(SENDST *RS422)
 			break;
 		case ipcresolution:
 			memcpy(&Rresolution,RS422->param,sizeof(Rresolution));
-			switch(Rresolution.SensorStat)
+			for(int i = 0; i <= ipc_eSen_CH3; i++)
 			{
-				case video_gaoqing0:
-				case video_gaoqing:
-				case video_gaoqing2:
-				case video_gaoqing3:
-					if((0 == Rresolution.resolution)||(1 == Rresolution.resolution))
+					if((0 == Rresolution.resolution[i])||(1 == Rresolution.resolution[i]))
 					{
-						vcapWH[Rresolution.SensorStat][0] = 1920;
-						vcapWH[Rresolution.SensorStat][1] = 1080;
-						vdisWH[Rresolution.SensorStat][0] = 1920;
-						vdisWH[Rresolution.SensorStat][1] = 1080;
+						vcapWH[i][0] = 1920;
+						vcapWH[i][1] = 1080;
+						vdisWH[i][0] = 1920;
+						vdisWH[i][1] = 1080;
 					}
-					else if((2 == Rresolution.resolution)||(3 == Rresolution.resolution))
+					else if((2 == Rresolution.resolution[i])||(3 == Rresolution.resolution[i]))
 					{
-						vcapWH[Rresolution.SensorStat][0] = 1280;
-						vcapWH[Rresolution.SensorStat][1] = 720;
-						vdisWH[Rresolution.SensorStat][0] = 1280;
-						vdisWH[Rresolution.SensorStat][1] = 720;
+						vcapWH[i][0] = 1280;
+						vcapWH[i][1] = 720;
+						vdisWH[i][0] = 1280;
+						vdisWH[i][1] = 720;
 					}
-					break;
-				case video_pal:
-					if(0 == Rresolution.resolution)
-					{
-						vcapWH[Rresolution.SensorStat][0] = 720;
-						vcapWH[Rresolution.SensorStat][1] = 576;
-						vdisWH[Rresolution.SensorStat][0] = 720;
-						vdisWH[Rresolution.SensorStat][1] = 576;
-					}
-					break;
-				default:
-					break;		
+			}
+			if(0 == Rresolution.resolution[ipc_eSen_CH4])
+			{
+				vcapWH[ipc_eSen_CH4][0] = 720;
+				vcapWH[ipc_eSen_CH4][1] = 576;
+				vdisWH[ipc_eSen_CH4][0] = 720;
+				vdisWH[ipc_eSen_CH4][1] = 576;
 			}
 			break;
 		default:
 			break;
-		}
+	}
 }
 
 int send_msg(SENDST *RS422)

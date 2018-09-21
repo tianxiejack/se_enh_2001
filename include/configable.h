@@ -27,8 +27,8 @@ enum devvideo{
 #define VIDEO_DIS_WIDTH		1920
 #define VIDEO_DIS_HEIGHT		1080
 
-static int vcapWH[5][2] = {{1920, 1080},{1920, 1080},{1920, 1080},{1920, 1080},{720, 576}};
-static int vdisWH[5][2] = {{1920, 1080},{1920, 1080},{1920, 1080},{1920, 1080},{720, 576}};
+extern int vcapWH[5][2];
+extern int vdisWH[5][2];
 
 #if 0
 typedef struct {

@@ -396,8 +396,7 @@ typedef struct{
 }CMD_ALGOSDRECT;
 
 typedef struct{
-	volatile unsigned char SensorStat;
-	volatile unsigned char resolution;
+	volatile unsigned char resolution[ipc_eSen_Max];
 }CMD_IPCRESOLUTION;
 
 typedef struct{

@@ -27,7 +27,6 @@
 #include "locale.h"
 #include "Ipcctl.h"
 #include "arm_neon.h"
-
 #define HISTEN 0
 #define CLAHEH 1
 #define DARKEN 0
@@ -100,6 +99,25 @@ CDisplayer::~CDisplayer()
 {
 	//destroy();
 	gThis = NULL;
+}
+
+inline int extractYUYV2Gray2(Mat src, Mat dst)
+{
+	int ImgHeight, ImgWidth,ImgStride;
+
+	ImgWidth = src.cols;
+	ImgHeight = src.rows;
+	ImgStride = ImgWidth*2;
+	uint8_t  *  pDst8_t;
+	uint8_t *  pSrc8_t;
+
+	pSrc8_t = (uint8_t*)(src.data);
+	pDst8_t = (uint8_t*)(dst.data);
+
+	for(int y = 0; y < ImgHeight*ImgWidth; y++)
+	{
+		pDst8_t[y] = pSrc8_t[y*2];
+	}
 }
 
 int CDisplayer::create()
@@ -637,6 +655,14 @@ void CDisplayer::display(Mat frame, int chId, int code)
 		pretime = curtime;
 	}
 
+/*
+	cv::Mat frame_gray;
+	frame_gray = Mat(frame.rows, frame.cols, CV_8UC1);
+
+	extractYUYV2Gray2(frame, frame_gray);
+	cv::imshow("111",frame_gray);
+	cv::waitKey(1);
+*/
 
 	if(nChannel == 1 || code == -1){
 		cudaMalloc_share((void**)&d_src_rgb, byteCount, chId + DS_CHAN_MAX);

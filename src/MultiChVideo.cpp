@@ -14,6 +14,17 @@
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
 
+void milliseconds_sleep(unsigned long mSec)
+{
+    struct timeval tv;
+    tv.tv_sec = mSec/1000;
+    tv.tv_usec = (mSec%1000)*1000;
+    int err;
+    do{
+        err = select(0, NULL, NULL, NULL, &tv);
+    }while(err<0 && errno==EINTR);
+}
+
 MultiChVideo::MultiChVideo():m_usrFunc(NULL),m_user(NULL)
 {
 	memset(m_thrCap, 0, sizeof(m_thrCap));
@@ -60,7 +71,8 @@ int MultiChVideo::run()
 {
 	int iRet = 0;
 
-	for(int i=0; i<MAX_CHAN; i++){	
+	for(int i=0; i<MAX_CHAN; i++){
+		//milliseconds_sleep(100);
 		VCap[i]->run();
 		m_thrCxt[i].pUser = this;
 		m_thrCxt[i].chId = i;

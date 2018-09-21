@@ -27,6 +27,8 @@
 #define IMAGE_WIDTH  1440
 #define IMAGE_HEIGHT 576
 
+int vcapWH[5][2] = {{1920, 1080},{1920, 1080},{1920, 1080},{1920, 1080},{720, 576}};
+int vdisWH[5][2] = {{1920, 1080},{1920, 1080},{1920, 1080},{1920, 1080},{720, 576}};
 
 v4l2_camera::v4l2_camera(int devId):io(IO_METHOD_USERPTR),buffers(NULL),force_format(1),m_devFd(-1),n_buffers(0),bRun(false)
 {
