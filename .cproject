@@ -31,8 +31,8 @@
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/include"/>
 									<listOptionValue builtIn="false" value="/usr/include/freetype2"/>
 									<listOptionValue builtIn="false" value="../src/OSA_IPC/inc"/>
-									<listOptionValue builtIn="false" value="/usr/include/opencv"/>
-									<listOptionValue builtIn="false" value="/usr/include/opencv2"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/opencv"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/opencv2"/>
 									<listOptionValue builtIn="false" value="/usr/include/GL"/>
 									<listOptionValue builtIn="false" value="../include"/>
 									<listOptionValue builtIn="false" value="../include/APP"/>
@@ -45,7 +45,8 @@
 								<option id="nvcc.compiler.def.symbols.395705433" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__IPC__=1"/>
 									<listOptionValue builtIn="false" value="__MOVE_DETECT__=0"/>
-									<listOptionValue builtIn="false" value="__TRACK__=1"/>
+									<listOptionValue builtIn="false" value="__TRACK__=0"/>
+									<listOptionValue builtIn="false" value="__MMT__=0"/>
 								</option>
 								<inputType id="nvcc.compiler.input.cu.304571006" superClass="nvcc.compiler.input.cu"/>
 								<inputType id="nvcc.compiler.input.cpp.1614986746" superClass="nvcc.compiler.input.cpp"/>
@@ -65,8 +66,6 @@
 									<listOptionValue builtIn="false" value="GL"/>
 									<listOptionValue builtIn="false" value="GLEW"/>
 									<listOptionValue builtIn="false" value="glut"/>
-									<listOptionValue builtIn="false" value="dft"/>
-									<listOptionValue builtIn="false" value="MMTD"/>
 									<listOptionValue builtIn="false" value="nppi"/>
 									<listOptionValue builtIn="false" value="nppc"/>
 									<listOptionValue builtIn="false" value="cudart"/>
@@ -76,6 +75,7 @@
 								</option>
 								<option id="nvcc.linker.option.paths.1718676411" name="Library search path (-L)" superClass="nvcc.linker.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu"/>
+									<listOptionValue builtIn="false" value="/usr/local/lib"/>
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/tegra"/>
 									<listOptionValue builtIn="false" value="/usr/local/cuda-8.0/targets/aarch64-linux-gnu/lib"/>
 								</option>
