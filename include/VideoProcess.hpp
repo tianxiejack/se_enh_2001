@@ -198,9 +198,11 @@ protected: //track
 	int			    m_intervalFrame;
 	int			  m_intervalFrame_change;
 	int 			    m_bakChId;
-
+	
+#if __MMT__
 	CMMTD	m_MMTDObj;
 	TARGETBOX	m_tgtBox[MAX_TARGET_NUMBER];	
+#endif
 
 #if __MOVE_DETECT__
 		protected:

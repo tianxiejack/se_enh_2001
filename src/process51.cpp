@@ -3041,9 +3041,9 @@ void CProcess::update_param_alg()
 		wFileFlag = true;
 	
 	
-
+#if __TRACK__
 	UtcSetPLT_BS(m_track, tPLT_WRK, BoreSight_Mid);
-
+#endif
 
 
 	//enh
@@ -3062,7 +3062,10 @@ void CProcess::update_param_alg()
 		DetectGapparm = 10;
 	else
 		DetectGapparm = 3;
+	
+#if __MMT__
 	m_MMTDObj.SetSRDetectGap(DetectGapparm);
+#endif
 
 	if(gConfig_Alg_param.Mmtdparm_3 > 0)
 		MinArea = gConfig_Alg_param.Mmtdparm_3;
@@ -3073,7 +3076,9 @@ void CProcess::update_param_alg()
 	else
 		MaxArea = 3600;
 
+#if __MMT__
 	m_MMTDObj.SetConRegMinMaxArea(MinArea, MaxArea);
+#endif
 
 	if(gConfig_Alg_param.Mmtdparm_5 > 0)
 		stillPixel = gConfig_Alg_param.Mmtdparm_5;
@@ -3083,26 +3088,37 @@ void CProcess::update_param_alg()
 		movePixel = gConfig_Alg_param.Mmtdparm_6;
 	else
 		movePixel = 16;
+
+#if __MMT__
 	m_MMTDObj.SetMoveThred(stillPixel, movePixel);
+#endif
 
 	if(gConfig_Alg_param.Mmtdparm_7 > 0.001)
 		lapScaler = gConfig_Alg_param.Mmtdparm_7;
 	else
 		lapScaler = 1.25;
+
+#if __MMT__
 	m_MMTDObj.SetLapScaler(lapScaler);
+#endif
 
 	if(gConfig_Alg_param.Mmtdparm_8 > 0)
 		lumThred = gConfig_Alg_param.Mmtdparm_8;
 	else
 		lumThred = 50;
-	m_MMTDObj.SetSRLumThred(lumThred);
 
+#if __MMT__
+	m_MMTDObj.SetSRLumThred(lumThred);
+#endif
+
+#if __TRACK__
 	UtcSetDynParam(m_track, dynamicParam);
 	UtcSetUpFactor(m_track, up_factor);
 	UtcSetUpFactor(m_track, up_factor);
 	UtcSetBlurFilter(m_track,FilterEnable);
 	UtcSetBigSearch(m_track, BigSecEnable);
-	
+#endif
+
 #if UTCPARM
 
 	UtcSetDynParam(m_track, dynamicParam);

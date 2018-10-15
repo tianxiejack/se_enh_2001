@@ -269,7 +269,7 @@ void CVideoProcess::main_proc_func()
 					roi.width=frame_gray.cols;
 					roi.height=frame_gray.rows;
 				}
-
+		#if __MMT__
 			//m_MMTDObj.MMTDProcess(frame_gray, m_tgtBox, m_display.m_imgOsd[1], 0);
 			m_MMTDObj.MMTDProcessRect(frame_gray, m_tgtBox, roi, m_display.m_imgOsd[1], 0);
 			for(int i=0;i<MAX_TARGET_NUMBER;i++)
@@ -279,7 +279,8 @@ void CVideoProcess::main_proc_func()
 				m_mtd[chId]->tg[i].valid=m_tgtBox[i].valid;
 				//OSA_printf("ALL-MTD: time  ID %d  valid=%d x=%d y=%d\n",i,m_tgtBox[i].valid,m_tgtBox[i].Box.x,m_tgtBox[i].Box.y);
 			}
-			
+		#endif	
+		
 		}
 		else if (bMoveDetect)
 		{
@@ -345,8 +346,9 @@ CVideoProcess::CVideoProcess()
 	#if __MOVE_DETECT__
 		m_pMovDetector	=NULL;
 	#endif
-	
+#if __MMT__
 	memset(m_tgtBox, 0, sizeof(TARGETBOX)*MAX_TARGET_NUMBER);
+#endif
 }
 
 CVideoProcess::~CVideoProcess()
@@ -631,8 +633,9 @@ int CVideoProcess::run()
 
 		OSA_printf(" %d:%s mtd malloc %p\n", OSA_getCurTimeInMsec(),__func__, m_mtd[0]);
 	}
-
+#if __MMT__
 	m_MMTDObj.SetTargetNum(MAX_TARGET_NUMBER);
+#endif
 	OnRun();
 	return 0;
 }
