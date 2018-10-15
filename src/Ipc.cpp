@@ -205,6 +205,24 @@ void* recv_msg(SENDST *RS422)
 			memcpy(&disOsdBufbak[imgID1],&disOsdBuf[imgID1],sizeof(osdbuffer_t));
 			swprintf(disOsd[imgID1], 33, L"%s", disOsdBuf[imgID1].buf);
 			break;
+		case read_shm_osdtext:
+			{
+				osdtext_t *osdtexttmp = ipc_getosdtextstatus_p();
+				for(int i = 0; i < 32; i++)
+				{
+					disOsdBuf[i].osdID = osdtexttmp->osdID[i];
+					disOsdBuf[i].color = osdtexttmp->color[i];
+					disOsdBuf[i].alpha = osdtexttmp->alpha[i];
+					disOsdBuf[i].ctrl = osdtexttmp->ctrl[i];
+					disOsdBuf[i].posx = osdtexttmp->posx[i];
+					disOsdBuf[i].posy = osdtexttmp->posy[i];
+					memcpy((void *)disOsdBuf[i].buf, (void *)osdtexttmp->buf[i], sizeof(disOsdBuf[i].buf));
+					setlocale(LC_ALL, "zh_CN.UTF-8");
+					memcpy(&disOsdBufbak[i],&disOsdBuf[i],sizeof(osdbuffer_t));
+					swprintf(disOsd[i], 33, L"%s", disOsdBuf[i].buf);
+				}
+			}
+			break;
 
 		case Iris:
 			IrisAndFocusAndExit = Enable_Iris;
@@ -649,7 +667,8 @@ void Ipc_pthread_start(void)
 	shm_perm[IPC_SHA] = shm_rdwr;
 	shm_perm[IPC_OSD_SHA] = shm_rdonly;
 	shm_perm[IPC_UTCTRK_SHA] = shm_rdonly;	
-	shm_perm[IPC_LKOSD_SHA] = shm_rdonly;	
+	shm_perm[IPC_LKOSD_SHA] = shm_rdonly;
+	shm_perm[IPC_OSDTEXT_SHA] = shm_rdonly;
 	Ipc_init();
 	Ipc_create(shm_perm);
 

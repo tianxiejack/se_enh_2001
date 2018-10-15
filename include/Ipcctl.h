@@ -8,6 +8,7 @@
 #define _PATH4_ "/"
 #define _PATH5_ "/"
 #define _PATH6_ "/"
+#define _PATH7_ "/"
 
 #define SHMEMSTATUSSIZE 200
 #define SHMEMFRAMESIZE 10485760
@@ -57,6 +58,7 @@ typedef enum
     ipcwordSize,
 	ipclosttime,
     ipcresolution,
+    read_shm_osdtext,
     invalid
 }CMD_ID;
 
@@ -98,6 +100,7 @@ typedef enum
     IPC_OSD_SHA,
     IPC_UTCTRK_SHA,
     IPC_LKOSD_SHA,
+    IPC_OSDTEXT_SHA,
     IPC_SEM,
     IPC_MAX
 }IPC_MTYPE;
@@ -727,7 +730,18 @@ typedef struct osdbuffer
 	volatile unsigned char buf[128];
 }osdbuffer_t;
 
-
+typedef struct osdtext
+{
+	volatile unsigned char osdID[32];
+	volatile unsigned char color[32];
+	volatile unsigned char alpha[32];
+	volatile unsigned char font[32];
+	volatile unsigned char fontsize[32];
+	volatile unsigned char ctrl[32];
+	volatile unsigned int posx[32];
+	volatile unsigned int posy[32];
+	volatile unsigned char buf[32][128];
+}osdtext_t;
 
 int ipc_settrack(unsigned int trackstatus, float trackposx, float trackposy);
 int ipc_gettrack(unsigned int* trackstatus, float* trackposx, float* trackposy);
@@ -748,6 +762,6 @@ IMGSTATUS ipc_getimgstatus();
 OSDSTATUS *ipc_getosdstatus_p();
 UTCTRKSTATUS *ipc_getutstatus_p();
 LKOSDSTATUS *ipc_getlkosdstatus_p();
-
+osdtext_t *ipc_getosdtextstatus_p();
 
 #endif
