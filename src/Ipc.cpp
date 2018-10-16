@@ -78,6 +78,30 @@ int  send_msgpth(SENDST * RS422)
 
 void get_acqRect_from_aim(OSDSTATUS *gConfig_Osd_param)
 {
+	if(gConfig_Osd_param->ch0_aim_width < 10)
+		gConfig_Osd_param->ch0_aim_width = 10;
+	if(gConfig_Osd_param->ch1_aim_width < 10)
+		gConfig_Osd_param->ch1_aim_width = 10;
+	if(gConfig_Osd_param->ch2_aim_width < 10)
+		gConfig_Osd_param->ch2_aim_width = 10;
+	if(gConfig_Osd_param->ch3_aim_width < 10)
+		gConfig_Osd_param->ch3_aim_width = 10;
+	if(gConfig_Osd_param->ch4_aim_width < 10)
+		gConfig_Osd_param->ch4_aim_width = 10;
+	if(gConfig_Osd_param->ch5_aim_width < 10)
+		gConfig_Osd_param->ch5_aim_width = 10;
+	if(gConfig_Osd_param->ch0_aim_height < 10)
+		gConfig_Osd_param->ch0_aim_height = 10;
+	if(gConfig_Osd_param->ch1_aim_height < 10)
+		gConfig_Osd_param->ch1_aim_height = 10;
+	if(gConfig_Osd_param->ch2_aim_height < 10)
+		gConfig_Osd_param->ch2_aim_height = 10;
+	if(gConfig_Osd_param->ch3_aim_height < 10)
+		gConfig_Osd_param->ch3_aim_height = 10;
+	if(gConfig_Osd_param->ch4_aim_height < 10)
+		gConfig_Osd_param->ch4_aim_height = 10;
+	if(gConfig_Osd_param->ch5_aim_height < 10)
+		gConfig_Osd_param->ch5_aim_height = 10;
 	gConfig_Osd_param->ch0_acqRect_width = gConfig_Osd_param->ch0_aim_width;
 	gConfig_Osd_param->ch1_acqRect_width = gConfig_Osd_param->ch1_aim_width;
 	gConfig_Osd_param->ch2_acqRect_width = gConfig_Osd_param->ch2_aim_width;
