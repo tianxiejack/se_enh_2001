@@ -342,6 +342,9 @@ CVideoProcess::CVideoProcess()
 	wFileFlag			=0;
 	preAcpSR	={0};
 	algOsdRect = false;
+
+	m_click = m_draw = m_tempX = m_tempY = m_rectn = 0;
+	memset(mRect, 0, sizeof(mRect));
 	
 	#if __MOVE_DETECT__
 		m_pMovDetector	=NULL;
@@ -398,25 +401,44 @@ int CVideoProcess::destroy()
 
 	return 0;
 }
-
+	
 void CVideoProcess::mouse_event(int button, int state, int x, int y)
 {
-	m_mousex = x;
-	m_mousey = y;
-	if(button == GLUT_LEFT_BUTTON)
+	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-		if(state == GLUT_DOWN)
-			pThis->OnMouseLeftDwn(x, y);
+		if(pThis->m_click == 0)
+		{
+			pThis->m_click = 1;
+			pThis->mRect[pThis->m_rectn].x1 = x;
+			pThis->mRect[pThis->m_rectn].y1 = y;
+			cout<<pThis->m_rectn<<" start:("<<pThis->mRect[pThis->m_rectn].x1<<","<<pThis->mRect[pThis->m_rectn].y1<<")"<<endl;
+		}
 		else
-			pThis->OnMouseLeftUp(x, y);
+		{
+			pThis->m_click = 0;
+			pThis->mRect[pThis->m_rectn].x2 = x;  
+			pThis->mRect[pThis->m_rectn].y2 = y;  
+			cout<<pThis->m_rectn<<" end:("<<pThis->mRect[pThis->m_rectn].x2<<","<<pThis->mRect[pThis->m_rectn].y2<<")\n"<<endl;
+			pThis->m_rectn++;  
+			pThis->m_draw = 1;
+		}
 	}
 
-	if(button == GLUT_RIGHT_BUTTON)
+	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
 	{
-		if(state == GLUT_DOWN)
-			pThis->OnMouseRightDwn(x, y);
-		else
-			pThis->OnMouseRightUp(x, y);
+		pThis->m_click = 0;
+		pThis->m_rectn = 0;
+		pThis->m_draw = 1;
+	}
+}
+
+void CVideoProcess::mousemove_event(GLint xMouse, GLint yMouse)
+{
+	if(pThis->m_click == 1)
+	{
+		pThis->m_tempX = xMouse;
+		pThis->m_tempY = yMouse;
+		pThis->m_draw = 1;
 	}
 }
 
@@ -452,6 +474,7 @@ int CVideoProcess::init()
 
 	memset(&dsInit, 0, sizeof(DS_InitPrm));
 	dsInit.mousefunc = mouse_event;
+	dsInit.passivemotionfunc = mousemove_event;
 //#if (!__IPC__)
 	dsInit.keyboardfunc = keyboard_event;
 //#endif

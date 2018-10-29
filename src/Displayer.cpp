@@ -379,9 +379,8 @@ int CDisplayer::init(DS_InitPrm *pPrm)
     //glutInitWindowPosition(m_initPrm.winPosX, m_initPrm.winPosY);
     glutInitWindowSize(VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
     glutCreateWindow("DSS");
-	glutSetCursor(GLUT_CURSOR_NONE);
+	//glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(&_display);
-	//glutFullScreen();
 	if(m_initPrm.idlefunc != NULL)
 		glutIdleFunc(m_initPrm.idlefunc);
 	glutReshapeFunc(_reshape);
@@ -395,6 +394,9 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	//mouse event:
 	if(m_initPrm.mousefunc != NULL)
 		glutMouseFunc(m_initPrm.mousefunc);//GLUT_LEFT_BUTTON GLUT_MIDDLE_BUTTON GLUT_RIGHT_BUTTON; GLUT_DOWN GLUT_UP
+
+	if(m_initPrm.passivemotionfunc != NULL)
+		glutPassiveMotionFunc(m_initPrm.passivemotionfunc);
 
 	if(m_initPrm.visibilityfunc != NULL)
 		glutVisibilityFunc(m_initPrm.visibilityfunc);
@@ -1462,13 +1464,11 @@ void CDisplayer::gl_display(void)
 		IrisAndFocus();
 		OSDFunc();
 	}
-	
 	glUseProgram(0);
 	
 	glutSwapBuffers();
 	glutPostRedisplay();
 	GetFPS();
-	
 }
 
 void CDisplayer::IrisAndFocus()

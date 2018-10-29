@@ -142,6 +142,8 @@ private:
 public:
 	void update_param_alg();
 	void update_param_osd();
+	RectfNode mRectbak[100];
+	int m_tempXbak, m_tempYbak, m_rectnbak;
 
 };
 

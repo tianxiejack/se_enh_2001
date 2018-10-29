@@ -41,6 +41,13 @@ typedef struct _Track_info{
 
 }Track_InfoObj;
 
+typedef struct RectfNode {  
+    int x1;  
+    int y1;  
+    int x2;  
+    int y2;  
+}RectfNode;
+
 
 class CVideoProcess
 {
@@ -106,6 +113,11 @@ public :
 	ALGMTD_HANDLE m_mtd[MAX_CHAN];
 public:
 	CDisplayer m_display;
+	int m_click;
+	int m_draw;
+	RectfNode mRect[100];
+	int m_tempX, m_tempY, m_rectn;
+
 protected:
 	MultiChVideo MultiCh;
 	//BigChVideo		BigChannel;
@@ -159,6 +171,7 @@ protected:
 	static void call_run(int value);
 	static int callback_process(void *handle, int chId, int virchId, Mat frame);
 	static void mouse_event(int button, int state, int x, int y);
+	static void mousemove_event(GLint xMouse, GLint yMouse);
 	static void keyboard_event(unsigned char key, int x, int y);
 	static void keySpecial_event( int key, int x, int y);
 	static void visibility_event(int state);
