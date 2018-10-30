@@ -398,6 +398,14 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	if(m_initPrm.passivemotionfunc != NULL)
 		glutPassiveMotionFunc(m_initPrm.passivemotionfunc);
 
+	if(m_initPrm.menufunc != NULL)
+	{
+		glutCreateMenu(m_initPrm.menufunc);
+		glutAddMenuEntry("sensor change",0);
+		glutAddMenuEntry("set parameter",1);
+		glutAttachMenu(GLUT_RIGHT_BUTTON);
+	}
+
 	if(m_initPrm.visibilityfunc != NULL)
 		glutVisibilityFunc(m_initPrm.visibilityfunc);
 	if(m_initPrm.bFullScreen){
@@ -406,7 +414,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	}
 
 	glutCloseFunc(_close);
-
+	
 	initRender();
 
 	gl_updateVertex();

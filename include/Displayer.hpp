@@ -75,6 +75,7 @@ typedef struct _ds_init_param{
 	//void (*displayfunc)(void);
 	void (*mousefunc)(int button, int state, int x, int y);
 	void (*passivemotionfunc)(GLint xMouse, GLint yMouse);
+	void (*menufunc)(int value);
 	//void (*reshapefunc)(int width, int height);
 	void (*keyboardfunc)(unsigned char key, int x, int y);
 	void (*keySpecialfunc)( int, int, int );

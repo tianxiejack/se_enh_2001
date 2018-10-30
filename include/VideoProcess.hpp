@@ -115,8 +115,8 @@ public:
 	CDisplayer m_display;
 	int m_click;
 	int m_draw;
-	RectfNode mRect[100];
-	int m_tempX, m_tempY, m_rectn;
+	RectfNode mRect[MAX_CHAN][100];
+	int m_tempX, m_tempY, m_rectn[MAX_CHAN];
 
 protected:
 	MultiChVideo MultiCh;
@@ -172,6 +172,7 @@ protected:
 	static int callback_process(void *handle, int chId, int virchId, Mat frame);
 	static void mouse_event(int button, int state, int x, int y);
 	static void mousemove_event(GLint xMouse, GLint yMouse);
+	static void menu_event(int value);
 	static void keyboard_event(unsigned char key, int x, int y);
 	static void keySpecial_event( int key, int x, int y);
 	static void visibility_event(int state);

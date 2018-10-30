@@ -122,9 +122,9 @@ CProcess::CProcess()
 	pIStuts->DispColor[0]=2;
 	pIStuts->DispColor[1]=2;
 
-	m_tempXbak = m_tempYbak = m_rectnbak = 0;
+	m_tempXbak = m_tempYbak = 0;
+	memset(m_rectnbak, 0, sizeof(m_rectnbak));
 	memset(mRectbak, 0, sizeof(mRectbak));
-	
 }
 
 CProcess::~CProcess()
@@ -1496,32 +1496,32 @@ osdindex++;	//acqRect
 //mouse rect
 	if(m_draw)
 	{    
-		for(int k = 0; k <= m_rectnbak; k++)
+		for(int k = 0; k <= m_rectnbak[extInCtrl->SensorStat]; k++)
 		{
 			rectangle(m_display.m_imgOsd[extInCtrl->SensorStat],
-					Point(mRectbak[k].x1, mRectbak[k].y1),
-					Point(mRectbak[k].x2, mRectbak[k].y2),
+					Point(mRectbak[extInCtrl->SensorStat][k].x1, mRectbak[extInCtrl->SensorStat][k].y1),
+					Point(mRectbak[extInCtrl->SensorStat][k].x2, mRectbak[extInCtrl->SensorStat][k].y2),
 					cvScalar(0,0,0,0), 1, 8);
 		}
 		memcpy(mRectbak, mRect, sizeof(mRectbak));
-		m_rectnbak = m_rectn;
+		memcpy(m_rectnbak, m_rectn, sizeof(m_rectnbak));
 		int j = 0;
-		for(j = 0; j < m_rectn; j++)
+		for(j = 0; j < m_rectn[extInCtrl->SensorStat]; j++)
 		{
 			rectangle(m_display.m_imgOsd[extInCtrl->SensorStat],
-					Point(mRectbak[j].x1, mRectbak[j].y1),
-					Point(mRectbak[j].x2, mRectbak[j].y2),
+					Point(mRectbak[extInCtrl->SensorStat][j].x1, mRectbak[extInCtrl->SensorStat][j].y1),
+					Point(mRectbak[extInCtrl->SensorStat][j].x2, mRectbak[extInCtrl->SensorStat][j].y2),
 					cvScalar(0,0,255,255), 1, 8);
 		}
 		if(m_click == 1)
 		{
-			mRectbak[j].x1 = mRect[j].x1;
-			mRectbak[j].y1 = mRect[j].y1;
-			mRectbak[j].x2 = m_tempX;
-			mRectbak[j].y2 = m_tempY;
+			mRectbak[extInCtrl->SensorStat][j].x1 = mRect[extInCtrl->SensorStat][j].x1;
+			mRectbak[extInCtrl->SensorStat][j].y1 = mRect[extInCtrl->SensorStat][j].y1;
+			mRectbak[extInCtrl->SensorStat][j].x2 = m_tempX;
+			mRectbak[extInCtrl->SensorStat][j].y2 = m_tempY;
 			rectangle(m_display.m_imgOsd[extInCtrl->SensorStat],
-					Point(mRectbak[j].x1, mRectbak[j].y1),
-					Point(mRectbak[j].x2, mRectbak[j].y2),
+					Point(mRectbak[extInCtrl->SensorStat][j].x1, mRectbak[extInCtrl->SensorStat][j].y1),
+					Point(mRectbak[extInCtrl->SensorStat][j].x2, mRectbak[extInCtrl->SensorStat][j].y2),
 					cvScalar(0,0,255,255), 1, 8);
 		}
 		m_draw = 0;
