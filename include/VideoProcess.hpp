@@ -9,7 +9,7 @@
 #include "app_status.h"
 
 #include "MMTD.h"
-#include "mvdetectInterface.hpp"
+#include "mvdectInterface.hpp"
 
 typedef struct _main_thr_obj_cxt{
 	bool bTrack;

@@ -5,7 +5,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #define		TRK_TG_NUM				10
-#define  		SAMPLE_NUMBER 	256
+#define  	SAMPLE_NUMBER 	256
 #define		DETECTOR_NUM		10
 
 #define ASSERT			CV_Assert
@@ -45,9 +45,12 @@ typedef	enum{
 typedef	enum{
 	WARN_MOVEDETECT_MODE		=	0x01,
 	WARN_BOUNDARY_MODE			=	0x02,
-	WARN_INVADE_MODE					=	0x04,
-	WARN_LOST_MODE						=	0x08,
-	WARN_INVAD_LOST_MODE		=	0x10,
+//	WARN_INVADE_MODE					=	0x04,
+//	WARN_LOST_MODE						=	0x08,
+//	WARN_INVAD_LOST_MODE		=	0x10,
+	WARN_WARN_MODE				= 0x04,
+
+	WARN_TRACK_MODE					=	0x20,
 }WARN_MODE;
 
 typedef struct _pattern_t
@@ -56,7 +59,8 @@ typedef struct _pattern_t
 	cv::Point  	rightbottom;//
 	bool		   	bValid;
 	bool		   	bEdge;
-
+	std::vector<int> IdxVec;
+	std::vector<float> lapVec;
 }Pattern;
 
 typedef	struct	 _trk_rect_t{
@@ -66,18 +70,19 @@ typedef	struct	 _trk_rect_t{
 	double							distance;
 	int									disp_frames;
 	int									trk_frames;
+	int									lost_frames;
 	WARN_ROI_STATE			warnType;
 	int									index;
 }TRK_RECT_INFO;
 
 
 typedef	struct _trk_thred_t{
-	float		searchThed;	//\u641c\u7d20\u91cd\u53e0\u7cfb\u65700.2
-	float		trkThred;		//\u8ddf\u8e2a\u91cd\u53e0\u7cfb\u65700.2
-	int			dispFrames;	//\u8b66\u6212\u540e\u663e\u793a\u5e27\u657015
-	int			totalFrames;	//\u8b66\u6212\u603b\u663e\u793a\u5e27\u6570100
-	float		distRoi;			//\u79bb\u8b66\u6212\u7ebf\u6700\u5927\u8ddd\u79bb2.0
-	int			targetSize;		//\u6700\u5c0f\u8b66\u6212\u76ee\u6807\u9762\u79ef200\uff0c\u4e0d\u80fd\u592a\u5c0f\uff0c\u5426\u5219\u4e0d\u6613\u8ddf\u8e2a
+	float		searchThed;	//搜素重叠系数0.2
+	float		trkThred;		//跟踪重叠系数0.2
+	int			dispFrames;	//警戒后显示帧数15
+	int			totalFrames;	//警戒总显示帧数100
+	float		distRoi;			//离警戒线最大距离2.0
+	int			targetSize;		//最小警戒目标面积200，不能太小，否则不易跟踪
 }TRK_THRED;
 
 

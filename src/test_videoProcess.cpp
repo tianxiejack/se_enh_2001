@@ -10,7 +10,7 @@
 using namespace std;
 using namespace cv;
 
-bool startEnable = false;
+bool startEnable = true;
 int main(int argc, char **argv)
 {
 	struct timeval tv;

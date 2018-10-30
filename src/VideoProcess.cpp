@@ -286,7 +286,10 @@ void CVideoProcess::main_proc_func()
 		{
 		#if __MOVE_DETECT__
 				if(m_pMovDetector != NULL)
-					m_pMovDetector->setFrame(frame_gray,frame_gray.cols,frame_gray.rows,0,2,8,200,30);
+				{
+					m_pMovDetector->setFrame(frame_gray,0,2,1000,50000,16);
+					printf("setFrame \n");
+				}
 		#endif
 		}
 
@@ -583,6 +586,7 @@ int CVideoProcess::dynamic_config(int type, int iPrm, void* pPrm)
 		break;
 	case VP_CFG_MvDetect:
 		m_bMoveDetect = iPrm;
+		printf("m_bMoveDetect    = %d \n",m_bMoveDetect );
 		break;
 	default:
 		break;
@@ -888,7 +892,8 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 
 	if(chId == m_curChId /*&& (m_bTrack ||m_bMtd )*/)
 	{
-		if((chId==video_pal) && (virchId!= PAL_VIRCHID));
+		if((chId==video_pal) && (virchId!= PAL_VIRCHID))
+			;
 		else
 		{
 			mainFrame[mainProcThrObj.pp] = frame;
@@ -1072,8 +1077,14 @@ void	CVideoProcess::initMvDetect()
 	polyWarnRoi[3]	= cv::Point(100,980);
 	for(i=0; i<DETECTOR_NUM; i++)
 	{
-		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
+		//m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
+
+		m_pMovDetector->setDrawOSD(pThis->m_display.m_disOsd[1], i);
+
+		m_pMovDetector->enableSelfDraw(true, i);
+
 		m_pMovDetector->setWarnMode(WARN_MOVEDETECT_MODE, i);
+	
 	} 
 }
 
@@ -1086,7 +1097,11 @@ void	CVideoProcess::DeInitMvDetect()
 void CVideoProcess::NotifyFunc(void *context, int chId)
 {
 	CVideoProcess *pParent = (CVideoProcess*)context;
-	pThis->m_pMovDetector->getMoveTarget(pThis->detect_vect,0);	
+	//pThis->m_pMovDetector->getMoveTarget(pThis->detect_vect,0);	
+	printf("aaaaaaaaaaaaaaaaaaaaaaa\n");
+
+	pParent->m_display.m_bOsd = true;
+	pThis->m_display.UpDateOsd(1);
 }
 #endif
 

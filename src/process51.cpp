@@ -78,7 +78,7 @@ CProcess::CProcess()
 	}
 	
 	pIStuts->PicpPosStat = 0;
-	pIStuts->validChId = pIStuts->SensorStatBegin;
+	pIStuts->validChId = MAIN_CHID;
 	pIStuts->FovStat=1;
 
 	pIStuts->FrCollimation=2;
@@ -2355,12 +2355,14 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			dynamic_config(VP_CFG_MvDetect, 1,NULL);
 			tmpCmd.MtdState[pIStuts->SensorStat] = 1;
 			app_ctrl_setMtdStat(&tmpCmd);
+			m_pMovDetector->mvOpen();	
 		}
 		else
 		{
 			dynamic_config(VP_CFG_MvDetect, 0,NULL);
 			tmpCmd.MtdState[pIStuts->SensorStat] = 0;
 			app_ctrl_setMtdStat(&tmpCmd);
+			m_pMovDetector->mvClose();
 		}
 	}
 	if(msgId == MSGID_EXT_INPUT_ALGOSDRECT)
@@ -2505,7 +2507,7 @@ void CProcess::MSGAPI_setMtdState(long lParam )
 			cvScalar(0,0,0,0), 2, 8 );
 	}
 
-	sThis->msgdriv_event(MSGID_EXT_MVDETECT,NULL);
+	//sThis->msgdriv_event(MSGID_EXT_MVDETECT,NULL);
 }
 
 void CProcess::MSGAPI_setAimRefine(long lParam)
