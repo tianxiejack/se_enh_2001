@@ -417,10 +417,10 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 		else
 		{
 			pThis->m_click = 0;
-			pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 = x;  
-			pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 = y;  
+			pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 = x;
+			pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 = y;
 			cout<<pThis->m_rectn[pThis->m_curChId]<<" end:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2<<")\n"<<endl;
-			pThis->m_rectn[pThis->m_curChId]++;  
+			pThis->m_rectn[pThis->m_curChId]++;
 			if(pThis->m_rectn[pThis->m_curChId]>=sizeof(pThis->mRect[0]))
 			{
 				printf("mouse rect reached maxnum:100!\n");
@@ -454,8 +454,6 @@ void CVideoProcess::menu_event(int value)
     {
 		case 0:
 			pThis->OnKeyDwn('a');
-			break;
-		case 1:
 			break;
 		default:
 			break;

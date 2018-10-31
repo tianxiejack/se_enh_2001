@@ -305,6 +305,142 @@ void CDisplayer::_reshape(int width, int height)
 	gThis->gl_updateVertex();
 	gThis->gl_resize();
 }
+
+void CDisplayer::processLinkageMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processDMMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processgunResMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processballResMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processposMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processsizeMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processnameMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processtimeMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processfontsizeMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processosdposMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processSenMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processCarMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processrigionMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processrigselionMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processtargetsizeMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processtargetspeedMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processtargetdircMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processmaxnumMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processdetectcondMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processpolarMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processdurationMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processbuadrateMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processdatabitMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processstopbitMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processparityMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processipMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processprotocolMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
 void CDisplayer::gl_resize()
 {
 }
@@ -400,9 +536,161 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 
 	if(m_initPrm.menufunc != NULL)
 	{
-		glutCreateMenu(m_initPrm.menufunc);
-		glutAddMenuEntry("sensor change",0);
-		glutAddMenuEntry("set parameter",1);
+		int sub_menu = glutCreateMenu(processLinkageMenu);
+		glutAddMenuEntry("Enable",0);
+		glutAddMenuEntry("Disable",1);
+
+
+
+		int sub_menu2 = glutCreateMenu(processDMMenu);
+		glutAddMenuEntry("PIP",0);
+		glutAddMenuEntry("SBS",1);
+		glutAddMenuEntry("GUN FULLSCREEN",2);
+		glutAddMenuEntry("BALL FULLSCREEN",3);
+
+
+
+		int gunres_submenu = glutCreateMenu(processgunResMenu);
+		glutAddMenuEntry("1080P@25HZ",0);
+		glutAddMenuEntry("1080P@30HZ",1);
+		glutAddMenuEntry("720P@50HZ",2);
+		glutAddMenuEntry("720P@60HZ",3);
+		int ballres_submenu = glutCreateMenu(processballResMenu);
+		glutAddMenuEntry("1080P@25HZ",0);
+		glutAddMenuEntry("1080P@30HZ",1);
+		glutAddMenuEntry("720P@50HZ",2);
+		glutAddMenuEntry("720P@60HZ",3);
+		int sen_submenu = glutCreateMenu(NULL);
+		glutAddSubMenu("Gun Camera",gunres_submenu);
+		glutAddSubMenu("Ball Camera",ballres_submenu);
+		
+		int pos_submenu = glutCreateMenu(processposMenu);
+		glutAddMenuEntry("LU",0);
+		glutAddMenuEntry("RU",1);
+		glutAddMenuEntry("LD",2);
+		glutAddMenuEntry("RD",3);
+		int size_submenu = glutCreateMenu(processsizeMenu);
+		glutAddMenuEntry("1/2",0);
+		glutAddMenuEntry("1/3",1);
+		glutAddMenuEntry("1/4",2);
+		int dis_submenu = glutCreateMenu(NULL);
+		glutAddSubMenu("PIP Position",pos_submenu);
+		glutAddSubMenu("PIP Size",size_submenu);
+
+		int name_submenu = glutCreateMenu(processnameMenu);
+		glutAddMenuEntry("Enable",0);
+		glutAddMenuEntry("Disable",1);
+		int time_submenu = glutCreateMenu(processtimeMenu);
+		glutAddMenuEntry("Enable",0);
+		glutAddMenuEntry("Disable",1);
+		int fontsize_submenu = glutCreateMenu(processfontsizeMenu);
+		glutAddMenuEntry("Small",0);
+		glutAddMenuEntry("Middle",1);
+		glutAddMenuEntry("Big",2);
+		int osdpos_submenu = glutCreateMenu(processosdposMenu);
+		glutAddMenuEntry("Position1",0);
+		glutAddMenuEntry("Position2",1);
+		glutAddMenuEntry("Position3",2);
+		glutAddMenuEntry("Position4",3);
+		int osd_submenu = glutCreateMenu(NULL);
+		glutAddSubMenu("Video Name",name_submenu);
+		glutAddSubMenu("Time",time_submenu);
+		glutAddSubMenu("Font Size",fontsize_submenu);
+		glutAddSubMenu("OSD Position",osdpos_submenu);
+
+		int car_submenu = glutCreateMenu(processCarMenu);
+		glutAddMenuEntry("Manual Carlibration",0);
+		glutAddMenuEntry("Auto Carlibration",1);
+
+		int rig_submenu = glutCreateMenu(processrigionMenu);
+		glutAddMenuEntry("Rigion1",0);
+		int rigsel_submenu = glutCreateMenu(processrigselionMenu);
+		glutAddMenuEntry("Rigion1",0);
+		int tsi_submenu = glutCreateMenu(processtargetsizeMenu);
+		glutAddMenuEntry("Size1",0);
+		glutAddMenuEntry("Size2",1);
+		int tsp_submenu = glutCreateMenu(processtargetspeedMenu);
+		glutAddMenuEntry("Speed1",0);
+		glutAddMenuEntry("Speed2",1);
+		int td_submenu = glutCreateMenu(processtargetdircMenu);
+		glutAddMenuEntry("Direction1",0);
+		glutAddMenuEntry("Direction2",1);
+		glutAddMenuEntry("Direction3",2);
+		glutAddMenuEntry("Direction4",3);
+		int maxnum_submenu = glutCreateMenu(processmaxnumMenu);
+		glutAddMenuEntry("Num1",0);
+		glutAddMenuEntry("Num2",1);
+		int dc_submenu = glutCreateMenu(processdetectcondMenu);
+		glutAddMenuEntry("Condition1",0);
+		glutAddMenuEntry("Condition2",1);
+		int polar_submenu = glutCreateMenu(processpolarMenu);
+		glutAddMenuEntry("-",0);
+		glutAddMenuEntry("+",1);
+		int dur_submenu = glutCreateMenu(processdurationMenu);
+		glutAddMenuEntry("Duration1",0);
+		glutAddMenuEntry("Duration2",1);
+		int mtd_submenu = glutCreateMenu(NULL);
+		glutAddSubMenu("Rigion Set",rig_submenu);
+		glutAddSubMenu("Rigion Select",rigsel_submenu);
+		glutAddSubMenu("Target Size",tsi_submenu);
+		glutAddSubMenu("Target Speed",tsp_submenu);
+		glutAddSubMenu("Target Direction",td_submenu);
+		glutAddSubMenu("Max Num",maxnum_submenu);
+		glutAddSubMenu("Detect Condition",dc_submenu);
+		glutAddSubMenu("Output Polar",polar_submenu);
+		glutAddSubMenu("Duration",dur_submenu);
+		int buad_submenu = glutCreateMenu(processbuadrateMenu);
+		glutAddMenuEntry("1200",0);
+		glutAddMenuEntry("2400",1);
+		glutAddMenuEntry("4800",2);
+		glutAddMenuEntry("9600",3);
+		glutAddMenuEntry("19200",4);
+		glutAddMenuEntry("38400",5);
+		glutAddMenuEntry("57600",6);
+		glutAddMenuEntry("115200",7);
+		int data_submenu = glutCreateMenu(processdatabitMenu);
+		glutAddMenuEntry("5",0);
+		glutAddMenuEntry("6",1);
+		glutAddMenuEntry("7",2);
+		glutAddMenuEntry("8",3);
+		int stop_submenu = glutCreateMenu(processstopbitMenu);
+		glutAddMenuEntry("1",0);
+		glutAddMenuEntry("1.5",1);
+		glutAddMenuEntry("2",2);
+		int par_submenu = glutCreateMenu(processparityMenu);
+		glutAddMenuEntry("None",0);
+		glutAddMenuEntry("Even",1);
+		glutAddMenuEntry("Odd",2);
+		int ip_submenu = glutCreateMenu(processipMenu);
+		glutAddMenuEntry("IP1",0);
+		glutAddMenuEntry("IP2",1);
+		int pro_submenu = glutCreateMenu(processprotocolMenu);
+		glutAddMenuEntry("Pelco-D",0);
+		glutAddMenuEntry("Pelco-P",1);
+		int com_submenu = glutCreateMenu(NULL);
+		glutAddSubMenu("Buad Rate",buad_submenu);
+		glutAddSubMenu("Data Bit",data_submenu);
+		glutAddSubMenu("Stop Bit",stop_submenu);
+		glutAddSubMenu("Parity",par_submenu);
+		glutAddSubMenu("IP",ip_submenu);
+		glutAddSubMenu("Protocol",pro_submenu);
+		
+		int sub_menu3 = glutCreateMenu(NULL);
+		glutAddSubMenu("Sensor Source",sen_submenu);
+		glutAddSubMenu("Display",dis_submenu);
+		glutAddSubMenu("OSD",osd_submenu);
+		glutAddSubMenu("Carlibration",car_submenu);
+		glutAddSubMenu("MTD",mtd_submenu);
+		glutAddSubMenu("Ball COM",com_submenu);
+
+
+
+		glutCreateMenu(NULL);
+		//glutCreateMenu(m_initPrm.menufunc);
+		//glutAddMenuEntry("Sensor Switch",0);
+		glutAddSubMenu("Auto Linkage",sub_menu);
+		glutAddSubMenu("Display Mode",sub_menu2);
+		glutAddSubMenu("Setup",sub_menu3);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
 
