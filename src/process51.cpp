@@ -127,7 +127,7 @@ CProcess::CProcess()
 	memset(mRectbak, 0, sizeof(mRectbak));
 
 	chooseDetect = 0;
-	forwardflag = backflag = 0;
+	forwardflag = backflag = false;
 }
 
 CProcess::~CProcess()
@@ -1465,8 +1465,6 @@ osdindex++;	//acqRect
 		if(Osdflag[osdindex]==1)
 		{
 			detect_num = detect_bak.size();
-			if(detect_num > 10)
-				detect_num =10;
 			for(i=0;i<detect_num;i++)
 			{	
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], detect_bak[i].targetRect,0);
@@ -1485,26 +1483,23 @@ osdindex++;	//acqRect
 
 			DrawMoveDetect = 1;
 			detect_bak = detect_vect;
-			if(detect_num > 10)
-				detect_num =10;
-
 			
+
 			if(forwardflag)
 			{
-				
-			
-				
+				if(++chooseDetect >= SAMPLE_NUMBER)
+					chooseDetect = 0;
+				forwardflag = 0;
 			}
 			else if(backflag)
-				chooseDetect = ;
+			{
+				if(--chooseDetect < 0)
+					chooseDetect = SAMPLE_NUMBER - 1;		
+				backflag = 0;
+			}
 			
 			for(i =0;i<detect_num;i++)
-			{
-				
-			
-
-
-			
+			{	
 				if( chooseDetect == i)
 					color = 5;
 				else
@@ -1518,15 +1513,13 @@ osdindex++;	//acqRect
 					FONT_HERSHEY_TRIPLEX,0.8,
 					cvScalar(255,255,0,255), 1
 					);
-			
-
 
 				random.x = detect_bak[i].targetRect.x;
 				random.y = detect_bak[i].targetRect.y;
 				random.h = detect_bak[i].targetRect.height;
 				random.w = detect_bak[i].targetRect.width;					
-			}		
-			
+			}	
+	
 			Osdflag[osdindex]=1;
 		}
 		else
@@ -2394,14 +2387,14 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			dynamic_config(VP_CFG_MvDetect, 1,NULL);
 			tmpCmd.MtdState[pIStuts->SensorStat] = 1;
 			app_ctrl_setMtdStat(&tmpCmd);
-			m_pMovDetector->mvOpen();	
+			m_pMovDetector->mvOpen(0);	
 		}
 		else
 		{
 			dynamic_config(VP_CFG_MvDetect, 0,NULL);
 			tmpCmd.MtdState[pIStuts->SensorStat] = 0;
 			app_ctrl_setMtdStat(&tmpCmd);
-			m_pMovDetector->mvClose();
+			m_pMovDetector->mvClose(0);
 		}
 	}
 	if(msgId == MSGID_EXT_INPUT_ALGOSDRECT)
