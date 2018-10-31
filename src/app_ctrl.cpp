@@ -202,9 +202,9 @@ void app_ctrl_setMtdStat(CMD_EXT * pInCmd)
 		return ;
 	CMD_EXT *pIStuts = msgextInCtrl;
 
-	if(pIStuts->MtdState[pIStuts->validChId] != pInCmd->MtdState[pIStuts->validChId])
+	if(pIStuts->MtdState[pIStuts->SensorStat] != pInCmd->MtdState[pIStuts->SensorStat])
 	{
-		pIStuts->MtdState[pIStuts->validChId] = pInCmd->MtdState[pIStuts->validChId];
+		pIStuts->MtdState[pIStuts->SensorStat] = pInCmd->MtdState[pIStuts->SensorStat];
 		MSGDRIV_send(MSGID_EXT_MVDETECT, 0);
 	}
 	return ;

@@ -376,16 +376,36 @@ void* recv_msg(SENDST *RS422)
 		case mtd:
 			memcpy(&Rmtd,RS422->param,sizeof(Rmtd));
 			imgID1 = Rmtd.ImgMtdStat;	
-			printf("recv mtd : imgID1 : %d\n",imgID1);
+			imgID2 = Rmtd.mtdMode;
+			printf("recv mtd : imgID1 : %d  , mode : %d \n",imgID1,imgID2);
 
 			if(imgID1 == 1){
-				pMsg->MtdState[pMsg->validChId] = ipc_eImgAlg_Enable;
+				pMsg->MtdState[pMsg->SensorStat] = ipc_eImgAlg_Enable;
 			}
 			else if(imgID1 == 0){
-				pMsg->MtdState[pMsg->validChId] = ipc_eImgAlg_Disable;
-			}	
+				pMsg->MtdState[pMsg->SensorStat] = ipc_eImgAlg_Disable;
+			}
+
+		
+
+
+
+
+			
+			
 			app_ctrl_setMtdStat(pMsg);
 			MSGAPI_msgsend(mtd);
+			break;
+
+		case mtdSelect:
+			memcpy(&Rmmtselect,RS422->param,sizeof(Rmmtselect));
+			imgID1 = Rmmtselect.ImgMmtSelect;
+
+		
+
+
+		
+			
 			break;
 
 		case sectrk:

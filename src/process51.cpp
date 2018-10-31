@@ -2381,7 +2381,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 
 	if(msgId == MSGID_EXT_MVDETECT)
 	{	
-		int Mtdstatus = (pIStuts->MtdState[pIStuts->validChId]&0x01) ;
+		int Mtdstatus = (pIStuts->MtdState[pIStuts->SensorStat]&0x01) ;
 		if(Mtdstatus)
 		{
 			dynamic_config(VP_CFG_MvDetect, 1,NULL);
@@ -2531,7 +2531,7 @@ void CProcess::MSGAPI_inpuenhance(long lParam )
 void CProcess::MSGAPI_setMtdState(long lParam )
 {
 	CMD_EXT *pIStuts = sThis->extInCtrl;
-	if(pIStuts->MtdState[pIStuts->validChId] == 0)
+	if(!pIStuts->MtdState[pIStuts->SensorStat] )
 	{
 		rectangle( sThis->m_display.m_imgOsd[sThis->extInCtrl->SensorStat],
 			Point( sThis->preWarnRect.x, sThis->preWarnRect.y ),
@@ -2539,7 +2539,7 @@ void CProcess::MSGAPI_setMtdState(long lParam )
 			cvScalar(0,0,0,0), 2, 8 );
 	}
 
-	//sThis->msgdriv_event(MSGID_EXT_MVDETECT,NULL);
+	sThis->msgdriv_event(MSGID_EXT_MVDETECT,NULL);
 }
 
 void CProcess::MSGAPI_setAimRefine(long lParam)

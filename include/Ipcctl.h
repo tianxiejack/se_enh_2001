@@ -24,6 +24,7 @@ typedef enum
     sectrk, /*3*/
     enh, /*4*/
     mtd, /*5*/
+    mtdSelect,
     trkdoor, /*6*/
     posmove, /*7*/
     zoom, /*8*/
@@ -181,10 +182,19 @@ typedef enum ipc_Dram_ImgAlg
 typedef enum ipc_Dram_MMTSelect
 {
 	ipc_eMMT_No     = 0x00,
-	ipc_eMMT_Next       = 0x01,
-	ipc_eMMT_Prev       = 0x02,
+	ipc_eMMT_Next   = 0x01,
+	ipc_eMMT_Prev   = 0x02,
 	ipc_eMMT_Select = 0x03,
 } ipc_eMMTSelect;
+
+
+typedef enum ipc_Dram_MtdSelect
+{
+	ipc_eMTD_No     = 0x00,
+	ipc_eMTD_Next   = 0x01,
+	ipc_eMTD_Prev   = 0x02,
+	ipc_eMTD_Select = 0x03,
+} ipc_eMtdSelect;
 
 typedef enum ipc_Dram_DispGradeStat
 {
@@ -291,6 +301,7 @@ typedef struct{
 
 typedef struct{
 	volatile unsigned char ImgMtdStat;// eImgAlgStat mtd 0:close 1:open
+	volatile unsigned char mtdMode;//0:auto-mode   1:manual-mode
 }CMD_MTD;
 
 typedef struct{
@@ -411,6 +422,8 @@ typedef struct{
 	unsigned int AimW;
 	unsigned int AimH;
 }AcqBoxWH;
+
+
 
 /** universal status **/
 typedef struct
