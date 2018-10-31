@@ -26,8 +26,11 @@ class CProcess : public CVideoProcess
 	DS_Rectmmt Mmtpos[5];
 	DS_Rect random;
 	char trkFPSDisplay[128];
+	char warnTargetIndex[8];
 	Osd_cvPoint debugBak;
 	char timedisplay[128];
+	unsigned char chooseDetect;
+	bool forwardflag,backflag;
 	
 public:
 	CProcess();

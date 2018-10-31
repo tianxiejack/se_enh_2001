@@ -125,6 +125,9 @@ CProcess::CProcess()
 	m_tempXbak = m_tempYbak = 0;
 	memset(m_rectnbak, 0, sizeof(m_rectnbak));
 	memset(mRectbak, 0, sizeof(mRectbak));
+
+	chooseDetect = 0;
+	forwardflag = backflag = 0;
 }
 
 CProcess::~CProcess()
@@ -1118,6 +1121,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	static int coastCnt = 1;
 	static int bDraw = 0;
 	//algOsdRect = 0;
+	int color = 0;
 
 	static int changesensorCnt = 0;
 
@@ -1461,30 +1465,75 @@ osdindex++;	//acqRect
 		if(Osdflag[osdindex]==1)
 		{
 			detect_num = detect_bak.size();
+			if(detect_num > 10)
+				detect_num =10;
 			for(i=0;i<detect_num;i++)
 			{	
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], detect_bak[i].targetRect,0);
+				sprintf(warnTargetIndex, "%d", detect_bak[i].index );
+				putText(m_display.m_imgOsd[extInCtrl->SensorStat],warnTargetIndex,
+					Point(detect_bak[i].targetRect.x, detect_bak[i].targetRect.y),
+					FONT_HERSHEY_TRIPLEX,0.8,
+					cvScalar(0,0,0,0), 1
+					);
 			}			
 			Osdflag[osdindex]=0;
 		}
 		if(m_bMoveDetect)
 		{
-			detect_num = detect_vect.size();		
+			detect_num = detect_vect.size();	
+
 			DrawMoveDetect = 1;
+			detect_bak = detect_vect;
+			if(detect_num > 10)
+				detect_num =10;
+
+			
+			if(forwardflag)
+			{
+				
+			
+				
+			}
+			else if(backflag)
+				chooseDetect = ;
+			
 			for(i =0;i<detect_num;i++)
 			{
-				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], detect_vect[i].targetRect,2);
-				random.x = detect_vect[i].targetRect.x;
-				random.y = detect_vect[i].targetRect.y;
-				random.h = detect_vect[i].targetRect.height;
-				random.w =detect_vect[i].targetRect.width;					
+				
+			
+
+
+			
+				if( chooseDetect == i)
+					color = 5;
+				else
+					color = 3;
+				
+				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], detect_bak[i].targetRect,color);
+
+				sprintf(warnTargetIndex, "%d", detect_bak[i].index );
+				putText(m_display.m_imgOsd[extInCtrl->SensorStat],warnTargetIndex,
+					Point(detect_bak[i].targetRect.x, detect_bak[i].targetRect.y),
+					FONT_HERSHEY_TRIPLEX,0.8,
+					cvScalar(255,255,0,255), 1
+					);
+			
+
+
+				random.x = detect_bak[i].targetRect.x;
+				random.y = detect_bak[i].targetRect.y;
+				random.h = detect_bak[i].targetRect.height;
+				random.w = detect_bak[i].targetRect.width;					
 			}		
-			detect_bak = detect_vect;
+			
 			Osdflag[osdindex]=1;
 		}
 		else
 			DrawMoveDetect = 0 ;
 	}
+
+
 #endif
 	center.x = vdisWH[extInCtrl->SensorStat][0]/2;
 	center.y = vdisWH[extInCtrl->SensorStat][1]/2;
@@ -1598,12 +1647,14 @@ void CProcess::OnKeyDwn(unsigned char key)
 
 	if (key == 'e' || key == 'E')
 	{
-		if(pIStuts->ImgEnhStat[pIStuts->SensorStat])
-			pIStuts->ImgEnhStat[pIStuts->SensorStat] = eImgAlg_Disable;
-		else
-			pIStuts->ImgEnhStat[pIStuts->SensorStat] = eImgAlg_Enable;
-		msgdriv_event(MSGID_EXT_INPUT_ENENHAN, NULL);
+		forwardflag = true;
 	}
+
+	if (key == 'f' || key == 'F')
+	{
+		backflag = true;
+	}
+		
 
 	if (key == 'k' || key == 'K')
 	{
@@ -1611,7 +1662,10 @@ void CProcess::OnKeyDwn(unsigned char key)
 		if(pIStuts->MtdState[pIStuts->SensorStat])
 			pIStuts->MtdState[pIStuts->SensorStat] = eImgAlg_Disable;
 		else
+		{
 			pIStuts->MtdState[pIStuts->SensorStat] = eImgAlg_Enable;
+			chooseDetect = 0;
+		}
 		msgdriv_event(MSGID_EXT_MVDETECT, NULL);
 		printf("pIStuts->MtdState[pIStuts->SensorStat]  = %d\n",pIStuts->MtdState[pIStuts->SensorStat] );
 	}
@@ -1673,22 +1727,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 
 	if (key == 'y'|| key == 'Y')
 	{		
-		if(moveDetectRect == true)
-		{
-			moveDetectRect = false;
-			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-				Point( preAcpSR.x, preAcpSR.y ),
-				Point( preAcpSR.x+preAcpSR.width, preAcpSR.y+preAcpSR.height),
-				cvScalar(0,0,0,0), 1, 8 );
 
-			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-				Point( preWarnRect.x, preWarnRect.y ),
-				Point( preWarnRect.x+preWarnRect.width, preWarnRect.y+preWarnRect.height),
-				cvScalar(0,0,0,0), 2, 8 );
-		}
-		else
-			moveDetectRect = true;
-		OSA_printf("moveDetectRect = %d\n",moveDetectRect);
 	}
 
 	

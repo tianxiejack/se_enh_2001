@@ -104,7 +104,6 @@ public :
 	//vector<Rect> Box;
 	bool moveStat;
 	bool algOsdRect;
-	bool moveDetectRect;
 	
 	bool TrkAim43;
 	bool wFileFlag;

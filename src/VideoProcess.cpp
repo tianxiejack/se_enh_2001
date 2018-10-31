@@ -285,11 +285,10 @@ void CVideoProcess::main_proc_func()
 		else if (bMoveDetect)
 		{
 		#if __MOVE_DETECT__
-				if(m_pMovDetector != NULL)
-				{
-					m_pMovDetector->setFrame(frame_gray,0,2,1000,50000,16);
-					printf("setFrame \n");
-				}
+			if(m_pMovDetector != NULL)
+			{
+				m_pMovDetector->setFrame(frame_gray,0,2,1000,50000,16);
+			}
 		#endif
 		}
 
@@ -522,7 +521,6 @@ int CVideoProcess::init()
 	OnInit();
 	prichnalid=1;//fir
 
-	moveDetectRect = false;
 
 #if __MOVE_DETECT__
 	initMvDetect();
@@ -586,7 +584,6 @@ int CVideoProcess::dynamic_config(int type, int iPrm, void* pPrm)
 		break;
 	case VP_CFG_MvDetect:
 		m_bMoveDetect = iPrm;
-		printf("m_bMoveDetect    = %d \n",m_bMoveDetect );
 		break;
 	default:
 		break;
@@ -1079,11 +1076,10 @@ void	CVideoProcess::initMvDetect()
 	{
 		//m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
 
-		m_pMovDetector->setDrawOSD(pThis->m_display.m_disOsd[1], i);
+		//m_pMovDetector->setDrawOSD(pThis->m_display.m_disOsd[1], i);
+		//m_pMovDetector->enableSelfDraw(true, i);
 
-		m_pMovDetector->enableSelfDraw(true, i);
-
-		m_pMovDetector->setWarnMode(WARN_MOVEDETECT_MODE, i);
+		m_pMovDetector->setWarnMode(WARN_WARN_MODE, i);
 	
 	} 
 }
@@ -1097,11 +1093,10 @@ void	CVideoProcess::DeInitMvDetect()
 void CVideoProcess::NotifyFunc(void *context, int chId)
 {
 	CVideoProcess *pParent = (CVideoProcess*)context;
-	//pThis->m_pMovDetector->getMoveTarget(pThis->detect_vect,0);	
-	printf("aaaaaaaaaaaaaaaaaaaaaaa\n");
+	pThis->m_pMovDetector->getMoveTarget(pThis->detect_vect,0);
 
-	pParent->m_display.m_bOsd = true;
-	pThis->m_display.UpDateOsd(1);
+	//pParent->m_display.m_bOsd = true;
+	//pThis->m_display.UpDateOsd(1);
 }
 #endif
 
