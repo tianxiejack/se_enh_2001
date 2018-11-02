@@ -30,11 +30,19 @@ void inputtmp(unsigned char cmdid)
 
 void getMmtTg(unsigned char index,int *x,int *y)
 {
-	int cur_x = 
 	*x = (int)plat->m_mtd[0]->tg[index].cur_x%vdisWH[plat->extInCtrl->SensorStat][0];
 	*y = (int)plat->m_mtd[0]->tg[index].cur_y%vdisWH[plat->extInCtrl->SensorStat][1];
-	return ;
 }
+
+#if __MOVE_DETECT__
+void getMtdxy(int *x,int *y,int *w,int *h)
+{
+	*x = plat->detect_bak[plat->chooseDetect].targetRect.x + plat->detect_bak[plat->chooseDetect].targetRect.width/2;
+	*y = plat->detect_bak[plat->chooseDetect].targetRect.y + plat->detect_bak[plat->chooseDetect].targetRect.height/2;
+	*w = plat->detect_bak[plat->chooseDetect].targetRect.width;
+	*h = plat->detect_bak[plat->chooseDetect].targetRect.height;
+}
+#endif
 
 CProcess::CProcess()
 {
@@ -125,8 +133,9 @@ CProcess::CProcess()
 	m_tempXbak = m_tempYbak = 0;
 	memset(m_rectnbak, 0, sizeof(m_rectnbak));
 	memset(mRectbak, 0, sizeof(mRectbak));
-
+#if __MOVE_DETECT__
 	chooseDetect = 0;
+#endif
 	forwardflag = backflag = false;
 }
 
@@ -1506,7 +1515,6 @@ osdindex++;	//acqRect
 					color = 3;
 				
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], detect_bak[i].targetRect,color);
-
 				sprintf(warnTargetIndex, "%d", detect_bak[i].index );
 				putText(m_display.m_imgOsd[extInCtrl->SensorStat],warnTargetIndex,
 					Point(detect_bak[i].targetRect.x, detect_bak[i].targetRect.y),
@@ -1517,9 +1525,9 @@ osdindex++;	//acqRect
 				random.x = detect_bak[i].targetRect.x;
 				random.y = detect_bak[i].targetRect.y;
 				random.h = detect_bak[i].targetRect.height;
-				random.w = detect_bak[i].targetRect.width;					
-			}	
-	
+				random.w = detect_bak[i].targetRect.width;			
+			}
+
 			Osdflag[osdindex]=1;
 		}
 		else
@@ -1651,15 +1659,17 @@ void CProcess::OnKeyDwn(unsigned char key)
 
 	if (key == 'k' || key == 'K')
 	{
-		
 		if(pIStuts->MtdState[pIStuts->SensorStat])
 			pIStuts->MtdState[pIStuts->SensorStat] = eImgAlg_Disable;
 		else
 		{
 			pIStuts->MtdState[pIStuts->SensorStat] = eImgAlg_Enable;
+#if __MOVE_DETECT__
 			chooseDetect = 0;
+#endif
 		}
 		msgdriv_event(MSGID_EXT_MVDETECT, NULL);
+
 		printf("pIStuts->MtdState[pIStuts->SensorStat]  = %d\n",pIStuts->MtdState[pIStuts->SensorStat] );
 	}
 
@@ -1918,7 +1928,9 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 
 			dynamic_config(VP_CFG_TrkEnable, 0);
 			pIStuts->AvtPosX[extInCtrl->SensorStat] = pIStuts->AxisPosX[extInCtrl->SensorStat];
-			pIStuts->AvtPosY[extInCtrl->SensorStat] = pIStuts->AxisPosY[extInCtrl->SensorStat];			
+			pIStuts->AvtPosY[extInCtrl->SensorStat] = pIStuts->AxisPosY[extInCtrl->SensorStat];	
+			pIStuts->AimW[pIStuts->SensorStat] = 60;
+			pIStuts->AimH[pIStuts->SensorStat] = 60;
 			if(DrawMoveDetect)
 				pIStuts->unitAimX =  random.x+random.w/2;
 			else
@@ -2378,7 +2390,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			}
 		}
 	}
-
+#if __MOVE_DETECT__
 	if(msgId == MSGID_EXT_MVDETECT)
 	{	
 		int Mtdstatus = (pIStuts->MtdState[pIStuts->SensorStat]&0x01) ;
@@ -2395,8 +2407,26 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			tmpCmd.MtdState[pIStuts->SensorStat] = 0;
 			app_ctrl_setMtdStat(&tmpCmd);
 			m_pMovDetector->mvClose(0);
+			chooseDetect = 0;
 		}
 	}
+	if(msgId == MSGID_EXT_MVDETECTSELECT)
+	{
+		int MtdSelect = (pIStuts->MtdSelect[pIStuts->SensorStat]);
+		if(ipc_eMTD_Next == MtdSelect)
+		{
+			forwardflag = true;
+		}
+		else if(ipc_eMTD_Prev == MtdSelect)
+		{
+			backflag = true;
+		}
+		else if(ipc_eMTD_Select == MtdSelect)
+		{
+
+		}
+	}
+#endif
 	if(msgId == MSGID_EXT_INPUT_ALGOSDRECT)
 	{
 	 	algOsdRect=pIStuts->Imgalgosdrect;
@@ -2436,8 +2466,8 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_MMTSHOW,             	MSGAPI_mmtshow,                 	     0);
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_FOVCMD,             	MSGAPI_FOVcmd,                 	     0);
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_CFGSAVE,             	MSGAPI_SaveCfgcmd,                 	     0);	
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECT,             		MSGAPI_setMtdState,                 	     0);	
-
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECT,             		MSGAPI_setMtdState,                 	     0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTSELECT,             		MSGAPI_setMtdSelect,                 	     0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_ALG,             		MSGAPI_update_alg,                 	     0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_OSD,             		MSGAPI_update_osd,                 	0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_CAMERA,             	MSGAPI_update_camera,              0);	
@@ -2541,7 +2571,12 @@ void CProcess::MSGAPI_setMtdState(long lParam )
 
 	sThis->msgdriv_event(MSGID_EXT_MVDETECT,NULL);
 }
+void CProcess::MSGAPI_setMtdSelect(long lParam )
+{
 
+	sThis->msgdriv_event(MSGID_EXT_MVDETECTSELECT,NULL);
+}
+	
 void CProcess::MSGAPI_setAimRefine(long lParam)
 {
 	CMD_EXT *pIStuts = sThis->extInCtrl;

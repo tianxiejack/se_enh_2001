@@ -29,7 +29,6 @@ class CProcess : public CVideoProcess
 	char warnTargetIndex[8];
 	Osd_cvPoint debugBak;
 	char timedisplay[128];
-	unsigned char chooseDetect;
 	bool forwardflag,backflag;
 	
 public:
@@ -110,6 +109,7 @@ protected:
 	 static void MSGAPI_update_alg(long IParam);
 	 static void MSGAPI_update_camera(long IParam);
 	 static void MSGAPI_input_algosdrect(long lParam);
+	 static void MSGAPI_setMtdSelect(long lParam );
 
 private:
 	ACK_EXT extOutAck;

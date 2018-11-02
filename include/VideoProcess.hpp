@@ -218,13 +218,14 @@ protected: //track
 #endif
 
 #if __MOVE_DETECT__
-		protected:
+public:
 		CMvDectInterface *m_pMovDetector;
 		void	initMvDetect();
 		void	DeInitMvDetect();
 		static void NotifyFunc(void *context, int chId);
 		std::vector<TRK_RECT_INFO> detect_vect;
 		std::vector<TRK_RECT_INFO> detect_bak;
+		unsigned char chooseDetect;
 #endif
 
 

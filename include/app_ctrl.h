@@ -25,6 +25,7 @@ unsigned char app_ctrl_getMtdStat();
 void  app_ctrl_getSysData(CMD_EXT * exthandle);
 void app_ctrl_setMmtSelect(CMD_EXT * pIStuts,unsigned char index);
 void app_ctrl_setMtdStat(CMD_EXT * pInCmd);
+void app_ctrl_setMtdSelect(CMD_EXT * pInCmd);
 void app_ctrl_setAcqRect(CMD_EXT * pInCmd);
 void app_ctrl_setBoresightPos(CMD_EXT * pInCmd);
 void app_ctrl_setalgosdrect(CMD_EXT * pInCmd);

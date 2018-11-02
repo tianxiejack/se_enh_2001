@@ -10,6 +10,9 @@ CMD_EXT *msgextInCtrl;
 
 static int pristatus=0;
 void getMmtTg(unsigned char index,int *x,int *y);
+#if __MOVE_DETECT__
+void getMtdxy(int *x,int *y,int *w,int *h);
+#endif
 
 
 void  app_ctrl_getSysData(CMD_EXT * exthandle)
@@ -39,6 +42,8 @@ void app_ctrl_setTrkStat(CMD_EXT * pInCmd)
 		{
 			pIStuts->AvtPosX[pIStuts->SensorStat] = pInCmd->AvtPosX[pIStuts->SensorStat];
 			pIStuts->AvtPosY[pIStuts->SensorStat] = pInCmd->AvtPosY[pIStuts->SensorStat];
+			pIStuts->AimW[pIStuts->SensorStat] = pInCmd->AimW[pIStuts->SensorStat];
+			pIStuts->AimH[pIStuts->SensorStat] = pInCmd->AimH[pIStuts->SensorStat];
 		}
 		
 		if(pInCmd->AvtTrkStat == eTrk_mode_acq)
@@ -86,7 +91,7 @@ void app_ctrl_setAimPos(CMD_EXT * pInCmd)
 		pIStuts->AvtPosY[pIStuts->SensorStat]!= pInCmd->AvtPosY[pIStuts->SensorStat] )
 	{
 		pIStuts->AvtPosX[pIStuts->SensorStat] = pInCmd->AvtPosX[pIStuts->SensorStat];
-		pIStuts->AvtPosY[pIStuts->SensorStat] = pInCmd->AvtPosY[pIStuts->SensorStat];		
+		pIStuts->AvtPosY[pIStuts->SensorStat] = pInCmd->AvtPosY[pIStuts->SensorStat];	
 	}
 	return ;
 }
@@ -195,13 +200,12 @@ void app_ctrl_setBoresightPos(CMD_EXT * pInCmd)
 }
 
 
-
+#if __MOVE_DETECT__
 void app_ctrl_setMtdStat(CMD_EXT * pInCmd)
 {
 	if(msgextInCtrl==NULL)
 		return ;
 	CMD_EXT *pIStuts = msgextInCtrl;
-
 	if(pIStuts->MtdState[pIStuts->SensorStat] != pInCmd->MtdState[pIStuts->SensorStat])
 	{
 		pIStuts->MtdState[pIStuts->SensorStat] = pInCmd->MtdState[pIStuts->SensorStat];
@@ -210,6 +214,40 @@ void app_ctrl_setMtdStat(CMD_EXT * pInCmd)
 	return ;
 }
 
+void app_ctrl_setMtdSelect(CMD_EXT * pInCmd)
+{
+	CMD_EXT pMsg;
+	memset(&pMsg,0,sizeof(CMD_EXT));
+	
+	if(msgextInCtrl==NULL)
+		return ;
+	CMD_EXT *pIStuts = msgextInCtrl;
+	
+	if(2 == pInCmd->MtdSelect[pInCmd->SensorStat] || 1 == pInCmd->MtdSelect[pInCmd->SensorStat])
+	{
+		if(eImgAlg_Enable == pIStuts->MtdState[pIStuts->SensorStat])
+		{
+			pIStuts->MtdSelect[pIStuts->SensorStat] = pInCmd->MtdSelect[pIStuts->SensorStat];
+			MSGDRIV_send(MSGID_EXT_MVDETECTSELECT, 0);
+		}
+	}
+	else if(3 == pInCmd->MtdSelect[pInCmd->SensorStat])
+	{
+		int curx,cury,curw,curh;
+		getMtdxy(&curx, &cury, &curw, &curh);
+		pMsg.AvtTrkStat =eTrk_mode_sectrk;
+		pMsg.AvtPosX[pIStuts->SensorStat]  = curx;
+		pMsg.AvtPosY[pIStuts->SensorStat]  = cury;
+		pMsg.AimW[pIStuts->SensorStat]  = curw;
+		pMsg.AimH[pIStuts->SensorStat]  = curh;
+		app_ctrl_setTrkStat(&pMsg);//track
+
+		pMsg.MtdState[pMsg.SensorStat] = eImgAlg_Disable;
+		app_ctrl_setMtdStat(&pMsg);//close
+	}
+	return ;
+}
+#endif
 
 unsigned char app_ctrl_getMtdStat()
 {

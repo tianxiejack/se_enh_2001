@@ -228,6 +228,7 @@ typedef struct
 	volatile unsigned char  Mmttargetnum; 			
 
 	volatile unsigned char  MtdState[eSen_Max];	//record moving obj detect state of each channel
+	volatile unsigned int  MtdSelect[eSen_Max];
 	
 	/***** cmd osd part *****/
 	volatile unsigned int  DispGrp[eSen_Max];       	// eDispGrade
@@ -317,6 +318,7 @@ typedef enum
     MSGID_EXT_UPDATE_ALG,
     MSGID_EXT_UPDATE_CAMERA,
     MSGID_EXT_MVDETECT,
+    MSGID_EXT_MVDETECTSELECT
 }MSG_PROC_ID;
 
 typedef struct

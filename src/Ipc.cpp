@@ -372,7 +372,7 @@ void* recv_msg(SENDST *RS422)
 			app_ctrl_setEnhance(pMsg);
 			MSGAPI_msgsend(enh);
 			break;
-
+#if __MOVE_DETECT__
 		case mtd:
 			memcpy(&Rmtd,RS422->param,sizeof(Rmtd));
 			imgID1 = Rmtd.ImgMtdStat;	
@@ -385,29 +385,16 @@ void* recv_msg(SENDST *RS422)
 			else if(imgID1 == 0){
 				pMsg->MtdState[pMsg->SensorStat] = ipc_eImgAlg_Disable;
 			}
-
-		
-
-
-
-
-			
-			
 			app_ctrl_setMtdStat(pMsg);
 			MSGAPI_msgsend(mtd);
 			break;
 
 		case mtdSelect:
 			memcpy(&Rmmtselect,RS422->param,sizeof(Rmmtselect));
-			imgID1 = Rmmtselect.ImgMmtSelect;
-
-		
-
-
-		
-			
+			pMsg->MtdSelect[pMsg->SensorStat] = Rmmtselect.ImgMmtSelect;
+			app_ctrl_setMtdSelect(pMsg);		
 			break;
-
+#endif
 		case sectrk:
 			memcpy(&Rsectrk,RS422->param,sizeof(Rsectrk));
 			imgID1 = Rsectrk.SecAcqStat;

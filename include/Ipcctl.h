@@ -514,7 +514,7 @@ typedef struct
 	volatile unsigned char  Mmttargetnum; 			
 
 	volatile unsigned char  MtdState[ipc_eSen_Max];	//record moving obj detect state of each channel
-
+	volatile unsigned int  MtdSelect[ipc_eSen_Max];
 	/***** cmd osd part *****/
 	volatile unsigned int  DispGrp[ipc_eSen_Max];       	// eDispGrade
 	volatile unsigned int  DispColor[ipc_eSen_Max];  	// eOSDColor or eGRPColor
