@@ -235,6 +235,7 @@ void app_ctrl_setMtdSelect(CMD_EXT * pInCmd)
 	{
 		int curx,cury,curw,curh;
 		getMtdxy(&curx, &cury, &curw, &curh);
+				
 		pMsg.AvtTrkStat =eTrk_mode_sectrk;
 		pMsg.AvtPosX[pIStuts->SensorStat]  = curx;
 		pMsg.AvtPosY[pIStuts->SensorStat]  = cury;

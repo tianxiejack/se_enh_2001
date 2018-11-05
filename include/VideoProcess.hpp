@@ -225,7 +225,7 @@ public:
 		static void NotifyFunc(void *context, int chId);
 		std::vector<TRK_RECT_INFO> detect_vect;
 		std::vector<TRK_RECT_INFO> detect_bak;
-		unsigned char chooseDetect;
+		char chooseDetect;
 #endif
 
 
