@@ -1122,17 +1122,14 @@ void CProcess::mvIndexHandle(std::list <TRK_RECT_INFO> &mvList,std::vector<TRK_R
 {	
 	int tmpIndex , i;
 	
-
+	if(mvList.size() > detectNum)
+		mvList.resize(detectNum);
+	
 	if(!mvList.empty())
 	{	
-		int tmpNum;
-		tmpNum = mvList.size() < detectNum ? mvList.size():detectNum;
 		i = 0;
-		for( std::list<TRK_RECT_INFO>::iterator it = mvList.begin(); it != mvList.end() ; ++it)
+		for( std::list<TRK_RECT_INFO>::iterator it = mvList.begin(); it !=  mvList.begin() ; ++it)
 		{
-			if(++i >= tmpNum)
-				break;
-			
 			tmpIndex = (*it).index;
 
 			for(vector<TRK_RECT_INFO>::iterator iter = detect.begin();iter != detect.end();iter++)
@@ -1155,7 +1152,6 @@ void CProcess::mvIndexHandle(std::list <TRK_RECT_INFO> &mvList,std::vector<TRK_R
 		{	
 			mvList.push_back(detect.at(i++));		
 		}	
-
 	}
 	else
 	{
@@ -1166,7 +1162,7 @@ void CProcess::mvIndexHandle(std::list <TRK_RECT_INFO> &mvList,std::vector<TRK_R
 			mvList.push_back(detect.at(i));
 		}
 	}
-
+	
 }
 
 bool CProcess::OnProcess(int chId, Mat &frame)
@@ -1176,7 +1172,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	int starty=0;
 	int endx=0;
 	int endy=0;
-	int detect_num = 0,i;
+	int i;
 	cv::Rect recIn;
 	static int coastCnt = 1;
 	static int bDraw = 0;
@@ -1528,59 +1524,74 @@ osdindex++;	//acqRect
 				Point( preWarnRect.x, preWarnRect.y ),
 				Point( preWarnRect.x + preWarnRect.width, preWarnRect.y + preWarnRect.height),
 				cvScalar(0,0,0,0), 2, 8 );
+				
+			for(std::list<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
+			{		
+				//DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,0);
+			}
 			
-			detect_num = detect_bak.size();
-			for(i=0;i<detect_num;i++)
-			{	
-				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], detect_bak[i].targetRect,0);
-				#if 0
-					sprintf(warnTargetIndex, "%d", detect_bak[i].index );
-					putText(m_display.m_imgOsd[extInCtrl->SensorStat],warnTargetIndex,
-						Point(detect_bak[i].targetRect.x, detect_bak[i].targetRect.y),
-						FONT_HERSHEY_TRIPLEX,0.8,
-						cvScalar(0,0,0,0), 1
-						);
-				#endif
-			}			
 			Osdflag[osdindex]=0;
 		}
-
 		
 		if(m_bMoveDetect)
 		{
-			
 			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
 				Point( preWarnRect.x, preWarnRect.y ),
 				Point( preWarnRect.x + preWarnRect.width, preWarnRect.y + preWarnRect.height),
 				cvScalar(0,0,255,255), 2, 8 );
 								
-			detect_num = detect_vect.size();	
-
 			detect_bak = detect_vect;
+#if 1
+			printf("************detect_bak*********start *******************\n");
 			
-			mvIndexHandle(mvList,detect_bak,detect_num);
+			for(std::vector<TRK_RECT_INFO>::iterator plist = detect_bak.begin(); plist != detect_bak.end(); ++plist)
+			{
+				cout<<"index" << (*plist).index << endl;
+				printf(" x,y,width,height = %d,%d,%d,%d \n",
+					(*plist).targetRect.x,(*plist).targetRect.y,(*plist).targetRect.width,(*plist).targetRect.height);
+			}
+			printf("________detect_bak_________end_____________________\n");
+#endif
+
+	
 			
+		//	mvIndexHandle(mvList,detect_bak,detectNum);
+
+	#if 0
+	printf("**************mvList*******start *******************\n");
+
+	for(std::list<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
+	{
+		cout<<"index" << (*plist).index << endl;
+		printf(" x,y,width,height = %d,%d,%d,%d \n",
+			(*plist).targetRect.x,(*plist).targetRect.y,(*plist).targetRect.width,(*plist).targetRect.height);
+	}
+	printf("_______mvList__________end_____________________\n");
+	#endif
+	
 			if(forwardflag)
 			{
-				if(++chooseDetect >= mvList.size())
+				if(++chooseDetect > mvList.size())
 					chooseDetect = 0;
 				forwardflag = 0;
 			}
 			else if(backflag)
 			{
-				if(--chooseDetect < 0)
-					chooseDetect = detect_num - 1;		
+				if( --chooseDetect < 0)
+				{
+					chooseDetect = mvList.size() - 1;		
+				}
 				backflag = 0;
 			}
-			
-			for(std::list<TRK_RECT_INFO>::iterator plist = mvList.begin(); i < mvList.size(); ++i)
+			char tmpNum = 0;	
+			for(std::list<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
-				if( chooseDetect == i)
+				if( chooseDetect == tmpNum++)
 					color = 5;
 				else
 					color = 3;
 				
-				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,color);
+			//	DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,color);
 
 				#if 0
 					sprintf(warnTargetIndex, "%d", mvList[i].index );
@@ -1590,7 +1601,6 @@ osdindex++;	//acqRect
 						cvScalar(255,255,0,255), 1
 						);
 				#endif
-
 			}
 
 			Osdflag[osdindex]=1;

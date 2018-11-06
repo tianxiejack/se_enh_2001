@@ -227,6 +227,7 @@ public:
 		std::vector<TRK_RECT_INFO> detect_vect;
 		std::vector<TRK_RECT_INFO> detect_bak;
 		std::list<TRK_RECT_INFO> mvList;
+		std::list<TRK_RECT_INFO> mvList_bak;
 		int detectNum;
 		char chooseDetect;
 #endif
