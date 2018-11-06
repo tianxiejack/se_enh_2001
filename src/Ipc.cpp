@@ -392,7 +392,11 @@ void* recv_msg(SENDST *RS422)
 		case mtdSelect:
 			memcpy(&Rmmtselect,RS422->param,sizeof(Rmmtselect));
 			pMsg->MtdSelect[pMsg->SensorStat] = Rmmtselect.ImgMmtSelect;
-			app_ctrl_setMtdSelect(pMsg);		
+			app_ctrl_setMtdSelect(pMsg);
+			if(ipc_eMMT_Select == Rmmtselect.ImgMmtSelect)
+			{
+				MSGAPI_msgsend(mtd);
+			}
 			break;
 #endif
 		case sectrk:
