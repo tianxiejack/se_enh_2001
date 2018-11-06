@@ -1070,6 +1070,14 @@ void	CVideoProcess::initMvDetect()
 	polyWarnRoi[1]	= cv::Point(1820,100);
 	polyWarnRoi[2]	= cv::Point(1820,980);
 	polyWarnRoi[3]	= cv::Point(100,980);
+
+
+	preWarnRect.x = 0;//polyWarnRoi[0].x;
+	preWarnRect.y = 0;//polyWarnRoi[0].y;
+	preWarnRect.width = 1920;//polyWarnRoi[2].x - polyWarnRoi[0].x;
+	preWarnRect.height = 1080;//polyWarnRoi[2].y - polyWarnRoi[0].y;
+
+	
 	for(i=0; i<DETECTOR_NUM; i++)
 	{
 		//m_pMovDetector->setWarningRoi(polyWarnRoi,	i);

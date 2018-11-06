@@ -1473,6 +1473,11 @@ osdindex++;	//acqRect
 	{
 		if(Osdflag[osdindex]==1)
 		{
+			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
+				Point( preWarnRect.x, preWarnRect.y ),
+				Point( preWarnRect.x + preWarnRect.width, preWarnRect.y + preWarnRect.height),
+				cvScalar(0,0,0,0), 2, 8 );
+			
 			detect_num = detect_bak.size();
 			for(i=0;i<detect_num;i++)
 			{	
@@ -1486,8 +1491,19 @@ osdindex++;	//acqRect
 			}			
 			Osdflag[osdindex]=0;
 		}
+
+		
 		if(m_bMoveDetect)
 		{
+			
+			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
+				Point( preWarnRect.x, preWarnRect.y ),
+				Point( preWarnRect.x + preWarnRect.width, preWarnRect.y + preWarnRect.height),
+				cvScalar(0,0,255,255), 2, 8 );
+			
+			printf(" x,y  = %d,%d \n",preWarnRect.x, preWarnRect.y);
+			printf(" width,height  = %d,%d \n",preWarnRect.width, preWarnRect.height);
+					
 			detect_num = detect_vect.size();	
 
 			DrawMoveDetect = 1;
@@ -2560,15 +2576,6 @@ void CProcess::MSGAPI_inpuenhance(long lParam )
 
 void CProcess::MSGAPI_setMtdState(long lParam )
 {
-	CMD_EXT *pIStuts = sThis->extInCtrl;
-	if(!pIStuts->MtdState[pIStuts->SensorStat] )
-	{
-		rectangle( sThis->m_display.m_imgOsd[sThis->extInCtrl->SensorStat],
-			Point( sThis->preWarnRect.x, sThis->preWarnRect.y ),
-			Point( sThis->preWarnRect.x+sThis->preWarnRect.width, sThis->preWarnRect.y+sThis->preWarnRect.height),
-			cvScalar(0,0,0,0), 2, 8 );
-	}
-
 	sThis->msgdriv_event(MSGID_EXT_MVDETECT,NULL);
 }
 void CProcess::MSGAPI_setMtdSelect(long lParam )
