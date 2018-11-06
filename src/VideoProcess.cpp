@@ -355,6 +355,7 @@ CVideoProcess::CVideoProcess()
 #if __MMT__
 	memset(m_tgtBox, 0, sizeof(TARGETBOX)*MAX_TARGET_NUMBER);
 #endif
+	detectNum = 10;
 }
 
 CVideoProcess::~CVideoProcess()
@@ -1072,15 +1073,15 @@ void	CVideoProcess::initMvDetect()
 	polyWarnRoi[3]	= cv::Point(100,980);
 
 
-	preWarnRect.x = 0;//polyWarnRoi[0].x;
-	preWarnRect.y = 0;//polyWarnRoi[0].y;
-	preWarnRect.width = 1920;//polyWarnRoi[2].x - polyWarnRoi[0].x;
-	preWarnRect.height = 1080;//polyWarnRoi[2].y - polyWarnRoi[0].y;
+	preWarnRect.x = polyWarnRoi[0].x;
+	preWarnRect.y = polyWarnRoi[0].y;
+	preWarnRect.width = polyWarnRoi[2].x - polyWarnRoi[0].x;
+	preWarnRect.height = polyWarnRoi[2].y - polyWarnRoi[0].y;
 
 	
 	for(i=0; i<DETECTOR_NUM; i++)
 	{
-		//m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
+		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
 
 		//m_pMovDetector->setDrawOSD(pThis->m_display.m_disOsd[1], i);
 		//m_pMovDetector->enableSelfDraw(true, i);

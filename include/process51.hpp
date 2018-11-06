@@ -24,7 +24,6 @@ class CProcess : public CVideoProcess
 	int prisensorstatus;
 	int Fovpri[2];
 	DS_Rectmmt Mmtpos[5];
-	DS_Rect random;
 	char trkFPSDisplay[128];
 	char warnTargetIndex[8];
 	Osd_cvPoint debugBak;
@@ -141,7 +140,8 @@ private:
 	void initAcqRect();
 	void initAimRect();
 	void set_trktype(CMD_EXT *p, unsigned int stat);
-
+	
+	void mvIndexHandle(std::list <TRK_RECT_INFO> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum);
 public:
 	void update_param_alg();
 	void update_param_osd();

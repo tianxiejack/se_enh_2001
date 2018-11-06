@@ -17,7 +17,6 @@ OSDSTATUS gConfig_Osd_param = {0};
 UTCTRKSTATUS gConfig_Alg_param = {0};
 extern int ScalerLarge,ScalerMid,ScalerSmall;
 CProcess * CProcess::sThis = NULL;
-static bool DrawMoveDetect = 0;
 CProcess* plat = NULL;
 int glosttime = 3000;
 
@@ -1118,6 +1117,58 @@ void CProcess::DrawdashRect(int startx,int starty,int endx,int endy,int colour)
 	drawdashlinepri(m_display.m_imgOsd[extInCtrl->SensorStat],startx,starty,startx,endy,dashlen,dashlen,colour);
 }
 
+
+void CProcess::mvIndexHandle(std::list <TRK_RECT_INFO> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum)
+{	
+	int tmpIndex , i;
+	
+
+	if(!mvList.empty())
+	{	
+		int tmpNum;
+		tmpNum = mvList.size() < detectNum ? mvList.size():detectNum;
+		i = 0;
+		for( std::list<TRK_RECT_INFO>::iterator it = mvList.begin(); it != mvList.end() ; ++it)
+		{
+			if(++i >= tmpNum)
+				break;
+			
+			tmpIndex = (*it).index;
+
+			for(vector<TRK_RECT_INFO>::iterator iter = detect.begin();iter != detect.end();iter++)
+			{
+				if(tmpIndex == (*iter).index)
+				{
+					detect.erase(iter);
+					break;
+				}
+
+				if(iter == detect.end() - 1)
+				{
+					mvList.erase(it);
+				}
+			}	
+		}
+	
+		i = 0;
+		while(mvList.size() < detectNum)
+		{	
+			mvList.push_back(detect.at(i++));		
+		}	
+
+	}
+	else
+	{
+		int tmpnum ;
+		tmpnum = detect.size() < detectNum ? detect.size() : detectNum ;
+		for(i =0 ; i < tmpnum ; i++)
+		{
+			mvList.push_back(detect.at(i));
+		}
+	}
+
+}
+
 bool CProcess::OnProcess(int chId, Mat &frame)
 {
 	int frcolor= extInCtrl->osdDrawColor;
@@ -1482,12 +1533,14 @@ osdindex++;	//acqRect
 			for(i=0;i<detect_num;i++)
 			{	
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], detect_bak[i].targetRect,0);
-				sprintf(warnTargetIndex, "%d", detect_bak[i].index );
-				putText(m_display.m_imgOsd[extInCtrl->SensorStat],warnTargetIndex,
-					Point(detect_bak[i].targetRect.x, detect_bak[i].targetRect.y),
-					FONT_HERSHEY_TRIPLEX,0.8,
-					cvScalar(0,0,0,0), 1
-					);
+				#if 0
+					sprintf(warnTargetIndex, "%d", detect_bak[i].index );
+					putText(m_display.m_imgOsd[extInCtrl->SensorStat],warnTargetIndex,
+						Point(detect_bak[i].targetRect.x, detect_bak[i].targetRect.y),
+						FONT_HERSHEY_TRIPLEX,0.8,
+						cvScalar(0,0,0,0), 1
+						);
+				#endif
 			}			
 			Osdflag[osdindex]=0;
 		}
@@ -1500,54 +1553,48 @@ osdindex++;	//acqRect
 				Point( preWarnRect.x, preWarnRect.y ),
 				Point( preWarnRect.x + preWarnRect.width, preWarnRect.y + preWarnRect.height),
 				cvScalar(0,0,255,255), 2, 8 );
-			
-			printf(" x,y  = %d,%d \n",preWarnRect.x, preWarnRect.y);
-			printf(" width,height  = %d,%d \n",preWarnRect.width, preWarnRect.height);
-					
+								
 			detect_num = detect_vect.size();	
 
-			DrawMoveDetect = 1;
 			detect_bak = detect_vect;
 			
-
+			mvIndexHandle(mvList,detect_bak,detect_num);
+			
 			if(forwardflag)
 			{
-				if(++chooseDetect >= SAMPLE_NUMBER)
+				if(++chooseDetect >= mvList.size())
 					chooseDetect = 0;
 				forwardflag = 0;
 			}
 			else if(backflag)
 			{
 				if(--chooseDetect < 0)
-					chooseDetect = SAMPLE_NUMBER - 1;		
+					chooseDetect = detect_num - 1;		
 				backflag = 0;
 			}
 			
-			for(i =0;i<detect_num;i++)
+			for(std::list<TRK_RECT_INFO>::iterator plist = mvList.begin(); i < mvList.size(); ++i)
 			{	
 				if( chooseDetect == i)
 					color = 5;
 				else
 					color = 3;
 				
-				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], detect_bak[i].targetRect,color);
-				sprintf(warnTargetIndex, "%d", detect_bak[i].index );
-				putText(m_display.m_imgOsd[extInCtrl->SensorStat],warnTargetIndex,
-					Point(detect_bak[i].targetRect.x, detect_bak[i].targetRect.y),
-					FONT_HERSHEY_TRIPLEX,0.8,
-					cvScalar(255,255,0,255), 1
-					);
+				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,color);
 
-				random.x = detect_bak[i].targetRect.x;
-				random.y = detect_bak[i].targetRect.y;
-				random.h = detect_bak[i].targetRect.height;
-				random.w = detect_bak[i].targetRect.width;			
+				#if 0
+					sprintf(warnTargetIndex, "%d", mvList[i].index );
+					putText(m_display.m_imgOsd[extInCtrl->SensorStat],warnTargetIndex,
+						Point(detect_bak[i].targetRect.x, detect_bak[i].targetRect.y),
+						FONT_HERSHEY_TRIPLEX,0.8,
+						cvScalar(255,255,0,255), 1
+						);
+				#endif
+
 			}
 
 			Osdflag[osdindex]=1;
 		}
-		else
-			DrawMoveDetect = 0 ;
 	}
 
 
@@ -1947,18 +1994,14 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			pIStuts->AvtPosY[extInCtrl->SensorStat] = pIStuts->AxisPosY[extInCtrl->SensorStat];	
 			pIStuts->AimW[pIStuts->SensorStat] = 60;
 			pIStuts->AimH[pIStuts->SensorStat] = 60;
-			if(DrawMoveDetect)
-				pIStuts->unitAimX =  random.x+random.w/2;
-			else
-				pIStuts->unitAimX = pIStuts->AvtPosX[extInCtrl->SensorStat] ;
+			
+			pIStuts->unitAimX = pIStuts->AvtPosX[extInCtrl->SensorStat] ;
 			if(pIStuts->unitAimX < 0)
 			{
 				pIStuts->unitAimX = 0;
 			}
-			if(DrawMoveDetect)
-				pIStuts->unitAimY = random.y+random.h/2;
-			else
-				pIStuts->unitAimY = pIStuts->AvtPosY[extInCtrl->SensorStat];
+
+			pIStuts->unitAimY = pIStuts->AvtPosY[extInCtrl->SensorStat];
 
 			if(pIStuts->unitAimY<0)
 			{

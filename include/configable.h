@@ -2,14 +2,10 @@
 #ifndef CONFIG_ABLE_H__
 #define CONFIG_ABLE_H__
 
-#define AXIS_FILE		"AxisFile.yml"
-
 #define AIM_WIDTH					64
 #define AIM_HEIGHT					64
 
 #define AVT_TRK_AIM_SIZE			2
-
-
 
 
 enum devvideo{
