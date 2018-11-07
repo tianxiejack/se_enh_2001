@@ -141,7 +141,7 @@ private:
 	void initAimRect();
 	void set_trktype(CMD_EXT *p, unsigned int stat);
 	
-	void mvIndexHandle(std::list <TRK_RECT_INFO> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum);
+	void mvIndexHandle(std::vector<TRK_RECT_INFO> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum);
 public:
 	void update_param_alg();
 	void update_param_osd();

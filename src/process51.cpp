@@ -237,23 +237,6 @@ float  CProcess::PiexltoWindowsxf(float x,int channel)
 	  return ret;
 }
 
-float  CProcess::PiexltoWindowsyf(float y,int channel)
-{
-	 float ret=0;
-	 ret= (y*1.0/vcapWH[channel][1]*vdisWH[channel][1]);
-
-	  if(ret<0)
- 	{
-		ret=0;
- 	}
-	 else if(ret>=vdisWH[channel][1])
- 	{
-		ret=vdisWH[channel][1];
- 	}
-	
-	return  ret;
-}
-
 
 int  CProcess::PiexltoWindowsxzoom(int x,int channel)
 {
@@ -1118,49 +1101,57 @@ void CProcess::DrawdashRect(int startx,int starty,int endx,int endy,int colour)
 }
 
 
-void CProcess::mvIndexHandle(std::list <TRK_RECT_INFO> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum)
+void CProcess::mvIndexHandle(std::vector<TRK_RECT_INFO> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum)
 {	
-	int tmpIndex , i;
-	
-	if(mvList.size() > detectNum)
-		mvList.resize(detectNum);
+	int tmpIndex , i ;
+	bool flag;
 	
 	if(!mvList.empty())
 	{	
 		i = 0;
-		for( std::list<TRK_RECT_INFO>::iterator it = mvList.begin(); it !=  mvList.begin() ; ++it)
+		std::vector<TRK_RECT_INFO>::iterator pMvList = mvList.begin();
+		
+		for( ; pMvList !=  mvList.end(); )
 		{
-			tmpIndex = (*it).index;
+			tmpIndex = (*pMvList).index;
 
-			for(vector<TRK_RECT_INFO>::iterator iter = detect.begin();iter != detect.end();iter++)
+			flag = 0;
+			std::vector<TRK_RECT_INFO>::iterator pDetect = detect.begin();
+			for( ; pDetect != detect.end(); )
 			{
-				if(tmpIndex == (*iter).index)
+				if( tmpIndex == (*pDetect).index )
 				{
-					detect.erase(iter);
+					mvList.erase(pMvList);
+					mvList.insert(pMvList,*pDetect);					
+					
+					detect.erase(pDetect);
+					flag = 1;
 					break;
 				}
-
-				if(iter == detect.end() - 1)
-				{
-					mvList.erase(it);
-				}
+				else
+					++pDetect;
 			}	
+
+			if(!flag)
+				mvList.erase(pMvList);
+			else
+				++pMvList;
+		
 		}
-	
+
 		i = 0;
-		while(mvList.size() < detectNum)
+		while(detect.size() > 0)
 		{	
-			mvList.push_back(detect.at(i++));		
+			if(mvList.size() >= detectNum)
+				break ;
+			mvList.push_back(detect[i++]);		
 		}	
 	}
 	else
 	{
-		int tmpnum ;
-		tmpnum = detect.size() < detectNum ? detect.size() : detectNum ;
+		int tmpnum = detect.size() < detectNum ? detect.size() : detectNum ;
 		for(i =0 ; i < tmpnum ; i++)
-		{
 			mvList.push_back(detect.at(i));
-		}
 	}
 	
 }
@@ -1525,9 +1516,9 @@ osdindex++;	//acqRect
 				Point( preWarnRect.x + preWarnRect.width, preWarnRect.y + preWarnRect.height),
 				cvScalar(0,0,0,0), 2, 8 );
 				
-			for(std::list<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
+			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{		
-				//DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,0);
+				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,0);
 			}
 			
 			Osdflag[osdindex]=0;
@@ -1541,66 +1532,36 @@ osdindex++;	//acqRect
 				cvScalar(0,0,255,255), 2, 8 );
 								
 			detect_bak = detect_vect;
-#if 1
-			printf("************detect_bak*********start *******************\n");
 			
-			for(std::vector<TRK_RECT_INFO>::iterator plist = detect_bak.begin(); plist != detect_bak.end(); ++plist)
-			{
-				cout<<"index" << (*plist).index << endl;
-				printf(" x,y,width,height = %d,%d,%d,%d \n",
-					(*plist).targetRect.x,(*plist).targetRect.y,(*plist).targetRect.width,(*plist).targetRect.height);
-			}
-			printf("________detect_bak_________end_____________________\n");
-#endif
-
-	
-			
-		//	mvIndexHandle(mvList,detect_bak,detectNum);
-
-	#if 0
-	printf("**************mvList*******start *******************\n");
-
-	for(std::list<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
-	{
-		cout<<"index" << (*plist).index << endl;
-		printf(" x,y,width,height = %d,%d,%d,%d \n",
-			(*plist).targetRect.x,(*plist).targetRect.y,(*plist).targetRect.width,(*plist).targetRect.height);
-	}
-	printf("_______mvList__________end_____________________\n");
-	#endif
+			mvIndexHandle(mvList,detect_bak,detectNum);
 	
 			if(forwardflag)
 			{
 				if(++chooseDetect > mvList.size())
 					chooseDetect = 0;
+				
 				forwardflag = 0;
 			}
 			else if(backflag)
 			{
 				if( --chooseDetect < 0)
-				{
-					chooseDetect = mvList.size() - 1;		
-				}
+					chooseDetect = mvList.size()-1;		
+					
+				if(chooseDetect > mvList.size())
+					chooseDetect = mvList.size()-1 ;
+				
 				backflag = 0;
 			}
 			char tmpNum = 0;	
-			for(std::list<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
+			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
 				if( chooseDetect == tmpNum++)
 					color = 5;
 				else
 					color = 3;
 				
-			//	DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,color);
+				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,color);
 
-				#if 0
-					sprintf(warnTargetIndex, "%d", mvList[i].index );
-					putText(m_display.m_imgOsd[extInCtrl->SensorStat],warnTargetIndex,
-						Point(detect_bak[i].targetRect.x, detect_bak[i].targetRect.y),
-						FONT_HERSHEY_TRIPLEX,0.8,
-						cvScalar(255,255,0,255), 1
-						);
-				#endif
 			}
 
 			Osdflag[osdindex]=1;
@@ -3362,4 +3323,21 @@ void CProcess::set_trktype(CMD_EXT *p, unsigned int stat)
 		ipc_sendmsg(&test,IPC_FRIMG_MSG);
 }
 #endif
+
+float  CProcess::PiexltoWindowsyf(float y,int channel)
+{
+	 float ret=0;
+	 ret= (y*1.0/vcapWH[channel][1]*vdisWH[channel][1]);
+
+	  if(ret<0)
+ 	{
+		ret=0;
+ 	}
+	 else if(ret>=vdisWH[channel][1])
+ 	{
+		ret=vdisWH[channel][1];
+ 	}
+	
+	return  ret;
+}
 

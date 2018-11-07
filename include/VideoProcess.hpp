@@ -10,7 +10,6 @@
 
 #include "MMTD.h"
 #include "mvdectInterface.hpp"
-#include <list>
 
 typedef struct _main_thr_obj_cxt{
 	bool bTrack;
@@ -226,8 +225,7 @@ public:
 		static void NotifyFunc(void *context, int chId);
 		std::vector<TRK_RECT_INFO> detect_vect;
 		std::vector<TRK_RECT_INFO> detect_bak;
-		std::list<TRK_RECT_INFO> mvList;
-		std::list<TRK_RECT_INFO> mvList_bak;
+		std::vector<TRK_RECT_INFO> mvList;
 		int detectNum;
 		char chooseDetect;
 #endif
