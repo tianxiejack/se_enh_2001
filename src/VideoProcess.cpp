@@ -1067,10 +1067,10 @@ void	CVideoProcess::initMvDetect()
 	
 	std::vector<cv::Point> polyWarnRoi ;
 	polyWarnRoi.resize(4);
-	polyWarnRoi[0]	= cv::Point(100,100);
-	polyWarnRoi[1]	= cv::Point(1820,100);
-	polyWarnRoi[2]	= cv::Point(1820,980);
-	polyWarnRoi[3]	= cv::Point(100,980);
+	polyWarnRoi[0]	= cv::Point(1000,500);
+	polyWarnRoi[1]	= cv::Point(1400,500);
+	polyWarnRoi[2]	= cv::Point(1400,900);
+	polyWarnRoi[3]	= cv::Point(1000,900);
 
 
 	preWarnRect.x = polyWarnRoi[0].x;
@@ -1081,7 +1081,7 @@ void	CVideoProcess::initMvDetect()
 	
 	for(i=0; i<DETECTOR_NUM; i++)
 	{
-		//m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
+		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
 
 		//m_pMovDetector->setDrawOSD(pThis->m_display.m_disOsd[1], i);
 		//m_pMovDetector->enableSelfDraw(true, i);
@@ -1100,7 +1100,7 @@ void	CVideoProcess::DeInitMvDetect()
 void CVideoProcess::NotifyFunc(void *context, int chId)
 {
 	CVideoProcess *pParent = (CVideoProcess*)context;
-	pThis->m_pMovDetector->getMoveTarget(pThis->detect_vect,0);
+	pThis->m_pMovDetector->getWarnTarget(pThis->detect_vect,0);
 
 	//pParent->m_display.m_bOsd = true;
 	//pThis->m_display.UpDateOsd(1);
