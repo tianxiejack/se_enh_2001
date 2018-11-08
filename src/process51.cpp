@@ -1558,7 +1558,7 @@ osdindex++;	//acqRect
 			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
 				if( chooseDetect == tmpNum++)
-					color = 5;
+					color = 6;
 				else
 					color = 3;
 				

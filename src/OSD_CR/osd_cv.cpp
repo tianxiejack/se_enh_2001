@@ -243,7 +243,10 @@ void Drawcvcrossaim(Mat frame,Line_Param_fb *lineparm)
 
 void drawcvrect(Mat frame,int x,int y,int width,int height,int frcolor)
 {
-	
+	int thickness = 1;
+	if(frcolor == 6 || frcolor == 0)
+		thickness = 2;
 	CvScalar colour=GetcvColour(frcolor);
-	rectangle( frame,Point( x,y ),Point( x+width, y+height),colour, 1, 8);
+	rectangle( frame,Point( x,y ),Point( x+width, y+height),colour, thickness, 8);
 }
+
