@@ -19,6 +19,7 @@
 #include "osa_buf.h"
 #include "osa_sem.h"
 #include "app_status.h"
+#include "configable.h"
 
 using namespace std;
 using namespace cv;
@@ -73,9 +74,17 @@ typedef struct _ds_init_param{
 	char szScriptFile[256];
 	int initloyerId;
 	//void (*displayfunc)(void);
-	void (*mousefunc)(int button, int state, int x, int y);
+#if APP_LINKAGE_MODE
 	void (*passivemotionfunc)(GLint xMouse, GLint yMouse);
+	void (*mousefunc)(int button, int state, int x, int y);
 	void (*menufunc)(int value);
+#endif
+
+#if APP_TRACKER_MODE
+	void (*motionfunc)(GLint xMouse, GLint yMouse);
+	void (*mousefunc)(int button, int state, int x, int y);
+	void (*menufunc)(int value);
+#endif
 	//void (*reshapefunc)(int width, int height);
 	void (*keyboardfunc)(unsigned char key, int x, int y);
 	void (*keySpecialfunc)( int, int, int );

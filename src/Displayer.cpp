@@ -19,7 +19,6 @@
 
 #include "cuda_mem.cpp"
 #include "app_status.h"
-#include "configable.h"
 
 #include "osd_text.hpp"
 #include "string.h"
@@ -559,7 +558,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutKeyboardFunc(m_initPrm.keyboardfunc);
 	if(m_initPrm.keySpecialfunc != NULL)
 		glutSpecialFunc(m_initPrm.keySpecialfunc);
-
+#if APP_LINKAGE_MODE
 	//mouse event:
 	if(m_initPrm.mousefunc != NULL)
 		glutMouseFunc(m_initPrm.mousefunc);//GLUT_LEFT_BUTTON GLUT_MIDDLE_BUTTON GLUT_RIGHT_BUTTON; GLUT_DOWN GLUT_UP
@@ -569,7 +568,6 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 
 	if(m_initPrm.menufunc != NULL)
 	{
-#if APP_LINKAGE_MODE
 		int sub_menu = glutCreateMenu(processLinkageMenu);
 		glutAddMenuEntry("Enable",0);
 		glutAddMenuEntry("Disable",1);
@@ -725,9 +723,19 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddSubMenu("Auto Linkage",sub_menu);
 		glutAddSubMenu("Display Mode",sub_menu2);
 		glutAddSubMenu("Setup",sub_menu3);
+		glutAttachMenu(GLUT_RIGHT_BUTTON);
+	}
 #endif
 
 #if APP_TRACKER_MODE
+	if(m_initPrm.mousefunc != NULL)
+		glutMouseFunc(m_initPrm.mousefunc);
+	
+	if(m_initPrm.motionfunc != NULL)
+		glutMotionFunc(m_initPrm.motionfunc);
+	
+	if(m_initPrm.menufunc != NULL)
+	{
 		int t_sub_menu1 = glutCreateMenu(processmtdswMenu);
 		glutAddMenuEntry("On",0);
 		glutAddMenuEntry("Off",1);
@@ -768,9 +776,9 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddSubMenu("Alarm Output",t_output_submenu);
 		glutAddSubMenu("Track Condition Output",t_trkcond_submenu);
 		glutAddSubMenu("Duration",t_dur_submenu);
-#endif
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
+#endif
 
 	if(m_initPrm.visibilityfunc != NULL)
 		glutVisibilityFunc(m_initPrm.visibilityfunc);

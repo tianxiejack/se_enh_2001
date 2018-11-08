@@ -8,7 +8,6 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
-#include "configable.h"
 
 #include "app_ctrl.h"
 #include "Ipcctl.h"
@@ -345,10 +344,15 @@ CVideoProcess::CVideoProcess()
 	wFileFlag			=0;
 	preAcpSR	={0};
 	algOsdRect = false;
-
+#if APP_LINKAGE_MODE
 	m_click = m_draw = m_tempX = m_tempY = 0;
 	memset(m_rectn, 0, sizeof(m_rectn));
 	memset(mRect, 0, sizeof(mRect));
+#endif
+
+#if APP_TRACKER_MODE
+	mptz_click = mptz_originX = mptz_originY = 0;
+#endif
 	
 	#if __MOVE_DETECT__
 		m_pMovDetector	=NULL;
@@ -406,7 +410,8 @@ int CVideoProcess::destroy()
 
 	return 0;
 }
-	
+
+#if APP_LINKAGE_MODE	
 void CVideoProcess::mouse_event(int button, int state, int x, int y)
 {
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
@@ -451,6 +456,38 @@ void CVideoProcess::mousemove_event(GLint xMouse, GLint yMouse)
 		pThis->m_draw = 1;
 	}
 }
+#endif
+
+#if APP_TRACKER_MODE
+void CVideoProcess::mouse_event(int button, int state, int x, int y)
+{
+	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{
+		pThis->mptz_click = 1;
+		pThis->mptz_originX = x;
+		pThis->mptz_originY = y;
+	}
+	else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+	{
+		pThis->mptz_click = 0;
+	}
+}
+
+void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
+{
+	SENDST test;
+	CMD_MOUSEPTZ mptz;
+
+	test.cmd_ID = mouseptz;
+	if(pThis->mptz_click == 1)
+	{
+		mptz.mptzx = xMouse - pThis->mptz_originX;
+		mptz.mptzy = pThis->mptz_originY - yMouse;
+		memcpy(test.param, &mptz, sizeof(mptz));
+		ipc_sendmsg(&test, IPC_FRIMG_MSG);
+	}
+}
+#endif
 
 void CVideoProcess::menu_event(int value)
 {
@@ -495,9 +532,18 @@ int CVideoProcess::init()
 	DS_InitPrm dsInit;
 
 	memset(&dsInit, 0, sizeof(DS_InitPrm));
-	dsInit.mousefunc = mouse_event;
+#if APP_LINKAGE_MODE
 	dsInit.passivemotionfunc = mousemove_event;
+	dsInit.mousefunc = mouse_event;
 	dsInit.menufunc = menu_event;
+#endif
+
+#if APP_TRACKER_MODE
+	dsInit.motionfunc = mousemotion_event;
+	dsInit.mousefunc = mouse_event;
+	dsInit.menufunc = menu_event;
+#endif
+
 //#if (!__IPC__)
 	dsInit.keyboardfunc = keyboard_event;
 //#endif
