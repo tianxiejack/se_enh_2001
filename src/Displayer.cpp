@@ -591,7 +591,9 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutKeyboardFunc(m_initPrm.keyboardfunc);
 	if(m_initPrm.keySpecialfunc != NULL)
 		glutSpecialFunc(m_initPrm.keySpecialfunc);
-#if APP_LINKAGE_MODE
+
+
+#if LINKAGE_FUNC
 	//mouse event:
 	if(m_initPrm.mousefunc != NULL)
 		glutMouseFunc(m_initPrm.mousefunc);//GLUT_LEFT_BUTTON GLUT_MIDDLE_BUTTON GLUT_RIGHT_BUTTON; GLUT_DOWN GLUT_UP
@@ -758,9 +760,9 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddSubMenu("Setup",sub_menu3);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
-#endif
+	
+#else
 
-#if APP_TRACKER_MODE
 	if(m_initPrm.mousefunc != NULL)
 		glutMouseFunc(m_initPrm.mousefunc);
 	

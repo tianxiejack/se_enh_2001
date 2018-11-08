@@ -74,13 +74,14 @@ typedef struct _ds_init_param{
 	char szScriptFile[256];
 	int initloyerId;
 	//void (*displayfunc)(void);
-#if APP_LINKAGE_MODE
+	
+#if LINKAGE_FUNC
 	void (*passivemotionfunc)(GLint xMouse, GLint yMouse);
 	void (*mousefunc)(int button, int state, int x, int y);
 	void (*menufunc)(int value);
-#endif
 
-#if APP_TRACKER_MODE
+#else
+
 	void (*motionfunc)(GLint xMouse, GLint yMouse);
 	void (*mousefunc)(int button, int state, int x, int y);
 	void (*menufunc)(int value);

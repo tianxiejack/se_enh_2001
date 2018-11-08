@@ -1715,7 +1715,7 @@ osdindex++;	//acqRect
 
 	prisensorstatus=extInCtrl->SensorStat;
 
-#if APP_LINKAGE_MODE
+#if LINKAGE_FUNC
 //mouse rect
 	if(m_draw)
 	{    

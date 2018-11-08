@@ -136,14 +136,12 @@ public :
 	ALGMTD_HANDLE m_mtd[MAX_CHAN];
 public:
 	CDisplayer m_display;
-#if APP_LINKAGE_MODE
+#if LINKAGE_FUNC
 	int m_click;
 	int m_draw;
 	RectfNode mRect[MAX_CHAN][100];
 	int m_tempX, m_tempY, m_rectn[MAX_CHAN];
-#endif
-
-#if APP_TRACKER_MODE
+#else
 	int mptz_click;
 	int mptz_originX, mptz_originY;
 #endif
@@ -201,13 +199,11 @@ protected:
 	static void call_run(int value);
 	static int callback_process(void *handle, int chId, int virchId, Mat frame);
 
-#if APP_LINKAGE_MODE
+#if LINKAGE_FUNC
 	static void mousemove_event(GLint xMouse, GLint yMouse);
 	static void mouse_event(int button, int state, int x, int y);
 	static void menu_event(int value);
-#endif
-
-#if APP_TRACKER_MODE
+#else
 	static void mousemotion_event(GLint xMouse, GLint yMouse);
 	static void mouse_event(int button, int state, int x, int y);
 	static void menu_event(int value);
