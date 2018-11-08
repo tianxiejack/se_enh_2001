@@ -36,10 +36,10 @@ void getMmtTg(unsigned char index,int *x,int *y)
 #if __MOVE_DETECT__
 void getMtdxy(int *x,int *y,int *w,int *h)
 {
-	*x = plat->detect_bak[plat->chooseDetect].targetRect.x + plat->detect_bak[plat->chooseDetect].targetRect.width/2;
-	*y = plat->detect_bak[plat->chooseDetect].targetRect.y + plat->detect_bak[plat->chooseDetect].targetRect.height/2;
-	*w = plat->detect_bak[plat->chooseDetect].targetRect.width;
-	*h = plat->detect_bak[plat->chooseDetect].targetRect.height;
+	*x = plat->mvList[plat->chooseDetect].targetRect.x + plat->mvList[plat->chooseDetect].targetRect.width/2;
+	*y = plat->mvList[plat->chooseDetect].targetRect.y + plat->mvList[plat->chooseDetect].targetRect.height/2;
+	*w = plat->mvList[plat->chooseDetect].targetRect.width;
+	*h = plat->mvList[plat->chooseDetect].targetRect.height;
 }
 #endif
 
