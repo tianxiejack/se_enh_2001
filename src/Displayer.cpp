@@ -435,12 +435,37 @@ void CDisplayer::processdetectcondMenu(int value)
 
 void CDisplayer::processpolarMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	SENDST test = {0};
+	
+	test.cmd_ID = mtdpolar;
+	if(0 == value)
+		test.param[0] = 0;
+	else if(1 == value)
+		test.param[0] = 1;
+	
+	ipc_sendmsg(&test, IPC_FRIMG_MSG);
 }
 
 void CDisplayer::processdurationMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	SENDST test = {0};
+	CMD_MTDTRKTIME mtdtime;
+	
+	test.cmd_ID = mtdtrktime;
+	if(0 == value)
+		mtdtime.seconds = 1;
+	else if(1 == value)
+		mtdtime.seconds = 3;
+	else if(2 == value)
+		mtdtime.seconds = 5;
+	else if(3 == value)
+		mtdtime.seconds = 7;
+	else if(4 == value)
+		mtdtime.seconds = 9;
+	
+	memcpy(test.param, &mtdtime, sizeof(mtdtime));
+	ipc_sendmsg(&test, IPC_FRIMG_MSG);
+		
 }
 
 void CDisplayer::processbuadrateMenu(int value)
@@ -475,7 +500,15 @@ void CDisplayer::processprotocolMenu(int value)
 
 void CDisplayer::processmtdswMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	SENDST test = {0};
+	
+	test.cmd_ID = mtd;
+	if(0 == value)
+		test.param[0] = 0;
+	else if(1 == value)
+		test.param[0] = 1;
+	
+	ipc_sendmsg(&test, IPC_FRIMG_MSG);
 }
 
 void CDisplayer::processmtdmodeMenu(int value)
@@ -493,12 +526,28 @@ void CDisplayer::processmtdmodeMenu(int value)
 
 void CDisplayer::processredetectMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	SENDST test = {0};
+	
+	test.cmd_ID = mtdredetect;
+	if(0 == value)
+		test.param[0] = 0;
+	else if(1 == value)
+		test.param[0] = 1;
+	
+	ipc_sendmsg(&test, IPC_FRIMG_MSG);
 }
 
 void CDisplayer::processalarmputMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	SENDST test = {0};
+	
+	test.cmd_ID = mtdoutput;
+	if(0 == value)
+		test.param[0] = 0;
+	else if(1 == value)
+		test.param[0] = 1;
+	
+	ipc_sendmsg(&test, IPC_FRIMG_MSG);
 }
 
 void CDisplayer::processtrkcondMenu(int value)
@@ -691,8 +740,8 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("Condition1",0);
 		glutAddMenuEntry("Condition2",1);
 		int polar_submenu = glutCreateMenu(processpolarMenu);
-		glutAddMenuEntry("-",0);
-		glutAddMenuEntry("+",1);
+		glutAddMenuEntry("+",0);
+		glutAddMenuEntry("-",1);
 		int dur_submenu = glutCreateMenu(processdurationMenu);
 		glutAddMenuEntry("Duration1",0);
 		glutAddMenuEntry("Duration2",1);
@@ -772,8 +821,8 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	if(m_initPrm.menufunc != NULL)
 	{
 		int t_sub_menu1 = glutCreateMenu(processmtdswMenu);
-		glutAddMenuEntry("On",0);
-		glutAddMenuEntry("Off",1);
+		glutAddMenuEntry("Off",0);
+		glutAddMenuEntry("On",1);
 		int t_sub_menu2 = glutCreateMenu(processmtdmodeMenu);
 		glutAddMenuEntry("Manual Detect",0);
 		glutAddMenuEntry("Auto Detect",1);
@@ -788,17 +837,23 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("Condition1",0);
 		glutAddMenuEntry("Condition2",1);
 		int t_redetect_submenu = glutCreateMenu(processredetectMenu);
-		glutAddMenuEntry("Yes",0);
-		glutAddMenuEntry("No",1);
+		glutAddMenuEntry("Disable",0);
+		glutAddMenuEntry("Enable",1);
 		int t_output_submenu = glutCreateMenu(processalarmputMenu);
-		glutAddMenuEntry("Yes",0);
-		glutAddMenuEntry("No",1);
+		glutAddMenuEntry("Disable",0);
+		glutAddMenuEntry("Enable",1);
+		int t_polar_submenu = glutCreateMenu(processpolarMenu);
+		glutAddMenuEntry("+",0);
+		glutAddMenuEntry("-",1);
 		int t_trkcond_submenu = glutCreateMenu(processtrkcondMenu);
 		glutAddMenuEntry("Condition1",0);
 		glutAddMenuEntry("Condition 2",1);
 		int t_dur_submenu = glutCreateMenu(processdurationMenu);
-		glutAddMenuEntry("Duration1",0);
-		glutAddMenuEntry("Duration2",1);
+		glutAddMenuEntry("1s",0);
+		glutAddMenuEntry("3s",1);
+		glutAddMenuEntry("5s",2);
+		glutAddMenuEntry("7s",3);
+		glutAddMenuEntry("9s",4);
 		
 		glutCreateMenu(NULL);
 		glutAddSubMenu("Mtd Switch",t_sub_menu1);
@@ -809,6 +864,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddSubMenu("Detect Condition",t_dc_submenu);
 		glutAddSubMenu("Redetect after lost",t_redetect_submenu);
 		glutAddSubMenu("Alarm Output",t_output_submenu);
+		glutAddSubMenu("Output Polar",t_polar_submenu);
 		glutAddSubMenu("Track Condition Output",t_trkcond_submenu);
 		glutAddSubMenu("Duration",t_dur_submenu);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);

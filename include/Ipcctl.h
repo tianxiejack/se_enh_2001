@@ -64,6 +64,10 @@ typedef enum
     read_shm_osdtext,
     switchtarget,
     mouseptz,
+    mtdredetect,
+    mtdoutput,
+    mtdpolar,
+    mtdtrktime,
     invalid
 }CMD_ID;
 
@@ -421,6 +425,10 @@ typedef struct{
 	volatile int mptzx;
 	volatile int mptzy;
 }CMD_MOUSEPTZ;
+
+typedef struct{
+	volatile unsigned int seconds;
+}CMD_MTDTRKTIME;
 
 typedef struct{
     unsigned char cmd_ID;
