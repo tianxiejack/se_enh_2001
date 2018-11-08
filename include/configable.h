@@ -2,6 +2,9 @@
 #ifndef CONFIG_ABLE_H__
 #define CONFIG_ABLE_H__
 
+#define APP_TRACKER_MODE	1
+#define APP_LINKAGE_MODE	0
+
 #define AIM_WIDTH					64
 #define AIM_HEIGHT					64
 

@@ -74,9 +74,17 @@ typedef struct _ds_init_param{
 	char szScriptFile[256];
 	int initloyerId;
 	//void (*displayfunc)(void);
-	void (*mousefunc)(int button, int state, int x, int y);
+#if APP_LINKAGE_MODE
 	void (*passivemotionfunc)(GLint xMouse, GLint yMouse);
+	void (*mousefunc)(int button, int state, int x, int y);
 	void (*menufunc)(int value);
+#endif
+
+#if APP_TRACKER_MODE
+	void (*motionfunc)(GLint xMouse, GLint yMouse);
+	void (*mousefunc)(int button, int state, int x, int y);
+	void (*menufunc)(int value);
+#endif
 	//void (*reshapefunc)(int width, int height);
 	void (*keyboardfunc)(unsigned char key, int x, int y);
 	void (*keySpecialfunc)( int, int, int );
@@ -250,7 +258,7 @@ protected:
 	static void processSenMenu(int value);
 	static void processCarMenu(int value);
 	static void processrigionMenu(int value);
-	static void processrigselionMenu(int value);
+	static void processrigionselMenu(int value);
 	static void processtargetsizeMenu(int value);
 	static void processtargetspeedMenu(int value);
 	static void processtargetdircMenu(int value);
@@ -264,6 +272,12 @@ protected:
 	static void processparityMenu(int value);
 	static void processipMenu(int value);
 	static void processprotocolMenu(int value);
+	static void processmtdswMenu(int value);
+	static void processmtdmodeMenu(int value);
+	static void processredetectMenu(int value);
+	static void processalarmputMenu(int value);
+	static void processtrkcondMenu(int value);
+
 	static void _close(void);
 	void gl_resize(void);
 

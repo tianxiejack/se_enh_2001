@@ -1715,6 +1715,7 @@ osdindex++;	//acqRect
 
 	prisensorstatus=extInCtrl->SensorStat;
 
+#if APP_LINKAGE_MODE
 //mouse rect
 	if(m_draw)
 	{    
@@ -1748,7 +1749,8 @@ osdindex++;	//acqRect
 		}
 		m_draw = 0;
 	}
-	
+#endif
+
 	static unsigned int count = 0;
 	if((count & 1) == 1)
 		OSA_semSignal(&(sThis->m_display.tskdisSemmain));

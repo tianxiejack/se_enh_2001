@@ -63,6 +63,7 @@ typedef enum
     ipcresolution,
     read_shm_osdtext,
     switchtarget,
+    mouseptz,
     invalid
 }CMD_ID;
 
@@ -415,6 +416,11 @@ typedef struct{
 typedef struct{
 	volatile unsigned char resolution[ipc_eSen_Max];
 }CMD_IPCRESOLUTION;
+
+typedef struct{
+	volatile int mptzx;
+	volatile int mptzy;
+}CMD_MOUSEPTZ;
 
 typedef struct{
     unsigned char cmd_ID;
