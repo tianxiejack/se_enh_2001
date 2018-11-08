@@ -1443,31 +1443,33 @@ osdindex++;	//cross aim
 			DrawCross(recIn,frcolor,extInCtrl->SensorStat,false);
 			Osdflag[osdindex]=0;
  		}
-
-		if(extInCtrl->DispGrp[extInCtrl->SensorStat] <= 3  &&  !changesensorCnt)
+		if(!m_bMoveDetect)
 		{
-			recIn.x=PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
-	 		recIn.y=PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
-			recIn.width = extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
-			recIn.height= extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
-			crossBak.x = recIn.x;
-			crossBak.y = recIn.y;
-			crossWHBak.x = recIn.width;
-			crossWHBak.y = recIn.height;
+			if(extInCtrl->DispGrp[extInCtrl->SensorStat] <= 3  &&  !changesensorCnt)
+			{
+				recIn.x=PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
+		 		recIn.y=PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
+				recIn.width = extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
+				recIn.height= extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
+				crossBak.x = recIn.x;
+				crossBak.y = recIn.y;
+				crossWHBak.x = recIn.width;
+				crossWHBak.y = recIn.height;
 
-			if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
-			{
-				if(m_display.m_crossOsd)
+				if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
+				{
+					if(m_display.m_crossOsd)
+						DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
+					Osdflag[osdindex]=1;
+				}
+				else if(extInCtrl->AvtTrkStat == eTrk_mode_search)
+				{
+					frcolor = 3;
 					DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
-				Osdflag[osdindex]=1;
+					Osdflag[osdindex]=1;
+				}
 			}
-			else if(extInCtrl->AvtTrkStat == eTrk_mode_search)
-			{
-				frcolor = 3;
-				DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
-				Osdflag[osdindex]=1;
-			}
-		}
+		}	
 	}
 
 
@@ -1479,30 +1481,34 @@ osdindex++;	//acqRect
 				extInCtrl->SensorStatpri = 1;
 			DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStatpri],recIn,frcolor,false);
 		}
-		
-	 	if(Osdflag[osdindex]==1){
+
+		if(Osdflag[osdindex]==1){
 			recIn = acqRectBak;
 			if(extInCtrl->SensorStat>=MAX_CHAN)
 				extInCtrl->SensorStat = 1;
 			DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,false);
 			Osdflag[osdindex]=0;
  		}
-		if(extInCtrl->AvtTrkStat == eTrk_mode_acq  && !changesensorCnt){
-			recIn.x  = PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
-	 		recIn.y  = PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
-			recIn.width  = extInCtrl->AcqRectW[extInCtrl->SensorStat];
-			recIn.height = extInCtrl->AcqRectH[extInCtrl->SensorStat]; 
-			if(recIn.width%2 == 1)
-				recIn.width++;
-			if(recIn.height%2 == 1)
-				recIn.height++;
-			recIn.x = recIn.x  - recIn.width/2;
-			recIn.y = recIn.y  + recIn.height/2;
-			DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,true);
-			acqRectBak = recIn;
-			Osdflag[osdindex]=1;
-
+		
+		if(!m_bMoveDetect)
+		{
+			if(extInCtrl->AvtTrkStat == eTrk_mode_acq  && !changesensorCnt){
+				recIn.x  = PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
+		 		recIn.y  = PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
+				recIn.width  = extInCtrl->AcqRectW[extInCtrl->SensorStat];
+				recIn.height = extInCtrl->AcqRectH[extInCtrl->SensorStat]; 
+				if(recIn.width%2 == 1)
+					recIn.width++;
+				if(recIn.height%2 == 1)
+					recIn.height++;
+				recIn.x = recIn.x  - recIn.width/2;
+				recIn.y = recIn.y  + recIn.height/2;
+				DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,true);
+				acqRectBak = recIn;
+				Osdflag[osdindex]=1;
+			}
 		}
+		
 	}
 
 	
