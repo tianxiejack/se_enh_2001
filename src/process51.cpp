@@ -1546,12 +1546,14 @@ osdindex++;	//acqRect
 			{
 				if( --chooseDetect < 0)
 					chooseDetect = mvList.size()-1;		
-					
-				if(chooseDetect > mvList.size())
-					chooseDetect = mvList.size()-1 ;
 				
 				backflag = 0;
 			}
+
+						
+			if(chooseDetect > mvList.size())
+				chooseDetect = mvList.size()-1 ;
+			
 			char tmpNum = 0;	
 			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
