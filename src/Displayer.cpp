@@ -371,7 +371,7 @@ void CDisplayer::processrigionMenu(int value)
 	printf("%s start, value=%d\n", __FUNCTION__, value);
 }
 
-void CDisplayer::processrigselionMenu(int value)
+void CDisplayer::processrigionselMenu(int value)
 {
 	printf("%s start, value=%d\n", __FUNCTION__, value);
 }
@@ -437,6 +437,39 @@ void CDisplayer::processipMenu(int value)
 }
 
 void CDisplayer::processprotocolMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processmtdswMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processmtdmodeMenu(int value)
+{
+	SENDST test = {0};
+	
+	test.cmd_ID = mtdmode;
+	if(0 == value)
+		test.param[0] = 0;
+	else if(1 == value)
+		test.param[0] = 1;
+	
+	ipc_sendmsg(&test, IPC_FRIMG_MSG);
+}
+
+void CDisplayer::processredetectMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processalarmputMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CDisplayer::processtrkcondMenu(int value)
 {
 	printf("%s start, value=%d\n", __FUNCTION__, value);
 }
@@ -536,6 +569,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 
 	if(m_initPrm.menufunc != NULL)
 	{
+#if APP_LINKAGE_MODE
 		int sub_menu = glutCreateMenu(processLinkageMenu);
 		glutAddMenuEntry("Enable",0);
 		glutAddMenuEntry("Disable",1);
@@ -604,7 +638,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 
 		int rig_submenu = glutCreateMenu(processrigionMenu);
 		glutAddMenuEntry("Rigion1",0);
-		int rigsel_submenu = glutCreateMenu(processrigselionMenu);
+		int rigsel_submenu = glutCreateMenu(processrigionselMenu);
 		glutAddMenuEntry("Rigion1",0);
 		int tsi_submenu = glutCreateMenu(processtargetsizeMenu);
 		glutAddMenuEntry("Size1",0);
@@ -691,6 +725,50 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddSubMenu("Auto Linkage",sub_menu);
 		glutAddSubMenu("Display Mode",sub_menu2);
 		glutAddSubMenu("Setup",sub_menu3);
+#endif
+
+#if APP_TRACKER_MODE
+		int t_sub_menu1 = glutCreateMenu(processmtdswMenu);
+		glutAddMenuEntry("On",0);
+		glutAddMenuEntry("Off",1);
+		int t_sub_menu2 = glutCreateMenu(processmtdmodeMenu);
+		glutAddMenuEntry("Manual Detect",0);
+		glutAddMenuEntry("Auto Detect",1);
+		int t_maxnum_submenu = glutCreateMenu(processmaxnumMenu);
+		glutAddMenuEntry("Num1",0);
+		glutAddMenuEntry("Num2",1);
+		int t_rig_submenu = glutCreateMenu(processrigionMenu);
+		glutAddMenuEntry("Rigion1",0);
+		int t_rigsel_submenu = glutCreateMenu(processrigionselMenu);
+		glutAddMenuEntry("Rigion1",0);
+		int t_dc_submenu = glutCreateMenu(processdetectcondMenu);
+		glutAddMenuEntry("Condition1",0);
+		glutAddMenuEntry("Condition2",1);
+		int t_redetect_submenu = glutCreateMenu(processredetectMenu);
+		glutAddMenuEntry("Yes",0);
+		glutAddMenuEntry("No",1);
+		int t_output_submenu = glutCreateMenu(processalarmputMenu);
+		glutAddMenuEntry("Yes",0);
+		glutAddMenuEntry("No",1);
+		int t_trkcond_submenu = glutCreateMenu(processtrkcondMenu);
+		glutAddMenuEntry("Condition1",0);
+		glutAddMenuEntry("Condition 2",1);
+		int t_dur_submenu = glutCreateMenu(processdurationMenu);
+		glutAddMenuEntry("Duration1",0);
+		glutAddMenuEntry("Duration2",1);
+		
+		glutCreateMenu(NULL);
+		glutAddSubMenu("Mtd Switch",t_sub_menu1);
+		glutAddSubMenu("Mtd Mode",t_sub_menu2);
+		glutAddSubMenu("Max Num",t_maxnum_submenu);
+		glutAddSubMenu("Rigion Set",t_rig_submenu);
+		glutAddSubMenu("Rigion Select",t_rigsel_submenu);
+		glutAddSubMenu("Detect Condition",t_dc_submenu);
+		glutAddSubMenu("Redetect after lost",t_redetect_submenu);
+		glutAddSubMenu("Alarm Output",t_output_submenu);
+		glutAddSubMenu("Track Condition Output",t_trkcond_submenu);
+		glutAddSubMenu("Duration",t_dur_submenu);
+#endif
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
 
