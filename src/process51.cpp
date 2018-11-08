@@ -21,7 +21,9 @@ CProcess* plat = NULL;
 int glosttime = 3000;
 
 SENDST trkmsg={0};
-
+#if LINKAGE_FUNC
+	extern CamParameters g_camParams;
+#endif
 void inputtmp(unsigned char cmdid)
 {
 	plat->OnKeyDwn(cmdid);
@@ -136,6 +138,38 @@ CProcess::CProcess()
 	chooseDetect = 0;
 #endif
 	forwardflag = backflag = false;
+
+#if LINKAGE_FUNC
+	Set_SelectByRect = false ;
+	open_handleCalibra = false ;
+	key_point1_cnt =0;
+	key_point2_cnt =0;
+	AllPoints_Num =0;
+
+
+	if(!readParams("SysParm.yml")) {
+		printf("read param error\n");
+	}
+	else
+	{	
+		 vcapWH[0][0] = m_sysparm.gun_camera.raw;
+		 vcapWH[0][1] = m_sysparm.gun_camera.col;
+		 vcapWH[1][0] = m_sysparm.ball_camera.raw;
+		 vcapWH[1][1] = m_sysparm.ball_camera.col;
+
+		 vdisWH[0][0] = m_sysparm.gun_camera.raw;
+		 vdisWH[0][1] = m_sysparm.gun_camera.col;
+		 vdisWH[1][0] = m_sysparm.ball_camera.raw;
+		 vdisWH[1][1] = m_sysparm.ball_camera.col;
+	}
+
+	if(m_camCalibra != NULL) {
+		m_camCalibra->key_points1.clear();
+		m_camCalibra->key_points2.clear();
+	}
+	
+#endif
+
 }
 
 CProcess::~CProcess()
@@ -337,10 +371,75 @@ int  CProcess::PiexltoWindowsyzoom_TrkRect(int y,int channel)
 
 	return  ret;
 }
+
 void CProcess::OnCreate()
 {
 	MSGAPI_initial();
-};
+
+	#if LINKAGE_FUNC
+		OnKeyDwn('b');	
+		bool ret = false;
+		if(false==(ret=m_camCalibra->loadLinkageParams("GenerateCameraParam.yml", g_camParams.imageSize, g_camParams.cameraMatrix_gun, 
+					g_camParams.distCoeffs_gun,
+		          g_camParams.cameraMatrix_ball, g_camParams.distCoeffs_ball, g_camParams.homography,
+		          g_camParams.panPosBase, g_camParams.tiltPosBase, g_camParams.zoomPosBase))){
+			cout << " XXXXXXXXXXXXXXXXX   <<< Load linkage params failed !!!>>> XXXXXXXXXXXXXXXXXX " << endl;  
+		}
+
+		cout << "****************************************<< CamParam >>********************************************************" << endl;
+		cout << "imageSize:\n" << g_camParams.imageSize << endl;
+		cout << "cameraMatrix_gun:\n" << g_camParams.cameraMatrix_gun << endl;
+		cout << "distCoeffs_gun:\n" << g_camParams.distCoeffs_gun << endl;
+		cout << "cameraMatrix_ball:\n" << g_camParams.cameraMatrix_ball << endl;
+		cout << "distCoeffs_ball:\n" << g_camParams.distCoeffs_ball << endl;
+		cout << "homography:\n" << g_camParams.homography << endl;
+		cout << "panPosBase:\n" << g_camParams.panPosBase<< endl;
+		cout << "tiltPosBase:\n" << g_camParams.tiltPosBase<< endl;
+		cout << "zoomPosBase:\n" << g_camParams.zoomPosBase<< endl;
+		cout << "************************************************************************************************" << endl;
+ 
+		if(ret == true) {
+			this->Init_CameraMatrix();
+		}
+	#endif
+}
+
+#if LINKAGE_FUNC
+void CProcess::Init_CameraMatrix()
+{	
+    initUndistortRectifyMap(g_camParams.cameraMatrix_gun, g_camParams.distCoeffs_gun, Mat(),
+                            g_camParams.cameraMatrix_ball,
+                            g_camParams.imageSize, CV_16SC2, g_camParams.map1, g_camParams.map2);
+    //Mat imageGun = imread("images/2018-08-16-153720.jpg");
+   // Mat imageBall = imread("ballLinkageCalib.bmp");
+ 
+	if(!gun_srcMat_remap.empty()) {
+    		remap(gun_srcMat_remap, undisImageGun, g_camParams.map1, g_camParams.map2, INTER_LINEAR);
+	}
+
+}
+
+
+
+bool CProcess::readParams(const char* filename)
+{
+	FileStorage fs2( filename, FileStorage::READ );
+    bool ret = fs2.isOpened();
+    if(!ret){
+        cout << filename << " can't opened !\n" << endl;
+    }
+   
+    fs2["gun_camera_raw"] >> m_sysparm.gun_camera.raw;
+    fs2["gun_camera_col"] >> m_sysparm.gun_camera.col;
+    fs2["ball_camera_raw"] >> m_sysparm.ball_camera.raw;
+    fs2["ball_camera_col"] >> m_sysparm.ball_camera.col;
+
+    fs2.release();
+    return ret;
+}
+
+#endif
+	
 void CProcess::OnDestroy(){};
 void CProcess::OnInit()
 {
@@ -1100,7 +1199,7 @@ void CProcess::DrawdashRect(int startx,int starty,int endx,int endy,int colour)
 	drawdashlinepri(m_display.m_imgOsd[extInCtrl->SensorStat],startx,starty,startx,endy,dashlen,dashlen,colour);
 }
 
-
+#if __MOVE_DETECT__
 void CProcess::mvIndexHandle(std::vector<TRK_RECT_INFO> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum)
 {	
 	int tmpIndex , i ;
@@ -1155,6 +1254,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_RECT_INFO> &mvList,std::vector<TRK_
 	}
 	
 }
+#endif
 
 bool CProcess::OnProcess(int chId, Mat &frame)
 {
@@ -1576,8 +1676,38 @@ osdindex++;	//acqRect
 		}
 	}
 
-
 #endif
+
+#if LINKAGE_FUNC
+	osdindex++;
+	{
+		if( open_handleCalibra == true ){  
+			sprintf(show_key[key_point1_cnt], "%d", key_point1_cnt);	
+			putText(m_display.m_imgOsd[1],show_key[key_point1_cnt],key1_pos,FONT_HERSHEY_TRIPLEX,0.8, cvScalar(255,0,0,255), 1);	
+			cv::circle( m_display.m_imgOsd[1], key1_pos, 3 , cvScalar(255,0,255,255), 2, 8, 0);
+			//line( m_display.m_imgOsd[1], Point(key1_pos.x-5,key1_pos.y), Point(key1_pos.x+5,key1_pos.y), Scalar(0,0,255), 5, CV_AA );
+			
+			sprintf(show_key2[key_point2_cnt], "%d", key_point2_cnt);
+			putText(m_display.m_imgOsd[1],show_key2[key_point2_cnt],key2_pos,FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,255,0,255), 1);	
+			cv::circle(m_display.m_imgOsd[1],key2_pos,3 ,cvScalar(0,255,255,255),2,8,0);
+		}	
+		else{		
+			if( AllPoints_Num !=0 ) {
+			
+				for(int i=0; i<AllPoints_Num; i++){
+					
+					//putText(m_display.m_imgOsd[1],show_key[i],textPos1_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
+					cv::circle(m_display.m_imgOsd[1],textPos1_record[i],1 ,cvScalar(0,0,0,0),8,8,0);			
+					
+					//putText(m_display.m_imgOsd[1],show_key2[i],textPos2_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
+					cv::circle(m_display.m_imgOsd[1],textPos2_record[i],1 ,cvScalar(0,0,0,0),8,8,0);
+					}
+			}		
+		}	
+	}
+#endif
+
+
 	center.x = vdisWH[extInCtrl->SensorStat][0]/2;
 	center.y = vdisWH[extInCtrl->SensorStat][1]/2;
 	int radius = 4;
@@ -1642,7 +1772,137 @@ static inline void my_rotate(GLfloat result[16], float theta)
 	result[15] = 1.0f;
 }
 
-void CProcess::OnMouseLeftDwn(int x, int y){};
+
+#if LINKAGE_FUNC
+void CProcess::reMapCoords(int x, int y)
+{	
+	int offset_x = 0;
+	switch(m_display.g_CurDisplayMode) {
+		case PREVIEW_MODE:
+			offset_x = 960;
+			break;
+		case LEFT_BALL_RIGHT_GUN:
+			offset_x = 480;	
+			break;
+		default:
+			break;
+	}
+	int point_X ;
+	int point_Y ;
+	int delta_X = abs(LeftPoint.x - RightPoint.x) ;
+	
+	if( Set_SelectByRect == false ) 
+	{			
+		point_X = (x - offset_x);
+		point_Y = y;
+	}
+	else
+	{
+		if(LeftPoint.x < RightPoint.x) {
+			point_X = abs(LeftPoint.x - RightPoint.x) /2 + LeftPoint.x;
+			point_Y = abs(LeftPoint.y - RightPoint.y) /2 + LeftPoint.y;	
+		}else{
+			point_X = abs(LeftPoint.x - RightPoint.x) /2 + RightPoint.x;
+			point_Y = abs(LeftPoint.y - RightPoint.y) /2 + RightPoint.y;	
+		}
+	}
+	
+	float f_x = (float)x;
+	float f_y = (float)y;
+	circle_point = Point(x,y);
+	
+ if(open_handleCalibra)
+ {
+	if( x <= offset_x ){
+		m_camCalibra->key_points1.push_back(cv::Point2f(f_x,f_y));
+		key1_pos = Point(x,y);
+		textPos1_record[AllPoints_Num++] = key1_pos;
+		key_point1_cnt++;	
+	}
+	else{
+		m_camCalibra->key_points2.push_back( cv::Point2f( f_x -offset_x, f_y) );
+		key2_pos = Point(x,y);
+		textPos1_record[AllPoints_Num++] = key2_pos;
+		key_point2_cnt ++;		
+	}
+	for (std::vector<cv::Point2f>::const_iterator itPnt = m_camCalibra->key_points1.begin();
+	                itPnt != m_camCalibra->key_points1.end(); ++itPnt){
+	         cout<< "*itPnt.x = " <<(*itPnt).x<< "\t*itPnt.y = " << (*itPnt).y << endl;
+	}
+
+	for (std::vector<cv::Point2f>::const_iterator itPnt2 = m_camCalibra->key_points2.begin();
+		                itPnt2 != m_camCalibra->key_points2.end(); ++itPnt2){
+		         cout<< "*itPnt2.x = " <<(*itPnt2).x<< "\t*itPnt2.y = " << (*itPnt2).y << endl;
+		}	
+ 	}
+ 	else
+	{
+	 	Point opt;
+		switch(m_display.g_CurDisplayMode) {
+			case PREVIEW_MODE:
+				 opt = Point( point_X*2, point_Y*2 );	
+				break;
+			case PIC_IN_PIC:
+				 opt = Point( x, y );	
+			case LEFT_BALL_RIGHT_GUN:
+				 opt = Point( point_X*1920.0/1440.0, point_Y*1080.0/810.0 );	
+				break;
+			default:
+				break;
+		}
+	 		 
+		std::vector<cv::Point2d> distorted, normalizedUndistorted;
+		distorted.push_back(cv::Point2d(opt.x, opt.y));
+		undistortPoints(distorted,normalizedUndistorted,g_camParams.cameraMatrix_gun,g_camParams.distCoeffs_gun);
+		std::vector<cv::Point3d> objectPoints;
+
+		for (std::vector<cv::Point2d>::const_iterator itPnt = normalizedUndistorted.begin();
+		itPnt != normalizedUndistorted.end(); ++itPnt)
+		{
+			objectPoints.push_back(cv::Point3d(itPnt->x, itPnt->y, 1));
+		}
+		std::vector<cv::Point2d> imagePoints(objectPoints.size());
+		projectPoints(objectPoints, cv::Vec3d(0,0,0),cv::Vec3d(0,0,0),g_camParams.cameraMatrix_ball,cv::Mat(),imagePoints);
+		std::vector<cv::Point2d> ballImagePoints(imagePoints.size());
+		perspectiveTransform(imagePoints, ballImagePoints, g_camParams.homography);
+		std::vector<cv::Point2d>::iterator itp = imagePoints.begin();
+		cv::Point2d pt = *itp;
+		Point upt( pt.x, pt.y );			
+		itp = ballImagePoints.begin();
+		pt = *itp;
+
+		pt.x = pt.x/2.0;
+		pt.y /=2.0;
+			  
+       Point bpt( pt.x, pt.y );			
+			   
+	#if PIXEL_TO_BALLMOVE
+		point_X = x;
+		point_Y = y;
+		trkmsg.cmd_ID = focus;
+		memcpy(&trkmsg.param[0],&point_X,4);
+		memcpy(&trkmsg.param[4],&point_Y,4);
+		ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
+	   	printf("Send Coordisnates: <x, y> = <%d , %d>\r\n", point_X, point_Y);
+	#else			
+		trkmsg.cmd_ID = focus;
+		memcpy(&trkmsg.param[0],&bpt.x, 4);
+		memcpy(&trkmsg.param[4],&bpt.y, 4);
+		memcpy(&trkmsg.param[8],&delta_X, 4);		
+		ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);	
+		printf("++++++++++++++++++++ Send Point = < %d, %d >\r\n", bpt.x , bpt.y );
+	#endif		
+			
+	 } 
+}
+#endif
+
+void CProcess::OnMouseLeftDwn(int x, int y)
+{
+	#if LINKAGE_FUNC
+		reMapCoords(x, y);
+	#endif
+};
 void CProcess::OnMouseLeftUp(int x, int y){};
 void CProcess::OnMouseRightDwn(int x, int y){};
 void CProcess::OnMouseRightUp(int x, int y){};
@@ -1734,30 +1994,9 @@ void CProcess::OnKeyDwn(unsigned char key)
 		}
 	if (key == 'p'|| key == 'P')
 		{
-			
-			//pIStuts->PicpPosStat=(pIStuts->PicpPosStat+1)%4;
 			msgdriv_event(MSGID_EXT_INPUT_PICPCROP, NULL);
 		}
-	if (key == 'g'|| key == 'G')
-	{
-		/***************posmov**************/
-		printf("before set AxisPos\n");
-		tmpCmd.axisMoveStepX = 1;
-		tmpCmd.axisMoveStepY = 0;
-		app_ctrl_setAxisPos(&tmpCmd);
 
-		//msgdriv_event(MSGID_EXT_INPUT_COAST, NULL);
-	}
-
-	if (key == 'h'|| key == 'H')
-	{
-		printf("before set AxisPos\n");
-		tmpCmd.axisMoveStepX= eTrk_ref_left;
-		app_ctrl_setAxisPos(&tmpCmd);
-		
-		//pIStuts->AvtTrkAimSize = 3;
-		//app_ctrl_setAimSize(pIStuts);
-	}
 
 	if(key == 'w'|| key == 'W')
 		{
@@ -1770,19 +2009,50 @@ void CProcess::OnKeyDwn(unsigned char key)
 			OSA_printf("MSGID_EXT_INPUT_MMTSHOW\n");
 		}
 
-	if (key == 'y'|| key == 'Y')
-	{		
 
-	}
 
+	#if LINKAGE_FUNC
 	
-	if (key == 'z'|| key == 'Z')
-	{
+		if(key == 'v' || key == 'V') {
+			m_camCalibra->start_cloneVideoSrc = true;
+		}
+		if(key == 'x' || key == 'X') {
+			m_camCalibra->start_cloneVideoSrc = false;
+		}	
+		if(key == 'l') {
+			m_display.changeDisplayMode(SIDE_BY_SIDE);
+		}
+		if(key == 'q') {
+			m_display.switchDisplayMode();
+		}
+
+
+		if (key == 'y'|| key == 'Y')
+		{		
+			if(open_handleCalibra && m_camCalibra->Set_Handler_Calibra)
+			{
+				open_handleCalibra = false ;
+				m_camCalibra->Set_Handler_Calibra = false ;
+			}
+			else
+			{
+				open_handleCalibra = true ; 
+				m_camCalibra->Set_Handler_Calibra = false ;
+			}
+		}
+
+
+		if (key == 'z'|| key == 'Z')
+		{
+			if(Set_SelectByRect)
+				Set_SelectByRect = false ;
+			else
+				Set_SelectByRect = true ;
+			//pIStuts->ImgZoomStat[0]=(pIStuts->ImgZoomStat[0]+1)%2;
+			//msgdriv_event(MSGID_EXT_INPUT_ENZOOM, NULL);
+		}
 		
-		pIStuts->ImgZoomStat[0]=(pIStuts->ImgZoomStat[0]+1)%2;
-		pIStuts->ImgZoomStat[1]=(pIStuts->ImgZoomStat[1]+1)%2;
-		msgdriv_event(MSGID_EXT_INPUT_ENZOOM, NULL);
-	}
+	#endif
 
 	
 }

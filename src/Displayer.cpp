@@ -27,6 +27,11 @@
 #include "locale.h"
 #include "Ipcctl.h"
 #include "arm_neon.h"
+
+#if LINKAGE_FUNC
+#include "CcCamCalibra.h"
+#endif
+
 #define HISTEN 0
 #define CLAHEH 1
 #define DARKEN 0
@@ -36,6 +41,10 @@ extern int IrisAndFocusAndExit;
 extern CMD_triangle cmd_triangle;
 extern OSD_param m_osd;
 extern CProcess* plat;
+
+#if LINKAGE_FUNC
+extern CamParameters g_camParams;
+#endif
 
 double capTime = 0;
 
@@ -68,6 +77,25 @@ osdbuffer_t disOsdBuf[32]={0};
 osdbuffer_t disOsdBufbak[32] = {0};
 wchar_t disOsd[32][33];
 
+#if LINKAGE_FUNC
+void CDisplayer::linkage_init()
+{
+	gun_BMP = imread("gun.bmp");
+	if(!gun_BMP.empty()) {
+		cout << "Open Gun BMP Failed!!! " << endl;
+	}
+
+	if(!gun_BMP.empty()) {
+		gun_BMP.copyTo(plat->m_camCalibra->gun_fromBMP);
+	}
+	
+	gun_UndistorMat.create(1080,1920,CV_8UC3);
+	if(!gun_UndistorMat.empty()) {
+		cout << "Create gun_UndistorMat Failed !!" << endl;
+	}
+}
+#endif
+
 CDisplayer::CDisplayer()
 :m_renderCount(0),m_bRun(false),m_bFullScreen(false),m_bOsd(false),
  m_glProgram(0), m_bUpdateVertex(false)
@@ -93,6 +121,11 @@ CDisplayer::CDisplayer()
 
 	frameCount = 0;
 	frameRate = 0.0;
+
+#if LINKAGE_FUNC
+	linkage_init();
+#endif
+	
 }
 
 CDisplayer::~CDisplayer()
@@ -1423,40 +1456,18 @@ void CDisplayer::gl_textureLoad(void)
 
 		if(!((mask >> chId)&1))
 		{
-		///
-			/*if((chId==1)&&(winId==1))
-			{
-				mask |= (1<<chId);
-				continue;
-			}*/
-//			OSA_mutexLock(&m_mutex);
-
-			//printf("gl_textureLoad winId =%d\n",winId);
 			if(!m_renders[winId].bFreeze)
 			{
-				//for(int i=0; i<DS_CUSTREAM_CNT; i++)
-				//	cudaStreamSynchronize(m_cuStream[i]);
-
 				GLuint pbo = async_display(chId, dism_img[chId].cols, dism_img[chId].rows, dism_img[chId].channels());
 				byteCount = dism_img[chId].cols*dism_img[chId].rows*dism_img[chId].channels()*sizeof(unsigned char);
 				unsigned char *dev_pbo = NULL;
 				size_t tmpSize;
 				freezeonece=1;
-				//if(chId==3)
-					//printf("chId =%d w=%d h=%d c=%d\n",chId,m_videoSize[chId].w,m_videoSize[chId].h,m_videoSize[chId].c);
-				//printf("chId =%d w=%d h=%d c=%d\n",chId,m_img[chId].cols,m_img[chId].rows,m_img[chId].channels());
 				OSA_assert(pbo == buffId_input[chId]);
-
-				#if 1
+	
 				cudaResource_RegisterBuffer(chId, pbo, byteCount);
 				cudaResource_mapBuffer(chId, (void **)&dev_pbo, &tmpSize);
-				#endif
-				if(tmpSize != byteCount)
-				{
-					;
-						//OSA_printf("tmpSize=%d  byteCount=%d\n",tmpSize,byteCount);
-				}
-				//assert(tmpSize == byteCount);
+
 				frametextcout++;
 				tvframecount++;
 				firframecount++;
@@ -1602,20 +1613,25 @@ void CDisplayer::gl_textureLoad(void)
 					cudaMemcpy(x11disbuffer, m_img_novideo.data,byteCount, cudaMemcpyDeviceToHost);
 				}
 
-				//add for kaidun
-				#if 1
-					if((disbuffer==0)&&(chId==video_gaoqing0))
-						OSA_bufPutEmpty(&tskSendBuftv0, bufid);
-					if((disbuffer==0)&&(chId==video_gaoqing))
-						OSA_bufPutEmpty(&tskSendBuftv1, bufid);
-					if((disbuffer==0)&&(chId==video_gaoqing2))
-						OSA_bufPutEmpty(&tskSendBuftv2, bufid);
-					if((disbuffer==0)&&(chId==video_gaoqing3))
-						OSA_bufPutEmpty(&tskSendBuftv3, bufid);
-					
-					if((disbuffer==0)&&(chId==video_pal))
-						OSA_bufPutEmpty(&tskSendBufpal, bufid);
-				#endif
+	
+			#if LINKAGE_FUNC
+				if(chId == 0 && plat->m_camCalibra->Set_Handler_Calibra == true) {
+					memcpy(gun_UndistorMat.data, x11disbuffer, 1080*1920*3);
+					remap(gun_UndistorMat, gun_UndistorMat, g_camParams.map1, g_camParams.map2, INTER_LINEAR);
+					memcpy( x11disbuffer,gun_UndistorMat.data, 1080*1920*3);
+				}
+			#endif
+
+				if((disbuffer==0)&&(chId==video_gaoqing0))
+					OSA_bufPutEmpty(&tskSendBuftv0, bufid);
+				if((disbuffer==0)&&(chId==video_gaoqing))
+					OSA_bufPutEmpty(&tskSendBuftv1, bufid);
+				if((disbuffer==0)&&(chId==video_gaoqing2))
+					OSA_bufPutEmpty(&tskSendBuftv2, bufid);
+				if((disbuffer==0)&&(chId==video_gaoqing3))
+					OSA_bufPutEmpty(&tskSendBuftv3, bufid);		
+				if((disbuffer==0)&&(chId==video_pal))
+					OSA_bufPutEmpty(&tskSendBufpal, bufid);		
 			
 			}
 			//glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffId_input[chId]);
@@ -1675,6 +1691,45 @@ void CDisplayer::disp_fps(){
     glutBitmapString(GLUT_BITMAP_HELVETICA_18, (unsigned char *)fps_str);
     frames++;
 }
+
+#if LINKAGE_FUNC
+DISPLAYMODE CDisplayer::getDisplayMode()
+{
+	return displayMode;
+}
+
+
+void CDisplayer::switchDisplayMode()
+{
+	displayMode = DISPLAYMODE( (int)(displayMode+1)%TOTAL_MODE_COUNT);
+}
+
+
+void CDisplayer::changeDisplayMode(DISPLAYMODE mode)
+{
+	displayMode =DISPLAYMODE( mode%TOTAL_MODE_COUNT);
+}
+
+
+void CDisplayer::RenderVideoOnOrthoView( int videoChannel, int x, int y, int width, int height )
+{
+	glViewport( x, y, width, height );
+	glPushMatrix();
+	glLoadIdentity();
+	glUniformMatrix4fv(Uniform_mattrans, 1, GL_FALSE, m_glmat44fTrans[0]);
+	glUniform1i(Uniform_tex_in, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureId_input[videoChannel]);
+	glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, GL_FALSE, 0, m_glvVerts[0]);
+	glVertexAttribPointer(ATTRIB_TEXTURE, 2, GL_FLOAT, GL_FALSE, 0, m_glvTexCoords[0]);
+	glEnableVertexAttribArray(ATTRIB_VERTEX);
+	glEnableVertexAttribArray(ATTRIB_TEXTURE);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glPopMatrix();	
+}
+
+#endif
+
 void CDisplayer::gl_display(void)
 {	
 	int winId, chId;
@@ -1688,6 +1743,46 @@ void CDisplayer::gl_display(void)
 	//Uniform_osd_enable = glGetUniformLocation(m_glProgram, "bOsd");
 	Uniform_mattrans = glGetUniformLocation(m_glProgram, "mTrans");
 	Uniform_font_color = glGetUniformLocation(m_fontProgram,"fontColor");
+
+#if LINKAGE_FUNC
+		switch(displayMode) {
+			case PREVIEW_MODE:
+				RenderVideoOnOrthoView(VIDEO_1, 0, 540, 960,540);
+				RenderVideoOnOrthoView(VIDEO_0, 960, 540, 960,540);
+				if( g_CurDisplayMode != PREVIEW_MODE) {
+					g_CurDisplayMode = PREVIEW_MODE;
+				}
+				break;
+			case PIC_IN_PIC:
+				RenderVideoOnOrthoView( VIDEO_0, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+				RenderVideoOnOrthoView( VIDEO_1, WINDOW_WIDTH*3/4, WINDOW_HEIGHT*3/4, 
+											   WINDOW_WIDTH/4, WINDOW_HEIGHT/4);
+				if( g_CurDisplayMode != PIC_IN_PIC) {
+					g_CurDisplayMode = PIC_IN_PIC;
+				}
+				break;
+			case SIDE_BY_SIDE:
+				RenderVideoOnOrthoView(VIDEO_0, WINDOW_WIDTH/2, 0, 
+											 WINDOW_WIDTH/2, WINDOW_HEIGHT);
+				RenderVideoOnOrthoView(VIDEO_1, 0, 0, WINDOW_WIDTH/2, WINDOW_HEIGHT);
+				if( g_CurDisplayMode != SIDE_BY_SIDE) {
+					g_CurDisplayMode = SIDE_BY_SIDE;
+				}
+				break;
+			case LEFT_BALL_RIGHT_GUN:
+				RenderVideoOnOrthoView(VIDEO_1, 0, 810, 480, 270);
+				RenderVideoOnOrthoView(VIDEO_0, 480, 270, 1440, 810);
+				if( g_CurDisplayMode != LEFT_BALL_RIGHT_GUN) {
+					g_CurDisplayMode = LEFT_BALL_RIGHT_GUN;
+				}
+				break;
+			default:
+				break;	
+		}
+	
+#endif
+
+
 	for(winId=0; winId<m_renderCount; winId++)
 	{		
 		chId = m_renders[winId].video_chId;

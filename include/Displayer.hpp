@@ -19,6 +19,7 @@
 #include "osa_buf.h"
 #include "osa_sem.h"
 #include "app_status.h"
+#include "configable.h"
 
 using namespace std;
 using namespace cv;
@@ -87,8 +88,49 @@ typedef struct _ds_init_param{
 	int timerInterval;//ms
 }DS_InitPrm;
 
+
+#if LINKAGE_FUNC
+	typedef enum _DISPLAYMODE {
+		PREVIEW_MODE = 0,
+		PIC_IN_PIC,
+		SIDE_BY_SIDE,
+		LEFT_BALL_RIGHT_GUN,
+		TOTAL_MODE_COUNT
+	}DISPLAYMODE;
+#endif
+
+
 class CDisplayer 
 {
+#if LINKAGE_FUNC
+public:
+	cv::Mat gun_UndistorMat;
+	char savePicName[20];
+	cv::Mat gun_BMP;
+    DISPLAYMODE displayMode;
+
+	typedef enum _WindowSize{
+		WINDOW_WIDTH = 1920,
+		WINDOW_HEIGHT = 1080,
+			
+	}WindowSize;
+	typedef enum _VIDEOCNANNEL {
+		VIDEO_0 = 0,
+		VIDEO_1,
+		VIDEO_2,
+		VIDEO_3,
+		VIDEO_4,
+		VIDEO_COUNT			
+	}VIDEOCNANNEL;
+public:
+	DISPLAYMODE g_CurDisplayMode;
+	void RenderVideoOnOrthoView(int videoChannel,int x, int y, int width, int height);
+	void changeDisplayMode(DISPLAYMODE mode);
+	void switchDisplayMode( );
+	DISPLAYMODE getDisplayMode( );
+	void linkage_init();
+#endif
+
 public:
 	CDisplayer();
 	~CDisplayer();

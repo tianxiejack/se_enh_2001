@@ -11,6 +11,8 @@
 #include "MMTD.h"
 #include "mvdectInterface.hpp"
 
+#include "CcCamCalibra.h"
+
 typedef struct _main_thr_obj_cxt{
 	bool bTrack;
 	bool bMtd;
@@ -53,6 +55,23 @@ class CVideoProcess
 {
 	MAIN_ProcThrObj	mainProcThrObj;
 	Mat mainFrame[2];
+
+#if LINKAGE_FUNC
+
+public:
+	static CcCamCalibra *m_camCalibra;
+	
+	Mat gun_srcMat_remap;
+	Point LeftPoint;
+	Point RightPoint;
+	
+private:
+	Mat m_GrayMat;
+	Mat m_Gun_GrayMat;
+	Mat m_rgbMat;
+	
+#endif
+
 public:
 	CVideoProcess();
 	~CVideoProcess();
@@ -87,6 +106,10 @@ public:
 	virtual void OnMouseRightDwn(int x, int y){};
 	virtual void OnMouseRightUp(int x, int y){};
 	virtual void OnKeyDwn(unsigned char key){};
+	
+#if LINKAGE_FUNC
+	void linkage_init();
+#endif
 
 	int m_SensorStat;
 	int m_acqRectW;

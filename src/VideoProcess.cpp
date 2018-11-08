@@ -319,6 +319,40 @@ int CVideoProcess::MAIN_threadDestroy(void)
 	return iRet;
 }
 
+#if LINKAGE_FUNC
+void CVideoProcess::linkage_init()
+{
+	m_GrayMat.create(1080,1920,CV_8UC1);
+	if(!m_GrayMat.empty()) 
+		cout << "Create m_GrayMat Failed !!" << endl;
+	
+	m_Gun_GrayMat.create(1080,1920,CV_8UC1);
+	if(!m_Gun_GrayMat.empty())
+		cout << "Create m_Gun_GrayMat Failed !!" << endl;
+	
+	m_Gun_GrayMat = Scalar(255);
+
+	m_click = m_draw = m_tempX = m_tempY = 0;
+	memset(m_rectn, 0, sizeof(m_rectn));
+	memset(mRect, 0, sizeof(mRect));
+	
+	m_rgbMat.create(1080,1920,CV_8UC3);
+	if(!m_rgbMat.empty())
+		cout << "Create m_rgbMat Failed !!" << endl;
+	
+	if(m_camCalibra == NULL)
+		cout << "Create CamCalibrate Object Failed !!" << endl;
+	
+	if( !m_camCalibra->Load_CameraParams("gun_camera_data.yml", "ball_camera_data.yml") )
+		cout << " Load Camera Origin IntrinsicParameters Failed !!!" << endl;
+
+	m_camCalibra->Init_CameraParams();
+	m_camCalibra->RunService();
+}
+
+CcCamCalibra* CVideoProcess::m_camCalibra = new CcCamCalibra();
+
+#endif
 
 CVideoProcess::CVideoProcess()
 	:m_track(NULL),m_curChId(MAIN_CHID),m_curSubChId(-1),adaptiveThred(40)		
@@ -356,7 +390,13 @@ CVideoProcess::CVideoProcess()
 #if __MMT__
 	memset(m_tgtBox, 0, sizeof(TARGETBOX)*MAX_TARGET_NUMBER);
 #endif
+
+#if __MOVE_DETECT__
 	detectNum = 10;
+#endif
+#if LINKAGE_FUNC
+	linkage_init();
+#endif
 }
 
 CVideoProcess::~CVideoProcess()
@@ -859,7 +899,9 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 //	tstart = getTickCount();
 	int  channel= frame.channels();
 
-
+#if LINKAGE_FUNC
+	static bool copy_once = true;
+#endif
 	
 
 #ifdef TM
@@ -912,6 +954,29 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 		}
 	}
 
+	#endif
+
+
+	#if LINKAGE_FUNC
+	
+			if(m_camCalibra->start_cloneVideoSrc == true) {
+			#if !GUN_IMAGE_USEBMP
+				if(chId == 0){
+					m_camCalibra->cloneGunSrcImgae(frame);
+				}
+			#endif
+				
+				if(chId == 1)	{	
+					m_camCalibra->cloneBallSrcImgae(frame);
+				}
+			}
+		
+			if(  chId == 0 && copy_once == true) {
+				if(!frame.empty()) {
+					frame.copyTo(gun_srcMat_remap);
+					copy_once = false;
+				}
+			}
 	#endif
 		
 	//OSA_printf("chid =%d  m_curChId=%d m_curSubChId=%d\n", chId,m_curChId,m_curSubChId);

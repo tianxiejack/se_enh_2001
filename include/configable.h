@@ -7,6 +7,7 @@
 
 #define AVT_TRK_AIM_SIZE			2
 
+//#define LINKAGE_FUNC				1
 
 enum devvideo{
 	video_gaoqing0=0,

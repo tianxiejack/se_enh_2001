@@ -4,6 +4,23 @@
 
 #include "VideoProcess.hpp"
 #include "osd_cv.h"
+
+
+using namespace cv;
+
+#if LINKAGE_FUNC
+
+typedef struct _Resolution{
+	int raw, col ;
+}Resolution;
+
+typedef struct _SysParam{
+	Resolution gun_camera;
+	Resolution ball_camera;
+}SysParam;
+
+#endif
+
 class CProcess : public CVideoProcess
 {
 	UTC_RECT_float rcTrackBak[2],resultTrackBak;
@@ -29,7 +46,36 @@ class CProcess : public CVideoProcess
 	Osd_cvPoint debugBak;
 	char timedisplay[128];
 	bool forwardflag,backflag;
-	
+
+#if LINKAGE_FUNC
+	int key_point1_cnt ;
+	int key_point2_cnt ;
+	int AllPoints_Num  ;
+	char show_key[64][6];
+	char show_key2[64][6];
+	Point key1_pos;
+	Point key2_pos;
+	Point textPos1_record[64];
+	Point textPos2_record[64];
+	Point circle_point;
+private:
+	bool Set_SelectByRect;
+	bool open_handleCalibra;
+	void Cmp_SysParam();
+	SysParam m_sysparm;
+	FileStorage readfs;
+	FileStorage writefs;
+	void getParams();
+	void setParams();
+
+public:
+	bool readParams(const char* file);
+	bool writeParams(const char* file);
+	void reMapCoords(int x, int y);
+	void Init_CameraMatrix();
+	Mat undisImageGun;
+#endif
+
 public:
 	CProcess();
 	~CProcess();
@@ -140,8 +186,11 @@ private:
 	void initAcqRect();
 	void initAimRect();
 	void set_trktype(CMD_EXT *p, unsigned int stat);
-	
+
+	#if __MOVE_DETECT__
 	void mvIndexHandle(std::vector<TRK_RECT_INFO> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum);
+	#endif
+	
 public:
 	void update_param_alg();
 	void update_param_osd();
