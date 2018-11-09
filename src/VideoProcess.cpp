@@ -509,7 +509,16 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 	}
 	else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP)
 	{
+		SENDST test;
+		CMD_MOUSEPTZ mptz;
+		
 		pThis->mptz_click = 0;
+		test.cmd_ID = mouseptz;
+		mptz.mptzx = 0;
+		mptz.mptzy = 0;
+		memcpy(test.param, &mptz, sizeof(mptz));
+		ipc_sendmsg(&test, IPC_FRIMG_MSG);
+
 	}
 }
 
