@@ -196,6 +196,9 @@ public:
 	void update_param_osd();
 	RectfNode mRectbak[MAX_CHAN][100];
 	int m_tempXbak, m_tempYbak, m_rectnbak[MAX_CHAN];
+	char timearr[128];
+	char timearrbak[128];
+	int timexbak, timeybak;;
 
 };
 

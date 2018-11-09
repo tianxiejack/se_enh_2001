@@ -94,7 +94,12 @@ void CDisplayer::linkage_init()
 		cout << "Create gun_UndistorMat Failed !!" << endl;
 	else
 		cout << "Create gun_UndistorMat Success !!" << endl;
-	
+
+	videonamex = 100;
+	videonamey = 130;
+	timex = 100;
+	timey = 100;
+	videonamefs = 2;
 }
 #endif
 
@@ -373,22 +378,72 @@ void CDisplayer::processsizeMenu(int value)
 
 void CDisplayer::processnameMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
-}
+	osdbuffer_t disarr;
+	CMD_EXT *extInCtrl = (CMD_EXT*)ipc_getimgstatus_p();
+	extInCtrl->osdTextSize = gThis->videonamefs;
 
-void CDisplayer::processtimeMenu(int value)
-{
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	if(0 == value)
+	{
+		disarr.ctrl = 0;
+	}
+	else if(1 == value)
+	{
+		disarr.ctrl = 1;
+	}
+	
+	disarr.color = 2;
+	disarr.osdID = 31;
+	disarr.posx = gThis->videonamex;
+	disarr.posy = gThis->videonamey;
+	disarr.alpha= 0;
+	sprintf((char *)disarr.buf, "Tracker  ShangHai");
+
+	memcpy(&disOsdBuf[31],&disarr,sizeof(disarr));
+	setlocale(LC_ALL, "zh_CN.UTF-8");
+	memcpy(&disOsdBufbak[31],&disOsdBuf[31],sizeof(osdbuffer_t));
+	swprintf(disOsd[31], 33, L"%s", disOsdBuf[31].buf);
 }
 
 void CDisplayer::processfontsizeMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	CMD_EXT *extInCtrl = (CMD_EXT*)ipc_getimgstatus_p();
+	
+	if(0 == value)
+		gThis->videonamefs = 1;
+	else if(1 == value)
+		gThis->videonamefs = 2;
+	else if(2 == value)
+		gThis->videonamefs = 3;
+
+	extInCtrl->osdTextSize = gThis->videonamefs;
 }
 
 void CDisplayer::processosdposMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	if(0 == value)
+	{
+		gThis->timex = 100;
+		gThis->timey = 100;
+		gThis->videonamex = 100;
+		gThis->videonamey = 130;
+	}
+	else if(1 == value)
+	{
+		gThis->timex = 1550;
+		gThis->timey = 100;
+		gThis->videonamex = 1550;
+		gThis->videonamey = 130;
+		
+	}
+
+	osdbuffer_t disarr = disOsdBuf[31];
+	disarr.posx= gThis->videonamex;
+	disarr.posy= gThis->videonamey;
+
+	memcpy(&disOsdBuf[31],&disarr,sizeof(disarr));
+	setlocale(LC_ALL, "zh_CN.UTF-8");
+	memcpy(&disOsdBufbak[31],&disOsdBuf[31],sizeof(osdbuffer_t));
+	swprintf(disOsd[31], 33, L"%s", disOsdBuf[31].buf);
 }
 
 void CDisplayer::processSenMenu(int value)
@@ -473,32 +528,218 @@ void CDisplayer::processdurationMenu(int value)
 
 void CDisplayer::processbuadrateMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	float buadratetmp;
+	SENDST test;
+	int send_flag = 1;
+
+	test.cmd_ID = setconfig;
+	test.param[0] = 52;
+	test.param[1] = 0;
+	switch(value)
+	{
+		case 0:
+			buadratetmp = 1200;
+			break;
+		case 1:
+			buadratetmp = 2400;
+			break;
+		case 2:
+			buadratetmp = 4800;
+			break;
+		case 3:
+			buadratetmp = 9600;
+			break;
+		case 4:
+			buadratetmp = 19200;
+			break;
+		case 5:
+			buadratetmp = 38400;
+			break;
+		case 6:
+			buadratetmp = 57600;
+			break;
+		case 7:
+			buadratetmp = 115200;
+			break;
+		default:
+			send_flag = 0;
+			break;
+
+	}
+	if(send_flag)
+	{
+		memcpy(test.param+2, &buadratetmp, sizeof(buadratetmp));
+		ipc_sendmsg(&test, IPC_FRIMG_MSG);
+	}
 }
 
 void CDisplayer::processdatabitMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	float databittmp;
+	SENDST test;
+	int send_flag = 1;
+
+	test.cmd_ID = setconfig;
+	test.param[0] = 52;
+	test.param[1] = 1;
+	switch(value)
+	{
+		case 0:
+			databittmp = 5;
+			break;
+		case 1:
+			databittmp = 6;
+			break;
+		case 2:
+			databittmp = 7;
+			break;
+		case 3:
+			databittmp = 8;
+			break;
+		default:
+			send_flag = 0;
+			break;
+
+	}
+	if(send_flag)
+	{
+		memcpy(test.param+2, &databittmp, sizeof(databittmp));
+		ipc_sendmsg(&test, IPC_FRIMG_MSG);
+	}
 }
 
 void CDisplayer::processstopbitMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	float stopbittmp;
+	SENDST test;
+	int send_flag = 1;
+
+	test.cmd_ID = setconfig;
+	test.param[0] = 52;
+	test.param[1] = 2;
+	switch(value)
+	{
+		case 0:
+			stopbittmp = 1;
+			break;
+		case 1:
+			stopbittmp = 1.5;
+			break;
+		case 2:
+			stopbittmp = 2;
+			break;
+		default:
+			send_flag = 0;
+			break;
+
+	}
+	if(send_flag)
+	{
+		memcpy(test.param+2, &stopbittmp, sizeof(stopbittmp));
+		ipc_sendmsg(&test, IPC_FRIMG_MSG);
+	}
 }
 
 void CDisplayer::processparityMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	float paritytmp;
+	SENDST test;
+	int send_flag = 1;
+
+	test.cmd_ID = setconfig;
+	test.param[0] = 52;
+	test.param[1] = 3;
+	switch(value)
+	{
+		case 0:
+			paritytmp = 0;
+			break;
+		case 1:
+			paritytmp = 1;
+			break;
+		case 2:
+			paritytmp = 2;
+			break;
+		default:
+			send_flag = 0;
+			break;
+
+	}
+	if(send_flag)
+	{
+		memcpy(test.param+2, &paritytmp, sizeof(paritytmp));
+		ipc_sendmsg(&test, IPC_FRIMG_MSG);
+	}
 }
 
-void CDisplayer::processipMenu(int value)
+void CDisplayer::processaddressMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	float addresstmp;
+	SENDST test;
+	int send_flag = 1;
+
+	test.cmd_ID = setconfig;
+	test.param[0] = 52;
+	test.param[1] = 4;
+	switch(value)
+	{
+		case 0:
+			addresstmp = 0;
+			break;
+		case 1:
+			addresstmp = 1;
+			break;
+		case 2:
+			addresstmp = 2;
+			break;
+		case 3:
+			addresstmp = 3;
+			break;
+		case 4:
+			addresstmp = 4;
+			break;
+		case 5:
+			addresstmp = 5;
+			break;
+		default:
+			send_flag = 0;
+			break;
+
+	}
+	if(send_flag)
+	{
+		memcpy(test.param+2, &addresstmp, sizeof(addresstmp));
+		ipc_sendmsg(&test, IPC_FRIMG_MSG);
+	}
 }
 
 void CDisplayer::processprotocolMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	float protocoltmp;
+	SENDST test;
+	int send_flag = 1;
+
+	test.cmd_ID = setconfig;
+	test.param[0] = 52;
+	test.param[1] = 5;
+	switch(value)
+	{
+		case 0:
+			protocoltmp = 0;
+			break;
+		case 1:
+			protocoltmp = 1;
+			break;
+		default:
+			send_flag = 0;
+			break;
+
+	}
+	if(send_flag)
+	{
+		memcpy(test.param+2, &protocoltmp, sizeof(protocoltmp));
+		ipc_sendmsg(&test, IPC_FRIMG_MSG);
+	}
 }
 
 void CDisplayer::processmtdswMenu(int value)
@@ -699,7 +940,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		int name_submenu = glutCreateMenu(processnameMenu);
 		glutAddMenuEntry("Enable",0);
 		glutAddMenuEntry("Disable",1);
-		int time_submenu = glutCreateMenu(processtimeMenu);
+		int time_submenu = glutCreateMenu(m_initPrm.timefunc);
 		glutAddMenuEntry("Enable",0);
 		glutAddMenuEntry("Disable",1);
 		int fontsize_submenu = glutCreateMenu(processfontsizeMenu);
@@ -707,10 +948,8 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("Middle",1);
 		glutAddMenuEntry("Big",2);
 		int osdpos_submenu = glutCreateMenu(processosdposMenu);
-		glutAddMenuEntry("Position1",0);
-		glutAddMenuEntry("Position2",1);
-		glutAddMenuEntry("Position3",2);
-		glutAddMenuEntry("Position4",3);
+		glutAddMenuEntry("LU",0);
+		glutAddMenuEntry("RU",1);
 		int osd_submenu = glutCreateMenu(NULL);
 		glutAddSubMenu("Video Name",name_submenu);
 		glutAddSubMenu("Time",time_submenu);
@@ -780,9 +1019,13 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("None",0);
 		glutAddMenuEntry("Even",1);
 		glutAddMenuEntry("Odd",2);
-		int ip_submenu = glutCreateMenu(processipMenu);
-		glutAddMenuEntry("IP1",0);
-		glutAddMenuEntry("IP2",1);
+		int ip_submenu = glutCreateMenu(processaddressMenu);
+		glutAddMenuEntry("0",0);
+		glutAddMenuEntry("1",1);
+		glutAddMenuEntry("2",2);
+		glutAddMenuEntry("3",3);
+		glutAddMenuEntry("4",4);
+		glutAddMenuEntry("5",5);
 		int pro_submenu = glutCreateMenu(processprotocolMenu);
 		glutAddMenuEntry("Pelco-D",0);
 		glutAddMenuEntry("Pelco-P",1);
@@ -791,7 +1034,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddSubMenu("Data Bit",data_submenu);
 		glutAddSubMenu("Stop Bit",stop_submenu);
 		glutAddSubMenu("Parity",par_submenu);
-		glutAddSubMenu("IP",ip_submenu);
+		glutAddSubMenu("Address",ip_submenu);
 		glutAddSubMenu("Protocol",pro_submenu);
 		
 		int sub_menu3 = glutCreateMenu(NULL);

@@ -68,6 +68,7 @@ typedef enum
     mtdoutput,
     mtdpolar,
     mtdtrktime,
+    setconfig,/*50*/
     invalid
 }CMD_ID;
 

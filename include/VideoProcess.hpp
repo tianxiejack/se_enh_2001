@@ -141,6 +141,8 @@ public:
 	int m_draw;
 	RectfNode mRect[MAX_CHAN][100];
 	int m_tempX, m_tempY, m_rectn[MAX_CHAN];
+
+	int m_time_show,m_time_flag;
 #else
 	int mptz_click;
 	int mptz_originX, mptz_originY;
@@ -203,6 +205,7 @@ protected:
 	static void mousemove_event(GLint xMouse, GLint yMouse);
 	static void mouse_event(int button, int state, int x, int y);
 	static void menu_event(int value);
+	static void processtimeMenu(int value);
 #else
 	static void mousemotion_event(GLint xMouse, GLint yMouse);
 	static void mouse_event(int button, int state, int x, int y);

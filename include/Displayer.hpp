@@ -79,6 +79,7 @@ typedef struct _ds_init_param{
 	void (*passivemotionfunc)(GLint xMouse, GLint yMouse);
 	void (*mousefunc)(int button, int state, int x, int y);
 	void (*menufunc)(int value);
+	void (*timefunc)(int value);
 
 #else
 
@@ -117,6 +118,8 @@ public:
 	char savePicName[20];
 	cv::Mat gun_BMP;
     DISPLAYMODE displayMode;
+
+	int videonamex, videonamey, timex, timey, videonamefs;
 
 	typedef enum _WindowSize{
 		WINDOW_WIDTH = 1920,
@@ -253,7 +256,6 @@ protected:
 	static void processposMenu(int value);
 	static void processsizeMenu(int value);
 	static void processnameMenu(int value);
-	static void processtimeMenu(int value);
 	static void processfontsizeMenu(int value);
 	static void processosdposMenu(int value);
 	static void processSenMenu(int value);
@@ -271,7 +273,7 @@ protected:
 	static void processdatabitMenu(int value);
 	static void processstopbitMenu(int value);
 	static void processparityMenu(int value);
-	static void processipMenu(int value);
+	static void processaddressMenu(int value);
 	static void processprotocolMenu(int value);
 	static void processmtdswMenu(int value);
 	static void processmtdmodeMenu(int value);
