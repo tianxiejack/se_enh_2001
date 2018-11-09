@@ -141,6 +141,7 @@ public:
 	void switchDisplayMode( );
 	DISPLAYMODE getDisplayMode( );
 	void linkage_init();
+	void linkageSwitchMode(void);
 #endif
 
 public:

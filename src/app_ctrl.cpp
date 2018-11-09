@@ -313,6 +313,11 @@ void app_ctrl_setReset(CMD_EXT * pInCmd)
 
 void app_ctrl_setSensor(CMD_EXT * pInCmd)
 {
+	
+	#if LINKAGE_FUNC
+		return ;
+	#endif
+
 	if(msgextInCtrl==NULL)
 		return ;
 

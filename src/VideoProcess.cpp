@@ -400,9 +400,13 @@ CVideoProcess::CVideoProcess()
 #if __MOVE_DETECT__
 	detectNum = 10;
 #endif
+
 #if LINKAGE_FUNC
+	m_curChId = video_gaoqing ;
+	m_curSubChId = video_gaoqing0 ;
 	linkage_init();
 #endif
+
 }
 
 CVideoProcess::~CVideoProcess()
@@ -1047,13 +1051,13 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 		
 	//OSA_printf("chid =%d  m_curChId=%d m_curSubChId=%d\n", chId,m_curChId,m_curSubChId);
 
+
 	if(chId == m_curChId || chId == m_curSubChId)
 	{
 		if((chId == video_pal)&&(virchId != PAL_VIRCHID));
 		else
 			m_display.display(frame,  chId, format);		
 	}
-
 
 	OSA_mutexUnlock(&m_mutex);
 
@@ -1199,10 +1203,10 @@ void	CVideoProcess::initMvDetect()
 	
 	std::vector<cv::Point> polyWarnRoi ;
 	polyWarnRoi.resize(4);
-	polyWarnRoi[0]	= cv::Point(1000,500);
-	polyWarnRoi[1]	= cv::Point(1400,500);
-	polyWarnRoi[2]	= cv::Point(1400,900);
-	polyWarnRoi[3]	= cv::Point(1000,900);
+        polyWarnRoi[0]	= cv::Point(100,100);
+        polyWarnRoi[1]	= cv::Point(1820,100);
+        polyWarnRoi[2]	= cv::Point(1820,980);
+        polyWarnRoi[3]	= cv::Point(100,980);
 
 
 	preWarnRect.x = polyWarnRoi[0].x;
