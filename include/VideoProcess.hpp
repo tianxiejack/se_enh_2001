@@ -109,7 +109,11 @@ public:
 	virtual void OnKeyDwn(unsigned char key){};
 	
 #if LINKAGE_FUNC
+
 	void linkage_init();
+	bool Set_SelectByRect;
+	bool open_handleCalibra;
+
 #endif
 
 	int m_SensorStat;

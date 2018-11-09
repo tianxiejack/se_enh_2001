@@ -87,7 +87,8 @@ public:
 	int cr_recoverPose( InputArray E, InputArray _points1, InputArray _points2, InputArray _cameraMatrix,
                      OutputArray _R, OutputArray _t, InputOutputArray _mask);
 	void cr_decomposeEssentialMat( InputArray _E, OutputArray _R1, OutputArray _R2, OutputArray _t );
-
+	void cvtBallYuyv2Bgr();
+	void cvtGunYuyv2Bgr();
 
 private:
 	Mat cameraMatrix_gun ;

@@ -6,9 +6,12 @@
  */
 
 #include "CcCamCalibra.h"
+#include <sys/time.h>
+
 CamParameters g_camParams;
 CcCamCalibra::CcCamCalibra():scale(0.5),bCal(false),ret1(false),ret2(false),
-	panPos(1024), tiltPos(13657), zoomPos(16),writeParam_flag(false) 
+	panPos(1024), tiltPos(13657), zoomPos(16),writeParam_flag(false),
+	Set_Handler_Calibra(false),bool_Calibrate(false)
 {
 	gun_BMP = imread("gun.bmp");
 	
@@ -48,10 +51,24 @@ void CcCamCalibra::Init_CameraParams()
 	}
 }
 
+void CcCamCalibra::cvtGunYuyv2Bgr()
+{
+	if(!gun_yuyv.empty())
+		cvtColor(gun_yuyv,gun_frame,CV_YUV2BGR_YUYV);
+}
+
+void CcCamCalibra::cvtBallYuyv2Bgr()
+{
+	if(!ball_yuyv.empty()){
+		cvtColor(ball_yuyv,ball_frame,CV_YUV2BGR_YUYV);
+	}
+}
+
 void CcCamCalibra::getBallSrcImage(Mat &src)
 {
 	ball_frame = src;	
 }
+
 void CcCamCalibra::getGunSrcImage(Mat &src)
 {
 	gun_frame = src;	
@@ -81,10 +98,14 @@ int CcCamCalibra::StopService()
 
 void* CcCamCalibra::RunProxy(void* pArg)
 {
+	 struct timeval tv;
 	 struct RunPrm *pPrm = (struct RunPrm*)pArg;
 	 cout<<"RunProxy..."<<endl;
 	 while(pPrm->pThis->m_bRun)
 	 {		
+	 	tv.tv_sec = 0;
+    	tv.tv_usec = (30%1000)*1000;
+   		select(0, NULL, NULL, NULL, &tv);
 		pPrm->pThis->Run();
 	 }
 	 return NULL;
@@ -154,22 +175,6 @@ int CcCamCalibra::Run()
 	//if(1/*start_cloneVideoSrc == true*/) {
 	Mat frame = ball_frame;//ball_BMP;
 #if 1	
-	#if GUN_IMAGE_USEBMP
-		if( !gun_fromBMP.empty()) {
-			gun_fromBMP.copyTo(gun_frame);
-		}
-	#else
-		if(!gun_yuyv.empty()) {
-			cvtColor(gun_yuyv,gun_frame,CV_YUV2BGR_YUYV);
-			
-		}
-	#endif
-		if(!ball_yuyv.empty()) {
-			cvtColor(ball_yuyv,ball_frame,CV_YUV2BGR_YUYV);
-			line(ball_frame,Point(900,540),Point(1020,540),Scalar(0,0,255),5,CV_AA);
-			line(ball_frame,Point(960,480),Point(960,600),Scalar(0,0,255),5,CV_AA);
-		}
-		
 		if(!gun_frame.empty()){
 			remap(gun_frame, undisImage, map1, map2, INTER_LINEAR);
 		}
@@ -179,63 +184,67 @@ int CcCamCalibra::Run()
 		}
 #endif
 	Mat gunDraw, ballDraw;
-	if( (!ball_frame.empty()) && (!gun_frame.empty()) ){
-		if(Set_Handler_Calibra == true) {
-			if(bool_Calibrate){
-				if(key_points1.size() > 4 && key_points2.size() > 4){
-					Mat R,t;
-					vector<Point2f> keypt1, keypt2;
-					keypt1.clear();
-					keypt2.clear();
-					for(int i=0; i<key_points1.size(); i++){
-						keypt1.push_back(cv::Point2f(key_points1[i].x*2, key_points1[i].y*2));
-						keypt2.push_back(cv::Point2f(key_points2[i].x*2, key_points2[i].y*2));
-					}
-					handle_pose_2d2d( keypt2, keypt1,newCameraMatrix, R, t, homography);
 
-					cout << "Key_points1.size() = " << key_points1.size() << endl;
-					cout << "Key_points2.size() = " << key_points2.size() << endl;
-					bool_Calibrate = false;
+	if( (!ball_frame.empty()) && (!gun_frame.empty()) )
+	{
+		if( Set_Handler_Calibra && bool_Calibrate ) {		
+
+			printf("%s : start manual calibrate \n",__func__);
+			
+			if(key_points1.size() > 4 && key_points2.size() > 4){
+				Mat R,t;
+				vector<Point2f> keypt1, keypt2;
+				keypt1.clear();
+				keypt2.clear();
+				for(int i=0; i<key_points1.size(); i++){
+					keypt1.push_back(cv::Point2f(key_points1[i].x*2, key_points1[i].y*2));
+					keypt2.push_back(cv::Point2f(key_points2[i].x*2, key_points2[i].y*2));
 				}
+				handle_pose_2d2d( keypt2, keypt1,newCameraMatrix, R, t, homography);
+				
+
+				cout << "Key_points1.size() = " << key_points1.size() << endl;
+				cout << "Key_points2.size() = " << key_points2.size() << endl;
+				bool_Calibrate = false;
 			}
+			
 			if(!homography.empty()){
 				Mat warp;
 				if( !undisImage.empty()){
 					warpPerspective(undisImage, warp, homography, undisImage.size());
 					resize(warp, warp, Size(warp.cols*scale, warp.rows*scale));					
-					drawChessboardCorners(warp, boardSize, key_points1, false);					
+					drawChessboardCorners(warp, boardSize, key_points1, false);		
 					imshow("camera gun warp", warp);
 				}
 			}
 		}
-		else
+		else if( !Set_Handler_Calibra && bool_Calibrate)
 		{	
 			/*	
 				resize(gun_frame, gunDraw, Size(1920*scale, 1080*scale));
 				resize(ball_frame, ballDraw, Size(1920*scale, 1080*scale));
 				imshow("gun_org", gunDraw);
 				imshow("ball_org", ballDraw);	
-			*/
-			
-			if(bool_Calibrate){
-				vector<KeyPoint> keypoints_1, keypoints_2;
-				vector<DMatch> matches;
-				find_feature_matches ( undisImage, frame,  keypoints_1, keypoints_2, matches , 60.0, true);
-				if(matches.size() > 4){
-					Mat R,t;
-					pose_2d2d ( keypoints_1, keypoints_2, matches, newCameraMatrix, R, t, homography);					
-					pts.clear();
-					for(int i=0; i<matches.size(); ++i) {
-						cv::Point2f pt = keypoints_2[matches[i].trainIdx].pt;
-						pt.x *= scale;
-						pt.y *= scale;
-						pts.push_back(pt);
-					}					
-					bool_Calibrate = false;
-					cout << "match points " << matches.size() << endl;
-				}
-				//printf("[%s] :  bool_Calibrate = %d\r\n", __FUNCTION__,bool_Calibrate);
+			*/	
+			printf("%s : start auto calibrate \n",__func__);
+			vector<KeyPoint> keypoints_1, keypoints_2;
+			vector<DMatch> matches;
+			find_feature_matches ( undisImage, frame,  keypoints_1, keypoints_2, matches , 60.0, true);
+			if(matches.size() > 4){
+				Mat R,t;
+				pose_2d2d ( keypoints_1, keypoints_2, matches, newCameraMatrix, R, t, homography);					
+				pts.clear();
+				for(int i=0; i<matches.size(); ++i) {
+					cv::Point2f pt = keypoints_2[matches[i].trainIdx].pt;
+					pt.x *= scale;
+					pt.y *= scale;
+					pts.push_back(pt);
+				}					
+				bool_Calibrate = false;
+				cout << "match points " << matches.size() << endl;
 			}
+			//printf("[%s] :  bool_Calibrate = %d\r\n", __FUNCTION__,bool_Calibrate);
+			
 			if(!homography.empty()){
 				Mat warp;
 				if( !undisImage.empty()){
@@ -253,7 +262,7 @@ int CcCamCalibra::Run()
 		}
 	}
 	
-	if(writeParam_flag == true) {
+	if( writeParam_flag ) {
 		writeParam_flag = false;
 		if(!saveLinkageParams("GenerateCameraParam.yml", imageSize, cameraMatrix_gun, distCoeffs_gun,
                     cameraMatrix_ball, distCoeffs_ball, homography,
@@ -268,11 +277,12 @@ int CcCamCalibra::Run()
 			g_camParams.imageSize = imageSize;
 			g_camParams.panPos = panPos;
 			g_camParams.tiltPos = tiltPos;
-			g_camParams.zoomPos = zoomPos;			
+			g_camParams.zoomPos = zoomPos;		
+			cout << "Write Camera Parameters Success !!!" << endl;
 		}
 	}
 	waitKey(1);
-
+	
 	return 0;
 }
 

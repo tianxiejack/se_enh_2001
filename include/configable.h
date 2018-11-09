@@ -24,6 +24,9 @@ enum devvideo{
 #define VIDEO_DIS_WIDTH		1920
 #define VIDEO_DIS_HEIGHT		1080
 
+#define BALL_CHID			video_gaoqing
+#define GUN_CHID			video_gaoqing0
+
 extern int vcapWH[5][2];
 extern int vdisWH[5][2];
 

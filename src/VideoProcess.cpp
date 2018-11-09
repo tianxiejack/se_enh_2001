@@ -389,9 +389,10 @@ CVideoProcess::CVideoProcess()
 	mptz_click = mptz_originX = mptz_originY = 0;
 #endif
 	
-	#if __MOVE_DETECT__
-		m_pMovDetector	=NULL;
-	#endif
+#if __MOVE_DETECT__
+	m_pMovDetector	=NULL;
+#endif
+
 #if __MMT__
 	memset(m_tgtBox, 0, sizeof(TARGETBOX)*MAX_TARGET_NUMBER);
 #endif
@@ -403,6 +404,8 @@ CVideoProcess::CVideoProcess()
 #if LINKAGE_FUNC
 	m_curChId = video_gaoqing ;
 	m_curSubChId = video_gaoqing0 ;
+	Set_SelectByRect = false ;
+	open_handleCalibra = false ;
 	linkage_init();
 #endif
 
@@ -461,27 +464,35 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 {
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-		if(pThis->m_click == 0)
+		if(pThis->open_handleCalibra)
 		{
-			pThis->m_click = 1;
-			pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1 = x;
-			pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1 = y;
-			cout<<pThis->m_rectn[pThis->m_curChId]<<" start:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1<<")"<<endl;
+			pThis->OnMouseLeftDwn(x, y);
 		}
 		else
 		{
-			pThis->m_click = 0;
-			pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 = x;
-			pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 = y;
-			cout<<pThis->m_rectn[pThis->m_curChId]<<" end:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2<<")\n"<<endl;
-			pThis->m_rectn[pThis->m_curChId]++;
-			if(pThis->m_rectn[pThis->m_curChId]>=sizeof(pThis->mRect[0]))
+			if(pThis->m_click == 0)
 			{
-				printf("mouse rect reached maxnum:100!\n");
-				pThis->m_rectn[pThis->m_curChId]--;
+				pThis->m_click = 1;
+				pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1 = x;
+				pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1 = y;
+				cout<<pThis->m_rectn[pThis->m_curChId]<<" start:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1<<")"<<endl;
 			}
-			pThis->m_draw = 1;
+			else
+			{
+				pThis->m_click = 0;
+				pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 = x;
+				pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 = y;
+				cout<<pThis->m_rectn[pThis->m_curChId]<<" end:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2<<")\n"<<endl;
+				pThis->m_rectn[pThis->m_curChId]++;
+				if(pThis->m_rectn[pThis->m_curChId]>=sizeof(pThis->mRect[0]))
+				{
+					printf("mouse rect reached maxnum:100!\n");
+					pThis->m_rectn[pThis->m_curChId]--;
+				}
+				pThis->m_draw = 1;
+			}
 		}
+		
 	}
 
 	if((button == 3)||(button == 4))
@@ -503,6 +514,7 @@ void CVideoProcess::mousemove_event(GLint xMouse, GLint yMouse)
 }
 
 #else
+
 void CVideoProcess::mouse_event(int button, int state, int x, int y)
 {
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
@@ -1016,18 +1028,23 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 
 	#if LINKAGE_FUNC
 	
-			if(m_camCalibra->start_cloneVideoSrc == true) {
-			#if !GUN_IMAGE_USEBMP
-				if(chId == 0){
-					m_camCalibra->cloneGunSrcImgae(frame);
-				}
-			#endif
-				
-				if(chId == 1)	{	
+			if(m_camCalibra->start_cloneVideoSrc == true) 
+			{
+				m_camCalibra->start_cloneVideoSrc = false;
+				printf("%s : cloneVideoSrc \n",__func__);
+				#if !GUN_IMAGE_USEBMP
+					if(chId == GUN_CHID){
+						m_camCalibra->cloneGunSrcImgae(frame);
+						m_camCalibra->cvtGunYuyv2Bgr();
+					}
+				#endif
+					
+				if( chId == BALL_CHID )	{	
 					m_camCalibra->cloneBallSrcImgae(frame);
+					m_camCalibra->cvtBallYuyv2Bgr();
 				}
 			}
-		
+			
 			if(  chId == 0 && copy_once == true) {
 				if(!frame.empty()) {
 					frame.copyTo(gun_srcMat_remap);
@@ -1035,6 +1052,7 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 				}
 			}
 	#endif
+	
 		
 	//OSA_printf("chid =%d  m_curChId=%d m_curSubChId=%d\n", chId,m_curChId,m_curSubChId);
 

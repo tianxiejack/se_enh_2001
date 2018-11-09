@@ -140,8 +140,7 @@ CProcess::CProcess()
 	forwardflag = backflag = false;
 
 #if LINKAGE_FUNC
-	Set_SelectByRect = false ;
-	open_handleCalibra = false ;
+	
 	key_point1_cnt =0;
 	key_point2_cnt =0;
 	AllPoints_Num =0;
@@ -167,7 +166,6 @@ CProcess::CProcess()
 		m_camCalibra->key_points1.clear();
 		m_camCalibra->key_points2.clear();
 	}
-	
 #endif
 
 }
@@ -1681,7 +1679,7 @@ osdindex++;	//acqRect
 
 #if LINKAGE_FUNC
 	osdindex++;
-	{
+	{		
 		if( open_handleCalibra == true ){  
 			sprintf(show_key[key_point1_cnt], "%d", key_point1_cnt);	
 			putText(m_display.m_imgOsd[1],show_key[key_point1_cnt],key1_pos,FONT_HERSHEY_TRIPLEX,0.8, cvScalar(255,0,0,255), 1);	
@@ -1697,11 +1695,11 @@ osdindex++;	//acqRect
 			
 				for(int i=0; i<AllPoints_Num; i++){
 					
-					//putText(m_display.m_imgOsd[1],show_key[i],textPos1_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
-					cv::circle(m_display.m_imgOsd[1],textPos1_record[i],1 ,cvScalar(0,0,0,0),8,8,0);			
+					putText(m_display.m_imgOsd[1],show_key[i],textPos1_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
+					cv::circle(m_display.m_imgOsd[1],textPos1_record[i],3 ,cvScalar(0,0,0,0),2,8,0);			
 					
-					//putText(m_display.m_imgOsd[1],show_key2[i],textPos2_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
-					cv::circle(m_display.m_imgOsd[1],textPos2_record[i],1 ,cvScalar(0,0,0,0),8,8,0);
+					putText(m_display.m_imgOsd[1],show_key2[i],textPos2_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
+					cv::circle(m_display.m_imgOsd[1],textPos2_record[i],3 ,cvScalar(0,0,0,0),2,8,0);
 					}
 			}		
 		}	
@@ -2019,9 +2017,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 		if(key == 'v' || key == 'V') {
 			m_camCalibra->start_cloneVideoSrc = true;
 		}
-		if(key == 'x' || key == 'X') {
-			m_camCalibra->start_cloneVideoSrc = false;
-		}	
+
 		if(key == 'l') {
 			m_display.changeDisplayMode(SIDE_BY_SIDE);
 		}
@@ -2029,21 +2025,27 @@ void CProcess::OnKeyDwn(unsigned char key)
 			m_display.switchDisplayMode();
 		}
 
+		if(key == 'M' || key == 'm' ) {
+			m_camCalibra->bool_Calibrate = true;
+		}	
+		
+		if(key == 'U' || key == 'u' ) {
+			m_camCalibra->writeParam_flag = true;
+		}	
+
 
 		if (key == 'y'|| key == 'Y')
 		{		
-			if(open_handleCalibra && m_camCalibra->Set_Handler_Calibra)
-			{
-				open_handleCalibra = false ;
-				m_camCalibra->Set_Handler_Calibra = false ;
-			}
-			else
-			{
-				open_handleCalibra = true ; 
-				m_camCalibra->Set_Handler_Calibra = false ;
-			}
+			open_handleCalibra = true ;
+			m_camCalibra->Set_Handler_Calibra = true ;
 		}
-
+			
+		if (key == 'x'|| key == 'X')
+		{
+			open_handleCalibra = false ; 
+			m_camCalibra->Set_Handler_Calibra = false ;
+		}
+		
 
 		if (key == 'z'|| key == 'Z')
 		{

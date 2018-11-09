@@ -59,8 +59,6 @@ class CProcess : public CVideoProcess
 	Point textPos2_record[64];
 	Point circle_point;
 private:
-	bool Set_SelectByRect;
-	bool open_handleCalibra;
 	void Cmp_SysParam();
 	SysParam m_sysparm;
 	FileStorage readfs;
