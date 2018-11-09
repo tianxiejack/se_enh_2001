@@ -275,8 +275,8 @@ void v4l2_camera::parse_line_header2(int channels, unsigned char *p)
 		}
 	}
 	if(chFlag != 0xF || lostLine0 || lostLine1){
-		OSA_printf("%s: chFlag = %x lost = %d %d; %d %d %d %d\n", __func__, chFlag, lostLine0, lostLine1,
-				cntLine[0], cntLine[1], cntLine[2], cntLine[3]);
+		//OSA_printf("%s: chFlag = %x lost = %d %d; %d %d %d %d\n", __func__, chFlag, lostLine0, lostLine1,
+		//		cntLine[0], cntLine[1], cntLine[2], cntLine[3]);
 	}
 }
 

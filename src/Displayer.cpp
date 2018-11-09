@@ -80,18 +80,21 @@ wchar_t disOsd[32][33];
 void CDisplayer::linkage_init()
 {
 	gun_BMP = imread("gun.bmp");
-	if(!gun_BMP.empty()) {
+	if(gun_BMP.empty())
 		cout << "Open Gun BMP Failed!!! " << endl;
-	}
+	else
+		cout << "Open Gun BMP Success!!! " << endl;
 
 	if(!gun_BMP.empty()) {
 		gun_BMP.copyTo(plat->m_camCalibra->gun_fromBMP);
 	}
 	
 	gun_UndistorMat.create(1080,1920,CV_8UC3);
-	if(!gun_UndistorMat.empty()) {
+	if(gun_UndistorMat.empty())
 		cout << "Create gun_UndistorMat Failed !!" << endl;
-	}
+	else
+		cout << "Create gun_UndistorMat Success !!" << endl;
+	
 }
 #endif
 

@@ -322,12 +322,16 @@ int CVideoProcess::MAIN_threadDestroy(void)
 void CVideoProcess::linkage_init()
 {
 	m_GrayMat.create(1080,1920,CV_8UC1);
-	if(!m_GrayMat.empty()) 
+	if(m_GrayMat.empty()) 
 		cout << "Create m_GrayMat Failed !!" << endl;
+	else
+		cout << "Create m_GrayMat Success !!" << endl;
 	
 	m_Gun_GrayMat.create(1080,1920,CV_8UC1);
-	if(!m_Gun_GrayMat.empty())
+	if(m_Gun_GrayMat.empty())
 		cout << "Create m_Gun_GrayMat Failed !!" << endl;
+	else
+		cout << "Create m_Gun_GrayMat Success !!" << endl;
 	
 	m_Gun_GrayMat = Scalar(255);
 
@@ -336,8 +340,10 @@ void CVideoProcess::linkage_init()
 	memset(mRect, 0, sizeof(mRect));
 	
 	m_rgbMat.create(1080,1920,CV_8UC3);
-	if(!m_rgbMat.empty())
+	if( m_rgbMat.empty())
 		cout << "Create m_rgbMat Failed !!" << endl;
+	else
+		cout << "Create m_rgbMat Success !!" << endl;
 	
 	if(m_camCalibra == NULL)
 		cout << "Create CamCalibrate Object Failed !!" << endl;

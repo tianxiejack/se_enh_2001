@@ -377,7 +377,8 @@ void CProcess::OnCreate()
 	MSGAPI_initial();
 
 	#if LINKAGE_FUNC
-		OnKeyDwn('b');	
+
+		//OnKeyDwn('b');	
 		bool ret = false;
 		if(false==(ret=m_camCalibra->loadLinkageParams("GenerateCameraParam.yml", g_camParams.imageSize, g_camParams.cameraMatrix_gun, 
 					g_camParams.distCoeffs_gun,

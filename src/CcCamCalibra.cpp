@@ -8,16 +8,21 @@
 #include "CcCamCalibra.h"
 CamParameters g_camParams;
 CcCamCalibra::CcCamCalibra():scale(0.5),bCal(false),ret1(false),ret2(false),
-	panPos(1024), tiltPos(13657), zoomPos(16) 
+	panPos(1024), tiltPos(13657), zoomPos(16),writeParam_flag(false) 
 {
 	gun_BMP = imread("gun.bmp");
-	if(!gun_BMP.empty()){
+	
+	if(gun_BMP.empty())
 		cout << "Open BMP gun Picture Failed!" <<endl;
-	}
+	else
+		cout << "Open BMP gun Picture Success!" <<endl;
+	
 	ball_BMP = imread("ball.bmp");
-	if(!ball_BMP.empty()){
-		cout << "Open BMP gun Picture Failed!" <<endl;
-	}
+
+	if(ball_BMP.empty())
+		cout << "Open BALL gun Picture Failed!" <<endl;
+	else
+		cout << "Open BALL gun Picture Success!" <<endl;
 }
 
 CcCamCalibra::~CcCamCalibra() {
@@ -164,7 +169,7 @@ int CcCamCalibra::Run()
 			line(ball_frame,Point(900,540),Point(1020,540),Scalar(0,0,255),5,CV_AA);
 			line(ball_frame,Point(960,480),Point(960,600),Scalar(0,0,255),5,CV_AA);
 		}
-
+		
 		if(!gun_frame.empty()){
 			remap(gun_frame, undisImage, map1, map2, INTER_LINEAR);
 		}
@@ -247,8 +252,9 @@ int CcCamCalibra::Run()
 			}
 		}
 	}
+	
 	if(writeParam_flag == true) {
-		writeParam_flag = false;		
+		writeParam_flag = false;
 		if(!saveLinkageParams("GenerateCameraParam.yml", imageSize, cameraMatrix_gun, distCoeffs_gun,
                     cameraMatrix_ball, distCoeffs_ball, homography,
                      panPos, tiltPos,zoomPos)) {
