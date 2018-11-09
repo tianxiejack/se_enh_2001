@@ -338,6 +338,7 @@ void CVideoProcess::linkage_init()
 	m_click = m_draw = m_tempX = m_tempY = 0;
 	memset(m_rectn, 0, sizeof(m_rectn));
 	memset(mRect, 0, sizeof(mRect));
+	m_time_show = m_time_flag = 0;
 	
 	m_rgbMat.create(1080,1920,CV_8UC3);
 	if( m_rgbMat.empty())
@@ -513,6 +514,17 @@ void CVideoProcess::mousemove_event(GLint xMouse, GLint yMouse)
 	}
 }
 
+void CVideoProcess::processtimeMenu(int value)
+{
+	if(0 == value)
+	{
+		pThis->m_time_show = 1;
+		pThis->m_time_flag = 1;
+	}
+	else if(1 == value)
+		pThis->m_time_show = 0;
+}
+
 #else
 
 void CVideoProcess::mouse_event(int button, int state, int x, int y)
@@ -601,6 +613,7 @@ int CVideoProcess::init()
 	dsInit.passivemotionfunc = mousemove_event;
 	dsInit.mousefunc = mouse_event;
 	dsInit.menufunc = menu_event;
+	dsInit.timefunc = processtimeMenu;
 #else
 	dsInit.motionfunc = mousemotion_event;
 	dsInit.mousefunc = mouse_event;
@@ -1208,10 +1221,10 @@ void	CVideoProcess::initMvDetect()
 	
 	std::vector<cv::Point> polyWarnRoi ;
 	polyWarnRoi.resize(4);
-	polyWarnRoi[0]	= cv::Point(1000,500);
-	polyWarnRoi[1]	= cv::Point(1400,500);
-	polyWarnRoi[2]	= cv::Point(1400,900);
-	polyWarnRoi[3]	= cv::Point(1000,900);
+        polyWarnRoi[0]	= cv::Point(100,100);
+        polyWarnRoi[1]	= cv::Point(1820,100);
+        polyWarnRoi[2]	= cv::Point(1820,980);
+        polyWarnRoi[3]	= cv::Point(100,980);
 
 
 	preWarnRect.x = polyWarnRoi[0].x;

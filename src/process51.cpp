@@ -134,6 +134,9 @@ CProcess::CProcess()
 	m_tempXbak = m_tempYbak = 0;
 	memset(m_rectnbak, 0, sizeof(m_rectnbak));
 	memset(mRectbak, 0, sizeof(mRectbak));
+	memset(timearr, 0, sizeof(timearr));
+	memset(timearrbak, 0, sizeof(timearrbak));
+	timexbak = timeybak = 0;
 #if __MOVE_DETECT__
 	chooseDetect = 0;
 #endif
@@ -1748,6 +1751,28 @@ osdindex++;	//acqRect
 		}
 		m_draw = 0;
 	}
+
+//time
+	if(m_time_flag)
+	{
+		if(m_time_show)
+		{
+			time_t t = time(NULL);
+			
+			putText(m_display.m_imgOsd[extInCtrl->SensorStat],timearrbak,Point(timexbak,timeybak),FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);
+			strftime(timearr, sizeof(timearr)-1, "%Y-%m-%d %H:%M:%S", localtime(&t));
+			memcpy(timearrbak, timearr, sizeof(timearr));
+			timexbak = m_display.timex;
+			timeybak = m_display.timey;
+			putText(m_display.m_imgOsd[extInCtrl->SensorStat],timearrbak,Point(timexbak,timeybak),FONT_HERSHEY_TRIPLEX,0.8, cvScalar(255,255,255,255), 1);
+		}
+		else
+		{
+			putText(m_display.m_imgOsd[extInCtrl->SensorStat],timearrbak,Point(timexbak,timeybak),FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);
+			m_time_flag = 0;
+		}
+	}
+	
 #endif
 
 	static unsigned int count = 0;
