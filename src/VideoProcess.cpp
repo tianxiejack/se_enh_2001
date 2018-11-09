@@ -399,9 +399,13 @@ CVideoProcess::CVideoProcess()
 #if __MOVE_DETECT__
 	detectNum = 10;
 #endif
+
 #if LINKAGE_FUNC
+	m_curChId = video_gaoqing ;
+	m_curSubChId = video_gaoqing0 ;
 	linkage_init();
 #endif
+
 }
 
 CVideoProcess::~CVideoProcess()
@@ -1034,13 +1038,13 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 		
 	//OSA_printf("chid =%d  m_curChId=%d m_curSubChId=%d\n", chId,m_curChId,m_curSubChId);
 
+
 	if(chId == m_curChId || chId == m_curSubChId)
 	{
 		if((chId == video_pal)&&(virchId != PAL_VIRCHID));
 		else
 			m_display.display(frame,  chId, format);		
 	}
-
 
 	OSA_mutexUnlock(&m_mutex);
 

@@ -269,6 +269,25 @@ int CDisplayer::initRender(bool bInitBind)
 
 		m_renders[chId].bFreeze=0;
 	}
+
+#if LINKAGE_FUNC
+
+	m_renders[0].video_chId = video_gaoqing;
+	m_renders[0].displayrect.x = 0;
+	m_renders[0].displayrect.y = 540;
+	m_renders[0].displayrect.w = 960;
+	m_renders[0].displayrect.h = 540;
+	m_renders[0].videodect=1;
+	
+	m_renders[1].video_chId = video_gaoqing0;
+	m_renders[1].displayrect.x = 960;
+	m_renders[1].displayrect.y = 540;
+	m_renders[1].displayrect.w = 960;
+	m_renders[1].displayrect.h = 540;	
+	m_renders[1].videodect=1;
+	
+#else
+
 	m_renders[0].croprect.x=0;
 	m_renders[0].croprect.y=0;
 	m_renders[0].croprect.w=0;
@@ -292,6 +311,7 @@ int CDisplayer::initRender(bool bInitBind)
 	m_renders[3].videodect=1;
 	m_renders[4].videodect=1;
 
+#endif
 	
 	m_img_novideo.cols=0;
 	m_img_novideo.rows=0;
@@ -1141,7 +1161,6 @@ void CDisplayer::display(Mat frame, int chId, int code)
 	cv::imshow("111",frame_gray);
 	cv::waitKey(1);
 */
-
 	if(nChannel == 1 || code == -1){
 		cudaMalloc_share((void**)&d_src_rgb, byteCount, chId + DS_CHAN_MAX);
 		firbuffer= OSA_bufGetEmpty(&(tskSendBuffir), &bufId, OSA_TIMEOUT_NONE);
@@ -1584,6 +1603,8 @@ void CDisplayer::gl_textureLoad(void)
 	}
 	tstartBK = tstart;
 	cudaEventRecord(m_startEvent, 0);
+
+	
 	for(winId=0; winId<m_renderCount; winId++)
 	{
 		chId = m_renders[winId].video_chId;
@@ -1600,7 +1621,7 @@ void CDisplayer::gl_textureLoad(void)
 			//printf("[chId =%d  winId=%d] w=%d h=%d c=%d\n",chId,winId,m_img[chId].cols,m_img[chId].rows,m_img[chId].channels());
 			continue;
 		}
-
+		
 		if(!((mask >> chId)&1))
 		{
 			if(!m_renders[winId].bFreeze)
@@ -1747,8 +1768,6 @@ void CDisplayer::gl_textureLoad(void)
 			}
 
 
-				
-
 				if(m_renders[chId].videodect)
 				{
 					//cudaMemcpy(dev_pbo, m_img[chId].data, byteCount, cudaMemcpyDeviceToDevice);
@@ -1875,7 +1894,98 @@ void CDisplayer::RenderVideoOnOrthoView( int videoChannel, int x, int y, int wid
 	glPopMatrix();	
 }
 
+
+
+void CDisplayer::linkageSwitchMode(void)
+{
+	switch(displayMode) 
+	{
+		case PREVIEW_MODE:
+			m_renders[0].video_chId = video_gaoqing;
+			m_renders[0].displayrect.x = 0;
+			m_renders[0].displayrect.y = 540;
+			m_renders[0].displayrect.w = 960;
+			m_renders[0].displayrect.h = 540;
+
+			m_renders[1].video_chId = video_gaoqing0;
+			m_renders[1].displayrect.x = 960;
+			m_renders[1].displayrect.y = 540;
+			m_renders[1].displayrect.w = 960;
+			m_renders[1].displayrect.h = 540;
+			
+			if( g_CurDisplayMode != PREVIEW_MODE)
+				g_CurDisplayMode = PREVIEW_MODE;
+
+			break;
+
+		case PIC_IN_PIC:
+			m_renders[0].video_chId = video_gaoqing0;
+			m_renders[0].displayrect.x = 0;
+			m_renders[0].displayrect.y = 0;
+			m_renders[0].displayrect.w = WINDOW_WIDTH;
+			m_renders[0].displayrect.h = WINDOW_HEIGHT;
+
+			m_renders[0].video_chId = video_gaoqing;
+			m_renders[1].displayrect.x = WINDOW_WIDTH*3/4;
+			m_renders[1].displayrect.y = WINDOW_HEIGHT*3/4;
+			m_renders[1].displayrect.w = WINDOW_WIDTH/4;
+			m_renders[1].displayrect.h = WINDOW_HEIGHT/4;
+			
+			if( g_CurDisplayMode != PIC_IN_PIC)
+				g_CurDisplayMode = PIC_IN_PIC;
+			
+			break;
+			
+		case SIDE_BY_SIDE:
+			m_renders[0].video_chId = video_gaoqing0;
+			m_renders[0].displayrect.x = WINDOW_WIDTH/2;
+			m_renders[0].displayrect.y = 0;
+			m_renders[0].displayrect.w = WINDOW_WIDTH/2;
+			m_renders[0].displayrect.h = WINDOW_HEIGHT;
+
+			m_renders[0].video_chId = video_gaoqing;
+			m_renders[1].displayrect.x = 0;
+			m_renders[1].displayrect.y = 0;
+			m_renders[1].displayrect.w = WINDOW_WIDTH/2;
+			m_renders[1].displayrect.h = WINDOW_HEIGHT;
+				
+			if( g_CurDisplayMode != SIDE_BY_SIDE) 
+				g_CurDisplayMode = SIDE_BY_SIDE;
+			
+			break;
+			
+		case LEFT_BALL_RIGHT_GUN:
+			RenderVideoOnOrthoView(VIDEO_1, 0, 810, 480, 270);
+			RenderVideoOnOrthoView(VIDEO_0, 480, 270, 1440, 810);
+			
+			m_renders[0].video_chId = video_gaoqing;
+			m_renders[0].displayrect.x = 0;
+			m_renders[0].displayrect.y = 810;
+			m_renders[0].displayrect.w = 480;
+			m_renders[0].displayrect.h = 270;
+
+			m_renders[0].video_chId = video_gaoqing0;
+			m_renders[1].displayrect.x = 480;
+			m_renders[1].displayrect.y = 270;
+			m_renders[1].displayrect.w = 1440;
+			m_renders[1].displayrect.h = 810;
+			
+			if( g_CurDisplayMode != LEFT_BALL_RIGHT_GUN)
+				g_CurDisplayMode = LEFT_BALL_RIGHT_GUN;
+
+			break;
+			
+		default:
+			break;	
+	}
+}
+
+
 #endif
+
+
+
+
 
 void CDisplayer::gl_display(void)
 {	
@@ -1891,47 +2001,13 @@ void CDisplayer::gl_display(void)
 	Uniform_mattrans = glGetUniformLocation(m_glProgram, "mTrans");
 	Uniform_font_color = glGetUniformLocation(m_fontProgram,"fontColor");
 
-#if LINKAGE_FUNC
-		switch(displayMode) {
-			case PREVIEW_MODE:
-				RenderVideoOnOrthoView(VIDEO_1, 0, 540, 960,540);
-				RenderVideoOnOrthoView(VIDEO_0, 960, 540, 960,540);
-				if( g_CurDisplayMode != PREVIEW_MODE) {
-					g_CurDisplayMode = PREVIEW_MODE;
-				}
-				break;
-			case PIC_IN_PIC:
-				RenderVideoOnOrthoView( VIDEO_0, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-				RenderVideoOnOrthoView( VIDEO_1, WINDOW_WIDTH*3/4, WINDOW_HEIGHT*3/4, 
-											   WINDOW_WIDTH/4, WINDOW_HEIGHT/4);
-				if( g_CurDisplayMode != PIC_IN_PIC) {
-					g_CurDisplayMode = PIC_IN_PIC;
-				}
-				break;
-			case SIDE_BY_SIDE:
-				RenderVideoOnOrthoView(VIDEO_0, WINDOW_WIDTH/2, 0, 
-											 WINDOW_WIDTH/2, WINDOW_HEIGHT);
-				RenderVideoOnOrthoView(VIDEO_1, 0, 0, WINDOW_WIDTH/2, WINDOW_HEIGHT);
-				if( g_CurDisplayMode != SIDE_BY_SIDE) {
-					g_CurDisplayMode = SIDE_BY_SIDE;
-				}
-				break;
-			case LEFT_BALL_RIGHT_GUN:
-				RenderVideoOnOrthoView(VIDEO_1, 0, 810, 480, 270);
-				RenderVideoOnOrthoView(VIDEO_0, 480, 270, 1440, 810);
-				if( g_CurDisplayMode != LEFT_BALL_RIGHT_GUN) {
-					g_CurDisplayMode = LEFT_BALL_RIGHT_GUN;
-				}
-				break;
-			default:
-				break;	
-		}
-	
-#endif
 
+	#if LINKAGE_FUNC
+		linkageSwitchMode();
+	#endif
 
 	for(winId=0; winId<m_renderCount; winId++)
-	{		
+	{			
 		chId = m_renders[winId].video_chId;
 		if(chId < 0 || chId >= DS_CHAN_MAX)
 		{
@@ -1942,10 +2018,8 @@ void CDisplayer::gl_display(void)
 		{
 			continue;
 		}
-
-		
+	
 		glUniformMatrix4fv(Uniform_mattrans, 1, GL_FALSE, m_glmat44fTrans[0]);
-		//glUniform1i(Uniform_osd_enable, m_bOsd);
 
 		glUniform1i(Uniform_tex_in, 0);
 		glActiveTexture(GL_TEXTURE0);
@@ -1955,24 +2029,12 @@ void CDisplayer::gl_display(void)
 		glEnableVertexAttribArray(ATTRIB_VERTEX);
 		glEnableVertexAttribArray(ATTRIB_TEXTURE);
 
-		//glEnable(GL_MULTISAMPLE);
-		//glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		
-		//OSA_mutexLock(&m_mutex);
-		
-		//winId=0,x=0,y=0,w=1920,h=1080
-		//initial:winId=1,x=1280,y=720,w=640,h=360
-		//winId=1,x=480,y=384,w=240,h=192
 		glViewport(m_renders[winId].displayrect.x,m_renders[winId].displayrect.y,m_renders[winId].displayrect.w,m_renders[winId].displayrect.h);
 
-	
-		//OSA_mutexUnlock(&m_mutex);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-	}
+	}	
 
-	
 	if(m_bOsd)
 	{
 		glUniformMatrix4fv(Uniform_mattrans, 1, GL_FALSE, m_glmat44fTransDefault);

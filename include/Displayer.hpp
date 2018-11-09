@@ -117,7 +117,7 @@ public:
 	char savePicName[20];
 	cv::Mat gun_BMP;
     DISPLAYMODE displayMode;
-
+	
 	typedef enum _WindowSize{
 		WINDOW_WIDTH = 1920,
 		WINDOW_HEIGHT = 1080,
@@ -138,6 +138,7 @@ public:
 	void switchDisplayMode( );
 	DISPLAYMODE getDisplayMode( );
 	void linkage_init();
+	void linkageSwitchMode(void);
 #endif
 
 public:
