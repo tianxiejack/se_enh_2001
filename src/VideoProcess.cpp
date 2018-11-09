@@ -1190,10 +1190,10 @@ void	CVideoProcess::initMvDetect()
 	
 	std::vector<cv::Point> polyWarnRoi ;
 	polyWarnRoi.resize(4);
-	polyWarnRoi[0]	= cv::Point(1000,500);
-	polyWarnRoi[1]	= cv::Point(1400,500);
-	polyWarnRoi[2]	= cv::Point(1400,900);
-	polyWarnRoi[3]	= cv::Point(1000,900);
+        polyWarnRoi[0]	= cv::Point(100,100);
+        polyWarnRoi[1]	= cv::Point(1820,100);
+        polyWarnRoi[2]	= cv::Point(1820,980);
+        polyWarnRoi[3]	= cv::Point(100,980);
 
 
 	preWarnRect.x = polyWarnRoi[0].x;
