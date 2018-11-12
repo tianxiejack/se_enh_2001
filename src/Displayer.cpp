@@ -474,38 +474,38 @@ void CDisplayer::processCarMenu(int value)
 
 void CDisplayer::processbuadrateMenu(int value)
 {
-	float buadratetmp;
 	SENDST test;
+	CMD_SETCONFIG cmdsetconfig;
 	int send_flag = 1;
 
 	test.cmd_ID = setconfig;
-	test.param[0] = 52;
-	test.param[1] = 0;
+	cmdsetconfig.block = 52;
+	cmdsetconfig.field = 0;
 	switch(value)
 	{
 		case 0:
-			buadratetmp = 1200;
+			cmdsetconfig.value= 1200;
 			break;
 		case 1:
-			buadratetmp = 2400;
+			cmdsetconfig.value = 2400;
 			break;
 		case 2:
-			buadratetmp = 4800;
+			cmdsetconfig.value = 4800;
 			break;
 		case 3:
-			buadratetmp = 9600;
+			cmdsetconfig.value = 9600;
 			break;
 		case 4:
-			buadratetmp = 19200;
+			cmdsetconfig.value = 19200;
 			break;
 		case 5:
-			buadratetmp = 38400;
+			cmdsetconfig.value = 38400;
 			break;
 		case 6:
-			buadratetmp = 57600;
+			cmdsetconfig.value = 57600;
 			break;
 		case 7:
-			buadratetmp = 115200;
+			cmdsetconfig.value = 115200;
 			break;
 		default:
 			send_flag = 0;
@@ -514,33 +514,33 @@ void CDisplayer::processbuadrateMenu(int value)
 	}
 	if(send_flag)
 	{
-		memcpy(test.param+2, &buadratetmp, sizeof(buadratetmp));
+		memcpy(test.param, &cmdsetconfig, sizeof(cmdsetconfig));
 		ipc_sendmsg(&test, IPC_FRIMG_MSG);
 	}
 }
 
 void CDisplayer::processdatabitMenu(int value)
 {
-	float databittmp;
 	SENDST test;
+	CMD_SETCONFIG cmdsetconfig;
 	int send_flag = 1;
 
 	test.cmd_ID = setconfig;
-	test.param[0] = 52;
-	test.param[1] = 1;
+	cmdsetconfig.block = 52;
+	cmdsetconfig.field = 1;
 	switch(value)
 	{
 		case 0:
-			databittmp = 5;
+			cmdsetconfig.value = 5;
 			break;
 		case 1:
-			databittmp = 6;
+			cmdsetconfig.value = 6;
 			break;
 		case 2:
-			databittmp = 7;
+			cmdsetconfig.value = 7;
 			break;
 		case 3:
-			databittmp = 8;
+			cmdsetconfig.value = 8;
 			break;
 		default:
 			send_flag = 0;
@@ -549,30 +549,30 @@ void CDisplayer::processdatabitMenu(int value)
 	}
 	if(send_flag)
 	{
-		memcpy(test.param+2, &databittmp, sizeof(databittmp));
+		memcpy(test.param, &cmdsetconfig, sizeof(cmdsetconfig));
 		ipc_sendmsg(&test, IPC_FRIMG_MSG);
 	}
 }
 
 void CDisplayer::processstopbitMenu(int value)
 {
-	float stopbittmp;
 	SENDST test;
+	CMD_SETCONFIG cmdsetconfig;
 	int send_flag = 1;
 
 	test.cmd_ID = setconfig;
-	test.param[0] = 52;
-	test.param[1] = 2;
+	cmdsetconfig.block = 52;
+	cmdsetconfig.field = 2;
 	switch(value)
 	{
 		case 0:
-			stopbittmp = 1;
+			cmdsetconfig.value = 1;
 			break;
 		case 1:
-			stopbittmp = 1.5;
+			cmdsetconfig.value = 1.5;
 			break;
 		case 2:
-			stopbittmp = 2;
+			cmdsetconfig.value = 2;
 			break;
 		default:
 			send_flag = 0;
@@ -581,30 +581,30 @@ void CDisplayer::processstopbitMenu(int value)
 	}
 	if(send_flag)
 	{
-		memcpy(test.param+2, &stopbittmp, sizeof(stopbittmp));
+		memcpy(test.param, &cmdsetconfig, sizeof(cmdsetconfig));
 		ipc_sendmsg(&test, IPC_FRIMG_MSG);
 	}
 }
 
 void CDisplayer::processparityMenu(int value)
 {
-	float paritytmp;
 	SENDST test;
+	CMD_SETCONFIG cmdsetconfig;
 	int send_flag = 1;
 
 	test.cmd_ID = setconfig;
-	test.param[0] = 52;
-	test.param[1] = 3;
+	cmdsetconfig.block = 52;
+	cmdsetconfig.field = 3;
 	switch(value)
 	{
 		case 0:
-			paritytmp = 0;
+			cmdsetconfig.value = 0;
 			break;
 		case 1:
-			paritytmp = 1;
+			cmdsetconfig.value = 1;
 			break;
 		case 2:
-			paritytmp = 2;
+			cmdsetconfig.value = 2;
 			break;
 		default:
 			send_flag = 0;
@@ -613,39 +613,39 @@ void CDisplayer::processparityMenu(int value)
 	}
 	if(send_flag)
 	{
-		memcpy(test.param+2, &paritytmp, sizeof(paritytmp));
+		memcpy(test.param, &cmdsetconfig, sizeof(cmdsetconfig));
 		ipc_sendmsg(&test, IPC_FRIMG_MSG);
 	}
 }
 
 void CDisplayer::processaddressMenu(int value)
 {
-	float addresstmp;
 	SENDST test;
+	CMD_SETCONFIG cmdsetconfig;
 	int send_flag = 1;
 
 	test.cmd_ID = setconfig;
-	test.param[0] = 52;
-	test.param[1] = 4;
+	cmdsetconfig.block = 52;
+	cmdsetconfig.field = 4;
 	switch(value)
 	{
 		case 0:
-			addresstmp = 0;
+			cmdsetconfig.value = 0;
 			break;
 		case 1:
-			addresstmp = 1;
+			cmdsetconfig.value = 1;
 			break;
 		case 2:
-			addresstmp = 2;
+			cmdsetconfig.value = 2;
 			break;
 		case 3:
-			addresstmp = 3;
+			cmdsetconfig.value = 3;
 			break;
 		case 4:
-			addresstmp = 4;
+			cmdsetconfig.value = 4;
 			break;
 		case 5:
-			addresstmp = 5;
+			cmdsetconfig.value = 5;
 			break;
 		default:
 			send_flag = 0;
@@ -654,27 +654,27 @@ void CDisplayer::processaddressMenu(int value)
 	}
 	if(send_flag)
 	{
-		memcpy(test.param+2, &addresstmp, sizeof(addresstmp));
+		memcpy(test.param, &cmdsetconfig, sizeof(cmdsetconfig));
 		ipc_sendmsg(&test, IPC_FRIMG_MSG);
 	}
 }
 
 void CDisplayer::processprotocolMenu(int value)
 {
-	float protocoltmp;
 	SENDST test;
+	CMD_SETCONFIG cmdsetconfig;
 	int send_flag = 1;
 
 	test.cmd_ID = setconfig;
-	test.param[0] = 52;
-	test.param[1] = 5;
+	cmdsetconfig.block = 52;
+	cmdsetconfig.field = 5;
 	switch(value)
 	{
 		case 0:
-			protocoltmp = 0;
+			cmdsetconfig.value = 0;
 			break;
 		case 1:
-			protocoltmp = 1;
+			cmdsetconfig.value = 1;
 			break;
 		default:
 			send_flag = 0;
@@ -683,7 +683,7 @@ void CDisplayer::processprotocolMenu(int value)
 	}
 	if(send_flag)
 	{
-		memcpy(test.param+2, &protocoltmp, sizeof(protocoltmp));
+		memcpy(test.param, &cmdsetconfig, sizeof(cmdsetconfig));
 		ipc_sendmsg(&test, IPC_FRIMG_MSG);
 	}
 }
