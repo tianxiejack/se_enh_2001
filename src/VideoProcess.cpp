@@ -567,7 +567,7 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 					cout<<" end:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2<<")\n"<<endl;
 					pThis->RightPoint.x = x;
 					pThis->RightPoint.y = y;
-					pThis->reMapCoords(x,y);	
+					pThis->reMapCoords(x,y,true);	
 				}
 				pThis->m_draw = 1;
 				#endif

@@ -172,7 +172,16 @@ bool CcCamCalibra::load_OriginCameraParams( const string& filename, int& flags, 
     fs.release();
     return ret;
 }
- 
+
+void CcCamCalibra::setBallPos(int in_panPos, int in_tilPos, int in_zoom)
+{
+	panPos = in_panPos ;
+	tiltPos = in_tilPos ;
+	zoomPos = in_zoom ;
+	OSA_semSignal(&m_linkage_getPos);
+}
+
+
 int CcCamCalibra::Run()
 {
 	char flag = 0;
@@ -264,8 +273,8 @@ int CcCamCalibra::Run()
 				}
 
 					SENDST trkmsg={0};
-					//trkmsg.cmd_ID = id_get_current_pos;
-					//ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
+					trkmsg.cmd_ID = querypos;
+					ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
 
 					flag = OSA_semWait(&m_linkage_getPos, 200);
 					if( -1 == flag )

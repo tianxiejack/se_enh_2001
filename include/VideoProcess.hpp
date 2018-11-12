@@ -110,7 +110,7 @@ public:
 	
 #if LINKAGE_FUNC
 
-	virtual void reMapCoords(int x, int y){};
+	virtual void reMapCoords(int x, int y,bool mode){};
 
 	void linkage_init();
 	bool Set_SelectByRect;

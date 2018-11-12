@@ -22,6 +22,7 @@ int IrisAndFocusAndExit = 0;
 CMD_triangle cmd_triangle;
 OSD_param m_osd;
 int ipc_loop = 1;
+
 extern void inputtmp(unsigned char cmdid);
 
 extern osdbuffer_t disOsdBuf[32];
@@ -141,6 +142,7 @@ void* recv_msg(SENDST *RS422)
 	CMD_AcqBoxPos Racqpos;
 	CMD_ALGOSDRECT Ralgosdrect;
 	CMD_IPCRESOLUTION Rresolution;
+	LinkagePos posOfLinkage;
 
 	//OSD_param* pOsd = NULL;
 	//pOsd = &m_osd;
@@ -575,6 +577,11 @@ void* recv_msg(SENDST *RS422)
 				vdisWH[ipc_eSen_CH4][0] = 720;
 				vdisWH[ipc_eSen_CH4][1] = 576;
 			}
+			break;
+			
+		case querypos:
+			memcpy(&posOfLinkage,RS422->param,sizeof(posOfLinkage));
+			app_ctrl_setLinkagePos(posOfLinkage.panPos, posOfLinkage.tilPos, posOfLinkage.zoom);
 			break;
 		default:
 			break;

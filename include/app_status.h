@@ -318,7 +318,10 @@ typedef enum
     MSGID_EXT_UPDATE_ALG,
     MSGID_EXT_UPDATE_CAMERA,
     MSGID_EXT_MVDETECT,
-    MSGID_EXT_MVDETECTSELECT
+    MSGID_EXT_MVDETECTSELECT,
+
+	//
+	MSGID_EXT_SETCURPOS
 }MSG_PROC_ID;
 
 typedef struct
@@ -329,6 +332,14 @@ typedef struct
 	unsigned int  DispalyWidth   [eSen_Max];    // dispaly width
 	unsigned int  DispalyHeight  [eSen_Max];    // display height
 }CMD_SYS;
+
+
+typedef struct{
+	unsigned int panPos;
+	unsigned int tilPos;
+	unsigned int zoom;
+}LinkagePos_t;
+
 
 
 #ifdef __cplusplus

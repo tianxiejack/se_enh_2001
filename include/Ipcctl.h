@@ -59,7 +59,7 @@ typedef enum
     algosdrect,
     ipcwordFont,
     ipcwordSize,/*40*/
-	ipclosttime,
+    ipclosttime,
     ipcresolution,
     read_shm_osdtext,
     switchtarget,
@@ -69,6 +69,9 @@ typedef enum
     mtdpolar,
     mtdtrktime,
     setconfig,/*50*/
+    querypos,
+    speedloop,
+    acqPosAndZoom,
     invalid
 }CMD_ID;
 
@@ -78,6 +81,12 @@ typedef enum
 	shm_rdonly,
 	shm_rdwr
 }shm_perms;
+
+typedef struct{
+	unsigned int panPos;
+	unsigned int tilPos;
+	unsigned int zoom;
+}LinkagePos;
 
 typedef struct{
 	volatile int dir;

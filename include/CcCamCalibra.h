@@ -92,6 +92,7 @@ public:
 	void cr_decomposeEssentialMat( InputArray _E, OutputArray _R1, OutputArray _R2, OutputArray _t );
 	void cvtBallYuyv2Bgr();
 	void cvtGunYuyv2Bgr();
+	void setBallPos(int in_panPos, int in_tilPos, int in_zoom);
 
 private:
 	Mat cameraMatrix_gun ;
@@ -118,10 +119,8 @@ private:
 	int panPos;
 	int tiltPos;
 	int zoomPos;
-	//====================
 	int flags;
 	
-	//====================
 
 public:
 	bool bool_Calibrate;

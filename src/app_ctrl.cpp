@@ -1,6 +1,6 @@
 
-#include"app_ctrl.h"
-#include"osa.h"
+#include "app_ctrl.h"
+#include "osa.h"
 #include "msgDriv.h"
 #include "configable.h"
 
@@ -9,17 +9,27 @@ CMD_EXT *msgextInCtrl;
 #define FrColl_Change 1 //0:frcoll v1.00 1:frcoll v1.01     //ver1.01 is using 
 
 static int pristatus=0;
+LinkagePos_t linkagePos; 
+
 void getMmtTg(unsigned char index,int *x,int *y);
 #if __MOVE_DETECT__
 void getMtdxy(int *x,int *y,int *w,int *h);
 #endif
 
 
+void app_ctrl_setLinkagePos(int panPos,int tilPos,int zoom)
+{
+	linkagePos.panPos = panPos ; 
+	linkagePos.tilPos = tilPos ;
+	linkagePos.zoom = zoom ;
+	MSGDRIV_send(MSGID_EXT_SETCURPOS, 0);
+}
+
 void  app_ctrl_getSysData(CMD_EXT * exthandle)
 {
     OSA_assert(exthandle!=NULL);
     if(msgextInCtrl==NULL)
-	return ;
+		return ;
     memcpy(exthandle,msgextInCtrl,sizeof(CMD_EXT));
     return ;
 }

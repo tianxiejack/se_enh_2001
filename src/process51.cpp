@@ -3,7 +3,7 @@
 #include "process51.hpp"
 #include "vmath.h"
 #include "msgDriv.h"
-#include"app_ctrl.h"
+#include "app_ctrl.h"
 
 #include "osd_cv.h"
 #include "app_status.h"
@@ -16,6 +16,7 @@
 OSDSTATUS gConfig_Osd_param = {0};
 UTCTRKSTATUS gConfig_Alg_param = {0};
 extern int ScalerLarge,ScalerMid,ScalerSmall;
+extern LinkagePos_t linkagePos; 
 CProcess * CProcess::sThis = NULL;
 CProcess* plat = NULL;
 int glosttime = 3000;
@@ -1668,12 +1669,13 @@ osdindex++;	//acqRect
 					color = 6;
 				else
 					color = 3;
+				
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,color);
 
 				if(color == 6)
 				{
-					//trkmsg.cmd_ID = 
-					
+					reMapCoords(((*plist).targetRect.x + (*plist).targetRect.width/2),
+									((*plist).targetRect.y - (*plist).targetRect.height/2),false);
 				}
 			}
 			Osdflag[osdindex]=1;
@@ -1831,9 +1833,6 @@ void CProcess::manualHandleKeyPoints(int &x,int &y)
 		default:
 			break;
 	}
-
-	point_X = (x - offset_x);
-	point_Y = y;
 	
 	circle_point = Point(x,y);
 	
@@ -1859,20 +1858,40 @@ void CProcess::manualHandleKeyPoints(int &x,int &y)
 		cout<< "*itPnt2.x = " <<(*itPnt2).x<< "\t*itPnt2.y = " << (*itPnt2).y << endl;
 	}
 }
+
 	
-void CProcess::reMapCoords(int x, int y)
+void CProcess::reMapCoords(int x, int y,bool mode)
 {	
-	int point_X , point_Y; 
+	int point_X , point_Y , offset_x; 
 	int delta_X = abs(LeftPoint.x - RightPoint.x) ;
 
-	if(LeftPoint.x < RightPoint.x) {
-		point_X = abs(LeftPoint.x - RightPoint.x) /2 + LeftPoint.x;
-		point_Y = abs(LeftPoint.y - RightPoint.y) /2 + LeftPoint.y;	
-	}else{
-		point_X = abs(LeftPoint.x - RightPoint.x) /2 + RightPoint.x;
-		point_Y = abs(LeftPoint.y - RightPoint.y) /2 + RightPoint.y;	
+	switch(m_display.g_CurDisplayMode) 
+	{
+		case PREVIEW_MODE:
+			offset_x = 960;
+			break;
+		case LEFT_BALL_RIGHT_GUN:
+			offset_x = 480;	
+			break;
+		default:
+			break;
 	}
-	
+		
+	if(mode)
+	{
+		point_X = (x - offset_x);
+		point_Y = y;
+	}
+	else
+	{
+		if(LeftPoint.x < RightPoint.x) {
+			point_X = abs(LeftPoint.x - RightPoint.x) /2 + LeftPoint.x;
+			point_Y = abs(LeftPoint.y - RightPoint.y) /2 + LeftPoint.y;	
+		}else{
+			point_X = abs(LeftPoint.x - RightPoint.x) /2 + RightPoint.x;
+			point_Y = abs(LeftPoint.y - RightPoint.y) /2 + RightPoint.y;	
+		}
+	}
 
  	Point opt;
 	switch(m_display.g_CurDisplayMode) {
@@ -1995,13 +2014,11 @@ void CProcess::reMapCoords(int x, int y)
 
 #endif
 
-	trkmsg.cmd_ID = focus;
+	trkmsg.cmd_ID = speedloop;
 	memcpy(&trkmsg.param[0],&DesPanPos, 4);
-	memcpy(&trkmsg.param[4],&DesTilPos, 4);
-	//memcpy(&trkmsg.param[8],&delta_X, 4);		
+	memcpy(&trkmsg.param[4],&DesTilPos, 4);		
 	ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);	
-	printf("++++++++++++++++++++ Send Position = < %d, %d >\r\n", DesPanPos , DesTilPos );
-
+	printf("%s   LINE:%d   Send Position = < %d, %d >\r\n",__func__,__LINE__, DesPanPos , DesTilPos );
 }
 #endif
 
@@ -2009,9 +2026,6 @@ void CProcess::OnMouseLeftDwn(int x, int y)
 {
 	#if LINKAGE_FUNC
 		manualHandleKeyPoints(x,y);
-
-	
-		//reMapCoords(x, y);
 	#endif
 };
 void CProcess::OnMouseLeftUp(int x, int y){};
@@ -2867,35 +2881,36 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
     assert(handle != NULL);
     memset(handle->msgTab, 0, sizeof(MSGTAB_Class) * MAX_MSG_NUM);
 //MSGID_EXT_INPUT_MTD_SELECT
-    MSGDRIV_attachMsgFun(handle,    MSGID_SYS_INIT,           				MSGAPI_init_device,       		    0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_SENSOR,           	   	MSGAPI_inputsensor,       		    0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_SYS_INIT,           			MSGAPI_init_device,       		0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_SENSOR,           	MSGAPI_inputsensor,       		0);
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_PICPCROP,      		MSGAPI_croppicp,       		    0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_TRACK,          		MSGAPI_inputtrack,     		    0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ENMTD,                   MSGAPI_inpumtd,       		    0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_MTD_SELECT,     	MSGAPI_inpumtdSelect,    		    0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_AIMPOS,          	 	MSGAPI_setAimRefine,    		    0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_AIMSIZE,          	       MSGAPI_setAimSize,    		    0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ENENHAN,           	MSGAPI_inpuenhance,       	            0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ENBDT,           		MSGAPI_inputbdt,         		    0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ENZOOM,           	MSGAPI_inputzoom,                     0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ENFREZZ,           	MSGAPI_inputfrezz,                      0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_MTD_SELECT,      	MSGAPI_inputmmtselect,              0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_AXISPOS,     	  	MSGAPI_inputpositon,                   0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_COAST,             	MSGAPI_inputcoast,                      0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_FOVSELECT,             MSGAPI_inputfovselect,                 0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_FOVSTAT,                	MSGAPI_inputfovchange,               0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_SEARCHMOD,            MSGAPI_inputsearchmod,              0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_VIDEOEN,            	MSGAPI_inputvideotect,                 0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_MMTSHOW,             	MSGAPI_mmtshow,                 	     0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_FOVCMD,             	MSGAPI_FOVcmd,                 	     0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_CFGSAVE,             	MSGAPI_SaveCfgcmd,                 	     0);	
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECT,             		MSGAPI_setMtdState,                 	     0);
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTSELECT,             		MSGAPI_setMtdSelect,                 	     0);	
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_ALG,             		MSGAPI_update_alg,                 	     0);	
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_OSD,             		MSGAPI_update_osd,                 	0);	
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_CAMERA,             	MSGAPI_update_camera,              0);	
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ALGOSDRECT,          MSGAPI_input_algosdrect,              0);	
- 
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_TRACK,          	MSGAPI_inputtrack,     		    0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ENMTD,              MSGAPI_inpumtd,       		    0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_MTD_SELECT,     	MSGAPI_inpumtdSelect,    		0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_AIMPOS,          	MSGAPI_setAimRefine,    		0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_AIMSIZE,          	MSGAPI_setAimSize,    		    0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ENENHAN,           	MSGAPI_inpuenhance,       	    0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ENBDT,           	MSGAPI_inputbdt,         		0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ENZOOM,           	MSGAPI_inputzoom,               0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ENFREZZ,           	MSGAPI_inputfrezz,              0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_MTD_SELECT,      	MSGAPI_inputmmtselect,          0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_AXISPOS,     	  	MSGAPI_inputpositon,            0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_COAST,             	MSGAPI_inputcoast,              0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_FOVSELECT,          MSGAPI_inputfovselect,          0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_FOVSTAT,            MSGAPI_inputfovchange,          0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_SEARCHMOD,          MSGAPI_inputsearchmod,          0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_VIDEOEN,            MSGAPI_inputvideotect,          0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_MMTSHOW,            MSGAPI_mmtshow,                 0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_FOVCMD,             MSGAPI_FOVcmd,                 	0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_CFGSAVE,            MSGAPI_SaveCfgcmd,              0);	
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECT,             	MSGAPI_setMtdState,             0);
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTSELECT,           MSGAPI_setMtdSelect,            0);	
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_ALG,             	MSGAPI_update_alg,              0);	
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_OSD,             	MSGAPI_update_osd,              0);	
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_CAMERA,            MSGAPI_update_camera,           0);	
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ALGOSDRECT,         MSGAPI_input_algosdrect,        0);	
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_SETCURPOS,          		MSGAPI_update_ballPos,        	0);	
+
     return 0;
 }
 
@@ -3689,6 +3704,13 @@ void CProcess::update_param_alg()
 void CProcess::MSGAPI_update_camera(long lParam)
 {
 }
+
+
+void CProcess::MSGAPI_update_ballPos(long lParam)
+{
+	m_camCalibra->setBallPos(linkagePos.panPos, linkagePos.panPos, linkagePos.zoom);
+}
+
 void CProcess::MSGAPI_input_algosdrect(long lParam)
 {
 	sThis->msgdriv_event(MSGID_EXT_INPUT_ALGOSDRECT,NULL);

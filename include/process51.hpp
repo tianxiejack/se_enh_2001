@@ -69,7 +69,7 @@ private:
 public:
 	bool readParams(const char* file);
 	bool writeParams(const char* file);
-	void reMapCoords(int x, int y);
+	void reMapCoords(int x, int y , bool mode);
 	void Init_CameraMatrix();
 	Mat undisImageGun;
 	
@@ -156,6 +156,8 @@ protected:
 	 static void MSGAPI_update_camera(long IParam);
 	 static void MSGAPI_input_algosdrect(long lParam);
 	 static void MSGAPI_setMtdSelect(long lParam );
+	 static void MSGAPI_update_ballPos(long lParam );
+	 
 
 private:
 	ACK_EXT extOutAck;
