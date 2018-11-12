@@ -754,19 +754,6 @@ void CDisplayer::processdurationMenu(int value)
 		
 }
 
-void CDisplayer::processmtdswMenu(int value)
-{
-	SENDST test = {0};
-	
-	test.cmd_ID = mtd;
-	if(0 == value)
-		test.param[0] = 0;
-	else if(1 == value)
-		test.param[0] = 1;
-	
-	ipc_sendmsg(&test, IPC_FRIMG_MSG);
-}
-
 void CDisplayer::processmtdmodeMenu(int value)
 {
 	SENDST test = {0};
@@ -980,12 +967,9 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("Direction2",1);
 		glutAddMenuEntry("Direction3",2);
 		glutAddMenuEntry("Direction4",3);
-		int mtdsw_menu = glutCreateMenu(processmtdswMenu);
-		glutAddMenuEntry("Off",0);
-		glutAddMenuEntry("On",1);
 		int mtdmode_menu = glutCreateMenu(processmtdmodeMenu);
-		glutAddMenuEntry("Manual Detect",0);
-		glutAddMenuEntry("Auto Detect",1);
+		glutAddMenuEntry("Prohibit",0);
+		glutAddMenuEntry("Allow",1);
 		int maxnum_submenu = glutCreateMenu(processmaxnumMenu);
 		glutAddMenuEntry("Num1",0);
 		glutAddMenuEntry("Num2",1);
@@ -1005,8 +989,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("7s",3);
 		glutAddMenuEntry("9s",4);
 		int mtd_submenu = glutCreateMenu(NULL);
-		glutAddSubMenu("Mtd Switch",mtdsw_menu);
-		glutAddSubMenu("Mtd Mode",mtdmode_menu);
+		glutAddSubMenu("Auto Linkage Enable",mtdmode_menu);
 		glutAddSubMenu("Max Num",maxnum_submenu);
 		glutAddSubMenu("Rigion Set",rig_submenu);
 		glutAddSubMenu("Rigion Select",rigsel_submenu);
@@ -1082,12 +1065,9 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	
 	if(m_initPrm.menufunc != NULL)
 	{
-		int t_sub_menu1 = glutCreateMenu(processmtdswMenu);
-		glutAddMenuEntry("Off",0);
-		glutAddMenuEntry("On",1);
 		int t_sub_menu2 = glutCreateMenu(processmtdmodeMenu);
-		glutAddMenuEntry("Manual Detect",0);
-		glutAddMenuEntry("Auto Detect",1);
+		glutAddMenuEntry("Prohibit",0);
+		glutAddMenuEntry("Allow",1);
 		int t_maxnum_submenu = glutCreateMenu(processmaxnumMenu);
 		glutAddMenuEntry("Num1",0);
 		glutAddMenuEntry("Num2",1);
@@ -1115,8 +1095,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("9s",4);
 		
 		glutCreateMenu(NULL);
-		glutAddSubMenu("Mtd Switch",t_sub_menu1);
-		glutAddSubMenu("Mtd Mode",t_sub_menu2);
+		glutAddSubMenu("Auto Linkage Enable",t_sub_menu2);
 		glutAddSubMenu("Max Num",t_maxnum_submenu);
 		glutAddSubMenu("Rigion Set",t_rig_submenu);
 		glutAddSubMenu("Rigion Select",t_rigsel_submenu);

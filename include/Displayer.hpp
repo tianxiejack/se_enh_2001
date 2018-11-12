@@ -276,7 +276,6 @@ protected:
 	static void processdetectcondMenu(int value);
 	static void processpolarMenu(int value);
 	static void processdurationMenu(int value);
-	static void processmtdswMenu(int value);
 	static void processmtdmodeMenu(int value);
 	static void processredetectMenu(int value);
 	static void processalarmputMenu(int value);
