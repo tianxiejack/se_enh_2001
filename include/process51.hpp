@@ -72,6 +72,9 @@ public:
 	void reMapCoords(int x, int y);
 	void Init_CameraMatrix();
 	Mat undisImageGun;
+	
+	void manualHandleKeyPoints(int &x,int &y);
+	
 #endif
 
 public:

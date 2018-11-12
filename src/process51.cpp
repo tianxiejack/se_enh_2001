@@ -384,8 +384,8 @@ void CProcess::OnCreate()
 		if(false==(ret=m_camCalibra->loadLinkageParams("GenerateCameraParam.yml", g_camParams.imageSize, g_camParams.cameraMatrix_gun, 
 					g_camParams.distCoeffs_gun,
 		          g_camParams.cameraMatrix_ball, g_camParams.distCoeffs_ball, g_camParams.homography,
-		          g_camParams.panPosBase, g_camParams.tiltPosBase, g_camParams.zoomPosBase))){
-			cout << " XXXXXXXXXXXXXXXXX   <<< Load linkage params failed !!!>>> XXXXXXXXXXXXXXXXXX " << endl;  
+		          g_camParams.panPos, g_camParams.tiltPos, g_camParams.zoomPos))){
+			cout << "  <<< Load linkage params failed !!!>>> " << endl;  
 		}
 
 		cout << "****************************************<< CamParam >>********************************************************" << endl;
@@ -395,9 +395,9 @@ void CProcess::OnCreate()
 		cout << "cameraMatrix_ball:\n" << g_camParams.cameraMatrix_ball << endl;
 		cout << "distCoeffs_ball:\n" << g_camParams.distCoeffs_ball << endl;
 		cout << "homography:\n" << g_camParams.homography << endl;
-		cout << "panPosBase:\n" << g_camParams.panPosBase<< endl;
-		cout << "tiltPosBase:\n" << g_camParams.tiltPosBase<< endl;
-		cout << "zoomPosBase:\n" << g_camParams.zoomPosBase<< endl;
+		cout << "panPos:\n" << g_camParams.panPos<< endl;
+		cout << "tiltPos:\n" << g_camParams.tiltPos<< endl;
+		cout << "zoomPos:\n" << g_camParams.zoomPos<< endl;
 		cout << "************************************************************************************************" << endl;
  
 		if(ret == true) {
@@ -1710,10 +1710,10 @@ osdindex++;	//acqRect
 #endif
 
 
-	center.x = vdisWH[extInCtrl->SensorStat][0]/2;
-	center.y = vdisWH[extInCtrl->SensorStat][1]/2;
-	int radius = 4;
-	cv::circle(m_display.m_imgOsd[extInCtrl->SensorStat],center,radius ,cvScalar(255,0,255,255),8,8,0);
+	//center.x = vdisWH[extInCtrl->SensorStat][0]/2;
+	//center.y = vdisWH[extInCtrl->SensorStat][1]/2;
+	//int radius = 4;
+	//cv::circle(m_display.m_imgOsd[extInCtrl->SensorStat],center,radius ,cvScalar(255,0,255,255),8,8,0);
 
 	prisensorstatus=extInCtrl->SensorStat;
 
@@ -1731,13 +1731,18 @@ osdindex++;	//acqRect
 		memcpy(mRectbak, mRect, sizeof(mRectbak));
 		memcpy(m_rectnbak, m_rectn, sizeof(m_rectnbak));
 		int j = 0;
-		for(j = 0; j < m_rectn[extInCtrl->SensorStat]; j++)
+		
+		if(0)
 		{
-			rectangle(m_display.m_imgOsd[extInCtrl->SensorStat],
-					Point(mRectbak[extInCtrl->SensorStat][j].x1, mRectbak[extInCtrl->SensorStat][j].y1),
-					Point(mRectbak[extInCtrl->SensorStat][j].x2, mRectbak[extInCtrl->SensorStat][j].y2),
-					cvScalar(0,0,255,255), 1, 8);
+			for(j = 0; j < m_rectn[extInCtrl->SensorStat]; j++)
+			{
+				rectangle(m_display.m_imgOsd[extInCtrl->SensorStat],
+						Point(mRectbak[extInCtrl->SensorStat][j].x1, mRectbak[extInCtrl->SensorStat][j].y1),
+						Point(mRectbak[extInCtrl->SensorStat][j].x2, mRectbak[extInCtrl->SensorStat][j].y2),
+						cvScalar(0,0,255,255), 1, 8);
+			}
 		}
+		
 		if(m_click == 1)
 		{
 			mRectbak[extInCtrl->SensorStat][j].x1 = mRect[extInCtrl->SensorStat][j].x1;
@@ -1751,6 +1756,7 @@ osdindex++;	//acqRect
 		}
 		m_draw = 0;
 	}
+	
 #if LINKAGE_FUNC
 //time
 	if(m_time_flag)
@@ -1800,9 +1806,14 @@ static inline void my_rotate(GLfloat result[16], float theta)
 
 
 #if LINKAGE_FUNC
-void CProcess::reMapCoords(int x, int y)
-{	
+
+void CProcess::manualHandleKeyPoints(int &x,int &y)
+{
 	int offset_x = 0;
+	int point_X , point_Y;
+	float f_x = (float)x;
+	float f_y = (float)y;
+	
 	switch(m_display.g_CurDisplayMode) {
 		case PREVIEW_MODE:
 			offset_x = 960;
@@ -1813,32 +1824,12 @@ void CProcess::reMapCoords(int x, int y)
 		default:
 			break;
 	}
-	int point_X ;
-	int point_Y ;
-	int delta_X = abs(LeftPoint.x - RightPoint.x) ;
+
+	point_X = (x - offset_x);
+	point_Y = y;
 	
-	if( Set_SelectByRect == false ) 
-	{			
-		point_X = (x - offset_x);
-		point_Y = y;
-	}
-	else
-	{
-		if(LeftPoint.x < RightPoint.x) {
-			point_X = abs(LeftPoint.x - RightPoint.x) /2 + LeftPoint.x;
-			point_Y = abs(LeftPoint.y - RightPoint.y) /2 + LeftPoint.y;	
-		}else{
-			point_X = abs(LeftPoint.x - RightPoint.x) /2 + RightPoint.x;
-			point_Y = abs(LeftPoint.y - RightPoint.y) /2 + RightPoint.y;	
-		}
-	}
-	
-	float f_x = (float)x;
-	float f_y = (float)y;
 	circle_point = Point(x,y);
 	
- if(open_handleCalibra)
- {
 	if( x <= offset_x ){
 		m_camCalibra->key_points1.push_back(cv::Point2f(f_x,f_y));
 		key1_pos = Point(x,y);
@@ -1852,81 +1843,168 @@ void CProcess::reMapCoords(int x, int y)
 		key_point2_cnt ++;		
 	}
 	for (std::vector<cv::Point2f>::const_iterator itPnt = m_camCalibra->key_points1.begin();
-	                itPnt != m_camCalibra->key_points1.end(); ++itPnt){
-	         cout<< "*itPnt.x = " <<(*itPnt).x<< "\t*itPnt.y = " << (*itPnt).y << endl;
+			itPnt != m_camCalibra->key_points1.end(); ++itPnt){
+		cout<< "*itPnt.x = " <<(*itPnt).x<< "\t*itPnt.y = " << (*itPnt).y << endl;
 	}
 
 	for (std::vector<cv::Point2f>::const_iterator itPnt2 = m_camCalibra->key_points2.begin();
-		                itPnt2 != m_camCalibra->key_points2.end(); ++itPnt2){
-		         cout<< "*itPnt2.x = " <<(*itPnt2).x<< "\t*itPnt2.y = " << (*itPnt2).y << endl;
-		}	
- 	}
- 	else
+			itPnt2 != m_camCalibra->key_points2.end(); ++itPnt2){
+		cout<< "*itPnt2.x = " <<(*itPnt2).x<< "\t*itPnt2.y = " << (*itPnt2).y << endl;
+	}
+}
+	
+void CProcess::reMapCoords(int x, int y)
+{	
+	int point_X , point_Y; 
+	int delta_X = abs(LeftPoint.x - RightPoint.x) ;
+
+	if(LeftPoint.x < RightPoint.x) {
+		point_X = abs(LeftPoint.x - RightPoint.x) /2 + LeftPoint.x;
+		point_Y = abs(LeftPoint.y - RightPoint.y) /2 + LeftPoint.y;	
+	}else{
+		point_X = abs(LeftPoint.x - RightPoint.x) /2 + RightPoint.x;
+		point_Y = abs(LeftPoint.y - RightPoint.y) /2 + RightPoint.y;	
+	}
+	
+
+ 	Point opt;
+	switch(m_display.g_CurDisplayMode) {
+		case PREVIEW_MODE:
+			 opt = Point( point_X*2, point_Y*2 );	
+			break;
+		case PIC_IN_PIC:
+			 opt = Point( x, y );	
+		case LEFT_BALL_RIGHT_GUN:
+			 opt = Point( point_X*1920.0/1440.0, point_Y*1080.0/810.0 );	
+			break;
+		default:
+			break;
+	}
+ 		 
+	std::vector<cv::Point2d> distorted, normalizedUndistorted;
+	distorted.push_back(cv::Point2d(opt.x, opt.y));
+	undistortPoints(distorted,normalizedUndistorted,g_camParams.cameraMatrix_gun,g_camParams.distCoeffs_gun);
+	std::vector<cv::Point3d> objectPoints;
+
+	for (std::vector<cv::Point2d>::const_iterator itPnt = normalizedUndistorted.begin();
+	itPnt != normalizedUndistorted.end(); ++itPnt)
 	{
-	 	Point opt;
-		switch(m_display.g_CurDisplayMode) {
-			case PREVIEW_MODE:
-				 opt = Point( point_X*2, point_Y*2 );	
-				break;
-			case PIC_IN_PIC:
-				 opt = Point( x, y );	
-			case LEFT_BALL_RIGHT_GUN:
-				 opt = Point( point_X*1920.0/1440.0, point_Y*1080.0/810.0 );	
-				break;
-			default:
-				break;
-		}
-	 		 
-		std::vector<cv::Point2d> distorted, normalizedUndistorted;
-		distorted.push_back(cv::Point2d(opt.x, opt.y));
-		undistortPoints(distorted,normalizedUndistorted,g_camParams.cameraMatrix_gun,g_camParams.distCoeffs_gun);
-		std::vector<cv::Point3d> objectPoints;
+		objectPoints.push_back(cv::Point3d(itPnt->x, itPnt->y, 1));
+	}
+	std::vector<cv::Point2d> imagePoints(objectPoints.size());
+	projectPoints(objectPoints, cv::Vec3d(0,0,0),cv::Vec3d(0,0,0),g_camParams.cameraMatrix_ball,cv::Mat(),imagePoints);
+	std::vector<cv::Point2d> ballImagePoints(imagePoints.size());
+	perspectiveTransform(imagePoints, ballImagePoints, g_camParams.homography);
+	std::vector<cv::Point2d>::iterator itp = imagePoints.begin();
+	cv::Point2d pt = *itp;
+	Point upt( pt.x, pt.y );			
+	itp = ballImagePoints.begin();
+	pt = *itp;
 
-		for (std::vector<cv::Point2d>::const_iterator itPnt = normalizedUndistorted.begin();
-		itPnt != normalizedUndistorted.end(); ++itPnt)
+	pt.x = pt.x/2.0;
+	pt.y /=2.0;
+		  
+    Point bpt( pt.x, pt.y );	
+
+
+//////////////////////////////////////////////////////////
+
+#if 1
+
+	int flag = 0;	
+
+	int DesPanPos, DesTilPos ;	
+
+	int  inputX = bpt.x;
+	int  inputY = bpt.y;
+	int  tmpcofx = 6300;
+	int  tmpcofy = 6200;
+
+	inputX -= 480;
+	inputY -= 270;
+
+	float coefficientx = (float)tmpcofx*0.001f;
+	float coefficienty = (float)tmpcofy*0.001f;
+
+	float tmpficientx = 1.0;
+
+	inputX = (int)((float)inputX * coefficientx * tmpficientx);
+	inputY = (int)((float)inputY * coefficienty);
+
+	float kx1 = 35.0/600.0;
+	float ky1 = 9.0/600.0;
+	float kx2 = 7.0/600.0;
+	float ky2 = 4.0/600.0;
+
+	inputX	 += (int)(inputX * kx1 + inputY * kx2);
+	inputY	 -= (int)(inputX * ky1 + inputY * ky2); 
+
+
+	int Origin_PanPos = g_camParams.panPos;
+	int Origin_TilPos = g_camParams.tiltPos;
+
+	if(inputX + Origin_PanPos < 0)
+	{
+		DesPanPos = 36000 + (inputX + Origin_PanPos);
+	}
+	else if(inputX + Origin_PanPos > 35999)
+	{
+		DesPanPos = inputX - (36000 - Origin_PanPos);
+	}
+	else
+		DesPanPos = Origin_PanPos + inputX;
+
+
+	if(Origin_TilPos > 32768)
+	{
+		if(inputY < 0)
+		{			
+			DesTilPos = Origin_TilPos - inputY ;
+		}
+		else
 		{
-			objectPoints.push_back(cv::Point3d(itPnt->x, itPnt->y, 1));
+			if(Origin_TilPos - inputY < 32769)
+				DesTilPos = inputY - (Origin_TilPos - 32768);
+			else
+				DesTilPos = Origin_TilPos - inputY;
 		}
-		std::vector<cv::Point2d> imagePoints(objectPoints.size());
-		projectPoints(objectPoints, cv::Vec3d(0,0,0),cv::Vec3d(0,0,0),g_camParams.cameraMatrix_ball,cv::Mat(),imagePoints);
-		std::vector<cv::Point2d> ballImagePoints(imagePoints.size());
-		perspectiveTransform(imagePoints, ballImagePoints, g_camParams.homography);
-		std::vector<cv::Point2d>::iterator itp = imagePoints.begin();
-		cv::Point2d pt = *itp;
-		Point upt( pt.x, pt.y );			
-		itp = ballImagePoints.begin();
-		pt = *itp;
+	}
+	else
+	{
+		if(inputY < 0)
+		{
+			if(Origin_TilPos + inputY < 0)
+			{
+				DesTilPos = -inputY - Origin_TilPos + 32768; 
+			}
+			else
+				DesTilPos = Origin_TilPos + inputY;
+		}
+		else
+		{
+			DesTilPos = Origin_TilPos + inputY;
+		}
+	}
 
-		pt.x = pt.x/2.0;
-		pt.y /=2.0;
-			  
-       Point bpt( pt.x, pt.y );			
-			   
-	#if PIXEL_TO_BALLMOVE
-		point_X = x;
-		point_Y = y;
-		trkmsg.cmd_ID = focus;
-		memcpy(&trkmsg.param[0],&point_X,4);
-		memcpy(&trkmsg.param[4],&point_Y,4);
-		ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
-	   	printf("Send Coordisnates: <x, y> = <%d , %d>\r\n", point_X, point_Y);
-	#else			
-		trkmsg.cmd_ID = focus;
-		memcpy(&trkmsg.param[0],&bpt.x, 4);
-		memcpy(&trkmsg.param[4],&bpt.y, 4);
-		memcpy(&trkmsg.param[8],&delta_X, 4);		
-		ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);	
-		printf("++++++++++++++++++++ Send Point = < %d, %d >\r\n", bpt.x , bpt.y );
-	#endif		
-			
-	 } 
+#endif
+
+	trkmsg.cmd_ID = focus;
+	memcpy(&trkmsg.param[0],&DesPanPos, 4);
+	memcpy(&trkmsg.param[4],&DesTilPos, 4);
+	//memcpy(&trkmsg.param[8],&delta_X, 4);		
+	ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);	
+	printf("++++++++++++++++++++ Send Position = < %d, %d >\r\n", DesPanPos , DesTilPos );
+
 }
 #endif
 
 void CProcess::OnMouseLeftDwn(int x, int y)
 {
 	#if LINKAGE_FUNC
-		reMapCoords(x, y);
+		manualHandleKeyPoints(x,y);
+
+	
+		//reMapCoords(x, y);
 	#endif
 };
 void CProcess::OnMouseLeftUp(int x, int y){};
