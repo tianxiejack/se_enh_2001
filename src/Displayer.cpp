@@ -889,8 +889,8 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	if(m_initPrm.menufunc != NULL)
 	{
 		int sub_menu = glutCreateMenu(processLinkageMenu);
-		glutAddMenuEntry("Enable",0);
-		glutAddMenuEntry("Disable",1);
+		glutAddMenuEntry("Prohibit",0);
+		glutAddMenuEntry("Allow",1);
 
 
 
@@ -967,9 +967,6 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("Direction2",1);
 		glutAddMenuEntry("Direction3",2);
 		glutAddMenuEntry("Direction4",3);
-		int mtdmode_menu = glutCreateMenu(processmtdmodeMenu);
-		glutAddMenuEntry("Prohibit",0);
-		glutAddMenuEntry("Allow",1);
 		int maxnum_submenu = glutCreateMenu(processmaxnumMenu);
 		glutAddMenuEntry("Num1",0);
 		glutAddMenuEntry("Num2",1);
@@ -989,7 +986,6 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("7s",3);
 		glutAddMenuEntry("9s",4);
 		int mtd_submenu = glutCreateMenu(NULL);
-		glutAddSubMenu("Auto Linkage Enable",mtdmode_menu);
 		glutAddSubMenu("Max Num",maxnum_submenu);
 		glutAddSubMenu("Rigion Set",rig_submenu);
 		glutAddSubMenu("Rigion Select",rigsel_submenu);
@@ -1053,7 +1049,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutCreateMenu(NULL);
 		//glutCreateMenu(m_initPrm.menufunc);
 		//glutAddMenuEntry("Sensor Switch",0);
-		glutAddSubMenu("Auto Linkage",sub_menu);
+		glutAddSubMenu("Auto Linkage Enable",sub_menu);
 		glutAddSubMenu("Display Mode",sub_menu2);
 		glutAddSubMenu("Setup",sub_menu3);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
@@ -1095,7 +1091,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("9s",4);
 		
 		glutCreateMenu(NULL);
-		glutAddSubMenu("Auto Linkage Enable",t_sub_menu2);
+		glutAddSubMenu("Auto Detect Enable",t_sub_menu2);
 		glutAddSubMenu("Max Num",t_maxnum_submenu);
 		glutAddSubMenu("Rigion Set",t_rig_submenu);
 		glutAddSubMenu("Rigion Select",t_rigsel_submenu);
