@@ -75,6 +75,7 @@ public:
 	
 	void manualHandleKeyPoints(int &x,int &y);
 	
+	int checkZoomPosTable(int delta);
 #endif
 
 public:

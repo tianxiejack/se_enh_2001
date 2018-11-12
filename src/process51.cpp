@@ -1859,12 +1859,85 @@ void CProcess::manualHandleKeyPoints(int &x,int &y)
 	}
 }
 
-	
+int CProcess::checkZoomPosTable(int delta)
+{
+	int Delta_X = delta;
+	int setZoom;
+	if( 420 < Delta_X && Delta_X<960){		
+		setZoom = 6800;
+	}
+	else if(320 < Delta_X ){ 
+		setZoom = 9400;
+	}
+	else if(240 < Delta_X ){
+		setZoom = 12530;
+	}
+	else if(200 < Delta_X ){
+		setZoom = 15100;
+	}
+	else if(170 < Delta_X){
+		setZoom = 19370;
+	}
+	else  if(145 < Delta_X ){
+		setZoom = 20800;
+	}
+	else  if(140 < Delta_X ){
+		setZoom = 23336;
+	}
+	else  if(112 < Delta_X ){
+		setZoom = 26780;
+	}
+	else  if(104 < Delta_X ){
+		setZoom = 29916;
+	}
+	else  if(96 < Delta_X ){
+		setZoom = 33330;
+	}
+	else  if(90 < Delta_X ){
+		setZoom = 36750;
+	}
+	else  if(84 < Delta_X){
+		setZoom = 39320;
+	}
+	else  if(76 < Delta_X ){
+		setZoom = 43870;
+	}
+	else  if(68 < Delta_X ){
+		setZoom = 46440;
+	}
+	else  if(62 < Delta_X ){
+		setZoom = 49230;
+	}
+	else  if(56< Delta_X ){
+		setZoom = 52265;
+	}
+	else  if(50 < Delta_X ){
+		setZoom = 55560;
+	}
+	else  if(44 < Delta_X){
+		setZoom = 58520;
+	}
+	else  if(38 < Delta_X ){
+		setZoom = 61240;
+	}
+	else  if(32 < Delta_X){
+		setZoom = 63890;
+	}
+	else  if(26 < Delta_X ){
+		setZoom = 65535;
+	}
+	return setZoom;
+}
+
+
 void CProcess::reMapCoords(int x, int y,bool mode)
 {	
-	int point_X , point_Y , offset_x; 
+	int point_X , point_Y , offset_x , zoomPos; 
 	int delta_X = abs(LeftPoint.x - RightPoint.x) ;
-
+	if(mode)
+	{
+		zoomPos = checkZoomPosTable(delta_X);
+	}
 	switch(m_display.g_CurDisplayMode) 
 	{
 		case PREVIEW_MODE:
@@ -1933,11 +2006,6 @@ void CProcess::reMapCoords(int x, int y,bool mode)
     Point bpt( pt.x, pt.y );	
 
 
-//////////////////////////////////////////////////////////
-
-#if 1
-
-	int flag = 0;	
 
 	int DesPanPos, DesTilPos ;	
 
@@ -2012,11 +2080,20 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 		}
 	}
 
-#endif
 
-	trkmsg.cmd_ID = speedloop;
-	memcpy(&trkmsg.param[0],&DesPanPos, 4);
-	memcpy(&trkmsg.param[4],&DesTilPos, 4);		
+	if(mode)
+	{
+		trkmsg.cmd_ID = acqPosAndZoom;
+		memcpy(&trkmsg.param[0],&DesPanPos, 4);
+		memcpy(&trkmsg.param[4],&DesTilPos, 4); 	
+		memcpy(&trkmsg.param[8],&zoomPos  , 4); 	
+	}
+	else
+	{
+		trkmsg.cmd_ID = speedloop;
+		memcpy(&trkmsg.param[0],&DesPanPos, 4);
+		memcpy(&trkmsg.param[4],&DesTilPos, 4); 	
+	}
 	ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);	
 	printf("%s   LINE:%d   Send Position = < %d, %d >\r\n",__func__,__LINE__, DesPanPos , DesTilPos );
 }
