@@ -7,6 +7,7 @@
 
 #include "CcCamCalibra.h"
 #include <sys/time.h>
+#include "Ipcctl.h"
 
 CamParameters g_camParams;
 CcCamCalibra::CcCamCalibra():scale(0.5),bCal(false),ret1(false),ret2(false),
@@ -26,6 +27,9 @@ CcCamCalibra::CcCamCalibra():scale(0.5),bCal(false),ret1(false),ret2(false),
 		cout << "Open BALL gun Picture Failed!" <<endl;
 	else
 		cout << "Open BALL gun Picture Success!" <<endl;
+	
+	OSA_semCreate(&m_linkage_getPos, 1, 0);
+	getCurrentPosFlag = 0 ;
 }
 
 CcCamCalibra::~CcCamCalibra() {
@@ -100,7 +104,6 @@ void* CcCamCalibra::RunProxy(void* pArg)
 {
 	 struct timeval tv;
 	 struct RunPrm *pPrm = (struct RunPrm*)pArg;
-	 cout<<"RunProxy..."<<endl;
 	 while(pPrm->pThis->m_bRun)
 	 {		
 	 	tv.tv_sec = 0;
@@ -118,7 +121,7 @@ bool CcCamCalibra::load_OriginCameraParams( const string& filename, int& flags, 
         cout << filename << " can't opened !\n" << endl;
         return ret;
     }
-    String date;
+    cv::String date;
     fs2["calibration_time"] >> date;
     int frameCount = (int)fs2["nframes"];
     int imgwidth = (int)fs2["image_width"];
@@ -172,6 +175,7 @@ bool CcCamCalibra::load_OriginCameraParams( const string& filename, int& flags, 
  
 int CcCamCalibra::Run()
 {
+	char flag = 0;
 	//if(1/*start_cloneVideoSrc == true*/) {
 	Mat frame = ball_frame;//ball_BMP;
 #if 1	
@@ -258,12 +262,34 @@ int CcCamCalibra::Run()
 					}
 					imshow("camera gun warp", warp);
 				}
-			}
+
+					SENDST trkmsg={0};
+					//trkmsg.cmd_ID = id_get_current_pos;
+					//ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
+
+					flag = OSA_semWait(&m_linkage_getPos, 200);
+					if( -1 == flag )
+					{
+						getCurrentPosFlag = false;
+						printf("%s:LINE :%d    could not get the ball current Pos \n",__func__,__LINE__ );
+					}
+					else
+						getCurrentPosFlag = true;
+			}			
 		}
 	}
 	
-	if( writeParam_flag ) {
+	if( writeParam_flag ) 
+	{
 		writeParam_flag = false;
+		if( !getCurrentPosFlag )
+		{
+			cout << "could not get the cuurent Flag \n" << endl;
+			return -1;
+		}
+		else
+			getCurrentPosFlag = false;
+				
 		if(!saveLinkageParams("GenerateCameraParam.yml", imageSize, cameraMatrix_gun, distCoeffs_gun,
                     cameraMatrix_ball, distCoeffs_ball, homography,
                      panPos, tiltPos,zoomPos)) {

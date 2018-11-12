@@ -464,7 +464,7 @@ int CVideoProcess::destroy()
 void CVideoProcess::mouse_event(int button, int state, int x, int y)
 {
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-	{
+	{			
 		if(pThis->open_handleCalibra)
 		{
 			pThis->OnMouseLeftDwn(x, y);
@@ -476,20 +476,29 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 				pThis->m_click = 1;
 				pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1 = x;
 				pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1 = y;
-				cout<<pThis->m_rectn[pThis->m_curChId]<<" start:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1<<")"<<endl;
+				//cout<<pThis->m_rectn[pThis->m_curChId]<<" start:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1<<")"<<endl;
+				cout<<" start:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1<<")"<<endl;
+				pThis->LeftPoint.x = x;
+				pThis->LeftPoint.y = y;
 			}
 			else
 			{
 				pThis->m_click = 0;
 				pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 = x;
 				pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 = y;
-				cout<<pThis->m_rectn[pThis->m_curChId]<<" end:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2<<")\n"<<endl;
-				pThis->m_rectn[pThis->m_curChId]++;
-				if(pThis->m_rectn[pThis->m_curChId]>=sizeof(pThis->mRect[0]))
-				{
-					printf("mouse rect reached maxnum:100!\n");
-					pThis->m_rectn[pThis->m_curChId]--;
-				}
+				//cout<<pThis->m_rectn[pThis->m_curChId]<<" end:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2<<")\n"<<endl;
+				cout<<" end:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2<<")\n"<<endl;
+				//pThis->m_rectn[pThis->m_curChId]++;
+				pThis->RightPoint.x = x;
+				pThis->RightPoint.y = y;
+				pThis->reMapCoords(x,y);
+				#if 0
+					if(pThis->m_rectn[pThis->m_curChId]>=sizeof(pThis->mRect[0]))
+					{
+						printf("mouse rect reached maxnum:100!\n");
+						pThis->m_rectn[pThis->m_curChId]--;
+					}
+				#endif
 				pThis->m_draw = 1;
 			}
 		}

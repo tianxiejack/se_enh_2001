@@ -110,6 +110,8 @@ public:
 	
 #if LINKAGE_FUNC
 
+	virtual void reMapCoords(int x, int y){};
+
 	void linkage_init();
 	bool Set_SelectByRect;
 	bool open_handleCalibra;

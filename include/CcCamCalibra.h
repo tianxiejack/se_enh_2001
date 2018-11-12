@@ -16,6 +16,9 @@
 
 #include <iostream>
 #include <unistd.h>
+
+#include "osa_sem.h"
+
 using namespace std;
 using namespace cv;
 
@@ -125,6 +128,8 @@ public:
 	bool writeParam_flag;
 	bool start_cloneVideoSrc;
 	bool Set_Handler_Calibra;
+	bool getCurrentPosFlag;
+	OSA_SemHndl m_linkage_getPos;
 	
 
 	Mat gun_fromBMP;
