@@ -491,6 +491,10 @@ void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
 }
 #endif
 
+
+
+
+
 void CVideoProcess::mouse_event(int button, int state, int x, int y)
 {
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
@@ -503,7 +507,7 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 		else
 #endif
 		{
-			if(pThis->setrigon_flag)
+			if( pThis->setrigon_flag && !m_bMoveDetect)
 			{
 				if(pThis->m_click == 0)
 				{
@@ -524,6 +528,21 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2,
 						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2
 					);
+
+
+					std::vector<cv::Point> polyWarnRoi ;
+					polyWarnRoi.resize(4);
+					polyWarnRoi[0]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1);
+					polyWarnRoi[1]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1);
+					polyWarnRoi[2]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2);
+					polyWarnRoi[3]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2);
+					pThis->preWarnRect.x = polyWarnRoi[0].x;
+					pThis->preWarnRect.y = polyWarnRoi[0].y;
+					pThis->preWarnRect.width = polyWarnRoi[2].x - polyWarnRoi[0].x;
+					pThis->preWarnRect.height = polyWarnRoi[2].y - polyWarnRoi[0].y;	
+					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	0);
+								
+					
 					pThis->m_rectn[pThis->m_curChId]++;
 					if(pThis->m_rectn[pThis->m_curChId]>=sizeof(pThis->mRect[0]))
 					{
@@ -1262,10 +1281,10 @@ void	CVideoProcess::initMvDetect()
 	
 	std::vector<cv::Point> polyWarnRoi ;
 	polyWarnRoi.resize(4);
-        polyWarnRoi[0]	= cv::Point(100,100);
-        polyWarnRoi[1]	= cv::Point(1820,100);
-        polyWarnRoi[2]	= cv::Point(1820,980);
-        polyWarnRoi[3]	= cv::Point(100,980);
+    polyWarnRoi[0]	= cv::Point(100,100);
+    polyWarnRoi[1]	= cv::Point(1820,100);
+    polyWarnRoi[2]	= cv::Point(1820,980);
+    polyWarnRoi[3]	= cv::Point(100,980);
 
 
 	preWarnRect.x = polyWarnRoi[0].x;
