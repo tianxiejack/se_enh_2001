@@ -1269,7 +1269,6 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	cv::Rect recIn;
 	static int coastCnt = 1;
 	static int bDraw = 0;
-	//algOsdRect = 0;
 	int color = 0;
 
 	static int changesensorCnt = 0;
@@ -1669,11 +1668,14 @@ osdindex++;	//acqRect
 					color = 6;
 				else
 					color = 3;
-				
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,color);
 
+				if(color == 6)
+				{
+					//trkmsg.cmd_ID = 
+					
+				}
 			}
-
 			Osdflag[osdindex]=1;
 		}
 	}
@@ -1692,19 +1694,24 @@ osdindex++;	//acqRect
 			sprintf(show_key2[key_point2_cnt], "%d", key_point2_cnt);
 			putText(m_display.m_imgOsd[1],show_key2[key_point2_cnt],key2_pos,FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,255,0,255), 1);	
 			cv::circle(m_display.m_imgOsd[1],key2_pos,3 ,cvScalar(0,255,255,255),2,8,0);
+			Osdflag[osdindex]=1;
 		}	
-		else{		
-			if( AllPoints_Num !=0 ) {
-			
-				for(int i=0; i<AllPoints_Num; i++){
-					
-					putText(m_display.m_imgOsd[1],show_key[i],textPos1_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
-					cv::circle(m_display.m_imgOsd[1],textPos1_record[i],3 ,cvScalar(0,0,0,0),2,8,0);			
-					
-					putText(m_display.m_imgOsd[1],show_key2[i],textPos2_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
-					cv::circle(m_display.m_imgOsd[1],textPos2_record[i],3 ,cvScalar(0,0,0,0),2,8,0);
+		else{	
+			if(Osdflag[osdindex])
+			{
+				if( AllPoints_Num !=0 ) 
+				{
+					for(int i=0; i<AllPoints_Num; i++)
+					{
+						putText(m_display.m_imgOsd[1],show_key[i],textPos1_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
+						cv::circle(m_display.m_imgOsd[1],textPos1_record[i],3 ,cvScalar(0,0,0,0),2,8,0);			
+						
+						putText(m_display.m_imgOsd[1],show_key2[i],textPos2_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
+						cv::circle(m_display.m_imgOsd[1],textPos2_record[i],3 ,cvScalar(0,0,0,0),2,8,0);
 					}
-			}		
+				}
+				Osdflag[osdindex] = 0;			
+			}			
 		}	
 	}
 #endif
