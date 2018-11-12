@@ -1717,7 +1717,7 @@ osdindex++;	//acqRect
 
 	prisensorstatus=extInCtrl->SensorStat;
 
-#if LINKAGE_FUNC
+
 //mouse rect
 	if(m_draw)
 	{    
@@ -1751,7 +1751,7 @@ osdindex++;	//acqRect
 		}
 		m_draw = 0;
 	}
-
+#if LINKAGE_FUNC
 //time
 	if(m_time_flag)
 	{

@@ -335,9 +335,6 @@ void CVideoProcess::linkage_init()
 	
 	m_Gun_GrayMat = Scalar(255);
 
-	m_click = m_draw = m_tempX = m_tempY = 0;
-	memset(m_rectn, 0, sizeof(m_rectn));
-	memset(mRect, 0, sizeof(mRect));
 	m_time_show = m_time_flag = 0;
 	
 	m_rgbMat.create(1080,1920,CV_8UC3);
@@ -409,6 +406,10 @@ CVideoProcess::CVideoProcess()
 	open_handleCalibra = false ;
 	linkage_init();
 #endif
+	m_click = m_draw = m_tempX = m_tempY = 0;
+	memset(m_rectn, 0, sizeof(m_rectn));
+	memset(mRect, 0, sizeof(mRect));
+	setrigon_flag = 0;
 
 }
 
@@ -461,59 +462,6 @@ int CVideoProcess::destroy()
 }
 
 #if LINKAGE_FUNC	
-void CVideoProcess::mouse_event(int button, int state, int x, int y)
-{
-	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-	{
-		if(pThis->open_handleCalibra)
-		{
-			pThis->OnMouseLeftDwn(x, y);
-		}
-		else
-		{
-			if(pThis->m_click == 0)
-			{
-				pThis->m_click = 1;
-				pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1 = x;
-				pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1 = y;
-				cout<<pThis->m_rectn[pThis->m_curChId]<<" start:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1<<")"<<endl;
-			}
-			else
-			{
-				pThis->m_click = 0;
-				pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 = x;
-				pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 = y;
-				cout<<pThis->m_rectn[pThis->m_curChId]<<" end:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2<<")\n"<<endl;
-				pThis->m_rectn[pThis->m_curChId]++;
-				if(pThis->m_rectn[pThis->m_curChId]>=sizeof(pThis->mRect[0]))
-				{
-					printf("mouse rect reached maxnum:100!\n");
-					pThis->m_rectn[pThis->m_curChId]--;
-				}
-				pThis->m_draw = 1;
-			}
-		}
-		
-	}
-
-	if((button == 3)||(button == 4))
-	{
-		pThis->m_click = 0;
-		pThis->m_rectn[pThis->m_curChId] = 0;
-		pThis->m_draw = 1;
-	}
-}
-
-void CVideoProcess::mousemove_event(GLint xMouse, GLint yMouse)
-{
-	if(pThis->m_click == 1)
-	{
-		pThis->m_tempX = xMouse;
-		pThis->m_tempY = yMouse;
-		pThis->m_draw = 1;
-	}
-}
-
 void CVideoProcess::processtimeMenu(int value)
 {
 	if(0 == value)
@@ -527,8 +475,75 @@ void CVideoProcess::processtimeMenu(int value)
 
 #else
 
+void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
+{
+	SENDST test;
+	CMD_MOUSEPTZ mptz;
+
+	test.cmd_ID = mouseptz;
+	if(pThis->mptz_click == 1)
+	{
+		mptz.mptzx = xMouse - pThis->mptz_originX;
+		mptz.mptzy = pThis->mptz_originY - yMouse;
+		memcpy(test.param, &mptz, sizeof(mptz));
+		ipc_sendmsg(&test, IPC_FRIMG_MSG);
+	}
+}
+#endif
+
 void CVideoProcess::mouse_event(int button, int state, int x, int y)
 {
+	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{
+#if LINKAGE_FUNC
+		if(pThis->open_handleCalibra)
+		{
+			pThis->OnMouseLeftDwn(x, y);
+		}
+		else
+#endif
+		{
+			if(pThis->setrigon_flag)
+			{
+				if(pThis->m_click == 0)
+				{
+					pThis->m_click = 1;
+					pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1 = x;
+					pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1 = y;
+				}
+				else
+				{
+					pThis->m_click = 0;
+					pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 = x;
+					pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 = y;
+					printf("Rigion%d: Point1(%d,%d),Point2(%d,%d),Point3(%d,%d),Point4(%d,%d)\n",
+						pThis->m_rectn[pThis->m_curChId],
+						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1,
+						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1,
+						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2,
+						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2
+					);
+					pThis->m_rectn[pThis->m_curChId]++;
+					if(pThis->m_rectn[pThis->m_curChId]>=sizeof(pThis->mRect[0]))
+					{
+						printf("mouse rect reached maxnum:100!\n");
+						pThis->m_rectn[pThis->m_curChId]--;
+					}
+					pThis->m_draw = 1;
+					pThis->setrigon_flag = 0;
+				}
+			}
+		}
+		
+	}
+
+	if((button == 3)||(button == 4))
+	{
+		pThis->m_click = 0;
+		pThis->m_rectn[pThis->m_curChId] = 0;
+		pThis->m_draw = 1;
+	}
+#if (!LINKAGE_FUNC)
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		pThis->mptz_click = 1;
@@ -548,23 +563,18 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 		ipc_sendmsg(&test, IPC_FRIMG_MSG);
 
 	}
+#endif
 }
 
-void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
+void CVideoProcess::mousemove_event(GLint xMouse, GLint yMouse)
 {
-	SENDST test;
-	CMD_MOUSEPTZ mptz;
-
-	test.cmd_ID = mouseptz;
-	if(pThis->mptz_click == 1)
+	if(pThis->m_click == 1)
 	{
-		mptz.mptzx = xMouse - pThis->mptz_originX;
-		mptz.mptzy = pThis->mptz_originY - yMouse;
-		memcpy(test.param, &mptz, sizeof(mptz));
-		ipc_sendmsg(&test, IPC_FRIMG_MSG);
+		pThis->m_tempX = xMouse;
+		pThis->m_tempY = yMouse;
+		pThis->m_draw = 1;
 	}
 }
-#endif
 
 void CVideoProcess::menu_event(int value)
 {
@@ -576,6 +586,17 @@ void CVideoProcess::menu_event(int value)
 		default:
 			break;
 	}
+}
+
+void CVideoProcess::processrigionMenu(int value)
+{
+	printf("set rigion\n");
+	pThis->setrigon_flag = 1;
+}
+
+void CVideoProcess::processrigionselMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
 }
 
 void CVideoProcess::keyboard_event(unsigned char key, int x, int y)
@@ -610,15 +631,15 @@ int CVideoProcess::init()
 
 	memset(&dsInit, 0, sizeof(DS_InitPrm));
 #if LINKAGE_FUNC
-	dsInit.passivemotionfunc = mousemove_event;
-	dsInit.mousefunc = mouse_event;
-	dsInit.menufunc = menu_event;
-	dsInit.timefunc = processtimeMenu;
+	dsInit.timefunc = processtimeMenu;	
 #else
 	dsInit.motionfunc = mousemotion_event;
-	dsInit.mousefunc = mouse_event;
-	dsInit.menufunc = menu_event;
 #endif
+	dsInit.menufunc = menu_event;
+	dsInit.mousefunc = mouse_event;
+	dsInit.passivemotionfunc = mousemove_event;
+	dsInit.setrigion = processrigionMenu;
+	dsInit.rigionsel = processrigionselMenu;
 
 //#if (!__IPC__)
 	dsInit.keyboardfunc = keyboard_event;

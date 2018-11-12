@@ -694,17 +694,6 @@ void CDisplayer::processSenMenu(int value)
 	printf("%s start, value=%d\n", __FUNCTION__, value);
 }
 
-
-void CDisplayer::processrigionMenu(int value)
-{
-	printf("%s start, value=%d\n", __FUNCTION__, value);
-}
-
-void CDisplayer::processrigionselMenu(int value)
-{
-	printf("%s start, value=%d\n", __FUNCTION__, value);
-}
-
 void CDisplayer::processtargetsizeMenu(int value)
 {
 	printf("%s start, value=%d\n", __FUNCTION__, value);
@@ -903,15 +892,13 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	if(m_initPrm.keySpecialfunc != NULL)
 		glutSpecialFunc(m_initPrm.keySpecialfunc);
 
-
-#if LINKAGE_FUNC
 	//mouse event:
 	if(m_initPrm.mousefunc != NULL)
 		glutMouseFunc(m_initPrm.mousefunc);//GLUT_LEFT_BUTTON GLUT_MIDDLE_BUTTON GLUT_RIGHT_BUTTON; GLUT_DOWN GLUT_UP
-
 	if(m_initPrm.passivemotionfunc != NULL)
 		glutPassiveMotionFunc(m_initPrm.passivemotionfunc);
-
+	
+#if LINKAGE_FUNC
 	if(m_initPrm.menufunc != NULL)
 	{
 		int sub_menu = glutCreateMenu(processLinkageMenu);
@@ -978,9 +965,9 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("Manual Carlibration",0);
 		glutAddMenuEntry("Auto Carlibration",1);
 
-		int rig_submenu = glutCreateMenu(processrigionMenu);
+		int rig_submenu = glutCreateMenu(m_initPrm.setrigion);
 		glutAddMenuEntry("Rigion1",0);
-		int rigsel_submenu = glutCreateMenu(processrigionselMenu);
+		int rigsel_submenu = glutCreateMenu(m_initPrm.rigionsel);
 		glutAddMenuEntry("Rigion1",0);
 		int tsi_submenu = glutCreateMenu(processtargetsizeMenu);
 		glutAddMenuEntry("Size1",0);
@@ -1090,10 +1077,6 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	}
 	
 #else
-
-	if(m_initPrm.mousefunc != NULL)
-		glutMouseFunc(m_initPrm.mousefunc);
-	
 	if(m_initPrm.motionfunc != NULL)
 		glutMotionFunc(m_initPrm.motionfunc);
 	
@@ -1108,9 +1091,9 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		int t_maxnum_submenu = glutCreateMenu(processmaxnumMenu);
 		glutAddMenuEntry("Num1",0);
 		glutAddMenuEntry("Num2",1);
-		int t_rig_submenu = glutCreateMenu(processrigionMenu);
+		int t_rig_submenu = glutCreateMenu(m_initPrm.setrigion);
 		glutAddMenuEntry("Rigion1",0);
-		int t_rigsel_submenu = glutCreateMenu(processrigionselMenu);
+		int t_rigsel_submenu = glutCreateMenu(m_initPrm.rigionsel);
 		glutAddMenuEntry("Rigion1",0);
 		int t_dc_submenu = glutCreateMenu(processdetectcondMenu);
 		glutAddMenuEntry("Condition1",0);

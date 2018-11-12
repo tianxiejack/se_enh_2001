@@ -76,17 +76,17 @@ typedef struct _ds_init_param{
 	//void (*displayfunc)(void);
 	
 #if LINKAGE_FUNC
+
+	void (*timefunc)(int value);
+#else
+	void (*motionfunc)(GLint xMouse, GLint yMouse);
+#endif
 	void (*passivemotionfunc)(GLint xMouse, GLint yMouse);
 	void (*mousefunc)(int button, int state, int x, int y);
 	void (*menufunc)(int value);
-	void (*timefunc)(int value);
-
-#else
-
-	void (*motionfunc)(GLint xMouse, GLint yMouse);
-	void (*mousefunc)(int button, int state, int x, int y);
-	void (*menufunc)(int value);
-#endif
+	void (*setrigion)(int value);
+	void (*rigionsel)(int value);
+	
 	//void (*reshapefunc)(int width, int height);
 	void (*keyboardfunc)(unsigned char key, int x, int y);
 	void (*keySpecialfunc)( int, int, int );
@@ -269,8 +269,6 @@ protected:
 	static void processprotocolMenu(int value);
 #endif
 	static void processSenMenu(int value);
-	static void processrigionMenu(int value);
-	static void processrigionselMenu(int value);
 	static void processtargetsizeMenu(int value);
 	static void processtargetspeedMenu(int value);
 	static void processtargetdircMenu(int value);
