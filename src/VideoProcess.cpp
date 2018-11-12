@@ -528,14 +528,15 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2,
 						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2
 					);
-
+					//point1  ---  lefttop    ,  point2  --- righttop  , point3 --- leftbottom  ,point --- rightbottom
 
 					std::vector<cv::Point> polyWarnRoi ;
 					polyWarnRoi.resize(4);
 					polyWarnRoi[0]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1);
 					polyWarnRoi[1]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1);
-					polyWarnRoi[2]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2);
-					polyWarnRoi[3]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2);
+					polyWarnRoi[2]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2);
+					polyWarnRoi[3]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2);
+
 					pThis->preWarnRect.x = polyWarnRoi[0].x;
 					pThis->preWarnRect.y = polyWarnRoi[0].y;
 					pThis->preWarnRect.width = polyWarnRoi[2].x - polyWarnRoi[0].x;
