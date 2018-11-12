@@ -1717,7 +1717,7 @@ osdindex++;	//acqRect
 
 	prisensorstatus=extInCtrl->SensorStat;
 
-#if LINKAGE_FUNC
+
 //mouse rect
 	if(m_draw)
 	{    
@@ -1732,7 +1732,8 @@ osdindex++;	//acqRect
 		memcpy(m_rectnbak, m_rectn, sizeof(m_rectnbak));
 		int j = 0;
 		
-		#if 0
+		if(0)
+		{
 			for(j = 0; j < m_rectn[extInCtrl->SensorStat]; j++)
 			{
 				rectangle(m_display.m_imgOsd[extInCtrl->SensorStat],
@@ -1740,7 +1741,7 @@ osdindex++;	//acqRect
 						Point(mRectbak[extInCtrl->SensorStat][j].x2, mRectbak[extInCtrl->SensorStat][j].y2),
 						cvScalar(0,0,255,255), 1, 8);
 			}
-		#endif
+		}
 		
 		if(m_click == 1)
 		{
@@ -1755,7 +1756,8 @@ osdindex++;	//acqRect
 		}
 		m_draw = 0;
 	}
-
+	
+#if LINKAGE_FUNC
 //time
 	if(m_time_flag)
 	{

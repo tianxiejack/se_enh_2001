@@ -76,17 +76,17 @@ typedef struct _ds_init_param{
 	//void (*displayfunc)(void);
 	
 #if LINKAGE_FUNC
+
+	void (*timefunc)(int value);
+#else
+	void (*motionfunc)(GLint xMouse, GLint yMouse);
+#endif
 	void (*passivemotionfunc)(GLint xMouse, GLint yMouse);
 	void (*mousefunc)(int button, int state, int x, int y);
 	void (*menufunc)(int value);
-	void (*timefunc)(int value);
-
-#else
-
-	void (*motionfunc)(GLint xMouse, GLint yMouse);
-	void (*mousefunc)(int button, int state, int x, int y);
-	void (*menufunc)(int value);
-#endif
+	void (*setrigion)(int value);
+	void (*rigionsel)(int value);
+	
 	//void (*reshapefunc)(int width, int height);
 	void (*keyboardfunc)(unsigned char key, int x, int y);
 	void (*keySpecialfunc)( int, int, int );
@@ -250,6 +250,7 @@ protected:
 	static void _display(void);
 	static void _timeFunc(int value);
 	static void _reshape(int width, int height);
+#if LINKAGE_FUNC
 	static void processLinkageMenu(int value);
 	static void processDMMenu(int value);
 	static void processgunResMenu(int value);
@@ -259,10 +260,15 @@ protected:
 	static void processnameMenu(int value);
 	static void processfontsizeMenu(int value);
 	static void processosdposMenu(int value);
-	static void processSenMenu(int value);
 	static void processCarMenu(int value);
-	static void processrigionMenu(int value);
-	static void processrigionselMenu(int value);
+	static void processbuadrateMenu(int value);
+	static void processdatabitMenu(int value);
+	static void processstopbitMenu(int value);
+	static void processparityMenu(int value);
+	static void processaddressMenu(int value);
+	static void processprotocolMenu(int value);
+#endif
+	static void processSenMenu(int value);
 	static void processtargetsizeMenu(int value);
 	static void processtargetspeedMenu(int value);
 	static void processtargetdircMenu(int value);
@@ -270,17 +276,10 @@ protected:
 	static void processdetectcondMenu(int value);
 	static void processpolarMenu(int value);
 	static void processdurationMenu(int value);
-	static void processbuadrateMenu(int value);
-	static void processdatabitMenu(int value);
-	static void processstopbitMenu(int value);
-	static void processparityMenu(int value);
-	static void processaddressMenu(int value);
-	static void processprotocolMenu(int value);
 	static void processmtdswMenu(int value);
 	static void processmtdmodeMenu(int value);
 	static void processredetectMenu(int value);
 	static void processalarmputMenu(int value);
-	static void processtrkcondMenu(int value);
 
 	static void _close(void);
 	void gl_resize(void);
