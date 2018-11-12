@@ -432,6 +432,12 @@ typedef struct{
 }CMD_MTDTRKTIME;
 
 typedef struct{
+	volatile unsigned char block;
+	volatile unsigned char field;
+	volatile float value;
+}CMD_SETCONFIG;
+
+typedef struct{
     unsigned char cmd_ID;
 	unsigned char param[PARAMLEN];
 }SENDST;
