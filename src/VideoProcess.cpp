@@ -559,12 +559,17 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 				#if LINKAGE_FUNC
 				if(pThis->m_click == 0)
 				{
+					pThis->m_click = 1;
+					pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1 = x;
+					pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1 = y;
 					cout<<" start:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1<<")"<<endl;
 					pThis->LeftPoint.x = x;
 					pThis->LeftPoint.y = y;
 				}
 				else
 				{
+					pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 = x;
+					pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 = y;
 					cout<<" end:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2<<")\n"<<endl;
 					pThis->RightPoint.x = x;
 					pThis->RightPoint.y = y;
