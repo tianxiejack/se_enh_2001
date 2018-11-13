@@ -306,6 +306,10 @@ void* recv_msg(SENDST *RS422)
 			break;
 			
 		case trk:	
+			#if LINKAGE_FUNC
+				break;	
+			#endif
+			
 			memcpy(&Rtrk,RS422->param,sizeof(Rtrk));
 			imgID1 = Rtrk.AvtTrkStat;
 			printf("recv TRK : imgID1 : %d\n",imgID1);

@@ -1545,33 +1545,37 @@ osdindex++;	//cross aim
 			DrawCross(recIn,frcolor,extInCtrl->SensorStat,false);
 			Osdflag[osdindex]=0;
  		}
-		if(!m_bMoveDetect)
-		{
-			if(extInCtrl->DispGrp[extInCtrl->SensorStat] <= 3  &&  !changesensorCnt)
-			{
-				recIn.x=PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
-		 		recIn.y=PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
-				recIn.width = extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
-				recIn.height= extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
-				crossBak.x = recIn.x;
-				crossBak.y = recIn.y;
-				crossWHBak.x = recIn.width;
-				crossWHBak.y = recIn.height;
 
-				if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
+		#if !LINKAGE_FUNC
+		
+			if(!m_bMoveDetect)
+			{
+				if(extInCtrl->DispGrp[extInCtrl->SensorStat] <= 3  &&  !changesensorCnt)
 				{
-					if(m_display.m_crossOsd)
+					recIn.x=PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
+			 		recIn.y=PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
+					recIn.width = extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
+					recIn.height= extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
+					crossBak.x = recIn.x;
+					crossBak.y = recIn.y;
+					crossWHBak.x = recIn.width;
+					crossWHBak.y = recIn.height;
+
+					if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
+					{
+						if(m_display.m_crossOsd)
+							DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
+						Osdflag[osdindex]=1;
+					}
+					else if(extInCtrl->AvtTrkStat == eTrk_mode_search)
+					{
+						frcolor = 3;
 						DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
-					Osdflag[osdindex]=1;
+						Osdflag[osdindex]=1;
+					}
 				}
-				else if(extInCtrl->AvtTrkStat == eTrk_mode_search)
-				{
-					frcolor = 3;
-					DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
-					Osdflag[osdindex]=1;
-				}
-			}
-		}	
+			}	
+		#endif
 	}
 
 
@@ -1591,26 +1595,27 @@ osdindex++;	//acqRect
 			DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,false);
 			Osdflag[osdindex]=0;
  		}
-		
-		if(!m_bMoveDetect)
-		{
-			if(extInCtrl->AvtTrkStat == eTrk_mode_acq  && !changesensorCnt){
-				recIn.x  = PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
-		 		recIn.y  = PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
-				recIn.width  = extInCtrl->AcqRectW[extInCtrl->SensorStat];
-				recIn.height = extInCtrl->AcqRectH[extInCtrl->SensorStat]; 
-				if(recIn.width%2 == 1)
-					recIn.width++;
-				if(recIn.height%2 == 1)
-					recIn.height++;
-				recIn.x = recIn.x  - recIn.width/2;
-				recIn.y = recIn.y  + recIn.height/2;
-				DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,true);
-				acqRectBak = recIn;
-				Osdflag[osdindex]=1;
+
+		#if !LINKAGE_FUNC
+			if(!m_bMoveDetect)
+			{
+				if(extInCtrl->AvtTrkStat == eTrk_mode_acq  && !changesensorCnt){
+					recIn.x  = PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
+			 		recIn.y  = PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
+					recIn.width  = extInCtrl->AcqRectW[extInCtrl->SensorStat];
+					recIn.height = extInCtrl->AcqRectH[extInCtrl->SensorStat]; 
+					if(recIn.width%2 == 1)
+						recIn.width++;
+					if(recIn.height%2 == 1)
+						recIn.height++;
+					recIn.x = recIn.x  - recIn.width/2;
+					recIn.y = recIn.y  + recIn.height/2;
+					DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,true);
+					acqRectBak = recIn;
+					Osdflag[osdindex]=1;
+				}
 			}
-		}
-		
+		#endif
 	}
 
 	
@@ -1671,13 +1676,13 @@ osdindex++;	//acqRect
 					color = 3;
 				
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,color);
-#if LINKAGE_FUNC
+			#if LINKAGE_FUNC
 				if(color == 6)
 				{
 					reMapCoords(((*plist).targetRect.x + (*plist).targetRect.width/2),
 									((*plist).targetRect.y - (*plist).targetRect.height/2),false);
 				}
-#endif
+			#endif
 			}
 			Osdflag[osdindex]=1;
 		}
