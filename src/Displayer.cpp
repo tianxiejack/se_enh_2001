@@ -467,11 +467,6 @@ void CDisplayer::processosdposMenu(int value)
 	swprintf(disOsd[31], 33, L"%s", disOsdBuf[31].buf);
 }
 
-void CDisplayer::processCarMenu(int value)
-{
-	printf("%s start, value=%d\n", __FUNCTION__, value);
-}
-
 void CDisplayer::processbuadrateMenu(int value)
 {
 	SENDST test;
@@ -948,9 +943,19 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddSubMenu("Font Size",fontsize_submenu);
 		glutAddSubMenu("OSD Position",osdpos_submenu);
 
-		int car_submenu = glutCreateMenu(processCarMenu);
-		glutAddMenuEntry("Manual Carlibration",0);
-		glutAddMenuEntry("Auto Carlibration",1);
+		int manualcarli_submenu = glutCreateMenu(m_initPrm.manualcarli);
+		glutAddMenuEntry("On",0);
+		glutAddMenuEntry("Screentshot",1);
+		glutAddMenuEntry("Carlibration",2);
+		glutAddMenuEntry("Storage",3);
+		int autocarli_submenu = glutCreateMenu(m_initPrm.autocarli);
+		glutAddMenuEntry("On",0);
+		glutAddMenuEntry("Screentshot",1);
+		glutAddMenuEntry("Carlibration",2);
+		glutAddMenuEntry("Storage",3);
+		int car_submenu = glutCreateMenu(NULL);
+		glutAddSubMenu("Manual Carlibration",manualcarli_submenu);
+		glutAddSubMenu("Auto Carlibration",autocarli_submenu);
 
 		int rig_submenu = glutCreateMenu(m_initPrm.setrigion);
 		glutAddMenuEntry("Rigion1",0);
