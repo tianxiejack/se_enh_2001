@@ -2913,14 +2913,14 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 		{
 			dynamic_config(VP_CFG_MvDetect, 1,NULL);
 			tmpCmd.MtdState[pIStuts->SensorStat] = 1;
-			app_ctrl_setMtdStat(&tmpCmd);
+			//app_ctrl_setMtdStat(&tmpCmd);
 			m_pMovDetector->mvOpen(0);	
 		}
 		else
 		{
 			dynamic_config(VP_CFG_MvDetect, 0,NULL);
 			tmpCmd.MtdState[pIStuts->SensorStat] = 0;
-			app_ctrl_setMtdStat(&tmpCmd);
+			//app_ctrl_setMtdStat(&tmpCmd);
 			m_pMovDetector->mvClose(0);
 			chooseDetect = 0;
 		}
