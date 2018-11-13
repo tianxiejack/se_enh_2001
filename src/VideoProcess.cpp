@@ -473,6 +473,16 @@ void CVideoProcess::processtimeMenu(int value)
 		pThis->m_time_show = 0;
 }
 
+void CVideoProcess::processsmanualcarliMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
+void CVideoProcess::processsautocarliMenu(int value)
+{
+	printf("%s start, value=%d\n", __FUNCTION__, value);
+}
+
 #else
 
 void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
@@ -677,6 +687,9 @@ int CVideoProcess::init()
 	memset(&dsInit, 0, sizeof(DS_InitPrm));
 #if LINKAGE_FUNC
 	dsInit.timefunc = processtimeMenu;	
+	dsInit.manualcarli = processsmanualcarliMenu;
+	dsInit.autocarli = processsautocarliMenu;
+	
 #else
 	dsInit.motionfunc = mousemotion_event;
 #endif

@@ -76,8 +76,9 @@ typedef struct _ds_init_param{
 	//void (*displayfunc)(void);
 	
 #if LINKAGE_FUNC
-
 	void (*timefunc)(int value);
+	void (*manualcarli)(int value);
+	void (*autocarli)(int value);
 #else
 	void (*motionfunc)(GLint xMouse, GLint yMouse);
 #endif
@@ -260,7 +261,6 @@ protected:
 	static void processnameMenu(int value);
 	static void processfontsizeMenu(int value);
 	static void processosdposMenu(int value);
-	static void processCarMenu(int value);
 	static void processbuadrateMenu(int value);
 	static void processdatabitMenu(int value);
 	static void processstopbitMenu(int value);

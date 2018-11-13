@@ -209,6 +209,8 @@ protected:
 
 #if LINKAGE_FUNC
 	static void processtimeMenu(int value);
+	static void processsmanualcarliMenu(int value);
+	static void processsautocarliMenu(int value);
 #else
 	static void mousemotion_event(GLint xMouse, GLint yMouse);
 #endif
