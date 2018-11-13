@@ -12,7 +12,7 @@
 CamParameters g_camParams;
 CcCamCalibra::CcCamCalibra():scale(0.5),bCal(false),ret1(false),ret2(false),
 	panPos(1024), tiltPos(13657), zoomPos(16),writeParam_flag(false),
-	Set_Handler_Calibra(false),bool_Calibrate(false)
+	Set_Handler_Calibra(false),bool_Calibrate(false),start_cloneVideoSrc(false)
 {
 	gun_BMP = imread("gun.bmp");
 	
@@ -185,8 +185,7 @@ void CcCamCalibra::setBallPos(int in_panPos, int in_tilPos, int in_zoom)
 int CcCamCalibra::Run()
 {
 	char flag = 0;
-	//if(1/*start_cloneVideoSrc == true*/) {
-	Mat frame = ball_frame;//ball_BMP;
+	Mat frame = ball_frame;
 #if 1	
 		if(!gun_frame.empty()){
 			remap(gun_frame, undisImage, map1, map2, INTER_LINEAR);
@@ -215,7 +214,6 @@ int CcCamCalibra::Run()
 				}
 				handle_pose_2d2d( keypt2, keypt1,newCameraMatrix, R, t, homography);
 				
-
 				cout << "Key_points1.size() = " << key_points1.size() << endl;
 				cout << "Key_points2.size() = " << key_points2.size() << endl;
 				bool_Calibrate = false;

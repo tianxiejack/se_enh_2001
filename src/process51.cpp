@@ -1622,28 +1622,38 @@ osdindex++;	//acqRect
 #if __MOVE_DETECT__
 	osdindex++;
 	{
-		if(Osdflag[osdindex]==1)
+		if(Osdflag[osdindex])
 		{
 			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-				Point( preWarnRect.x, preWarnRect.y ),
-				Point( preWarnRect.x + preWarnRect.width, preWarnRect.y + preWarnRect.height),
+				Point( preWarnRectBak.x, preWarnRectBak.y ),
+				Point( preWarnRectBak.x + preWarnRectBak.width, preWarnRectBak.y + preWarnRectBak.height),
 				cvScalar(0,0,0,0), 2, 8 );
-				
+
+			cv::Rect tmp;
 			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{		
-				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,0);
+				tmp.x = (*plist).targetRect.x/2 + 960;
+				tmp.y = (*plist).targetRect.y/2;
+				tmp.width = (*plist).targetRect.width/2;
+				tmp.height = (*plist).targetRect.height/2;
+				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], tmp ,0);
 			}
 			
 			Osdflag[osdindex]=0;
 		}
-		
+
 		if(m_bMoveDetect)
 		{
+			preWarnRectBak.x = preWarnRect.x/2 + 960;
+			preWarnRectBak.y = preWarnRect.y/2;
+			preWarnRectBak.width = preWarnRect.width/2;
+			preWarnRectBak.height = preWarnRect.height/2;
+			
 			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-				Point( preWarnRect.x, preWarnRect.y ),
-				Point( preWarnRect.x + preWarnRect.width, preWarnRect.y + preWarnRect.height),
+				Point( preWarnRectBak.x, preWarnRectBak.y ),
+				Point( preWarnRectBak.x + preWarnRectBak.width, preWarnRectBak.y + preWarnRectBak.height),
 				cvScalar(0,0,255,255), 2, 8 );
-								
+
 			detect_bak = detect_vect;
 			
 			mvIndexHandle(mvList,detect_bak,detectNum);
@@ -1667,22 +1677,30 @@ osdindex++;	//acqRect
 			if(chooseDetect > mvList.size())
 				chooseDetect = mvList.size()-1 ;
 			
-			char tmpNum = 0;	
+			char tmpNum = 0;
+			cv::Rect tmp;
 			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
 				if( chooseDetect == tmpNum++)
 					color = 6;
 				else
 					color = 3;
+
 				
-				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,color);
-			#if LINKAGE_FUNC
-				if(color == 6)
-				{
-					reMapCoords(((*plist).targetRect.x + (*plist).targetRect.width/2),
-									((*plist).targetRect.y - (*plist).targetRect.height/2),false);
-				}
-			#endif
+				#if LINKAGE_FUNC
+					if(color == 6)
+					{
+						reMapCoords(((*plist).targetRect.x + (*plist).targetRect.width/2),
+										((*plist).targetRect.y - (*plist).targetRect.height/2),false);
+					}
+				#endif
+
+				tmp.x = (*plist).targetRect.x/2 + 960;
+				tmp.y = (*plist).targetRect.y/2;
+				tmp.width = (*plist).targetRect.width/2;
+				tmp.height = (*plist).targetRect.height/2;
+				
+				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], tmp ,color);
 			}
 			Osdflag[osdindex]=1;
 		}

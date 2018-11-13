@@ -253,6 +253,7 @@ protected: //track
 	UTC_RECT_float m_rcTrack, m_rcAcq;
 	UTC_Rect preAcpSR;
 	UTC_Rect preWarnRect;
+	UTC_Rect preWarnRectBak;
 	UTC_Rect MoveAcpSR;
 	UTC_Rect TRKMoveAcpSR;
 	int			    m_intervalFrame;

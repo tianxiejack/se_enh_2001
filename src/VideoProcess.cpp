@@ -138,9 +138,14 @@ void CVideoProcess::main_proc_func()
 			continue;
 		}
 
+	#if LINKAGE_FUNC
+		if(chId != m_curSubChId)
+			continue;
+	#else
 		if(chId != m_curChId)
 			continue;
-
+	#endif
+	
 		frame_gray = Mat(frame.rows, frame.cols, CV_8UC1);
 
 		if(channel == 2)
@@ -203,16 +208,10 @@ void CVideoProcess::main_proc_func()
 			{								
 				if(m_iTrackLostCnt > 3)
 				{					
-					//m_rcTrack.x = msgextInCtrl->AvtPosX[chId]- m_rcTrack.width/2;
-					//m_rcTrack.y = msgextInCtrl->AvtPosY[chId]- m_rcTrack.height/2;
-					//OSA_printf(">3 -> TrkStat = %d  ImageAxisxy = (%d,%d)\n",m_iTrackStat,m_ImageAxisx[chId],m_ImageAxisy[chId]);
 				}
 				else
 				{
 					m_iTrackStat = 1;
-					//m_rcTrack.x = msgextInCtrl->AvtPosX[chId] - m_rcTrack.width/2;
-					//m_rcTrack.y = msgextInCtrl->AvtPosY[chId] - m_rcTrack.height/2;
-					//OSA_printf("<3 ->ImageAxisxy = (%d,%d)\n",m_ImageAxisx[chId],m_ImageAxisy[chId]);
 				}
 			}
 
@@ -291,9 +290,6 @@ void CVideoProcess::main_proc_func()
 			}
 		#endif
 		}
-
-		if(chId != m_curChId)
-			continue;
 		
 		OnProcess(chId, frame);
 		framecount++;
@@ -1088,9 +1084,11 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 	OSA_mutexLock(&m_mutex);
 
 
-	#if 1
-
-	if(chId == m_curChId /*&& (m_bTrack ||m_bMtd )*/)
+#if LINKAGE_FUNC
+	if(chId == m_curSubChId)
+#else
+	if(chId == m_curChId)
+#endif
 	{
 		if((chId==video_pal) && (virchId!= PAL_VIRCHID))
 			;
@@ -1115,7 +1113,7 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 		}
 	}
 
-	#endif
+
 
 
 	#if LINKAGE_FUNC
@@ -1311,15 +1309,13 @@ void	CVideoProcess::initMvDetect()
 	preWarnRect.width = polyWarnRoi[2].x - polyWarnRoi[0].x;
 	preWarnRect.height = polyWarnRoi[2].y - polyWarnRoi[0].y;
 
-	
 	for(i=0; i<DETECTOR_NUM; i++)
 	{
-		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
-
 		//m_pMovDetector->setDrawOSD(pThis->m_display.m_disOsd[1], i);
 		//m_pMovDetector->enableSelfDraw(true, i);
 
 		m_pMovDetector->setWarnMode(WARN_WARN_MODE, i);
+		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
 	
 	} 
 }
