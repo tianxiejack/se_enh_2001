@@ -157,8 +157,10 @@ protected:
 	 static void MSGAPI_update_camera(long IParam);
 	 static void MSGAPI_input_algosdrect(long lParam);
 	 static void MSGAPI_setMtdSelect(long lParam );
+
+#if LINKAGE_FUNC
 	 static void MSGAPI_update_ballPos(long lParam );
-	 
+#endif
 
 private:
 	ACK_EXT extOutAck;

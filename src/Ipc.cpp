@@ -580,8 +580,10 @@ void* recv_msg(SENDST *RS422)
 			break;
 			
 		case querypos:
-			memcpy(&posOfLinkage,RS422->param,sizeof(posOfLinkage));
-			app_ctrl_setLinkagePos(posOfLinkage.panPos, posOfLinkage.tilPos, posOfLinkage.zoom);
+			#if LINKAGE_FUNC
+				memcpy(&posOfLinkage,RS422->param,sizeof(posOfLinkage));
+				app_ctrl_setLinkagePos(posOfLinkage.panPos, posOfLinkage.tilPos, posOfLinkage.zoom);
+			#endif
 			break;
 		default:
 			break;

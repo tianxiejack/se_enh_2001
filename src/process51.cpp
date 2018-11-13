@@ -1671,12 +1671,13 @@ osdindex++;	//acqRect
 					color = 3;
 				
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], (*plist).targetRect,color);
-
+#if LINKAGE_FUNC
 				if(color == 6)
 				{
 					reMapCoords(((*plist).targetRect.x + (*plist).targetRect.width/2),
 									((*plist).targetRect.y - (*plist).targetRect.height/2),false);
 				}
+#endif
 			}
 			Osdflag[osdindex]=1;
 		}
@@ -2986,7 +2987,12 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_OSD,             	MSGAPI_update_osd,              0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_CAMERA,            MSGAPI_update_camera,           0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ALGOSDRECT,         MSGAPI_input_algosdrect,        0);	
+
+#if LINKAGE_FUNC
+
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_SETCURPOS,          		MSGAPI_update_ballPos,        	0);	
+
+#endif
 
     return 0;
 }
@@ -3782,11 +3788,12 @@ void CProcess::MSGAPI_update_camera(long lParam)
 {
 }
 
-
+#if LINKAGE_FUNC
 void CProcess::MSGAPI_update_ballPos(long lParam)
 {
 	m_camCalibra->setBallPos(linkagePos.panPos, linkagePos.panPos, linkagePos.zoom);
 }
+#endif
 
 void CProcess::MSGAPI_input_algosdrect(long lParam)
 {
