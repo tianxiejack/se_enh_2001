@@ -1644,10 +1644,14 @@ osdindex++;	//acqRect
 
 		if(m_bMoveDetect)
 		{
-			preWarnRectBak.x = preWarnRect.x/2 + 960;
-			preWarnRectBak.y = preWarnRect.y/2;
-			preWarnRectBak.width = preWarnRect.width/2;
-			preWarnRectBak.height = preWarnRect.height/2;
+			#if LINKAGE_FUNC
+				preWarnRectBak.x = preWarnRect.x/2 + 960;
+				preWarnRectBak.y = preWarnRect.y/2;
+				preWarnRectBak.width = preWarnRect.width/2;
+				preWarnRectBak.height = preWarnRect.height/2;
+			#else
+				memcpy(&preWarnRectBak,&preWarnRect,sizeof(preWarnRectBak));
+			#endif
 			
 			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
 				Point( preWarnRectBak.x, preWarnRectBak.y ),
@@ -1672,8 +1676,7 @@ osdindex++;	//acqRect
 				
 				backflag = 0;
 			}
-
-						
+			
 			if(chooseDetect > mvList.size())
 				chooseDetect = mvList.size()-1 ;
 			
@@ -1956,6 +1959,7 @@ int CProcess::checkZoomPosTable(int delta)
 
 void CProcess::reMapCoords(int x, int y,bool mode)
 {	
+
 	int point_X , point_Y , offset_x , zoomPos; 
 	int delta_X ;
 	if(mode)
@@ -1983,11 +1987,6 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 		
 	if(mode)
 	{
-		point_X = (x - offset_x);
-		point_Y = y;
-	}
-	else
-	{
 		if(LeftPoint.x < RightPoint.x) {
 			point_X = abs(LeftPoint.x - RightPoint.x) /2 + LeftPoint.x;
 			point_Y = abs(LeftPoint.y - RightPoint.y) /2 + LeftPoint.y;	
@@ -1995,6 +1994,12 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 			point_X = abs(LeftPoint.x - RightPoint.x) /2 + RightPoint.x;
 			point_Y = abs(LeftPoint.y - RightPoint.y) /2 + RightPoint.y;	
 		}
+	}
+	else
+	{
+		point_X = (x - offset_x);
+		point_Y = y;
+
 	}
 
  	Point opt;
@@ -2069,6 +2074,8 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 	int Origin_PanPos = g_camParams.panPos;
 	int Origin_TilPos = g_camParams.tiltPos;
 
+printf("inputX : %d    , Origin_PanPos  : %d  \n",inputX,Origin_PanPos);
+
 	if(inputX + Origin_PanPos < 0)
 	{
 		DesPanPos = 36000 + (inputX + Origin_PanPos);
@@ -2080,6 +2087,7 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 	else
 		DesPanPos = Origin_PanPos + inputX;
 
+printf("inputY : %d    , Origin_TilPos	: %d  \n",inputY,Origin_TilPos);
 
 	if(Origin_TilPos > 32768)
 	{
