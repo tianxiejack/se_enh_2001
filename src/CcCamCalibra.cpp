@@ -107,7 +107,7 @@ void* CcCamCalibra::RunProxy(void* pArg)
 	 while(pPrm->pThis->m_bRun)
 	 {		
 	 	tv.tv_sec = 0;
-    	tv.tv_usec = (30%1000)*1000;
+    		tv.tv_usec = (30%1000)*1000;
    		select(0, NULL, NULL, NULL, &tv);
 		pPrm->pThis->Run();
 	 }
