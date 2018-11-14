@@ -689,22 +689,12 @@ void CDisplayer::processSenMenu(int value)
 	printf("%s start, value=%d\n", __FUNCTION__, value);
 }
 
-void CDisplayer::processtargetsizeMenu(int value)
-{
-	printf("%s start, value=%d\n", __FUNCTION__, value);
-}
-
 void CDisplayer::processtargetspeedMenu(int value)
 {
 	printf("%s start, value=%d\n", __FUNCTION__, value);
 }
 
 void CDisplayer::processtargetdircMenu(int value)
-{
-	printf("%s start, value=%d\n", __FUNCTION__, value);
-}
-
-void CDisplayer::processmaxnumMenu(int value)
 {
 	printf("%s start, value=%d\n", __FUNCTION__, value);
 }
@@ -961,9 +951,12 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("Rigion1",0);
 		int rigsel_submenu = glutCreateMenu(m_initPrm.rigionsel);
 		glutAddMenuEntry("Rigion1",0);
-		int tsi_submenu = glutCreateMenu(processtargetsizeMenu);
-		glutAddMenuEntry("Size1",0);
-		glutAddMenuEntry("Size2",1);
+		int tminsi_submenu = glutCreateMenu(m_initPrm.minsize);
+		glutAddMenuEntry("100",0);
+		glutAddMenuEntry("1000",1);
+		int tmaxsi_submenu = glutCreateMenu(m_initPrm.maxsize);
+		glutAddMenuEntry("40000",0);
+		glutAddMenuEntry("50000",1);
 		int tsp_submenu = glutCreateMenu(processtargetspeedMenu);
 		glutAddMenuEntry("Speed1",0);
 		glutAddMenuEntry("Speed2",1);
@@ -972,9 +965,9 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("Direction2",1);
 		glutAddMenuEntry("Direction3",2);
 		glutAddMenuEntry("Direction4",3);
-		int maxnum_submenu = glutCreateMenu(processmaxnumMenu);
-		glutAddMenuEntry("Num1",0);
-		glutAddMenuEntry("Num2",1);
+		int maxnum_submenu = glutCreateMenu(m_initPrm.maxnum);
+		glutAddMenuEntry("5",0);
+		glutAddMenuEntry("10",1);
 		int dc_submenu = glutCreateMenu(processdetectcondMenu);
 		glutAddMenuEntry("Condition1",0);
 		glutAddMenuEntry("Condition2",1);
@@ -991,11 +984,14 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("7s",3);
 		glutAddMenuEntry("9s",4);
 		int mtd_submenu = glutCreateMenu(NULL);
-		glutAddSubMenu("Max Num",maxnum_submenu);
 		glutAddSubMenu("Rigion Set",rig_submenu);
 		glutAddSubMenu("Rigion Select",rigsel_submenu);
 		glutAddSubMenu("Detect Condition",dc_submenu);
-		glutAddSubMenu("Target Size",tsi_submenu);
+#if __MOVE_DETECT__
+		glutAddSubMenu("Max Num",maxnum_submenu);
+		glutAddSubMenu("Minimum Target Size",tminsi_submenu);
+		glutAddSubMenu("Maximum Target Size",tmaxsi_submenu);
+#endif
 		glutAddSubMenu("Target Speed",tsp_submenu);
 		glutAddSubMenu("Target Direction",td_submenu);
 		glutAddSubMenu("Alarm Output",output_submenu);
@@ -1069,9 +1065,15 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		int t_sub_menu2 = glutCreateMenu(processmtdmodeMenu);
 		glutAddMenuEntry("Prohibit",0);
 		glutAddMenuEntry("Allow",1);
-		int t_maxnum_submenu = glutCreateMenu(processmaxnumMenu);
-		glutAddMenuEntry("Num1",0);
-		glutAddMenuEntry("Num2",1);
+		int t_maxnum_submenu = glutCreateMenu(m_initPrm.maxnum);
+		glutAddMenuEntry("5",0);
+		glutAddMenuEntry("10",1);
+		int t_minsi_submenu = glutCreateMenu(m_initPrm.minsize);
+		glutAddMenuEntry("100",0);
+		glutAddMenuEntry("1000",1);
+		int t_maxsi_submenu = glutCreateMenu(m_initPrm.maxsize);
+		glutAddMenuEntry("40000",0);
+		glutAddMenuEntry("50000",1);
 		int t_rig_submenu = glutCreateMenu(m_initPrm.setrigion);
 		glutAddMenuEntry("Rigion1",0);
 		int t_rigsel_submenu = glutCreateMenu(m_initPrm.rigionsel);
@@ -1097,11 +1099,15 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		
 		glutCreateMenu(NULL);
 		glutAddSubMenu("Auto Detect Enable",t_sub_menu2);
-		glutAddSubMenu("Max Num",t_maxnum_submenu);
 		glutAddSubMenu("Rigion Set",t_rig_submenu);
 		glutAddSubMenu("Rigion Select",t_rigsel_submenu);
 		glutAddSubMenu("Detect Condition",t_dc_submenu);
 		glutAddSubMenu("Redetect after lost",t_redetect_submenu);
+#if __MOVE_DETECT__
+		glutAddSubMenu("Max Num",t_maxnum_submenu);
+		glutAddSubMenu("Minimum Target Size",t_minsi_submenu);
+		glutAddSubMenu("Maximum Target Size",t_maxsi_submenu);
+#endif
 		glutAddSubMenu("Alarm Output",t_output_submenu);
 		glutAddSubMenu("Output Polar",t_polar_submenu);
 		glutAddSubMenu("Duration",t_dur_submenu);
