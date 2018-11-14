@@ -1957,7 +1957,7 @@ int CProcess::checkZoomPosTable(int delta)
 void CProcess::reMapCoords(int x, int y,bool mode)
 {	
 	int point_X , point_Y , offset_x , zoomPos; 
-	int delta_X = abs(LeftPoint.x - RightPoint.x) ;
+	int delta_X ;
 	if(mode)
 	{
 		zoomPos = checkZoomPosTable(delta_X);
@@ -1965,14 +1965,21 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 	switch(m_display.g_CurDisplayMode) 
 	{
 		case PREVIEW_MODE:
-			offset_x = 960;
+			offset_x = 960;			
+			break;
+		case PIC_IN_PIC:
+			offset_x =0;
 			break;
 		case LEFT_BALL_RIGHT_GUN:
-			offset_x = 480;	
+			offset_x = 480;			
 			break;
 		default:
 			break;
 	}
+	
+	LeftPoint.x -= offset_x;
+	RightPoint.x -=offset_x;
+	delta_X = abs(LeftPoint.x - RightPoint.x) ;
 		
 	if(mode)
 	{
@@ -1993,12 +2000,13 @@ void CProcess::reMapCoords(int x, int y,bool mode)
  	Point opt;
 	switch(m_display.g_CurDisplayMode) {
 		case PREVIEW_MODE:
-			 opt = Point( point_X*2, point_Y*2 );	
+			opt = Point( point_X*2, point_Y*2 );	
 			break;
 		case PIC_IN_PIC:
-			 opt = Point( x, y );	
+			opt = Point( x, y );
+			break;
 		case LEFT_BALL_RIGHT_GUN:
-			 opt = Point( point_X*1920.0/1440.0, point_Y*1080.0/810.0 );	
+			opt = Point( point_X*1920.0/1440.0, point_Y*1080.0/810.0 );	
 			break;
 		default:
 			break;
@@ -2246,6 +2254,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 		if(key == 'l') {
 			m_display.changeDisplayMode(SIDE_BY_SIDE);
 		}
+		
 		if(key == 'q') {
 			m_display.switchDisplayMode();
 		}
@@ -2256,17 +2265,14 @@ void CProcess::OnKeyDwn(unsigned char key)
 		
 		if(key == 'U' || key == 'u' ) {
 			m_camCalibra->writeParam_flag = true;
-		}	
+		}
 
-
-		if (key == 'y'|| key == 'Y')
-		{		
+		if (key == 'y'|| key == 'Y') {		
 			open_handleCalibra = true ;
 			m_camCalibra->Set_Handler_Calibra = true ;
 		}
 			
-		if (key == 'x'|| key == 'X')
-		{
+		if (key == 'x'|| key == 'X') {
 			open_handleCalibra = false ; 
 			m_camCalibra->Set_Handler_Calibra = false ;
 		}
