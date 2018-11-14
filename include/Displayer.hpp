@@ -87,7 +87,12 @@ typedef struct _ds_init_param{
 	void (*menufunc)(int value);
 	void (*setrigion)(int value);
 	void (*rigionsel)(int value);
-	
+#if __MOVE_DETECT__
+	void (*maxnum)(int value);
+	void (*maxsize)(int value);
+	void (*minsize)(int value);
+#endif
+
 	//void (*reshapefunc)(int width, int height);
 	void (*keyboardfunc)(unsigned char key, int x, int y);
 	void (*keySpecialfunc)( int, int, int );
@@ -269,10 +274,8 @@ protected:
 	static void processprotocolMenu(int value);
 #endif
 	static void processSenMenu(int value);
-	static void processtargetsizeMenu(int value);
 	static void processtargetspeedMenu(int value);
 	static void processtargetdircMenu(int value);
-	static void processmaxnumMenu(int value);
 	static void processdetectcondMenu(int value);
 	static void processpolarMenu(int value);
 	static void processdurationMenu(int value);

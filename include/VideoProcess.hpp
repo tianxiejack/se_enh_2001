@@ -219,6 +219,11 @@ protected:
 	static void menu_event(int value);
 	static void processrigionMenu(int value);
 	static void processrigionselMenu(int value);
+#if __MOVE_DETECT__
+	static void processmaxnumMenu(int value);
+	static void processmaxtargetsizeMenu(int value);
+	static void processmintargetsizeMenu(int value);
+#endif
 	static void keyboard_event(unsigned char key, int x, int y);
 	static void keySpecial_event( int key, int x, int y);
 	static void visibility_event(int state);
@@ -276,6 +281,8 @@ public:
 		std::vector<TRK_RECT_INFO> mvList;
 		int detectNum;
 		char chooseDetect;
+		int maxsize;
+		int minsize;
 #endif
 
 

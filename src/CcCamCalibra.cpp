@@ -231,12 +231,6 @@ int CcCamCalibra::Run()
 		}
 		else if( !Set_Handler_Calibra && bool_Calibrate)
 		{	
-			/*	
-				resize(gun_frame, gunDraw, Size(1920*scale, 1080*scale));
-				resize(ball_frame, ballDraw, Size(1920*scale, 1080*scale));
-				imshow("gun_org", gunDraw);
-				imshow("ball_org", ballDraw);	
-			*/	
 			printf("%s : start auto calibrate \n",__func__);
 			vector<KeyPoint> keypoints_1, keypoints_2;
 			vector<DMatch> matches;

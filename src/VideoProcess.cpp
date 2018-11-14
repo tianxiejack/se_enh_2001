@@ -286,7 +286,7 @@ void CVideoProcess::main_proc_func()
 		#if __MOVE_DETECT__
 			if(m_pMovDetector != NULL)
 			{
-				m_pMovDetector->setFrame(frame_gray,0,2,1000,50000,16);
+				m_pMovDetector->setFrame(frame_gray,0,2,minsize,maxsize,16);
 			}
 		#endif
 		}
@@ -393,6 +393,8 @@ CVideoProcess::CVideoProcess()
 
 #if __MOVE_DETECT__
 	detectNum = 10;
+	maxsize = 50000;
+	minsize = 1000;
 #endif
 
 #if LINKAGE_FUNC
@@ -661,7 +663,31 @@ void CVideoProcess::processrigionselMenu(int value)
 {
 	printf("%s start, value=%d\n", __FUNCTION__, value);
 }
+#if __MOVE_DETECT__
+void CVideoProcess::processmaxnumMenu(int value)
+{
+	if(0 == value)
+		pThis->detectNum = 5;
+	else if(1 == value)
+		pThis->detectNum = 10;
+}
 
+void CVideoProcess::processmaxtargetsizeMenu(int value)
+{
+	if(0 == value)
+		pThis->maxsize= 40000;
+	else if(1 == value)
+		pThis->maxsize= 50000;
+}
+
+void CVideoProcess::processmintargetsizeMenu(int value)
+{
+	if(0 == value)
+		pThis->minsize= 100;
+	else if(1 == value)
+		pThis->minsize= 1000;
+}
+#endif
 void CVideoProcess::keyboard_event(unsigned char key, int x, int y)
 {
 	pThis->OnKeyDwn(key);
@@ -706,6 +732,12 @@ int CVideoProcess::init()
 	dsInit.passivemotionfunc = mousemove_event;
 	dsInit.setrigion = processrigionMenu;
 	dsInit.rigionsel = processrigionselMenu;
+#if __MOVE_DETECT__
+	dsInit.maxnum = processmaxnumMenu;
+	dsInit.maxsize= processmaxtargetsizeMenu;
+	dsInit.minsize= processmintargetsizeMenu;
+#endif
+	
 
 //#if (!__IPC__)
 	dsInit.keyboardfunc = keyboard_event;
