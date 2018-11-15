@@ -2020,7 +2020,8 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 		default:
 			break;
 	}
- 		 
+
+	printf("......................................>>>  Gun Image Point: < %d , %d >\r\n", opt.x, opt.y);
 	std::vector<cv::Point2d> distorted, normalizedUndistorted;
 	distorted.push_back(cv::Point2d(opt.x, opt.y));
 	undistortPoints(distorted,normalizedUndistorted,g_camParams.cameraMatrix_gun,g_camParams.distCoeffs_gun);
@@ -2043,8 +2044,10 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 
 	pt.x = pt.x/2.0;
 	pt.y /=2.0;
-		  
-    Point bpt( pt.x, pt.y );
+
+	printf("<< ......................................  Ball Image Point: < %d , %d >\r\n", pt.x, pt.y);
+
+    	Point bpt( pt.x, pt.y );
 
 	int DesPanPos, DesTilPos ;	
 

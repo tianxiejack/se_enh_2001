@@ -2139,36 +2139,35 @@ void CDisplayer::linkageSwitchMode(void)
 
 			break;
 
-		case PIC_IN_PIC:
+		case PIC_IN_PIC:			
 			m_renders[0].video_chId = video_gaoqing0;
 			m_renders[0].displayrect.x = 0;
 			m_renders[0].displayrect.y = 0;
 			m_renders[0].displayrect.w = WINDOW_WIDTH;
 			m_renders[0].displayrect.h = WINDOW_HEIGHT;
-
-			m_renders[0].video_chId = video_gaoqing;
+			
+			m_renders[1].video_chId = video_gaoqing;
 			m_renders[1].displayrect.x = WINDOW_WIDTH*3/4;
 			m_renders[1].displayrect.y = WINDOW_HEIGHT*3/4;
 			m_renders[1].displayrect.w = WINDOW_WIDTH/4;
-			m_renders[1].displayrect.h = WINDOW_HEIGHT/4;
-			
+			m_renders[1].displayrect.h = WINDOW_HEIGHT/4;			
 			if( g_CurDisplayMode != PIC_IN_PIC)
 				g_CurDisplayMode = PIC_IN_PIC;
 			
 			break;
 			
 		case SIDE_BY_SIDE:
-			m_renders[0].video_chId = video_gaoqing0;
-			m_renders[0].displayrect.x = WINDOW_WIDTH/2;
-			m_renders[0].displayrect.y = 0;
-			m_renders[0].displayrect.w = WINDOW_WIDTH/2;
-			m_renders[0].displayrect.h = WINDOW_HEIGHT;
-
-			m_renders[0].video_chId = video_gaoqing;
-			m_renders[1].displayrect.x = 0;
+			m_renders[1].video_chId = video_gaoqing0;
+			m_renders[1].displayrect.x = WINDOW_WIDTH/2;
 			m_renders[1].displayrect.y = 0;
 			m_renders[1].displayrect.w = WINDOW_WIDTH/2;
 			m_renders[1].displayrect.h = WINDOW_HEIGHT;
+
+			m_renders[0].video_chId = video_gaoqing;
+			m_renders[0].displayrect.x = 0;
+			m_renders[0].displayrect.y = 0;
+			m_renders[0].displayrect.w = WINDOW_WIDTH/2;
+			m_renders[0].displayrect.h = WINDOW_HEIGHT;
 				
 			if( g_CurDisplayMode != SIDE_BY_SIDE) 
 				g_CurDisplayMode = SIDE_BY_SIDE;
@@ -2176,8 +2175,8 @@ void CDisplayer::linkageSwitchMode(void)
 			break;
 			
 		case LEFT_BALL_RIGHT_GUN:
-			RenderVideoOnOrthoView(VIDEO_1, 0, 810, 480, 270);
-			RenderVideoOnOrthoView(VIDEO_0, 480, 270, 1440, 810);
+			//RenderVideoOnOrthoView(VIDEO_1, 0, 810, 480, 270);
+			//RenderVideoOnOrthoView(VIDEO_0, 480, 270, 1440, 810);
 			
 			m_renders[0].video_chId = video_gaoqing;
 			m_renders[0].displayrect.x = 0;
@@ -2185,7 +2184,7 @@ void CDisplayer::linkageSwitchMode(void)
 			m_renders[0].displayrect.w = 480;
 			m_renders[0].displayrect.h = 270;
 
-			m_renders[0].video_chId = video_gaoqing0;
+			m_renders[1].video_chId = video_gaoqing0;
 			m_renders[1].displayrect.x = 480;
 			m_renders[1].displayrect.y = 270;
 			m_renders[1].displayrect.w = 1440;
