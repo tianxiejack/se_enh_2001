@@ -14,6 +14,14 @@
 
 #include "CcCamCalibra.h"
 
+typedef struct
+{
+	int x;
+	int y;
+	int w;
+	int h;
+}mouserect;
+
 typedef struct _main_thr_obj_cxt{
 	bool bTrack;
 	bool bMtd;
@@ -144,6 +152,7 @@ public:
 	CDisplayer m_display;
 #if LINKAGE_FUNC
 	int m_time_show,m_time_flag;
+	int click_in_area;
 #else
 	int mptz_click;
 	int mptz_originX, mptz_originY;
@@ -211,6 +220,18 @@ protected:
 	static void processtimeMenu(int value);
 	static void processsmanualcarliMenu(int value);
 	static void processsautocarliMenu(int value);
+	int click_legal(int x, int y);
+	int move_legal(int x, int y);
+	int in_gun_area(int x, int y);
+	int in_ball_area(int x, int y);
+	mouserect map2preview(mouserect rectcur);
+	mouserect mappip2preview(mouserect rectcur);
+	mouserect mapsbs2preview(mouserect rectcur);
+	mouserect maplbrg2preview(mouserect rectcur);
+	mouserect mapfullscreen2gun(mouserect rectcur);
+	mouserect mapgun2fullscreen(mouserect rectcur);
+	mouserect maprect(mouserect rectcur,mouserect rectsrc,mouserect rectdest);
+
 #else
 	static void mousemotion_event(GLint xMouse, GLint yMouse);
 #endif

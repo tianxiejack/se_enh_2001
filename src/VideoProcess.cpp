@@ -481,6 +481,338 @@ void CVideoProcess::processsautocarliMenu(int value)
 	printf("%s start, value=%d\n", __FUNCTION__, value);
 }
 
+int CVideoProcess::click_legal(int x, int y)
+{
+	y = 1080 - y;
+	if(in_gun_area(x, y))
+	{
+		click_in_area = 1;	//click in gun area
+		return 1;
+	}
+	else if(in_ball_area(x, y))
+	{
+		click_in_area = 2; //click in ball area
+		return 1;
+	}
+	else 
+	{
+		click_in_area = 0; //click in illegal area
+		return 0;
+	}
+}
+
+int CVideoProcess::move_legal(int x, int y)
+{
+	y = 1080 - y;
+	if(1 == click_in_area)
+	{
+		if(in_gun_area(x, y))
+			return 1;
+		else
+			return 0;
+	}
+	else if(2 == click_in_area)
+	{
+		if(in_ball_area(x, y))
+			return 1;
+		else
+			return 0;
+	}
+}
+
+int CVideoProcess::in_gun_area(int x, int y)
+{
+	int dismode = m_display.displayMode;
+	switch(dismode)
+	{
+		case PREVIEW_MODE:
+			if((x > 960 && x < 1920) && (y > 540 && y < 1080))
+				return 1;
+			else
+				return 0;
+			break;
+		case PIC_IN_PIC:
+			if(((x > 0 && x < 1440) && (y > 0 && y < 1080)) ||((x > 1440 && x < 1920) && (y > 0 && y < 810)))
+				return 1;
+			else
+				return 0;
+			break;
+		case SIDE_BY_SIDE:
+			if((x > 960 && x < 1920) && (y > 0 && y < 1080))
+				return 1;
+			else
+				return 0;
+			break;
+		case LEFT_BALL_RIGHT_GUN:
+			if((x > 480 && x < 1920) && (y > 270 && y < 1080))
+				return 1;
+			else
+				return 0;
+			break;
+		default:
+			printf("%s,%d, unknown displayMode:%d\n", __FILE__, __LINE__, dismode);
+			return 0;
+			break;
+	}
+}
+
+int CVideoProcess::in_ball_area(int x, int y)
+{
+	int dismode = m_display.displayMode;
+	switch(dismode)
+	{
+		case PREVIEW_MODE:
+			if((x > 0 && x < 960) && (y > 540 && y < 1080))
+				return 1;
+			else
+				return 0;
+			break;
+		case PIC_IN_PIC:
+			if((x > 1440 && x < 1920) && (y > 810 && y < 1080))
+				return 1;
+			else
+				return 0;
+			break;
+		case SIDE_BY_SIDE:
+			if((x > 0 && x < 960) && (y > 0 && y < 1080))
+				return 1;
+			else
+				return 0;
+			break;
+		case LEFT_BALL_RIGHT_GUN:
+			if((x > 0 && x < 480) && (y > 810 && y < 1080))
+				return 1;
+			else
+				return 0;
+			break;
+		default:
+			printf("%s,%d, unknown displayMode:%d\n", __FILE__, __LINE__, dismode);
+			return 0;
+			break;
+	}
+}
+
+mouserect CVideoProcess::map2preview(mouserect rectcur)
+{
+	int dismode = m_display.displayMode;
+	switch(dismode)
+	{
+		case PREVIEW_MODE:
+			return rectcur;
+			break;
+		case PIC_IN_PIC:
+			return mappip2preview(rectcur);
+			break;
+		case SIDE_BY_SIDE:
+			return mapsbs2preview(rectcur);
+			break;
+		case LEFT_BALL_RIGHT_GUN:
+			return maplbrg2preview(rectcur);
+			break;
+		default:
+			printf("%s,%d, unknown displayMode:%d\n", __FILE__, __LINE__, dismode);
+			return rectcur;
+			break;			
+	}
+}
+
+mouserect CVideoProcess::mappip2preview(mouserect rectcur)
+{
+	mouserect rectpip;
+	mouserect rectpreview;
+	if(1 == click_in_area)
+	{
+		rectpip.x = 0;
+		rectpip.y = 0;
+		rectpip.w = 1920;
+		rectpip.h = 1080;
+		
+		rectpreview.x = 960;
+		rectpreview.y = 0;
+		rectpreview.w = 960;
+		rectpreview.h = 540;
+	}
+	else if(2 == click_in_area)
+	{
+	
+		rectpip.x = 1440;
+		rectpip.y = 0;
+		rectpip.w = 480;
+		rectpip.h = 270;
+		
+		rectpreview.x = 0;
+		rectpreview.y = 0;
+		rectpreview.w = 960;
+		rectpreview.h = 540;
+	}
+
+	return maprect(rectcur, rectpip, rectpreview);
+}
+
+mouserect CVideoProcess::mapsbs2preview(mouserect rectcur)
+{
+	mouserect rectsbs;
+	mouserect rectpreview;
+	if(1 == click_in_area)
+	{
+		rectsbs.x = 960;
+		rectsbs.y = 0;
+		rectsbs.w = 960;
+		rectsbs.h = 1080;
+		
+		rectpreview.x = 960;
+		rectpreview.y = 0;
+		rectpreview.w = 960;
+		rectpreview.h = 540;
+	}
+	else if(2 == click_in_area)
+	{
+		rectsbs.x = 0;
+		rectsbs.y = 0;
+		rectsbs.w = 960;
+		rectsbs.h = 1080;
+		
+		rectpreview.x = 0;
+		rectpreview.y = 0;
+		rectpreview.w = 960;
+		rectpreview.h = 540;
+	}
+
+	return maprect(rectcur, rectsbs, rectpreview);
+}
+
+mouserect CVideoProcess::maplbrg2preview(mouserect rectcur)
+{
+	mouserect rectlbrg;
+	mouserect rectpreview;
+	if(1 == click_in_area)
+	{
+		rectlbrg.x = 480;
+		rectlbrg.y = 0;
+		rectlbrg.w = 1440;
+		rectlbrg.h = 810;
+		
+		rectpreview.x = 960;
+		rectpreview.y = 0;
+		rectpreview.w = 960;
+		rectpreview.h = 540;
+	}
+	else if(2 == click_in_area)
+	{
+		rectlbrg.x = 0;
+		rectlbrg.y = 0;
+		rectlbrg.w = 480;
+		rectlbrg.h = 270;
+		
+		rectpreview.x = 0;
+		rectpreview.y = 0;
+		rectpreview.w = 960;
+		rectpreview.h = 540;
+	}
+
+	return maprect(rectcur, rectlbrg, rectpreview);
+}
+
+mouserect CVideoProcess::mapfullscreen2gun(mouserect rectcur)
+{
+	mouserect rect1080p;
+	mouserect rectgun;
+	
+	int dismode = m_display.displayMode;
+	rect1080p.x = 0;
+	rect1080p.y = 0;
+	rect1080p.w = 1920;
+	rect1080p.h = 1080;
+		
+	switch(dismode)
+	{
+		case PREVIEW_MODE:
+			rectgun.x = 960;
+			rectgun.y = 0;
+			rectgun.w = 960;
+			rectgun.h = 540;
+			break;
+		case PIC_IN_PIC:
+			rectgun.x = 0;
+			rectgun.y = 0;
+			rectgun.w = 1920;
+			rectgun.h = 1080;
+			break;
+		case SIDE_BY_SIDE:
+			rectgun.x = 960;
+			rectgun.y = 0;
+			rectgun.w = 960;
+			rectgun.h = 1080;
+			break;
+		case LEFT_BALL_RIGHT_GUN:
+			rectgun.x = 480;
+			rectgun.y = 0;
+			rectgun.w = 1440;
+			rectgun.h = 810;
+			break;
+		default:
+			break;
+
+	}
+	
+	return maprect(rectcur, rect1080p, rectgun);
+}
+
+mouserect CVideoProcess::mapgun2fullscreen(mouserect rectcur)
+{
+	mouserect rect1080p;
+	mouserect rectgun;
+	
+	int dismode = m_display.displayMode;
+	rect1080p.x = 0;
+	rect1080p.y = 0;
+	rect1080p.w = 1920;
+	rect1080p.h = 1080;
+		
+	switch(dismode)
+	{
+		case PREVIEW_MODE:
+			rectgun.x = 960;
+			rectgun.y = 0;
+			rectgun.w = 960;
+			rectgun.h = 540;
+			break;
+		case PIC_IN_PIC:
+			rectgun.x = 0;
+			rectgun.y = 0;
+			rectgun.w = 1920;
+			rectgun.h = 1080;
+			break;
+		case SIDE_BY_SIDE:
+			rectgun.x = 960;
+			rectgun.y = 0;
+			rectgun.w = 960;
+			rectgun.h = 1080;
+			break;
+		case LEFT_BALL_RIGHT_GUN:
+			rectgun.x = 480;
+			rectgun.y = 0;
+			rectgun.w = 1440;
+			rectgun.h = 810;
+			break;
+		default:
+			break;
+
+	}
+	
+	return maprect(rectcur, rectgun, rect1080p);
+}
+
+mouserect CVideoProcess::maprect(mouserect rectcur,mouserect rectsrc,mouserect rectdest)
+{
+	mouserect rect_result;
+
+	rect_result.x = (rectcur.x-rectsrc.x)*rectdest.w/rectsrc.w+rectdest.x;
+	rect_result.y = (rectcur.y-rectsrc.y)*rectdest.h/rectsrc.h+rectdest.y;
+	rect_result.w = rectcur.w*rectdest.w/rectsrc.w;
+	rect_result.h = rectcur.h*rectdest.h/rectsrc.h;
+	return rect_result;
+}
 #else
 
 void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
@@ -567,33 +899,56 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 				#if LINKAGE_FUNC
 					if(pThis->m_click == 0)
 					{
-						pThis->LeftPoint.x = x;
-						pThis->LeftPoint.y = y;
+						if(pThis->click_legal(x,y))
+						{
+							pThis->LeftPoint.x = x;
+							pThis->LeftPoint.y = y;
 
-						pThis->m_click = 1;
-						pThis->m_rectn[pThis->m_curChId] = 0;
-						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1 = x;
-						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1 = y;
-						cout<<" start:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1<<")"<<endl;
+							pThis->m_click = 1;
+							pThis->m_rectn[pThis->m_curChId] = 0;
+							pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1 = x;
+							pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1 = y;
+							cout<<" start:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1<<")"<<endl;
+						}
+						else
+							printf("click illegal!!!\n");
 					}
 					else
 					{
-						pThis->RightPoint.x = x;
-						pThis->RightPoint.y = y;
-
-						pThis->m_click = 0;
-						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 = x;
-						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 = y;
-						cout<<" end:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2<<")\n"<<endl;
-						pThis->m_rectn[pThis->m_curChId]++;  
-
-						if(pThis->m_rectn[pThis->m_curChId]>=sizeof(pThis->mRect[0]))
+						if(pThis->move_legal(x,y))
 						{
-							printf("mouse rect reached maxnum:100!\n");
-							pThis->m_rectn[pThis->m_curChId]--;
+						
+							pThis->RightPoint.x = x;
+							pThis->RightPoint.y = y;
+
+							pThis->m_click = 0;
+							pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 = x;
+							pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 = y;
+							cout<<" end:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2<<")\n"<<endl;
+
+							mouserect rectsrc, recvdest;
+							rectsrc.x = pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1;
+							rectsrc.y = pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1;
+							rectsrc.w = pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 - pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1;
+							rectsrc.h = pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 - pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1;
+							printf("###before map(%d,%d,%d,%d)\n",rectsrc.x,rectsrc.y,rectsrc.w,rectsrc.h);
+							recvdest = pThis->map2preview(rectsrc);
+							printf("###after map(%d,%d,%d,%d)\n",recvdest.x,recvdest.y,recvdest.w,recvdest.h);
+
+							
+							pThis->m_rectn[pThis->m_curChId]++;  
+							if(pThis->m_rectn[pThis->m_curChId]>=sizeof(pThis->mRect[0]))
+							{
+								printf("mouse rect reached maxnum:100!\n");
+								pThis->m_rectn[pThis->m_curChId]--;
+							}
+							pThis->m_draw = 1;		
+							pThis->reMapCoords(x,y,true);
+
+							
 						}
-						pThis->m_draw = 1;						
-						pThis->reMapCoords(x,y,true);	
+						else
+							printf("move illegal!!!\n");
 					}
 					
 				#endif
@@ -663,6 +1018,7 @@ void CVideoProcess::processrigionselMenu(int value)
 {
 	printf("%s start, value=%d\n", __FUNCTION__, value);
 }
+
 #if __MOVE_DETECT__
 void CVideoProcess::processmaxnumMenu(int value)
 {
