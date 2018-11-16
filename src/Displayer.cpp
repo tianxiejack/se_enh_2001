@@ -370,6 +370,12 @@ void CDisplayer::_reshape(int width, int height)
 void CDisplayer::processLinkageMenu(int value)
 {
 	printf("%s start, value=%d\n", __FUNCTION__, value);
+
+	SENDST	tmp;
+	tmp.cmd_ID = mtdmode;
+	tmp.param[0] = value ;
+	ipc_sendmsg(&tmp, IPC_FRIMG_MSG);	
+
 }
 
 void CDisplayer::processDMMenu(int value)
