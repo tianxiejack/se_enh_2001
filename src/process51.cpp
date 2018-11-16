@@ -1972,10 +1972,7 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 
 	int point_X , point_Y , offset_x , zoomPos; 
 	int delta_X ;
-	if(mode)
-	{
-		zoomPos = checkZoomPosTable(delta_X);
-	}
+
 	switch(m_display.g_CurDisplayMode) 
 	{
 		case PREVIEW_MODE:
@@ -1995,7 +1992,10 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 	LeftPoint.x -= offset_x;
 	RightPoint.x -=offset_x;
 	delta_X = abs(LeftPoint.x - RightPoint.x) ;
-		
+
+	if(mode)
+		zoomPos = checkZoomPosTable(delta_X);
+			
 	if(mode)
 	{
 		if(LeftPoint.x < RightPoint.x) {
@@ -2161,7 +2161,7 @@ printf("inputY : %d    , Origin_TilPos	: %d  \n",inputY,Origin_TilPos);
 		memcpy(&trkmsg.param[4],&DesTilPos, 4); 	
 	}
 	ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);	
-	printf("%s   LINE:%d   Send Position = < %d, %d >\r\n",__func__,__LINE__, DesPanPos , DesTilPos );
+	printf("%s   LINE:%d   Send Position = < %d, %d >,zoom = %d \r\n",__func__,__LINE__, DesPanPos , DesTilPos ,zoomPos);
 }
 #endif
 
