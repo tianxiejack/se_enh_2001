@@ -508,6 +508,7 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 #if LINKAGE_FUNC
+		pThis->OnMouseLeftDwn(x, y);   // add by swj
 		if(pThis->open_handleCalibra)
 		{
 			pThis->OnMouseLeftDwn(x, y);
@@ -700,7 +701,8 @@ void CVideoProcess::keyboard_event(unsigned char key, int x, int y)
 
 void CVideoProcess::keySpecial_event( int key, int x, int y)
 {
-	pThis->OnKeyDwn((unsigned char)key);
+	//pThis->OnKeyDwn((unsigned char)key);
+	pThis->OnSpecialKeyDwn(key,x,y);
 }
 
 void CVideoProcess::visibility_event(int state)
@@ -740,9 +742,10 @@ int CVideoProcess::init()
 	
 
 //#if (!__IPC__)
-	dsInit.keyboardfunc = keyboard_event;
+	dsInit.keyboardfunc = keyboard_event; // keySpecial_event
+	dsInit.keySpecialfunc = keySpecial_event;
 //#endif
-	//dsInit.keySpecialfunc = keySpecial_event;
+	
 	dsInit.timerfunc = call_run;
 	//dsInit.idlefunc = call_run;
 	dsInit.visibilityfunc = visibility_event;
@@ -1164,8 +1167,8 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 	
 			if(m_camCalibra->start_cloneVideoSrc == true) 
 			{
-				m_camCalibra->start_cloneVideoSrc = false;
-				printf("%s : cloneVideoSrc \n",__func__);
+				//m_camCalibra->start_cloneVideoSrc = false;
+				//printf("%s : cloneVideoSrc \n",__func__);
 				#if !GUN_IMAGE_USEBMP
 					if(chId == GUN_CHID){
 						m_camCalibra->cloneGunSrcImgae(frame);

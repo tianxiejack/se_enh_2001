@@ -11,6 +11,7 @@ using namespace std;
 using namespace cv;
 
 bool startEnable = false;
+
 int main(int argc, char **argv)
 {
 	struct timeval tv;
@@ -24,6 +25,7 @@ int main(int argc, char **argv)
 	{
 		select( 0, NULL, NULL, NULL, &tv );
 	};
+	
 	CProcess proc;
 	proc.creat();
 	proc.init();

@@ -24,6 +24,7 @@ int glosttime = 3000;
 SENDST trkmsg={0};
 #if LINKAGE_FUNC
 	extern CamParameters g_camParams;
+	Point dest_ballPoint = Point(-100,-100);
 #endif
 void inputtmp(unsigned char cmdid)
 {
@@ -46,7 +47,7 @@ void getMtdxy(int *x,int *y,int *w,int *h)
 }
 #endif
 
-CProcess::CProcess()
+CProcess::CProcess():m_bMarkCircle(false)
 {
 	memset(rcTrackBak, 0, sizeof(rcTrackBak));
 	memset(tgBak, 0, sizeof(tgBak));
@@ -1743,6 +1744,15 @@ osdindex++;	//acqRect
 			}			
 		}	
 	}
+/* 
+*   Here draw circle to Mark the point after remap on the ball image 
+*/
+	if( m_bMarkCircle == true) {
+		cv::circle(m_display.m_imgOsd[1],dest_ballPoint,3 ,cvScalar(0,255,255,255),2,8,0);
+	}
+	else {
+		cv::circle(m_display.m_imgOsd[1],dest_ballPoint,3 ,cvScalar(0,0,0,0),2,8,0);
+	}
 #endif
 
 
@@ -2021,7 +2031,13 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 			break;
 	}
 
-	printf("......................................>>>  Gun Image Point: < %d , %d >\r\n", opt.x, opt.y);
+	//printf("......................................>>>  Gun Image Point: < %d , %d >\r\n", opt.x, opt.y);
+	//cout << "g_camParams.cameraMatrix_gun = " << g_camParams.cameraMatrix_gun << endl;
+	//cout << "g_camParams.distCoeffs_gun = " << g_camParams.distCoeffs_gun << endl;
+	//cout << "g_camParams.cameraMatrix_ball = " << g_camParams.cameraMatrix_ball << endl;
+	//cout << "g_camParams.homography = " << g_camParams.homography << endl;
+
+	
 	std::vector<cv::Point2d> distorted, normalizedUndistorted;
 	distorted.push_back(cv::Point2d(opt.x, opt.y));
 	undistortPoints(distorted,normalizedUndistorted,g_camParams.cameraMatrix_gun,g_camParams.distCoeffs_gun);
@@ -2042,13 +2058,16 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 	itp = ballImagePoints.begin();
 	pt = *itp;
 
-	pt.x = pt.x/2.0;
-	pt.y /=2.0;
+	 pt.x /= 2.0;	//+ 960;
+	 pt.y /= 2.0;
 
-	printf("<< ......................................  Ball Image Point: < %d , %d >\r\n", pt.x, pt.y);
-
+	
     	Point bpt( pt.x, pt.y );
+		//printf("<< ......................................  Ball Image Point: < %d , %d >\r\n", bpt.x, bpt.y);
 
+	dest_ballPoint.x = bpt.x ;
+	dest_ballPoint.y = bpt.y;
+	
 	int DesPanPos, DesTilPos ;	
 
 	int  inputX = bpt.x;
@@ -2123,7 +2142,11 @@ printf("inputY : %d    , Origin_TilPos	: %d  \n",inputY,Origin_TilPos);
 			DesTilPos = Origin_TilPos + inputY;
 		}
 	}
-
+//---------------------------------------------------------------
+	//DesPanPos = 4607;
+	//DesTilPos = 33587;
+	//zoomPos = 2849;
+//---------------------------------------------------------------
 	if(mode)
 	{
 		trkmsg.cmd_ID = acqPosAndZoom;
@@ -2146,11 +2169,27 @@ void CProcess::OnMouseLeftDwn(int x, int y)
 {
 	#if LINKAGE_FUNC
 		manualHandleKeyPoints(x,y);
+		//reMapCoords(x,y, false);  // add by swj
 	#endif
 };
 void CProcess::OnMouseLeftUp(int x, int y){};
 void CProcess::OnMouseRightDwn(int x, int y){};
 void CProcess::OnMouseRightUp(int x, int y){};
+void CProcess::OnSpecialKeyDwn(int key,int x, int y)
+{
+	switch( key ) {
+		case 1:
+			m_bMarkCircle = true;
+			cout << "---------------->>> Press F1 : m_bMarkCircle == true " << endl;
+			break;
+		case 2:
+			m_bMarkCircle = false;
+			cout << "---------------->>> Press F2 : m_bMarkCircle == false " << endl;
+			break;
+		default :
+			break;
+	}
+}
 
 void CProcess::OnKeyDwn(unsigned char key)
 {
@@ -2286,6 +2325,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 		if (key == 'x'|| key == 'X') {
 			open_handleCalibra = false ; 
 			m_camCalibra->Set_Handler_Calibra = false ;
+			m_camCalibra->start_cloneVideoSrc = false;
 		}
 		
 
@@ -3831,7 +3871,7 @@ void CProcess::MSGAPI_update_camera(long lParam)
 #if LINKAGE_FUNC
 void CProcess::MSGAPI_update_ballPos(long lParam)
 {
-	m_camCalibra->setBallPos(linkagePos.panPos, linkagePos.panPos, linkagePos.zoom);
+	m_camCalibra->setBallPos(linkagePos.panPos, linkagePos.tilPos, linkagePos.zoom);
 }
 #endif
 

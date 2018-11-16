@@ -107,6 +107,7 @@ public:
 	virtual void OnMouseRightDwn(int x, int y){};
 	virtual void OnMouseRightUp(int x, int y){};
 	virtual void OnKeyDwn(unsigned char key){};
+	virtual void OnSpecialKeyDwn(int key,int  x,int  y){};
 	
 #if LINKAGE_FUNC
 

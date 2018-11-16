@@ -190,7 +190,7 @@ int CDisplayer::create()
 
 	for(i=0; i<DS_CHAN_MAX; i++){
 		Videoeable[i]=1;
-		}
+	}
 	//tvvideo=1;
 	//firvideo=1;
 	unsigned int byteCount = mallocwidth * mallocheight* 3 * sizeof(unsigned char);

@@ -59,6 +59,7 @@ class CProcess : public CVideoProcess
 	Point textPos2_record[64];
 	Point circle_point;
 private:
+	bool m_bMarkCircle;
 	void Cmp_SysParam();
 	SysParam m_sysparm;
 	FileStorage readfs;
@@ -96,6 +97,8 @@ public:
 	void OnMouseRightDwn(int x, int y);
 	void OnMouseRightUp(int x, int y);
 	void OnKeyDwn(unsigned char key);
+	void OnSpecialKeyDwn(int key,int x, int y);
+
 	
 	CMD_EXT* extInCtrl;
 	static CProcess *sThis;

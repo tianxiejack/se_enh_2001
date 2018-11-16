@@ -186,6 +186,9 @@ int CcCamCalibra::Run()
 {
 	char flag = 0;
 	Mat frame = ball_frame;
+
+	cvtGunYuyv2Bgr();
+	cvtBallYuyv2Bgr();
 #if 1	
 		if(!gun_frame.empty()){
 			remap(gun_frame, undisImage, map1, map2, INTER_LINEAR);
@@ -219,9 +222,9 @@ int CcCamCalibra::Run()
 				bool_Calibrate = false;
 			}
 			
-			if(!homography.empty()){
+			if(!homography.empty()) {
 				Mat warp;
-				if( !undisImage.empty()){
+				if( !undisImage.empty()) {
 					warpPerspective(undisImage, warp, homography, undisImage.size());
 					resize(warp, warp, Size(warp.cols*scale, warp.rows*scale));					
 					drawChessboardCorners(warp, boardSize, key_points1, false);		
@@ -229,28 +232,50 @@ int CcCamCalibra::Run()
 				}
 			}
 		}
-		else if( !Set_Handler_Calibra && bool_Calibrate)
+		else 
 		{	
-			printf("%s : start auto calibrate \n",__func__);
-			vector<KeyPoint> keypoints_1, keypoints_2;
-			vector<DMatch> matches;
-			find_feature_matches ( undisImage, frame,  keypoints_1, keypoints_2, matches , 60.0, true);
-			if(matches.size() > 4){
-				Mat R,t;
-				pose_2d2d ( keypoints_1, keypoints_2, matches, newCameraMatrix, R, t, homography);					
-				pts.clear();
-				for(int i=0; i<matches.size(); ++i) {
-					cv::Point2f pt = keypoints_2[matches[i].trainIdx].pt;
-					pt.x *= scale;
-					pt.y *= scale;
-					pts.push_back(pt);
-				}					
-				bool_Calibrate = false;
-				cout << "match points " << matches.size() << endl;
+			if( bool_Calibrate ) {
+				printf("%s : start auto calibrate \n",__func__);
+				vector<KeyPoint> keypoints_1, keypoints_2;
+				vector<DMatch> matches;
+				find_feature_matches ( undisImage, frame,  keypoints_1, keypoints_2, matches , 60.0, true);
+				if(matches.size() > 4){
+					Mat R,t;
+					pose_2d2d ( keypoints_1, keypoints_2, matches, newCameraMatrix, R, t, homography);					
+					pts.clear();
+					for(int i=0; i<matches.size(); ++i) {
+						cv::Point2f pt = keypoints_2[matches[i].trainIdx].pt;
+						pt.x *= scale;
+						pt.y *= scale;
+						pts.push_back(pt);
+					}					
+					bool_Calibrate = false;
+					cout << "match points " << matches.size() << endl;
+//-----------------------------------------------------------------------------------------------------
+					SENDST trkmsg={0};
+					trkmsg.cmd_ID = querypos;
+					ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
+
+					flag = OSA_semWait(&m_linkage_getPos, 200);
+					if( -1 == flag ) {
+						getCurrentPosFlag = false;
+						printf("%s:LINE :%d    could not get the ball current Pos \n",__func__,__LINE__ );
+					}
+					else{
+						getCurrentPosFlag = true;
+						cout << "******************Query Ball Camera Position Sucess ! *****************" << endl;
+						cout << " panPos = "<< panPos << endl;
+						cout << " tiltPos = "<< tiltPos << endl;
+						cout << " zoomPos = "<< zoomPos << endl;
+						cout << "*****************************************************************" << endl;
+					}
+//----------------------------------------------------------------------------------------------------
+					
+				}
 			}
 			//printf("[%s] :  bool_Calibrate = %d\r\n", __FUNCTION__,bool_Calibrate);
 			
-			if(!homography.empty()){
+			if(!homography.empty()) {
 				Mat warp;
 				if( !undisImage.empty()){
 					warpPerspective(undisImage, warp, homography, undisImage.size());
@@ -263,23 +288,9 @@ int CcCamCalibra::Run()
 					}
 					imshow("camera gun warp", warp);
 				}
-
-					SENDST trkmsg={0};
-					trkmsg.cmd_ID = querypos;
-					ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
-
-					flag = OSA_semWait(&m_linkage_getPos, 200);
-					if( -1 == flag )
-					{
-						getCurrentPosFlag = false;
-						printf("%s:LINE :%d    could not get the ball current Pos \n",__func__,__LINE__ );
-					}
-					else
-						getCurrentPosFlag = true;
-			}			
+			}	
 		}
-	}
-	
+	}	
 	if( writeParam_flag ) 
 	{
 		writeParam_flag = false;
@@ -306,6 +317,12 @@ int CcCamCalibra::Run()
 			g_camParams.tiltPos = tiltPos;
 			g_camParams.zoomPos = zoomPos;		
 			cout << "Write Camera Parameters Success !!!" << endl;
+			cout << "****************************** Current Newest Camera Matrix data ***************************" << endl;
+			cout << "g_camParams.homography = " << g_camParams.homography << endl;
+			cout << "g_camParams.panPos = " << g_camParams.panPos << endl;
+			cout << "g_camParams.tiltPos = " << g_camParams.tiltPos << endl;
+			cout << "g_camParams.zoomPos = " << g_camParams.zoomPos << endl;
+			cout << "*********************************************************************************************************" << endl;
 		}
 	}
 	waitKey(1);
