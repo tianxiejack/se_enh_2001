@@ -1765,13 +1765,20 @@ osdindex++;	//acqRect
 
 
 //mouse rect
+	unsigned int drawRectId ;
 	if(m_draw)
 	{    
-		for(int k = 0; k <= m_rectnbak[extInCtrl->SensorStat]; k++)
+		if(m_display.g_CurDisplayMode == PIC_IN_PIC){			
+				drawRectId = 0;
+		}
+		else{
+				drawRectId = extInCtrl->SensorStat;
+		}
+		for(int k = 0; k <= m_rectnbak[drawRectId]; k++)
 		{
-			rectangle(m_display.m_imgOsd[extInCtrl->SensorStat],
-					Point(mRectbak[extInCtrl->SensorStat][k].x1, mRectbak[extInCtrl->SensorStat][k].y1),
-					Point(mRectbak[extInCtrl->SensorStat][k].x2, mRectbak[extInCtrl->SensorStat][k].y2),
+			rectangle(m_display.m_imgOsd[drawRectId],
+					Point(mRectbak[drawRectId][k].x1, mRectbak[drawRectId][k].y1),
+					Point(mRectbak[drawRectId][k].x2, mRectbak[drawRectId][k].y2),
 					cvScalar(0,0,0,0), 1, 8);
 		}
 		memcpy(mRectbak, mRect, sizeof(mRectbak));
@@ -1780,24 +1787,24 @@ osdindex++;	//acqRect
 		
 		if(0)
 		{
-			for(j = 0; j < m_rectn[extInCtrl->SensorStat]; j++)
+			for(j = 0; j < m_rectn[drawRectId]; j++)
 			{
-				rectangle(m_display.m_imgOsd[extInCtrl->SensorStat],
-						Point(mRectbak[extInCtrl->SensorStat][j].x1, mRectbak[extInCtrl->SensorStat][j].y1),
-						Point(mRectbak[extInCtrl->SensorStat][j].x2, mRectbak[extInCtrl->SensorStat][j].y2),
+				rectangle(m_display.m_imgOsd[drawRectId],
+						Point(mRectbak[drawRectId][j].x1, mRectbak[drawRectId][j].y1),
+						Point(mRectbak[drawRectId][j].x2, mRectbak[drawRectId][j].y2),
 						cvScalar(0,0,255,255), 1, 8);
 			}
 		}
 		
 		if(m_click == 1)
 		{
-			mRectbak[extInCtrl->SensorStat][j].x1 = mRect[extInCtrl->SensorStat][j].x1;
-			mRectbak[extInCtrl->SensorStat][j].y1 = mRect[extInCtrl->SensorStat][j].y1;
-			mRectbak[extInCtrl->SensorStat][j].x2 = m_tempX;
-			mRectbak[extInCtrl->SensorStat][j].y2 = m_tempY;
-			rectangle(m_display.m_imgOsd[extInCtrl->SensorStat],
-					Point(mRectbak[extInCtrl->SensorStat][j].x1, mRectbak[extInCtrl->SensorStat][j].y1),
-					Point(mRectbak[extInCtrl->SensorStat][j].x2, mRectbak[extInCtrl->SensorStat][j].y2),
+			mRectbak[drawRectId][j].x1 = mRect[drawRectId][j].x1;
+			mRectbak[drawRectId][j].y1 = mRect[drawRectId][j].y1;
+			mRectbak[drawRectId][j].x2 = m_tempX;
+			mRectbak[drawRectId][j].y2 = m_tempY;
+			rectangle(m_display.m_imgOsd[drawRectId],
+					Point(mRectbak[drawRectId][j].x1, mRectbak[drawRectId][j].y1),
+					Point(mRectbak[drawRectId][j].x2, mRectbak[drawRectId][j].y2),
 					cvScalar(0,0,255,255), 1, 8);
 		}
 		m_draw = 0;
