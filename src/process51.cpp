@@ -47,7 +47,7 @@ void getMtdxy(int *x,int *y,int *w,int *h)
 }
 #endif
 
-CProcess::CProcess():m_bMarkCircle(false)
+CProcess::CProcess()
 {
 	memset(rcTrackBak, 0, sizeof(rcTrackBak));
 	memset(tgBak, 0, sizeof(tgBak));
@@ -149,7 +149,7 @@ CProcess::CProcess():m_bMarkCircle(false)
 	key_point1_cnt =0;
 	key_point2_cnt =0;
 	AllPoints_Num =0;
-
+	m_bMarkCircle = false ;
 
 	if(!readParams("SysParm.yml")) {
 		printf("read param error\n");
@@ -2177,6 +2177,7 @@ void CProcess::OnMouseRightDwn(int x, int y){};
 void CProcess::OnMouseRightUp(int x, int y){};
 void CProcess::OnSpecialKeyDwn(int key,int x, int y)
 {
+#if LINKAGE_FUNC
 	switch( key ) {
 		case 1:
 			m_bMarkCircle = true;
@@ -2189,6 +2190,7 @@ void CProcess::OnSpecialKeyDwn(int key,int x, int y)
 		default :
 			break;
 	}
+#endif
 }
 
 void CProcess::OnKeyDwn(unsigned char key)
