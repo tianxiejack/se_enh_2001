@@ -1742,17 +1742,18 @@ void	CVideoProcess::DeInitMvDetect()
 
 void CVideoProcess::NotifyFunc(void *context, int chId)
 {
-	SENDST test;
-	test.cmd_ID = mtdnum;
 	CVideoProcess *pParent = (CVideoProcess*)context;
 	pThis->m_pMovDetector->getWarnTarget(pThis->detect_vect,0);
 
+#if !LINKAGE_FUNC
+	SENDST test;
+	test.cmd_ID = mtdnum;
 	if(0 == pThis->detect_vect.size())
 		test.param[0] = 0;
 	else
 		test.param[0] = 1;
 	ipc_sendmsg(&test, IPC_FRIMG_MSG);
-
+#endif
 	
 	//pParent->m_display.m_bOsd = true;
 	//pThis->m_display.UpDateOsd(1);
