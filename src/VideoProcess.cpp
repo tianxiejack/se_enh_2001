@@ -838,12 +838,15 @@ void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
 void CVideoProcess::mouse_event(int button, int state, int x, int y)
 {
 	unsigned int curId;
+#if LINKAGE_FUNC
 	if(pThis->m_display.g_CurDisplayMode == PIC_IN_PIC) {
 		curId = 0;	
 	}else{
 		curId = pThis->m_curChId;
 	}
-
+#else
+	curId = pThis->m_curChId;
+#endif
 	
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{

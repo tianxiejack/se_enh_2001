@@ -1768,12 +1768,16 @@ osdindex++;	//acqRect
 	unsigned int drawRectId ;
 	if(m_draw)
 	{    
+#if LINKAGE_FUNC
 		if(m_display.g_CurDisplayMode == PIC_IN_PIC){			
 				drawRectId = 0;
 		}
 		else{
 				drawRectId = extInCtrl->SensorStat;
 		}
+#else
+	drawRectId = extInCtrl->SensorStat;
+#endif
 		for(int k = 0; k <= m_rectnbak[drawRectId]; k++)
 		{
 			rectangle(m_display.m_imgOsd[drawRectId],
