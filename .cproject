@@ -44,7 +44,7 @@
 								</option>
 								<option id="nvcc.compiler.def.symbols.395705433" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__IPC__=1"/>
-									<listOptionValue builtIn="false" value="LINKAGE_FUNC=1"/>
+									<listOptionValue builtIn="false" value="LINKAGE_FUNC=0"/>
 									<listOptionValue builtIn="false" value="__TRACK__=1"/>
 									<listOptionValue builtIn="false" value="__MOVE_DETECT__=1"/>
 								</option>
@@ -99,10 +99,10 @@
 			</storageModule>
 			<storageModule moduleId="com.nvidia.cuda.ide.build.project.ICudaProjectConfiguration">
 				<executable devicelink="false">
-					<sass major="2" minor="0"/>
-					<ptx major="2" minor="0"/>
+					<ptx major="5" minor="3"/>
+					<sass major="5" minor="3"/>
 				</executable>
-				<editor-arch major="3" minor="0"/>
+				<editor-arch major="5" minor="3"/>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
@@ -149,9 +149,9 @@
 								</option>
 								<option id="nvcc.compiler.def.symbols.1717725089" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__IPC__=1"/>
+									<listOptionValue builtIn="false" value="LINKAGE_FUNC=0"/>
 									<listOptionValue builtIn="false" value="__TRACK__=1"/>
 									<listOptionValue builtIn="false" value="__MOVE_DETECT__=1"/>
-									<listOptionValue builtIn="false" value="LINKAGE_FUNC=1"/>
 								</option>
 								<inputType id="nvcc.compiler.input.cu.67168885" superClass="nvcc.compiler.input.cu"/>
 								<inputType id="nvcc.compiler.input.cpp.495488102" superClass="nvcc.compiler.input.cpp"/>
@@ -217,10 +217,10 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="Debug">
+		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/026"/>
 		</configuration>
-		<configuration configurationName="Release">
+		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/026"/>
 		</configuration>
 	</storageModule>

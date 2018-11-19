@@ -530,8 +530,9 @@ void* recv_msg(SENDST *RS422)
 			pMsg->AcqRectH[pMsg->SensorStat]  = acqSize.AimH;
 			app_ctrl_setAcqRect(pMsg);
 			MSGAPI_msgsend(acqBox);
-			break;
 			*/
+			break;
+			
 		case algosdrect:
 			memcpy(&Ralgosdrect,RS422->param,sizeof(Ralgosdrect));
 			imgID1 = Ralgosdrect.Imgalgosdrect;
