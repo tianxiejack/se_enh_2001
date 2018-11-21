@@ -1633,10 +1633,15 @@ osdindex++;	//acqRect
 			cv::Rect tmp;
 			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{		
-				tmp.x = (*plist).targetRect.x/2 + 960;
-				tmp.y = (*plist).targetRect.y/2;
-				tmp.width = (*plist).targetRect.width/2;
-				tmp.height = (*plist).targetRect.height/2;
+				#if LINKAGE_FUNC
+					tmp.x = (*plist).targetRect.x/2 + 960;
+					tmp.y = (*plist).targetRect.y/2;
+					tmp.width = (*plist).targetRect.width/2;
+					tmp.height = (*plist).targetRect.height/2;
+				#else
+					memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
+				#endif
+
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], tmp ,0);
 			}
 			
@@ -1697,12 +1702,16 @@ osdindex++;	//acqRect
 						reMapCoords(((*plist).targetRect.x + (*plist).targetRect.width/2),
 										((*plist).targetRect.y - (*plist).targetRect.height/2),false);
 					}
-				#endif
+				#endif	
 
-				tmp.x = (*plist).targetRect.x/2 + 960;
-				tmp.y = (*plist).targetRect.y/2;
-				tmp.width = (*plist).targetRect.width/2;
-				tmp.height = (*plist).targetRect.height/2;
+				#if LINKAGE_FUNC
+					tmp.x = (*plist).targetRect.x/2 + 960;
+					tmp.y = (*plist).targetRect.y/2;
+					tmp.width = (*plist).targetRect.width/2;
+					tmp.height = (*plist).targetRect.height/2;
+				#else
+					memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
+				#endif
 				
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], tmp ,color);
 			}
