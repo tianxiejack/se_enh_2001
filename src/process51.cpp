@@ -3013,18 +3013,30 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 		int Mtdstatus = (pIStuts->MtdState[pIStuts->SensorStat]&0x01) ;
 		if(Mtdstatus)
 		{
-			dynamic_config(VP_CFG_MvDetect, 1,NULL);
-			tmpCmd.MtdState[pIStuts->SensorStat] = 1;
-			//app_ctrl_setMtdStat(&tmpCmd);
-			m_pMovDetector->mvOpen(0);	
+			struct timeval tv;
+			while(!m_pMovDetector->isWait(0))
+			{
+				tv.tv_sec = 0;
+				tv.tv_usec = (10%1000)*1000;
+				select(0, NULL, NULL, NULL, &tv);
+			}
+			if(m_pMovDetector->isWait(0))
+			{
+				m_pMovDetector->mvOpen(0);	
+				dynamic_config(VP_CFG_MvDetect, 1,NULL);
+				tmpCmd.MtdState[pIStuts->SensorStat] = 1;
+			}
 		}
 		else
 		{
-			dynamic_config(VP_CFG_MvDetect, 0,NULL);
-			tmpCmd.MtdState[pIStuts->SensorStat] = 0;
-			//app_ctrl_setMtdStat(&tmpCmd);
-			m_pMovDetector->mvClose(0);
-			chooseDetect = 0;
+			if(m_pMovDetector->isRun(0))
+			{
+				dynamic_config(VP_CFG_MvDetect, 0,NULL);
+				tmpCmd.MtdState[pIStuts->SensorStat] = 0;
+				//app_ctrl_setMtdStat(&tmpCmd);
+				m_pMovDetector->mvClose(0);
+				chooseDetect = 0;
+			}	
 		}
 	}
 	if(msgId == MSGID_EXT_MVDETECTSELECT)
