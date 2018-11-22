@@ -1626,8 +1626,9 @@ osdindex++;	//acqRect
 		if(Osdflag[osdindex])
 		{
 			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-				Point( preWarnRectBak.x, preWarnRectBak.y ),
-				Point( preWarnRectBak.x + preWarnRectBak.width, preWarnRectBak.y + preWarnRectBak.height),
+				Point( preWarnRectBak[extInCtrl->SensorStat].x, preWarnRectBak[extInCtrl->SensorStat].y ),
+				Point( preWarnRectBak[extInCtrl->SensorStat].x + preWarnRectBak[extInCtrl->SensorStat].width,
+				preWarnRectBak[extInCtrl->SensorStat].y + preWarnRectBak[extInCtrl->SensorStat].height),
 				cvScalar(0,0,0,0), 2, 8 );
 
 			cv::Rect tmp;
@@ -1651,17 +1652,18 @@ osdindex++;	//acqRect
 		if(m_bMoveDetect)
 		{
 			#if LINKAGE_FUNC
-				preWarnRectBak.x = preWarnRect.x/2 + 960;
-				preWarnRectBak.y = preWarnRect.y/2;
-				preWarnRectBak.width = preWarnRect.width/2;
-				preWarnRectBak.height = preWarnRect.height/2;
+				preWarnRectBak[extInCtrl->SensorStat].x = preWarnRect[extInCtrl->SensorStat].x/2 + 960;
+				preWarnRectBak[extInCtrl->SensorStat].y = preWarnRect[extInCtrl->SensorStat].y/2;
+				preWarnRectBak[extInCtrl->SensorStat].width = preWarnRect[extInCtrl->SensorStat].width/2;
+				preWarnRectBak[extInCtrl->SensorStat].height = preWarnRect[extInCtrl->SensorStat].height/2;
 			#else
-				memcpy(&preWarnRectBak,&preWarnRect,sizeof(preWarnRectBak));
+				memcpy(preWarnRectBak,preWarnRect,sizeof(preWarnRectBak));
 			#endif
 			
 			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-				Point( preWarnRectBak.x, preWarnRectBak.y ),
-				Point( preWarnRectBak.x + preWarnRectBak.width, preWarnRectBak.y + preWarnRectBak.height),
+				Point( preWarnRectBak[extInCtrl->SensorStat].x, preWarnRectBak[extInCtrl->SensorStat].y ),
+				Point( preWarnRectBak[extInCtrl->SensorStat].x + preWarnRectBak[extInCtrl->SensorStat].width, 
+				preWarnRectBak[extInCtrl->SensorStat].y + preWarnRectBak[extInCtrl->SensorStat].height),
 				cvScalar(0,0,255,255), 2, 8 );
 
 			detect_bak = detect_vect;
@@ -3016,14 +3018,22 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			dynamic_config(VP_CFG_MvDetect, 1,NULL);
 			tmpCmd.MtdState[pIStuts->SensorStat] = 1;
 			//app_ctrl_setMtdStat(&tmpCmd);
+#if LINKAGE_FUNC
 			m_pMovDetector->mvOpen(0);	
+#else
+			m_pMovDetector->mvOpen(pIStuts->SensorStat);	
+#endif
 		}
 		else
 		{
 			dynamic_config(VP_CFG_MvDetect, 0,NULL);
 			tmpCmd.MtdState[pIStuts->SensorStat] = 0;
 			//app_ctrl_setMtdStat(&tmpCmd);
+#if LINKAGE_FUNC
 			m_pMovDetector->mvClose(0);
+#else
+			m_pMovDetector->mvClose(pIStuts->SensorStat);
+#endif
 			chooseDetect = 0;
 		}
 	}

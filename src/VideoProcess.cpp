@@ -286,7 +286,11 @@ void CVideoProcess::main_proc_func()
 		#if __MOVE_DETECT__
 			if(m_pMovDetector != NULL)
 			{
+#if LINKAGE_FUNC
 				m_pMovDetector->setFrame(frame_gray,0,2,minsize,maxsize,16);
+#else
+				m_pMovDetector->setFrame(frame_gray,chId,2,minsize,maxsize,16);
+#endif
 			}
 		#endif
 		}
@@ -829,11 +833,22 @@ void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
 		ipc_sendmsg(&test, IPC_FRIMG_MSG);
 	}
 }
+
 #endif
 
-
-
-
+int CVideoProcess::map1080p2normal(mouserectf *rectf)
+{
+	if(NULL != rectf)
+	{
+		rectf->x /= 1920;
+		rectf->w /= 1920;
+		rectf->y /= 1080;
+		rectf->h /= 1080;
+		return 0;
+	}
+	else 
+		return -1;
+}
 
 void CVideoProcess::mouse_event(int button, int state, int x, int y)
 {
@@ -882,20 +897,38 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 				);
 					//point1  ---  lefttop    ,  point2  --- righttop  , point3 --- leftbottom  ,point --- rightbottom
 
+
+					mouserectf rectsrcf;
+					int redx, redy;
+					redx = pThis->mRect[curId][pThis->m_rectn[curId]].x2 - pThis->mRect[curId][pThis->m_rectn[curId]].x1;
+					redy = pThis->mRect[curId][pThis->m_rectn[curId]].y2 - pThis->mRect[curId][pThis->m_rectn[curId]].y1;
+					rectsrcf.x = redx>0?pThis->mRect[curId][pThis->m_rectn[curId]].x1:pThis->mRect[curId][pThis->m_rectn[curId]].x2;
+					rectsrcf.w = abs(redx);
+					rectsrcf.y = redy>0?pThis->mRect[curId][pThis->m_rectn[curId]].y1:pThis->mRect[curId][pThis->m_rectn[curId]].y2;
+					rectsrcf.h = abs(redy);
+					pThis->map1080p2normal(&rectsrcf);
+					rectsrcf.x *= vdisWH[curId][0];
+					rectsrcf.w *= vdisWH[curId][0];
+					rectsrcf.y *= vdisWH[curId][1];
+					rectsrcf.h *= vdisWH[curId][1];
+
 					std::vector<cv::Point> polyWarnRoi ;
 					polyWarnRoi.resize(4);
-					polyWarnRoi[0]	= cv::Point(pThis->mRect[curId][pThis->m_rectn[curId]].x1,pThis->mRect[curId][pThis->m_rectn[curId]].y1);
-					polyWarnRoi[1]	= cv::Point(pThis->mRect[curId][pThis->m_rectn[curId]].x2,pThis->mRect[curId][pThis->m_rectn[curId]].y1);
-					polyWarnRoi[2]	= cv::Point(pThis->mRect[curId][pThis->m_rectn[curId]].x2,pThis->mRect[curId][pThis->m_rectn[curId]].y2);
-					polyWarnRoi[3]	= cv::Point(pThis->mRect[curId][pThis->m_rectn[curId]].x1,pThis->mRect[curId][pThis->m_rectn[curId]].y2);
-
-					pThis->preWarnRect.x = polyWarnRoi[0].x;
-					pThis->preWarnRect.y = polyWarnRoi[0].y;
-					pThis->preWarnRect.width = polyWarnRoi[2].x - polyWarnRoi[0].x;
-					pThis->preWarnRect.height = polyWarnRoi[2].y - polyWarnRoi[0].y;	
-					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	0);
-								
+					polyWarnRoi[0] = cv::Point(rectsrcf.x, rectsrcf.y);
+					polyWarnRoi[1] = cv::Point(rectsrcf.x+rectsrcf.w, rectsrcf.y);
+					polyWarnRoi[2] = cv::Point(rectsrcf.x+rectsrcf.w, rectsrcf.y+rectsrcf.h);
+					polyWarnRoi[3] = cv::Point(rectsrcf.x, rectsrcf.y+rectsrcf.h);
 					
+					pThis->preWarnRect[curId].x = polyWarnRoi[0].x;
+					pThis->preWarnRect[curId].y = polyWarnRoi[0].y;
+					pThis->preWarnRect[curId].width = polyWarnRoi[2].x - polyWarnRoi[0].x;
+					pThis->preWarnRect[curId].height = polyWarnRoi[2].y - polyWarnRoi[0].y;
+#if LINKAGE_FUNC
+					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	0);
+#else
+					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	curId);
+#endif
+
 					pThis->m_rectn[curId]++;
 					if(pThis->m_rectn[curId]>=sizeof(pThis->mRect[0]))
 					{
@@ -1709,29 +1742,25 @@ void	CVideoProcess::initMvDetect()
 	OSA_assert(m_pMovDetector != NULL);
 
 	m_pMovDetector->init(NotifyFunc, (void*)this);
-	
+					
 	std::vector<cv::Point> polyWarnRoi ;
 	polyWarnRoi.resize(4);
-    polyWarnRoi[0]	= cv::Point(200,200);
-    polyWarnRoi[1]	= cv::Point(1720,200);
-    polyWarnRoi[2]	= cv::Point(1720,880);
-    polyWarnRoi[3]	= cv::Point(200,880);
 
-
-	preWarnRect.x = polyWarnRoi[0].x;
-	preWarnRect.y = polyWarnRoi[0].y;
-	preWarnRect.width = polyWarnRoi[2].x - polyWarnRoi[0].x;
-	preWarnRect.height = polyWarnRoi[2].y - polyWarnRoi[0].y;
-
-	for(i=0; i<DETECTOR_NUM; i++)
+	for(i=0; i<MAX_CHAN; i++)
 	{
-		//m_pMovDetector->setDrawOSD(pThis->m_display.m_disOsd[1], i);
-		//m_pMovDetector->enableSelfDraw(true, i);
+	    polyWarnRoi[0]	= cv::Point(vdisWH[i][0]*min_width_ratio,vdisWH[i][1]*min_height_ratio);
+	    polyWarnRoi[1]	= cv::Point(vdisWH[i][0]*max_width_ratio,vdisWH[i][1]*min_height_ratio);
+	    polyWarnRoi[2]	= cv::Point(vdisWH[i][0]*max_width_ratio,vdisWH[i][1]*max_height_ratio);
+	    polyWarnRoi[3]	= cv::Point(vdisWH[i][0]*min_width_ratio,vdisWH[i][1]*max_height_ratio);
+
+		preWarnRect[i].x = polyWarnRoi[0].x;
+		preWarnRect[i].y = polyWarnRoi[0].y;
+		preWarnRect[i].width = polyWarnRoi[2].x - polyWarnRoi[0].x;
+		preWarnRect[i].height = polyWarnRoi[2].y - polyWarnRoi[0].y;
 
 		m_pMovDetector->setWarnMode(WARN_WARN_MODE, i);
 		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
-	
-	} 
+	}
 }
 
 void	CVideoProcess::DeInitMvDetect()
@@ -1743,7 +1772,11 @@ void	CVideoProcess::DeInitMvDetect()
 void CVideoProcess::NotifyFunc(void *context, int chId)
 {
 	CVideoProcess *pParent = (CVideoProcess*)context;
+#if LINKAGE_FUNC
 	pThis->m_pMovDetector->getWarnTarget(pThis->detect_vect,0);
+#else
+	pThis->m_pMovDetector->getWarnTarget(pThis->detect_vect,chId);
+#endif
 
 #if !LINKAGE_FUNC
 	SENDST test;

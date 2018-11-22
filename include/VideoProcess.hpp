@@ -22,6 +22,14 @@ typedef struct
 	int h;
 }mouserect;
 
+typedef struct
+{
+	float x;
+	float y;
+	float w;
+	float h;
+}mouserectf;
+
 typedef struct _main_thr_obj_cxt{
 	bool bTrack;
 	bool bMtd;
@@ -236,6 +244,7 @@ protected:
 #else
 	static void mousemotion_event(GLint xMouse, GLint yMouse);
 #endif
+	int map1080p2normal(mouserectf *rectf);
 	static void mousemove_event(GLint xMouse, GLint yMouse);
 	static void mouse_event(int button, int state, int x, int y);
 	static void menu_event(int value);
@@ -279,8 +288,8 @@ private:
 protected: //track
 	UTC_RECT_float m_rcTrack, m_rcAcq;
 	UTC_Rect preAcpSR;
-	UTC_Rect preWarnRect;
-	UTC_Rect preWarnRectBak;
+	UTC_Rect preWarnRect[MAX_CHAN];
+	UTC_Rect preWarnRectBak[MAX_CHAN];
 	UTC_Rect MoveAcpSR;
 	UTC_Rect TRKMoveAcpSR;
 	int			    m_intervalFrame;

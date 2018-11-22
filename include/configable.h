@@ -27,6 +27,11 @@ enum devvideo{
 #define BALL_CHID			video_gaoqing
 #define GUN_CHID			video_gaoqing0
 
+#define min_width_ratio 0.2
+#define max_width_ratio 0.8
+#define min_height_ratio 0.2
+#define max_height_ratio 0.8
+
 extern int vcapWH[5][2];
 extern int vdisWH[5][2];
 
