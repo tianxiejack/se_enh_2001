@@ -51,7 +51,6 @@ void getMtdxy(int *x,int *y,int *w,int *h)
 #endif
 
 
-
 CProcess::CProcess():m_bMarkCircle(false),panPos(1024),tiltPos(13657),zoomPos(16),m_cofx(6200),m_cofy(6320)
 {
 	memset(rcTrackBak, 0, sizeof(rcTrackBak));
@@ -154,7 +153,7 @@ CProcess::CProcess():m_bMarkCircle(false),panPos(1024),tiltPos(13657),zoomPos(16
 	key_point1_cnt =0;
 	key_point2_cnt =0;
 	AllPoints_Num =0;
-
+	m_bMarkCircle = false ;
 
 	if(!readParams("SysParm.yml")) {
 		printf("read param error\n");
@@ -1268,7 +1267,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_RECT_INFO> &mvList,std::vector<TRK_
 #endif
 
 bool CProcess::OnProcess(int chId, Mat &frame)
-{
+{				
 	int frcolor= extInCtrl->osdDrawColor;
 	int startx=0;
 	int starty=0;
@@ -1279,7 +1278,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	static int coastCnt = 1;
 	static int bDraw = 0;
 	int color = 0;
-
+			
 	static int changesensorCnt = 0;
 
 	if(extInCtrl->changeSensorFlag == 1)
@@ -1633,17 +1632,29 @@ osdindex++;	//acqRect
 		if(Osdflag[osdindex])
 		{
 			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-				Point( preWarnRectBak.x, preWarnRectBak.y ),
-				Point( preWarnRectBak.x + preWarnRectBak.width, preWarnRectBak.y + preWarnRectBak.height),
+				Point( preWarnRectBak[extInCtrl->SensorStat].x, preWarnRectBak[extInCtrl->SensorStat].y ),
+				Point( preWarnRectBak[extInCtrl->SensorStat].x + preWarnRectBak[extInCtrl->SensorStat].width,
+				preWarnRectBak[extInCtrl->SensorStat].y + preWarnRectBak[extInCtrl->SensorStat].height),
 				cvScalar(0,0,0,0), 2, 8 );
 
 			cv::Rect tmp;
+			mouserect recttmp;
 			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{		
-				tmp.x = (*plist).targetRect.x/2 + 960;
-				tmp.y = (*plist).targetRect.y/2;
-				tmp.width = (*plist).targetRect.width/2;
-				tmp.height = (*plist).targetRect.height/2;
+				#if LINKAGE_FUNC
+					recttmp.x = (*plist).targetRect.x;
+					recttmp.y = (*plist).targetRect.y;
+					recttmp.w = (*plist).targetRect.width;
+					recttmp.h = (*plist).targetRect.height;
+					recttmp = mapfullscreen2gun(recttmp);
+					tmp.x = recttmp.x;
+					tmp.y = recttmp.y;
+					tmp.width = recttmp.w;
+					tmp.height = recttmp.h;
+				#else
+					memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
+				#endif
+
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], tmp ,0);
 			}
 			
@@ -1652,20 +1663,21 @@ osdindex++;	//acqRect
 
 		if(m_bMoveDetect)
 		{
-			#if LINKAGE_FUNC
-				preWarnRectBak.x = preWarnRect.x/2 + 960;
-				preWarnRectBak.y = preWarnRect.y/2;
-				preWarnRectBak.width = preWarnRect.width/2;
-				preWarnRectBak.height = preWarnRect.height/2;
-			#else
-				memcpy(&preWarnRectBak,&preWarnRect,sizeof(preWarnRectBak));
-			#endif
+			/*#if LINKAGE_FUNC
+				preWarnRectBak[extInCtrl->SensorStat].x = preWarnRect[extInCtrl->SensorStat].x/2 + 960;
+				preWarnRectBak[extInCtrl->SensorStat].y = preWarnRect[extInCtrl->SensorStat].y/2;
+				preWarnRectBak[extInCtrl->SensorStat].width = preWarnRect[extInCtrl->SensorStat].width/2;
+				preWarnRectBak[extInCtrl->SensorStat].height = preWarnRect[extInCtrl->SensorStat].height/2;
+			#else*/
+				memcpy(preWarnRectBak,preWarnRect,sizeof(preWarnRectBak));
+			//#endif
 			
 			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-				Point( preWarnRectBak.x, preWarnRectBak.y ),
-				Point( preWarnRectBak.x + preWarnRectBak.width, preWarnRectBak.y + preWarnRectBak.height),
+				Point( preWarnRectBak[extInCtrl->SensorStat].x, preWarnRectBak[extInCtrl->SensorStat].y ),
+				Point( preWarnRectBak[extInCtrl->SensorStat].x + preWarnRectBak[extInCtrl->SensorStat].width, 
+				preWarnRectBak[extInCtrl->SensorStat].y + preWarnRectBak[extInCtrl->SensorStat].height),
 				cvScalar(0,0,255,255), 2, 8 );
-
+			
 			detect_bak = detect_vect;
 			
 			mvIndexHandle(mvList,detect_bak,detectNum);
@@ -1690,6 +1702,7 @@ osdindex++;	//acqRect
 			
 			char tmpNum = 0;
 			cv::Rect tmp;
+			mouserect recttmp;
 			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
 				if( chooseDetect == tmpNum++)
@@ -1704,13 +1717,22 @@ osdindex++;	//acqRect
 						reMapCoords(((*plist).targetRect.x + (*plist).targetRect.width/2),
 										((*plist).targetRect.y - (*plist).targetRect.height/2),false);
 					}
-				#endif
+				#endif	
 
-				tmp.x = (*plist).targetRect.x/2 + 960;
-				tmp.y = (*plist).targetRect.y/2;
-				tmp.width = (*plist).targetRect.width/2;
-				tmp.height = (*plist).targetRect.height/2;
+				#if LINKAGE_FUNC
+					recttmp.x = (*plist).targetRect.x;
+					recttmp.y = (*plist).targetRect.y;
+					recttmp.w = (*plist).targetRect.width;
+					recttmp.h = (*plist).targetRect.height;
+					recttmp = mapfullscreen2gun(recttmp);
+					tmp.x = recttmp.x;
+					tmp.y = recttmp.y;
+					tmp.width = recttmp.w;
+					tmp.height = recttmp.h;
+				#else
+					memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
 				
+				#endif
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], tmp ,color);
 			}
 			Osdflag[osdindex]=1;
@@ -1817,6 +1839,7 @@ osdindex++;	//acqRect
 				drawRectId = extInCtrl->SensorStat;
 		}
 #else
+
 		drawRectId = extInCtrl->SensorStat;
 #endif
 
@@ -2579,6 +2602,7 @@ void CProcess::OnMouseRightDwn(int x, int y){};
 void CProcess::OnMouseRightUp(int x, int y){};
 void CProcess::OnSpecialKeyDwn(int key,int x, int y)
 {
+#if LINKAGE_FUNC
 	switch( key ) {
 		case 1:
 			m_bMarkCircle = true;
@@ -2591,6 +2615,7 @@ void CProcess::OnSpecialKeyDwn(int key,int x, int y)
 		default :
 			break;
 	}
+#endif
 }
 
 void CProcess::OnKeyDwn(unsigned char key)
@@ -3390,25 +3415,71 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 		}
 	}
 #if __MOVE_DETECT__
+#if LINKAGE_FUNC
 	if(msgId == MSGID_EXT_MVDETECT)
 	{	
 		int Mtdstatus = (pIStuts->MtdState[pIStuts->SensorStat]&0x01) ;
 		if(Mtdstatus)
 		{
-			dynamic_config(VP_CFG_MvDetect, 1,NULL);
-			tmpCmd.MtdState[pIStuts->SensorStat] = 1;
-			//app_ctrl_setMtdStat(&tmpCmd);
-			m_pMovDetector->mvOpen(0);	
+			struct timeval tv;
+			while(!m_pMovDetector->isWait(0))
+			{
+				tv.tv_sec = 0;
+				tv.tv_usec = (10%1000)*1000;
+				select(0, NULL, NULL, NULL, &tv);
+			}
+			if(m_pMovDetector->isWait(0))
+			{
+				m_pMovDetector->mvOpen(0);	
+				dynamic_config(VP_CFG_MvDetect, 1,NULL);
+				tmpCmd.MtdState[pIStuts->SensorStat] = 1;
+			}
 		}
 		else
 		{
-			dynamic_config(VP_CFG_MvDetect, 0,NULL);
-			tmpCmd.MtdState[pIStuts->SensorStat] = 0;
-			//app_ctrl_setMtdStat(&tmpCmd);
-			m_pMovDetector->mvClose(0);
-			chooseDetect = 0;
+			if(m_pMovDetector->isRun(0))
+			{
+				dynamic_config(VP_CFG_MvDetect, 0,NULL);
+				tmpCmd.MtdState[pIStuts->SensorStat] = 0;
+				//app_ctrl_setMtdStat(&tmpCmd);
+				m_pMovDetector->mvClose(0);
+				chooseDetect = 0;
+			}	
 		}
 	}
+#else
+    if(msgId == MSGID_EXT_MVDETECT)
+    {
+        int Mtdstatus = (pIStuts->MtdState[pIStuts->SensorStat]&0x01) ;
+        if(Mtdstatus)
+        {
+            struct timeval tv;
+            while(!m_pMovDetector->isWait(pIStuts->SensorStat))
+            {
+                tv.tv_sec = 0;
+                tv.tv_usec = (10%1000)*1000;
+                select(0, NULL, NULL, NULL, &tv);
+            }
+            if(m_pMovDetector->isWait(pIStuts->SensorStat))
+            {
+                m_pMovDetector->mvOpen(pIStuts->SensorStat);
+                dynamic_config(VP_CFG_MvDetect, 1,NULL);
+                tmpCmd.MtdState[pIStuts->SensorStat] = 1;
+            }
+        }
+        else
+        {
+            if(m_pMovDetector->isRun(pIStuts->SensorStat))
+            {
+                dynamic_config(VP_CFG_MvDetect, 0,NULL);
+                tmpCmd.MtdState[pIStuts->SensorStat] = 0;
+                //app_ctrl_setMtdStat(&tmpCmd);
+                m_pMovDetector->mvClose(pIStuts->SensorStat);
+                chooseDetect = 0;
+            }
+        }
+    }
+#endif
 	if(msgId == MSGID_EXT_MVDETECTSELECT)
 	{
 		int MtdSelect = (pIStuts->MtdSelect[pIStuts->SensorStat]);

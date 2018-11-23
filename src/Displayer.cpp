@@ -79,6 +79,7 @@ wchar_t disOsd[32][33];
 #if LINKAGE_FUNC
 void CDisplayer::linkage_init()
 {
+	displayMode = PREVIEW_MODE;
 	gun_BMP = imread("gun.bmp");
 	if(gun_BMP.empty())
 		cout << "Open Gun BMP Failed!!! " << endl;

@@ -286,7 +286,11 @@ void CVideoProcess::main_proc_func()
 		#if __MOVE_DETECT__
 			if(m_pMovDetector != NULL)
 			{
+#if LINKAGE_FUNC
 				m_pMovDetector->setFrame(frame_gray,0,2,minsize,maxsize,16);
+#else
+				m_pMovDetector->setFrame(frame_gray,chId,2,minsize,maxsize,16);
+#endif
 			}
 		#endif
 		}
@@ -829,17 +833,62 @@ void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
 		ipc_sendmsg(&test, IPC_FRIMG_MSG);
 	}
 }
+
 #endif
 
+int CVideoProcess::map1080p2normal_point(float *x, float *y)
+{
+	if(NULL != x)
+		*x /= 1920;
+	if(NULL != y)
+		*y /= 1080;
 
+	return 0;
+}
 
+int CVideoProcess::mapnormal2curchannel_point(float *x, float *y, int w, int h)
+{
+	if(NULL != x)
+		*x *= w;
+	if(NULL != y)
+		*y *= h;
+	
+	return 0;
+}
 
+int CVideoProcess::map1080p2normal_rect(mouserectf *rect)
+{
+	if(NULL != rect)
+	{
+		rect->x /= 1920;
+		rect->w /= 1920;
+		rect->y /= 1080;
+		rect->h /= 1080;
+		return 0;
+	}
+
+	return -1;
+}
+
+int CVideoProcess::mapnormal2curchannel_rect(mouserectf *rect, int w, int h)
+{
+	if(NULL != rect)
+	{
+		rect->x *= w;
+		rect->w *= w;
+		rect->y *= h;
+		rect->h *= h;
+		return 0;
+	}
+	return -1;
+}
 
 void CVideoProcess::mouse_event(int button, int state, int x, int y)
 {
 	unsigned int curId;
-	int Critical_Point;
-	
+
+	int Critical_Point;	
+
 #if LINKAGE_FUNC
 	if(pThis->m_display.g_CurDisplayMode == PIC_IN_PIC) {
 		curId = 0;	
@@ -849,6 +898,7 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 #else
 		curId = pThis->m_curChId;
 #endif	
+
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 #if LINKAGE_FUNC
@@ -867,14 +917,38 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 				if(pThis->m_click == 0)
 				{
 					pThis->m_click = 1;
-					pThis->mRect[curId][pThis->m_rectn[curId]].x1 = x;
-					pThis->mRect[curId][pThis->m_rectn[curId]].y1 = y;
+
+					//pThis->mRect[curId][pThis->m_rectn[curId]].x1 = x;
+					//pThis->mRect[curId][pThis->m_rectn[curId]].y1 = y;
+
+
+					float floatx,floaty;
+					floatx = x;
+					floaty = y;
+					pThis->map1080p2normal_point(&floatx, &floaty);
+					pThis->mapnormal2curchannel_point(&floatx, &floaty, vdisWH[curId][0], vdisWH[curId][1]);
+					
+					pThis->mRect[curId][pThis->m_rectn[curId]].x1 = floatx;
+					pThis->mRect[curId][pThis->m_rectn[curId]].y1 = floaty;
+
 				}
 				else
 				{	
 					pThis->m_click = 0;
-					pThis->mRect[curId][pThis->m_rectn[curId]].x2 = x;
-					pThis->mRect[curId][pThis->m_rectn[curId]].y2 = y;
+
+					//pThis->mRect[curId][pThis->m_rectn[curId]].x2 = x;
+					//pThis->mRect[curId][pThis->m_rectn[curId]].y2 = y;
+
+
+					float floatx,floaty;
+					floatx = x;
+					floaty = y;
+					pThis->map1080p2normal_point(&floatx, &floaty);
+					pThis->mapnormal2curchannel_point(&floatx, &floaty, vdisWH[curId][0], vdisWH[curId][1]);
+					
+					pThis->mRect[curId][pThis->m_rectn[curId]].x2 = floatx;
+					pThis->mRect[curId][pThis->m_rectn[curId]].y2 = floaty;
+
 
 				printf("Rigion%d: Point1(%d,%d),Point2(%d,%d),Point3(%d,%d),Point4(%d,%d)\n",
 					pThis->m_rectn[curId],
@@ -885,8 +959,27 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 				);
 					//point1  ---  lefttop    ,  point2  --- righttop  , point3 --- leftbottom  ,point --- rightbottom
 
+					mouserect rectsrcf;
+					int redx, redy;
+					redx = pThis->mRect[curId][pThis->m_rectn[curId]].x2 - pThis->mRect[curId][pThis->m_rectn[curId]].x1;
+					redy = pThis->mRect[curId][pThis->m_rectn[curId]].y2 - pThis->mRect[curId][pThis->m_rectn[curId]].y1;
+					rectsrcf.x = redx>0?pThis->mRect[curId][pThis->m_rectn[curId]].x1:pThis->mRect[curId][pThis->m_rectn[curId]].x2;
+					rectsrcf.w = abs(redx);
+					rectsrcf.y = redy>0?pThis->mRect[curId][pThis->m_rectn[curId]].y1:pThis->mRect[curId][pThis->m_rectn[curId]].y2;
+					rectsrcf.h = abs(redy);
+
+					pThis->preWarnRect[curId].x = rectsrcf.x;
+					pThis->preWarnRect[curId].y = rectsrcf.y;
+					pThis->preWarnRect[curId].width = rectsrcf.w;
+					pThis->preWarnRect[curId].height = rectsrcf.h;
+					
+#if LINKAGE_FUNC
+					rectsrcf = pThis->mapgun2fullscreen(rectsrcf);
+#endif				
 					std::vector<cv::Point> polyWarnRoi ;
 					polyWarnRoi.resize(4);
+
+		/*
 					polyWarnRoi[0]	= cv::Point(pThis->mRect[curId][pThis->m_rectn[curId]].x1,pThis->mRect[curId][pThis->m_rectn[curId]].y1);
 					polyWarnRoi[1]	= cv::Point(pThis->mRect[curId][pThis->m_rectn[curId]].x2,pThis->mRect[curId][pThis->m_rectn[curId]].y1);
 					polyWarnRoi[2]	= cv::Point(pThis->mRect[curId][pThis->m_rectn[curId]].x2,pThis->mRect[curId][pThis->m_rectn[curId]].y2);
@@ -898,7 +991,20 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 					pThis->preWarnRect.height = polyWarnRoi[2].y - polyWarnRoi[0].y;	
 					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	0);
 								
-					
+		*/			
+
+					polyWarnRoi[0] = cv::Point(rectsrcf.x, rectsrcf.y);
+					polyWarnRoi[1] = cv::Point(rectsrcf.x+rectsrcf.w, rectsrcf.y);
+					polyWarnRoi[2] = cv::Point(rectsrcf.x+rectsrcf.w, rectsrcf.y+rectsrcf.h);
+					polyWarnRoi[3] = cv::Point(rectsrcf.x, rectsrcf.y+rectsrcf.h);
+
+#if LINKAGE_FUNC
+					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	0);
+#else
+					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	curId);
+#endif
+
+
 					pThis->m_rectn[curId]++;
 					if(pThis->m_rectn[curId]>=sizeof(pThis->mRect[0]))
 					{
@@ -946,7 +1052,9 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 							rectsrc.y = pThis->mRect[curId][pThis->m_rectn[curId]].y1;
 							rectsrc.w = pThis->mRect[curId][pThis->m_rectn[curId]].x2 - pThis->mRect[curId][pThis->m_rectn[curId]].x1;
 							rectsrc.h = pThis->mRect[curId][pThis->m_rectn[curId]].y2 - pThis->mRect[curId][pThis->m_rectn[curId]].y1;
+
 							//printf("###before map(%d,%d,%d,%d)\n",rectsrc.x,rectsrc.y,rectsrc.w,rectsrc.h);
+
 							recvdest = pThis->map2preview(rectsrc);
 							//printf("###after map(%d,%d,%d,%d)\n",recvdest.x,recvdest.y,recvdest.w,recvdest.h);
 
@@ -1032,10 +1140,27 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 
 void CVideoProcess::mousemove_event(GLint xMouse, GLint yMouse)
 {
+	unsigned int curId;
+#if LINKAGE_FUNC
+	if(pThis->m_display.g_CurDisplayMode == PIC_IN_PIC)
+		curId = 0;
+	else
+		curId = pThis->m_curChId;
+#else
+		curId = pThis->m_curChId;
+#endif
+
 	if(pThis->m_click == 1)
 	{
-		pThis->m_tempX = xMouse;
-		pThis->m_tempY = yMouse;
+		float floatx,floaty;
+		floatx = xMouse;
+		floaty = yMouse;
+		
+		pThis->map1080p2normal_point(&floatx, &floaty);
+		pThis->mapnormal2curchannel_point(&floatx, &floaty, vdisWH[curId][0], vdisWH[curId][1]);		
+		pThis->m_tempX = floatx;
+		pThis->m_tempY = floaty;
+		
 		pThis->m_draw = 1;
 	}
 }
@@ -1737,33 +1862,42 @@ int CVideoProcess::process_mtd(ALGMTD_HANDLE pChPrm, Mat frame_gray, Mat frame_d
 void	CVideoProcess::initMvDetect()
 {
 	int	i;
+	mouserect recttmp;
 	OSA_printf("%s:mvDetect start ", __func__);
 	OSA_assert(m_pMovDetector != NULL);
 
 	m_pMovDetector->init(NotifyFunc, (void*)this);
-	
+					
 	std::vector<cv::Point> polyWarnRoi ;
 	polyWarnRoi.resize(4);
-    polyWarnRoi[0]	= cv::Point(200,200);
-    polyWarnRoi[1]	= cv::Point(1720,200);
-    polyWarnRoi[2]	= cv::Point(1720,880);
-    polyWarnRoi[3]	= cv::Point(200,880);
 
-
-	preWarnRect.x = polyWarnRoi[0].x;
-	preWarnRect.y = polyWarnRoi[0].y;
-	preWarnRect.width = polyWarnRoi[2].x - polyWarnRoi[0].x;
-	preWarnRect.height = polyWarnRoi[2].y - polyWarnRoi[0].y;
-
-	for(i=0; i<DETECTOR_NUM; i++)
+	for(i=0; i<MAX_CHAN; i++)
 	{
-		//m_pMovDetector->setDrawOSD(pThis->m_display.m_disOsd[1], i);
-		//m_pMovDetector->enableSelfDraw(true, i);
+		recttmp.x = vdisWH[i][0] * min_width_ratio;
+		recttmp.y = vdisWH[i][1] * min_height_ratio;
+		recttmp.w = vdisWH[i][0] * (max_width_ratio - min_width_ratio);
+		recttmp.h = vdisWH[i][1] * (max_height_ratio - min_height_ratio); 
+
+#if LINKAGE_FUNC
+		recttmp = mapfullscreen2gun(recttmp);
+#endif
+
+		preWarnRect[i].x = recttmp.x;
+		preWarnRect[i].y = recttmp.y;
+		preWarnRect[i].width = recttmp.w;
+		preWarnRect[i].height = recttmp.h;
+
+#if LINKAGE_FUNC
+		recttmp = mapgun2fullscreen(recttmp);
+#endif
+		polyWarnRoi[0]	= cv::Point(recttmp.x,recttmp.y);
+	    polyWarnRoi[1]	= cv::Point(recttmp.x+recttmp.w,recttmp.y);
+	    polyWarnRoi[2]	= cv::Point(recttmp.x+recttmp.w,recttmp.y+recttmp.h);
+	    polyWarnRoi[3]	= cv::Point(recttmp.x,recttmp.y+recttmp.h);
 
 		m_pMovDetector->setWarnMode(WARN_WARN_MODE, i);
 		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
-	
-	} 
+	}
 }
 
 void	CVideoProcess::DeInitMvDetect()
@@ -1774,17 +1908,22 @@ void	CVideoProcess::DeInitMvDetect()
 
 void CVideoProcess::NotifyFunc(void *context, int chId)
 {
+	CVideoProcess *pParent = (CVideoProcess*)context;
+#if LINKAGE_FUNC
+	pThis->m_pMovDetector->getWarnTarget(pThis->detect_vect,0);
+#else
+	pThis->m_pMovDetector->getWarnTarget(pThis->detect_vect,chId);
+#endif
+
+#if !LINKAGE_FUNC
 	SENDST test;
 	test.cmd_ID = mtdnum;
-	CVideoProcess *pParent = (CVideoProcess*)context;
-	pThis->m_pMovDetector->getWarnTarget(pThis->detect_vect,0);
-
 	if(0 == pThis->detect_vect.size())
 		test.param[0] = 0;
 	else
 		test.param[0] = 1;
 	ipc_sendmsg(&test, IPC_FRIMG_MSG);
-
+#endif
 	
 	//pParent->m_display.m_bOsd = true;
 	//pThis->m_display.UpDateOsd(1);
