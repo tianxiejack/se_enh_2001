@@ -2142,11 +2142,11 @@ void CDisplayer::linkageSwitchMode(void)
 			
 			if( g_CurDisplayMode != PREVIEW_MODE)
 				g_CurDisplayMode = PREVIEW_MODE;
-
 			break;
 
 		case PIC_IN_PIC:			
-			m_renders[0].video_chId = video_gaoqing0;
+
+			m_renders[0].video_chId = video_gaoqing0;  // video0 == gun camera
 			m_renders[0].displayrect.x = 0;
 			m_renders[0].displayrect.y = 0;
 			m_renders[0].displayrect.w = WINDOW_WIDTH;
@@ -2156,7 +2156,11 @@ void CDisplayer::linkageSwitchMode(void)
 			m_renders[1].displayrect.x = WINDOW_WIDTH*3/4;
 			m_renders[1].displayrect.y = WINDOW_HEIGHT*3/4;
 			m_renders[1].displayrect.w = WINDOW_WIDTH/4;
-			m_renders[1].displayrect.h = WINDOW_HEIGHT/4;			
+			m_renders[1].displayrect.h = WINDOW_HEIGHT/4;	
+			
+			
+	//RenderVideoOnOrthoView(VIDEO_0, 0, 0, 1920, 1080);
+	//RenderVideoOnOrthoView(VIDEO_1, 1440, 810, 480, 270);
 			if( g_CurDisplayMode != PIC_IN_PIC)
 				g_CurDisplayMode = PIC_IN_PIC;
 			
@@ -2206,12 +2210,7 @@ void CDisplayer::linkageSwitchMode(void)
 	}
 }
 
-
 #endif
-
-
-
-
 
 void CDisplayer::gl_display(void)
 {	
@@ -2290,7 +2289,12 @@ void CDisplayer::gl_display(void)
 		IrisAndFocus();
 		OSDFunc();
 	}
+	
 	glUseProgram(0);
+
+
+
+
 	
 	glutSwapBuffers();
 	glutPostRedisplay();

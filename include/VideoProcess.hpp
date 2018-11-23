@@ -119,7 +119,11 @@ public:
 	
 #if LINKAGE_FUNC
 
-	virtual void reMapCoords(int x, int y,bool mode){};
+	virtual void reMapCoords(int x, int y,bool mode){ };
+	virtual void clickOnBallImage(int x, int y) {};
+	virtual void moveToDest( ){ };
+	//virtual void QueryCurBallCamPosition() { };
+	//virtual void setBallPos(int in_panPos, int in_tilPos, int in_zoom) { };
 
 	void linkage_init();
 	bool Set_SelectByRect;

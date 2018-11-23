@@ -123,12 +123,13 @@ private:
 	
 
 public:
+	bool bool_getPosFlag;
 	bool bool_Calibrate;
 	bool writeParam_flag;
 	bool start_cloneVideoSrc;
 	bool Set_Handler_Calibra;
 	bool getCurrentPosFlag;
-	OSA_SemHndl m_linkage_getPos;
+	//OSA_SemHndl m_linkage_getPos;
 	
 
 	Mat gun_fromBMP;

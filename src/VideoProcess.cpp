@@ -837,11 +837,23 @@ void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
 
 void CVideoProcess::mouse_event(int button, int state, int x, int y)
 {
+	unsigned int curId;
+#if LINKAGE_FUNC
+	if(pThis->m_display.g_CurDisplayMode == PIC_IN_PIC) {
+		curId = 0;	
+	}else{
+		curId = pThis->m_curChId;
+	}
+#else
+		curId = pThis->m_curChId;
+#endif	
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 #if LINKAGE_FUNC
-		pThis->OnMouseLeftDwn(x, y);   // add by swj
-		if(pThis->open_handleCalibra)
+
+		//pThis->OnMouseLeftDwn(x, y);   // add by swj
+		
+		if(pThis->open_handleCalibra) // Press 'y' or 'Y' , set this flag to 1
 		{
 			pThis->OnMouseLeftDwn(x, y);
 		}
@@ -853,30 +865,30 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 				if(pThis->m_click == 0)
 				{
 					pThis->m_click = 1;
-					pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1 = x;
-					pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1 = y;
+					pThis->mRect[curId][pThis->m_rectn[curId]].x1 = x;
+					pThis->mRect[curId][pThis->m_rectn[curId]].y1 = y;
 				}
 				else
 				{	
 					pThis->m_click = 0;
-					pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 = x;
-					pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 = y;
+					pThis->mRect[curId][pThis->m_rectn[curId]].x2 = x;
+					pThis->mRect[curId][pThis->m_rectn[curId]].y2 = y;
 
-					printf("Rigion%d: Point1(%d,%d),Point2(%d,%d),Point3(%d,%d),Point4(%d,%d)\n",
-						pThis->m_rectn[pThis->m_curChId],
-						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1,
-						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1,
-						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2,
-						pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2
-					);
+				printf("Rigion%d: Point1(%d,%d),Point2(%d,%d),Point3(%d,%d),Point4(%d,%d)\n",
+					pThis->m_rectn[curId],
+					pThis->mRect[curId][pThis->m_rectn[curId]].x1,pThis->mRect[curId][pThis->m_rectn[curId]].y1,
+					pThis->mRect[curId][pThis->m_rectn[curId]].x2,pThis->mRect[curId][pThis->m_rectn[curId]].y1,
+					pThis->mRect[curId][pThis->m_rectn[curId]].x1,pThis->mRect[curId][pThis->m_rectn[curId]].y2,
+					pThis->mRect[curId][pThis->m_rectn[curId]].x2,pThis->mRect[curId][pThis->m_rectn[curId]].y2
+				);
 					//point1  ---  lefttop    ,  point2  --- righttop  , point3 --- leftbottom  ,point --- rightbottom
 
 					std::vector<cv::Point> polyWarnRoi ;
 					polyWarnRoi.resize(4);
-					polyWarnRoi[0]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1);
-					polyWarnRoi[1]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1);
-					polyWarnRoi[2]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2);
-					polyWarnRoi[3]	= cv::Point(pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1,pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2);
+					polyWarnRoi[0]	= cv::Point(pThis->mRect[curId][pThis->m_rectn[curId]].x1,pThis->mRect[curId][pThis->m_rectn[curId]].y1);
+					polyWarnRoi[1]	= cv::Point(pThis->mRect[curId][pThis->m_rectn[curId]].x2,pThis->mRect[curId][pThis->m_rectn[curId]].y1);
+					polyWarnRoi[2]	= cv::Point(pThis->mRect[curId][pThis->m_rectn[curId]].x2,pThis->mRect[curId][pThis->m_rectn[curId]].y2);
+					polyWarnRoi[3]	= cv::Point(pThis->mRect[curId][pThis->m_rectn[curId]].x1,pThis->mRect[curId][pThis->m_rectn[curId]].y2);
 
 					pThis->preWarnRect.x = polyWarnRoi[0].x;
 					pThis->preWarnRect.y = polyWarnRoi[0].y;
@@ -885,11 +897,11 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	0);
 								
 					
-					pThis->m_rectn[pThis->m_curChId]++;
-					if(pThis->m_rectn[pThis->m_curChId]>=sizeof(pThis->mRect[0]))
+					pThis->m_rectn[curId]++;
+					if(pThis->m_rectn[curId]>=sizeof(pThis->mRect[0]))
 					{
 						printf("mouse rect reached maxnum:100!\n");
-						pThis->m_rectn[pThis->m_curChId]--;
+						pThis->m_rectn[curId]--;
 					}
 					pThis->m_draw = 1;
 					pThis->setrigon_flag = 0;
@@ -906,10 +918,10 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 							pThis->LeftPoint.y = y;
 
 							pThis->m_click = 1;
-							pThis->m_rectn[pThis->m_curChId] = 0;
-							pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1 = x;
-							pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1 = y;
-							cout<<" start:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1<<")"<<endl;
+							pThis->m_rectn[curId] = 0;
+							pThis->mRect[curId][pThis->m_rectn[curId]].x1 = x;
+							pThis->mRect[curId][pThis->m_rectn[curId]].y1 = y;
+							cout<<" start:("<<pThis->mRect[curId][pThis->m_rectn[curId]].x1<<","<<pThis->mRect[curId][pThis->m_rectn[curId]].y1<<")"<<endl;
 						}
 						else
 							printf("click illegal!!!\n");
@@ -923,29 +935,44 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 							pThis->RightPoint.y = y;
 
 							pThis->m_click = 0;
-							pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 = x;
-							pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 = y;
-							cout<<" end:("<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2<<","<<pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2<<")\n"<<endl;
+							pThis->mRect[curId][pThis->m_rectn[curId]].x2 = x;
+							pThis->mRect[curId][pThis->m_rectn[curId]].y2 = y;
+							cout<<" end:("<<pThis->mRect[curId][pThis->m_rectn[curId]].x2<<","<<pThis->mRect[curId][pThis->m_rectn[curId]].y2<<")\n"<<endl;
 
 							mouserect rectsrc, recvdest;
-							rectsrc.x = pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1;
-							rectsrc.y = pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1;
-							rectsrc.w = pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x2 - pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].x1;
-							rectsrc.h = pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y2 - pThis->mRect[pThis->m_curChId][pThis->m_rectn[pThis->m_curChId]].y1;
+							rectsrc.x = pThis->mRect[curId][pThis->m_rectn[curId]].x1;
+							rectsrc.y = pThis->mRect[curId][pThis->m_rectn[curId]].y1;
+							rectsrc.w = pThis->mRect[curId][pThis->m_rectn[curId]].x2 - pThis->mRect[curId][pThis->m_rectn[curId]].x1;
+							rectsrc.h = pThis->mRect[curId][pThis->m_rectn[curId]].y2 - pThis->mRect[curId][pThis->m_rectn[curId]].y1;
 							printf("###before map(%d,%d,%d,%d)\n",rectsrc.x,rectsrc.y,rectsrc.w,rectsrc.h);
 							recvdest = pThis->map2preview(rectsrc);
 							printf("###after map(%d,%d,%d,%d)\n",recvdest.x,recvdest.y,recvdest.w,recvdest.h);
 
 							
-							pThis->m_rectn[pThis->m_curChId]++;  
-							if(pThis->m_rectn[pThis->m_curChId]>=sizeof(pThis->mRect[0]))
+							pThis->m_rectn[curId]++;  
+							if(pThis->m_rectn[curId]>=sizeof(pThis->mRect[0]))
 							{
 								printf("mouse rect reached maxnum:100!\n");
-								pThis->m_rectn[pThis->m_curChId]--;
+								pThis->m_rectn[curId]--;
 							}
-							pThis->m_draw = 1;		
-							pThis->reMapCoords(x,y,true);
+							pThis->m_draw = 1;	
 
+						switch( pThis->m_display.g_CurDisplayMode){
+
+							case PREVIEW_MODE:
+							if(x > 960) {							
+								pThis->reMapCoords(x,y,true);								
+							}
+							else {
+								pThis->moveToDest();
+							}
+							break;
+						case LEFT_BALL_RIGHT_GUN:
+							
+							break;
+						default:
+							break;
+						}
 							
 						}
 						else
@@ -961,7 +988,7 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 	if((button == 3)||(button == 4))
 	{
 		pThis->m_click = 0;
-		pThis->m_rectn[pThis->m_curChId] = 0;
+		pThis->m_rectn[curId] = 0;
 		pThis->m_draw = 1;
 	}
 #if (!LINKAGE_FUNC)

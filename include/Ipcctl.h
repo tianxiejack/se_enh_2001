@@ -68,7 +68,7 @@ typedef enum
     mtdoutput,
     mtdpolar,
     mtdtrktime,
-    setconfig,/*50*/
+    setconfig,	/*50*/
     querypos,
     speedloop,
     acqPosAndZoom,

@@ -586,7 +586,7 @@ void* recv_msg(SENDST *RS422)
 		case querypos:
 			#if LINKAGE_FUNC
 				memcpy(&posOfLinkage,RS422->param,sizeof(posOfLinkage));
-				printf("panPos ,tilPos = (%d ,%d ) \n",posOfLinkage.panPos, posOfLinkage.tilPos);
+				printf("[%s]:Query IPC Rcv :>> panPos ,tilPos , zoom = (%d ,%d ,%d) \n",__FUNCTION__,posOfLinkage.panPos, posOfLinkage.tilPos, posOfLinkage.zoom);
 				app_ctrl_setLinkagePos(posOfLinkage.panPos, posOfLinkage.tilPos, posOfLinkage.zoom);
 			#endif
 			break;

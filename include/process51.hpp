@@ -5,6 +5,8 @@
 #include "VideoProcess.hpp"
 #include "osd_cv.h"
 
+#include "osa_sem.h"
+
 
 using namespace cv;
 
@@ -66,11 +68,23 @@ private:
 	FileStorage writefs;
 	void getParams();
 	void setParams();
-
+	 //OSA_SemHndl m_linkage_getPos;
+	int panPos ;
+	 int tiltPos ;
+	 int zoomPos ;
+	int m_cofx , m_cofy;
 public:
 	bool readParams(const char* file);
 	bool writeParams(const char* file);
 	void reMapCoords(int x, int y , bool mode);
+	void moveToDest( );
+	void QueryCurBallCamPosition();
+	void setBallPos(int in_panPos, int in_tilPos, int in_zoom);
+	void Set_K_ByDeltaX( int delta_x);
+
+
+	void clickOnBallImage(int x, int y);
+
 	void Init_CameraMatrix();
 	Mat undisImageGun;
 	
