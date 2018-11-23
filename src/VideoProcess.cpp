@@ -838,6 +838,8 @@ void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
 void CVideoProcess::mouse_event(int button, int state, int x, int y)
 {
 	unsigned int curId;
+	int Critical_Point;
+	
 #if LINKAGE_FUNC
 	if(pThis->m_display.g_CurDisplayMode == PIC_IN_PIC) {
 		curId = 0;	
@@ -944,9 +946,9 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 							rectsrc.y = pThis->mRect[curId][pThis->m_rectn[curId]].y1;
 							rectsrc.w = pThis->mRect[curId][pThis->m_rectn[curId]].x2 - pThis->mRect[curId][pThis->m_rectn[curId]].x1;
 							rectsrc.h = pThis->mRect[curId][pThis->m_rectn[curId]].y2 - pThis->mRect[curId][pThis->m_rectn[curId]].y1;
-							printf("###before map(%d,%d,%d,%d)\n",rectsrc.x,rectsrc.y,rectsrc.w,rectsrc.h);
+							//printf("###before map(%d,%d,%d,%d)\n",rectsrc.x,rectsrc.y,rectsrc.w,rectsrc.h);
 							recvdest = pThis->map2preview(rectsrc);
-							printf("###after map(%d,%d,%d,%d)\n",recvdest.x,recvdest.y,recvdest.w,recvdest.h);
+							//printf("###after map(%d,%d,%d,%d)\n",recvdest.x,recvdest.y,recvdest.w,recvdest.h);
 
 							
 							pThis->m_rectn[curId]++;  
@@ -958,20 +960,34 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 							pThis->m_draw = 1;	
 
 						switch( pThis->m_display.g_CurDisplayMode){
-
 							case PREVIEW_MODE:
-							if(x > 960) {							
+							case SIDE_BY_SIDE:
+								Critical_Point = 960;
+							break;
+							case PIC_IN_PIC:
+								Critical_Point = 1440;
+								break;
+							case LEFT_BALL_RIGHT_GUN:
+								Critical_Point = 480;
+								break;
+							default:
+							break;
+						}
+						
+						if( pThis->m_display.g_CurDisplayMode != PIC_IN_PIC){
+							if(x > Critical_Point) {							
 								pThis->reMapCoords(x,y,true);								
 							}
 							else {
 								pThis->moveToDest();
 							}
-							break;
-						case LEFT_BALL_RIGHT_GUN:
-							
-							break;
-						default:
-							break;
+						}else{
+							if(x < Critical_Point) {							
+								pThis->reMapCoords(x,y,true);								
+							}
+							else {
+								pThis->moveToDest();
+							}
 						}
 							
 						}

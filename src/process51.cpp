@@ -22,7 +22,7 @@ CProcess * CProcess::sThis = NULL;
 CProcess* plat = NULL;
 int glosttime = 3000;
 
-extern OSA_SemHndl m_linkage_getPos;
+OSA_SemHndl g_linkage_getPos;
 
 SENDST trkmsg={0};
 #if LINKAGE_FUNC
@@ -178,7 +178,7 @@ CProcess::CProcess():m_bMarkCircle(false),panPos(1024),tiltPos(13657),zoomPos(16
 	}
 #endif
 
-	//OSA_semCreate(&m_linkage_getPos, 1, 0);
+	OSA_semCreate(&g_linkage_getPos, 1, 0);
 
 }
 
@@ -2189,7 +2189,7 @@ printf("[%s] : ==============>>>Enter ! \r\n", __FUNCTION__);
 	panPos = in_panPos ;
 	tiltPos = in_tilPos ;
 	zoomPos = in_zoom ;
-	//OSA_semSignal(&m_linkage_getPos);
+	//OSA_semSignal(&g_linkage_getPos);
 printf("[%s] : ==============<<< Exit ! \r\n", __FUNCTION__);
 
 }
@@ -2200,26 +2200,25 @@ printf("[%s] : ==============>>>Enter ! \r\n",__FUNCTION__);
 	char flag =0;
 	
 	
-	
 	SENDST trkmsg={0};
 	trkmsg.cmd_ID = querypos;
 	ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
+	
 
-	flag = OSA_semWait(&m_linkage_getPos, 200);
+	flag = OSA_semWait(&g_linkage_getPos, 200);
 	if( -1 == flag ) 
-	{
-		//getCurrentPosFlag = false;
+	{		
 		printf("%s:LINE :%d    could not get the ball current Pos \n",__func__,__LINE__ );
 	}
 	else
-	{
-		//getCurrentPosFlag = true;
+	{		
 		setBallPos(linkagePos.panPos, linkagePos.tilPos, linkagePos.zoom);
-		cout << "******************Query Ball Camera Position Sucess ! *****************" << endl;
+		memset(&linkagePos,0, sizeof(LinkagePos_t));
+		cout << "\n\n******************Query Ball Camera Position Sucess ! *****************" << endl;
 		cout << "Current : panPos = "<< panPos << endl;
 		cout << "Current : tiltPos = "<< tiltPos << endl;
 		cout << "Current : zoomPos = "<< zoomPos << endl;
-		cout << "*****************************************************************" << endl;
+		cout << "*****************************************************************\n\n" << endl;
 	}
 	printf("[%s] : ==============<<< Exit ! \r\n", __FUNCTION__);
 
@@ -2231,23 +2230,35 @@ void CProcess::moveToDest( )
 	static int static_cofy = 6320;
 
 	int point_X , point_Y , offset_x , zoomPos; 
-	int delta_X ;
-	
+	int delta_X ;	
 
 	switch(m_display.g_CurDisplayMode) 
 	{
 		case PREVIEW_MODE:
+			offset_x = 0;	
+			break;
 		case SIDE_BY_SIDE:
+			offset_x = 0;	
+			LeftPoint.y /=2;
+			RightPoint.y /= 2;
+			break;
 		case LEFT_BALL_RIGHT_GUN:
-			offset_x = 0;			
+			offset_x = 0;	
+			LeftPoint.x *=2;
+			RightPoint.x *= 2;
+			LeftPoint.y *=2;
+			RightPoint.y *= 2;
 			break;
 		case PIC_IN_PIC:
 			offset_x =1440;
+			LeftPoint.x *=2;
+			RightPoint.x *= 2;
+			LeftPoint.y *=2;
+			RightPoint.y *= 2;
 			break;			
 		default:
 			break;
-	}
-	
+	}	
 
 	LeftPoint.x    -= offset_x;
 	RightPoint.x  -= offset_x;
@@ -2265,9 +2276,11 @@ void CProcess::moveToDest( )
 	
 	int flag = 0;	
 	
-	
+//-----------------------------------Query Current Position --------------------------------------	
+
 	QueryCurBallCamPosition();	
-	
+
+//-------------------------------------------------------------------------
 	static int DesPanPos = 0;
 	static int DesTilPos =0;	
 
@@ -2728,9 +2741,7 @@ char flag = 0;
 			//pIStuts->ImgZoomStat[0]=(pIStuts->ImgZoomStat[0]+1)%2;
 			//msgdriv_event(MSGID_EXT_INPUT_ENZOOM, NULL);
 		}
-		if( key == 'Z' ) {
-			m_camCalibra->bool_getPosFlag = true;
-		}
+		
 		
 	#endif
 
@@ -4267,7 +4278,10 @@ void CProcess::MSGAPI_update_ballPos(long lParam)
 	m_camCalibra->setBallPos(linkagePos.panPos, linkagePos.tilPos, linkagePos.zoom);
 	
 	//setBallPos(linkagePos.panPos, linkagePos.tilPos, linkagePos.zoom);
+	OSA_semSignal(&g_linkage_getPos);
+	printf("[%s]: ----------------->>>>>>>    OSA_semSignal  (&g_linkage_getPos )\r\n\r\n\r\n",__FUNCTION__);
 }
+
 #endif
 
 void CProcess::MSGAPI_input_algosdrect(long lParam)

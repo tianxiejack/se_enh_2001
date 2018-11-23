@@ -123,7 +123,7 @@ private:
 	
 
 public:
-	bool bool_getPosFlag;
+
 	bool bool_Calibrate;
 	bool writeParam_flag;
 	bool start_cloneVideoSrc;

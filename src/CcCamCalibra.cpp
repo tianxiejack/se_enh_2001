@@ -14,7 +14,7 @@ CamParameters g_camParams;
 OSA_SemHndl m_linkage_getPos;
 CcCamCalibra::CcCamCalibra():scale(0.5),bCal(false),ret1(false),ret2(false),
 	panPos(1024), tiltPos(13657), zoomPos(16),writeParam_flag(false),
-	Set_Handler_Calibra(false),bool_getPosFlag(false),bool_Calibrate(false),start_cloneVideoSrc(false)
+	Set_Handler_Calibra(false),bool_Calibrate(false),start_cloneVideoSrc(false)
 {
 	gun_BMP = imread("gun.bmp");
 	
@@ -183,36 +183,9 @@ void CcCamCalibra::setBallPos(int in_panPos, int in_tilPos, int in_zoom)
 	OSA_semSignal(&m_linkage_getPos);
 }
 
-
 int CcCamCalibra::Run()
 {
 	char flag = 0;
-	if( bool_getPosFlag == true ) {
-
-		bool_getPosFlag = false;
-		
-		SENDST trkmsg={0};
-		trkmsg.cmd_ID = querypos;
-		ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
-
-		flag = OSA_semWait(&m_linkage_getPos, 200);
-		if( -1 == flag ) 
-		{
-			getCurrentPosFlag = false;
-			printf("%s:LINE :%d    could not get the ball current Pos \n",__func__,__LINE__ );
-		}
-		else
-		{
-			getCurrentPosFlag = true;
-			cout << "******************Query Ball Camera Position Sucess ! *****************" << endl;
-			cout << " panPos = "<< panPos << endl;
-			cout << " tiltPos = "<< tiltPos << endl;
-			cout << " zoomPos = "<< zoomPos << endl;
-			cout << "*****************************************************************" << endl;
-		}
-	}
-
-
 	
 	Mat frame = ball_frame;
 
