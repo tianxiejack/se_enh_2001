@@ -50,8 +50,11 @@ void getMtdxy(int *x,int *y,int *w,int *h)
 }
 #endif
 
-
+#if LINKAGE_FUNC
 CProcess::CProcess():m_bMarkCircle(false),panPos(1024),tiltPos(13657),zoomPos(16),m_cofx(6200),m_cofy(6320)
+#else
+CProcess::CProcess()
+#endif
 {
 	memset(rcTrackBak, 0, sizeof(rcTrackBak));
 	memset(tgBak, 0, sizeof(tgBak));
