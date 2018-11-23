@@ -304,12 +304,9 @@ void* recv_msg(SENDST *RS422)
 			memcpy(&losttime,RS422->param,4);
 			glosttime = losttime;
 			break;
-			
-		case trk:	
-			#if LINKAGE_FUNC
-				break;	
-			#endif
-			
+
+	#if !LINKAGE_FUNC
+		case trk:				
 			memcpy(&Rtrk,RS422->param,sizeof(Rtrk));
 			imgID1 = Rtrk.AvtTrkStat;
 			printf("recv TRK : imgID1 : %d\n",imgID1);
@@ -332,7 +329,8 @@ void* recv_msg(SENDST *RS422)
 			app_ctrl_setTrkStat(pMsg); 
 			MSGAPI_msgsend(trk);
 			break;
-			
+	#endif	
+	
 		case mmt:
 			memcpy(&Rmtd,RS422->param,sizeof(Rmtd));
 			imgID1 = Rmtd.ImgMtdStat;	
@@ -395,7 +393,8 @@ void* recv_msg(SENDST *RS422)
 			MSGAPI_msgsend(mtd);
 			break;
 
-		case mtdSelect:
+	#if !LINKAGE_FUNC
+		case mtdSelect:		
 			memcpy(&Rmmtselect,RS422->param,sizeof(Rmmtselect));
 			pMsg->MtdSelect[pMsg->SensorStat] = Rmmtselect.ImgMmtSelect;
 			app_ctrl_setMtdSelect(pMsg);
@@ -404,6 +403,8 @@ void* recv_msg(SENDST *RS422)
 				MSGAPI_msgsend(mtd);
 			}
 			break;
+	#endif
+			
 #endif
 		case sectrk:
 			memcpy(&Rsectrk,RS422->param,sizeof(Rsectrk));
