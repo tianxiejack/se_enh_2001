@@ -2231,7 +2231,7 @@ printf("[%s] : ==============>>>Enter ! \r\n",__FUNCTION__);
 	ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
 	
 
-	flag = OSA_semWait(&g_linkage_getPos, 200);
+	flag = OSA_semWait(&g_linkage_getPos, OSA_TIMEOUT_FOREVER/*200*/);
 	if( -1 == flag ) 
 	{		
 		printf("%s:LINE :%d    could not get the ball current Pos \n",__func__,__LINE__ );

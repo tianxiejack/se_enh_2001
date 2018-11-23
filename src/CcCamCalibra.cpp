@@ -258,7 +258,7 @@ int CcCamCalibra::Run()
 					trkmsg.cmd_ID = querypos;
 					ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
 
-					flag = OSA_semWait(&m_linkage_getPos, 200);
+					flag = OSA_semWait(&m_linkage_getPos, OSA_TIMEOUT_FOREVER/*200*/);
 					if( -1 == flag ) {
 						getCurrentPosFlag = false;
 						printf("%s:LINE :%d    could not get the ball current Pos \n",__func__,__LINE__ );
