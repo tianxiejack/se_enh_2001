@@ -244,7 +244,10 @@ protected:
 #else
 	static void mousemotion_event(GLint xMouse, GLint yMouse);
 #endif
-	int map1080p2normal(mouserectf *rectf);
+	int map1080p2normal_point(float *x, float *y);
+	int mapnormal2curchannel_point(float *x, float *y, int w, int h);
+	int map1080p2normal_rect(mouserectf *rect);
+	int mapnormal2curchannel_rect(mouserectf *rect, int w, int h);
 	static void mousemove_event(GLint xMouse, GLint yMouse);
 	static void mouse_event(int button, int state, int x, int y);
 	static void menu_event(int value);

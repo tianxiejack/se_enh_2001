@@ -1261,7 +1261,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_RECT_INFO> &mvList,std::vector<TRK_
 #endif
 
 bool CProcess::OnProcess(int chId, Mat &frame)
-{
+{				
 	int frcolor= extInCtrl->osdDrawColor;
 	int startx=0;
 	int starty=0;
@@ -1272,7 +1272,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	static int coastCnt = 1;
 	static int bDraw = 0;
 	int color = 0;
-
+			
 	static int changesensorCnt = 0;
 
 	if(extInCtrl->changeSensorFlag == 1)
@@ -1632,13 +1632,19 @@ osdindex++;	//acqRect
 				cvScalar(0,0,0,0), 2, 8 );
 
 			cv::Rect tmp;
+			mouserect recttmp;
 			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{		
 				#if LINKAGE_FUNC
-					tmp.x = (*plist).targetRect.x/2 + 960;
-					tmp.y = (*plist).targetRect.y/2;
-					tmp.width = (*plist).targetRect.width/2;
-					tmp.height = (*plist).targetRect.height/2;
+					recttmp.x = (*plist).targetRect.x;
+					recttmp.y = (*plist).targetRect.y;
+					recttmp.w = (*plist).targetRect.width;
+					recttmp.h = (*plist).targetRect.height;
+					recttmp = mapfullscreen2gun(recttmp);
+					tmp.x = recttmp.x;
+					tmp.y = recttmp.y;
+					tmp.width = recttmp.w;
+					tmp.height = recttmp.h;
 				#else
 					memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
 				#endif
@@ -1651,21 +1657,21 @@ osdindex++;	//acqRect
 
 		if(m_bMoveDetect)
 		{
-			#if LINKAGE_FUNC
+			/*#if LINKAGE_FUNC
 				preWarnRectBak[extInCtrl->SensorStat].x = preWarnRect[extInCtrl->SensorStat].x/2 + 960;
 				preWarnRectBak[extInCtrl->SensorStat].y = preWarnRect[extInCtrl->SensorStat].y/2;
 				preWarnRectBak[extInCtrl->SensorStat].width = preWarnRect[extInCtrl->SensorStat].width/2;
 				preWarnRectBak[extInCtrl->SensorStat].height = preWarnRect[extInCtrl->SensorStat].height/2;
-			#else
+			#else*/
 				memcpy(preWarnRectBak,preWarnRect,sizeof(preWarnRectBak));
-			#endif
+			//#endif
 			
 			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
 				Point( preWarnRectBak[extInCtrl->SensorStat].x, preWarnRectBak[extInCtrl->SensorStat].y ),
 				Point( preWarnRectBak[extInCtrl->SensorStat].x + preWarnRectBak[extInCtrl->SensorStat].width, 
 				preWarnRectBak[extInCtrl->SensorStat].y + preWarnRectBak[extInCtrl->SensorStat].height),
 				cvScalar(0,0,255,255), 2, 8 );
-
+			
 			detect_bak = detect_vect;
 			
 			mvIndexHandle(mvList,detect_bak,detectNum);
@@ -1690,6 +1696,7 @@ osdindex++;	//acqRect
 			
 			char tmpNum = 0;
 			cv::Rect tmp;
+			mouserect recttmp;
 			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
 				if( chooseDetect == tmpNum++)
@@ -1707,14 +1714,19 @@ osdindex++;	//acqRect
 				#endif	
 
 				#if LINKAGE_FUNC
-					tmp.x = (*plist).targetRect.x/2 + 960;
-					tmp.y = (*plist).targetRect.y/2;
-					tmp.width = (*plist).targetRect.width/2;
-					tmp.height = (*plist).targetRect.height/2;
+					recttmp.x = (*plist).targetRect.x;
+					recttmp.y = (*plist).targetRect.y;
+					recttmp.w = (*plist).targetRect.width;
+					recttmp.h = (*plist).targetRect.height;
+					recttmp = mapfullscreen2gun(recttmp);
+					tmp.x = recttmp.x;
+					tmp.y = recttmp.y;
+					tmp.width = recttmp.w;
+					tmp.height = recttmp.h;
 				#else
 					memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
-				#endif
 				
+				#endif
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], tmp ,color);
 			}
 			Osdflag[osdindex]=1;
