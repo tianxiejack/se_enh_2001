@@ -1632,12 +1632,25 @@ osdindex++;	//acqRect
 #if __MOVE_DETECT__
 	osdindex++;
 	{
+		unsigned int mtd_warningbox_Id;
+#if LINKAGE_FUNC
+		if(m_display.g_CurDisplayMode == PIC_IN_PIC)
+		{			
+				mtd_warningbox_Id = 0;
+		}
+		else
+		{
+				mtd_warningbox_Id = extInCtrl->SensorStat;
+		}
+#else
+		mtd_warningbox_Id = extInCtrl->SensorStat;
+#endif
 		if(Osdflag[osdindex])
 		{
-			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-				Point( preWarnRectBak[extInCtrl->SensorStat].x, preWarnRectBak[extInCtrl->SensorStat].y ),
-				Point( preWarnRectBak[extInCtrl->SensorStat].x + preWarnRectBak[extInCtrl->SensorStat].width,
-				preWarnRectBak[extInCtrl->SensorStat].y + preWarnRectBak[extInCtrl->SensorStat].height),
+			rectangle( m_display.m_imgOsd[mtd_warningbox_Id],
+				Point( preWarnRectBak[mtd_warningbox_Id].x, preWarnRectBak[mtd_warningbox_Id].y ),
+				Point( preWarnRectBak[mtd_warningbox_Id].x + preWarnRectBak[mtd_warningbox_Id].width,
+				preWarnRectBak[mtd_warningbox_Id].y + preWarnRectBak[mtd_warningbox_Id].height),
 				cvScalar(0,0,0,0), 2, 8 );
 
 			cv::Rect tmp;
@@ -1658,7 +1671,7 @@ osdindex++;	//acqRect
 					memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
 				#endif
 
-				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], tmp ,0);
+				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
 			}
 			
 			Osdflag[osdindex]=0;
@@ -1666,19 +1679,12 @@ osdindex++;	//acqRect
 
 		if(m_bMoveDetect)
 		{
-			/*#if LINKAGE_FUNC
-				preWarnRectBak[extInCtrl->SensorStat].x = preWarnRect[extInCtrl->SensorStat].x/2 + 960;
-				preWarnRectBak[extInCtrl->SensorStat].y = preWarnRect[extInCtrl->SensorStat].y/2;
-				preWarnRectBak[extInCtrl->SensorStat].width = preWarnRect[extInCtrl->SensorStat].width/2;
-				preWarnRectBak[extInCtrl->SensorStat].height = preWarnRect[extInCtrl->SensorStat].height/2;
-			#else*/
-				memcpy(preWarnRectBak,preWarnRect,sizeof(preWarnRectBak));
-			//#endif
+			memcpy(preWarnRectBak,preWarnRect,sizeof(preWarnRectBak));
 			
-			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-				Point( preWarnRectBak[extInCtrl->SensorStat].x, preWarnRectBak[extInCtrl->SensorStat].y ),
-				Point( preWarnRectBak[extInCtrl->SensorStat].x + preWarnRectBak[extInCtrl->SensorStat].width, 
-				preWarnRectBak[extInCtrl->SensorStat].y + preWarnRectBak[extInCtrl->SensorStat].height),
+			rectangle( m_display.m_imgOsd[mtd_warningbox_Id],
+				Point( preWarnRectBak[mtd_warningbox_Id].x, preWarnRectBak[mtd_warningbox_Id].y ),
+				Point( preWarnRectBak[mtd_warningbox_Id].x + preWarnRectBak[mtd_warningbox_Id].width, 
+				preWarnRectBak[mtd_warningbox_Id].y + preWarnRectBak[mtd_warningbox_Id].height),
 				cvScalar(0,0,255,255), 2, 8 );
 			
 			detect_bak = detect_vect;
@@ -1736,7 +1742,7 @@ osdindex++;	//acqRect
 					memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
 				
 				#endif
-				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat], tmp ,color);
+				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,color);
 			}
 			Osdflag[osdindex]=1;
 		}
