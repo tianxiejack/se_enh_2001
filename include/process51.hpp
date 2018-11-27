@@ -221,7 +221,10 @@ public:
 	int m_tempXbak, m_tempYbak, m_rectnbak[MAX_CHAN];
 	char timearr[128];
 	char timearrbak[128];
-	int timexbak, timeybak;;
+	int timexbak, timeybak;
+
+	PointNode polyRectbak[MAX_CHAN][100];
+	int polytempXbak, polytempYbak, polyrectnbak[MAX_CHAN];
 
 };
 

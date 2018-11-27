@@ -1633,6 +1633,8 @@ osdindex++;	//acqRect
 	osdindex++;
 	{
 		unsigned int mtd_warningbox_Id;
+		Osd_cvPoint startwarnpoly,endwarnpoly;
+		int polwarn_flag = 0;
 #if LINKAGE_FUNC
 		if(m_display.g_CurDisplayMode == PIC_IN_PIC)
 		{			
@@ -1647,11 +1649,22 @@ osdindex++;	//acqRect
 #endif
 		if(Osdflag[osdindex])
 		{
+		/*
 			rectangle( m_display.m_imgOsd[mtd_warningbox_Id],
 				Point( preWarnRectBak[mtd_warningbox_Id].x, preWarnRectBak[mtd_warningbox_Id].y ),
 				Point( preWarnRectBak[mtd_warningbox_Id].x + preWarnRectBak[mtd_warningbox_Id].width,
 				preWarnRectBak[mtd_warningbox_Id].y + preWarnRectBak[mtd_warningbox_Id].height),
 				cvScalar(0,0,0,0), 2, 8 );
+		*/
+			for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
+			{
+				polwarn_flag = (i+1)%polwarn_count_bak[mtd_warningbox_Id];
+				startwarnpoly.x = polWarnRectBak[mtd_warningbox_Id][i].x;
+				startwarnpoly.y = polWarnRectBak[mtd_warningbox_Id][i].y;
+				endwarnpoly.x = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].x;
+				endwarnpoly.y = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].y;
+				DrawcvLine(m_display.m_imgOsd[mtd_warningbox_Id],&startwarnpoly,&endwarnpoly,0,1);
+			}
 
 			cv::Rect tmp;
 			mouserect recttmp;
@@ -1679,6 +1692,7 @@ osdindex++;	//acqRect
 
 		if(m_bMoveDetect)
 		{
+		/*
 			memcpy(preWarnRectBak,preWarnRect,sizeof(preWarnRectBak));
 			
 			rectangle( m_display.m_imgOsd[mtd_warningbox_Id],
@@ -1686,7 +1700,19 @@ osdindex++;	//acqRect
 				Point( preWarnRectBak[mtd_warningbox_Id].x + preWarnRectBak[mtd_warningbox_Id].width, 
 				preWarnRectBak[mtd_warningbox_Id].y + preWarnRectBak[mtd_warningbox_Id].height),
 				cvScalar(0,0,255,255), 2, 8 );
-			
+		*/
+			memcpy(&polwarn_count_bak, &polwarn_count, sizeof(polwarn_count));
+			memcpy(&polWarnRectBak, &polWarnRect, sizeof(polWarnRect));
+			for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
+			{
+				polwarn_flag = (i+1)%polwarn_count_bak[mtd_warningbox_Id];
+				startwarnpoly.x = polWarnRectBak[mtd_warningbox_Id][i].x;
+				startwarnpoly.y = polWarnRectBak[mtd_warningbox_Id][i].y;
+				endwarnpoly.x = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].x;
+				endwarnpoly.y = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].y;
+				DrawcvLine(m_display.m_imgOsd[mtd_warningbox_Id],&startwarnpoly,&endwarnpoly,3,1);
+			}
+		
 			detect_bak = detect_vect;
 			
 			mvIndexHandle(mvList,detect_bak,detectNum);
@@ -1886,6 +1912,85 @@ osdindex++;	//acqRect
 					cvScalar(0,0,255,255), 1, 8);
 		}
 		m_draw = 0;
+	}
+//polygon mtd area
+unsigned int drawpolyRectId ;   
+#if LINKAGE_FUNC
+	if(m_display.g_CurDisplayMode == PIC_IN_PIC)
+	{			
+		drawpolyRectId = 0;
+	}
+	else
+	{
+		drawpolyRectId = extInCtrl->SensorStat;
+	}
+#else
+	drawpolyRectId = extInCtrl->SensorStat;
+#endif
+	if(pol_draw)
+	{
+		Osd_cvPoint start;
+		Osd_cvPoint end;
+		int polycolor= 3;
+
+		if(1 == polyrectnbak[drawpolyRectId])
+		{
+			start.x = polyRectbak[drawpolyRectId][0].x;
+			start.y = polyRectbak[drawpolyRectId][0].y;
+			end.x = polytempXbak;
+			end.y = polytempYbak;
+			DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,0,0);
+		}
+		else if(polyrectnbak[drawpolyRectId] > 1)
+		{
+			int i = 0;
+			for(i = 0; i < polyrectnbak[drawpolyRectId]-1; i++)
+			{
+				start.x = polyRectbak[drawpolyRectId][i].x;
+				start.y = polyRectbak[drawpolyRectId][i].y;
+				end.x = polyRectbak[drawpolyRectId][i+1].x;
+				end.y = polyRectbak[drawpolyRectId][i+1].y;
+				DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,0,1);
+		
+			}
+			start.x = polyRectbak[drawpolyRectId][i].x;
+			start.y = polyRectbak[drawpolyRectId][i].y;
+			end.x = polytempXbak;
+			end.y = polytempYbak;
+			DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,0,1);
+		}
+
+		memcpy(polyRectbak, polRect, sizeof(polRect));
+		memcpy(polyrectnbak, pol_rectn, sizeof(pol_rectn));
+		polytempXbak = pol_tempX;
+		polytempYbak = pol_tempY;
+		if(1 == polyrectnbak[drawpolyRectId])
+		{
+			start.x = polyRectbak[drawpolyRectId][0].x;
+			start.y = polyRectbak[drawpolyRectId][0].y;
+			end.x = polytempXbak;
+			end.y = polytempYbak;
+			DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,polycolor,1);
+		}
+		else if(polyrectnbak[drawpolyRectId] > 1)
+		{
+			int i = 0;
+			for(i = 0; i < polyrectnbak[drawpolyRectId]-1; i++)
+			{
+				start.x = polyRectbak[drawpolyRectId][i].x;
+				start.y = polyRectbak[drawpolyRectId][i].y;
+				end.x = polyRectbak[drawpolyRectId][i+1].x;
+				end.y = polyRectbak[drawpolyRectId][i+1].y;
+				DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,polycolor,1);
+		
+			}
+			start.x = polyRectbak[drawpolyRectId][i].x;
+			start.y = polyRectbak[drawpolyRectId][i].y;
+			end.x = polytempXbak;
+			end.y = polytempYbak;
+			DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,polycolor,1);
+		}
+		pol_draw = 0;
 	}
 	
 #if LINKAGE_FUNC

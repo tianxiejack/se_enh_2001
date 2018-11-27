@@ -87,6 +87,7 @@ typedef struct _ds_init_param{
 	void (*menufunc)(int value);
 	void (*setrigion)(int value);
 	void (*rigionsel)(int value);
+	void (*rigionpolygon)(int value);
 #if __MOVE_DETECT__
 	void (*maxnum)(int value);
 	void (*maxsize)(int value);

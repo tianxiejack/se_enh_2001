@@ -67,6 +67,10 @@ typedef struct RectfNode {
     int y2;  
 }RectfNode;
 
+typedef struct{  
+    int x;  
+    int y;   
+}PointNode;
 
 class CVideoProcess
 {
@@ -176,6 +180,10 @@ public:
 	int m_tempX, m_tempY, m_rectn[MAX_CHAN];
 	int setrigon_flag;
 
+	int pol_draw;
+	PointNode polRect[MAX_CHAN][100];
+	int pol_tempX, pol_tempY, pol_rectn[MAX_CHAN];
+	int setrigon_polygon;
 protected:
 	MultiChVideo MultiCh;
 	//BigChVideo		BigChannel;
@@ -257,6 +265,7 @@ protected:
 	static void menu_event(int value);
 	static void processrigionMenu(int value);
 	static void processrigionselMenu(int value);
+	static void processrigionpolygonMenu(int value);
 #if __MOVE_DETECT__
 	static void processmaxnumMenu(int value);
 	static void processmaxtargetsizeMenu(int value);
@@ -297,6 +306,9 @@ protected: //track
 	UTC_Rect preAcpSR;
 	UTC_Rect preWarnRect[MAX_CHAN];
 	UTC_Rect preWarnRectBak[MAX_CHAN];
+	PointNode polWarnRect[MAX_CHAN][100];
+	PointNode polWarnRectBak[MAX_CHAN][100];
+	int polwarn_count[MAX_CHAN], polwarn_count_bak[MAX_CHAN];
 	UTC_Rect MoveAcpSR;
 	UTC_Rect TRKMoveAcpSR;
 	int			    m_intervalFrame;

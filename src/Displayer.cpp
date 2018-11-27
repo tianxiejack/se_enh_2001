@@ -958,6 +958,8 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("Rigion1",0);
 		int rigsel_submenu = glutCreateMenu(m_initPrm.rigionsel);
 		glutAddMenuEntry("Rigion1",0);
+		int rigpolygon_submenu = glutCreateMenu(m_initPrm.rigionpolygon);
+		glutAddMenuEntry("Rigion1",0);
 		int tminsi_submenu = glutCreateMenu(m_initPrm.minsize);
 		glutAddMenuEntry("100",0);
 		glutAddMenuEntry("1000",1);
@@ -993,6 +995,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		int mtd_submenu = glutCreateMenu(NULL);
 		glutAddSubMenu("Rigion Set",rig_submenu);
 		glutAddSubMenu("Rigion Select",rigsel_submenu);
+		glutAddSubMenu("Rigion Set Polygon",rigpolygon_submenu);
 		glutAddSubMenu("Detect Condition",dc_submenu);
 #if __MOVE_DETECT__
 		glutAddSubMenu("Max Num",maxnum_submenu);
@@ -1085,6 +1088,8 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("Rigion1",0);
 		int t_rigsel_submenu = glutCreateMenu(m_initPrm.rigionsel);
 		glutAddMenuEntry("Rigion1",0);
+		int t_rigpolygon_submenu = glutCreateMenu(m_initPrm.rigionpolygon);
+		glutAddMenuEntry("Rigion1",0);
 		int t_dc_submenu = glutCreateMenu(processdetectcondMenu);
 		glutAddMenuEntry("Condition1",0);
 		glutAddMenuEntry("Condition2",1);
@@ -1108,6 +1113,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddSubMenu("Auto Detect Enable",t_sub_menu2);
 		glutAddSubMenu("Rigion Set",t_rig_submenu);
 		glutAddSubMenu("Rigion Select",t_rigsel_submenu);
+		glutAddSubMenu("Rigion Set Polygon",t_rigpolygon_submenu);
 		glutAddSubMenu("Detect Condition",t_dc_submenu);
 		glutAddSubMenu("Redetect after lost",t_redetect_submenu);
 #if __MOVE_DETECT__
