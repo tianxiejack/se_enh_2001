@@ -1649,13 +1649,6 @@ osdindex++;	//acqRect
 #endif
 		if(Osdflag[osdindex])
 		{
-		/*
-			rectangle( m_display.m_imgOsd[mtd_warningbox_Id],
-				Point( preWarnRectBak[mtd_warningbox_Id].x, preWarnRectBak[mtd_warningbox_Id].y ),
-				Point( preWarnRectBak[mtd_warningbox_Id].x + preWarnRectBak[mtd_warningbox_Id].width,
-				preWarnRectBak[mtd_warningbox_Id].y + preWarnRectBak[mtd_warningbox_Id].height),
-				cvScalar(0,0,0,0), 2, 8 );
-		*/
 			for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
 			{
 				polwarn_flag = (i+1)%polwarn_count_bak[mtd_warningbox_Id];
@@ -1692,15 +1685,6 @@ osdindex++;	//acqRect
 
 		if(m_bMoveDetect)
 		{
-		/*
-			memcpy(preWarnRectBak,preWarnRect,sizeof(preWarnRectBak));
-			
-			rectangle( m_display.m_imgOsd[mtd_warningbox_Id],
-				Point( preWarnRectBak[mtd_warningbox_Id].x, preWarnRectBak[mtd_warningbox_Id].y ),
-				Point( preWarnRectBak[mtd_warningbox_Id].x + preWarnRectBak[mtd_warningbox_Id].width, 
-				preWarnRectBak[mtd_warningbox_Id].y + preWarnRectBak[mtd_warningbox_Id].height),
-				cvScalar(0,0,255,255), 2, 8 );
-		*/
 			memcpy(&polwarn_count_bak, &polwarn_count, sizeof(polwarn_count));
 			memcpy(&polWarnRectBak, &polWarnRect, sizeof(polWarnRect));
 			for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
