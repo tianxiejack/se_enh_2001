@@ -485,7 +485,9 @@ void CVideoProcess::processtimeMenu(int value)
 
 void CVideoProcess::processsmanualcarliMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	printf("%s start, value = %d\n", __FUNCTION__, value);
+	
+	
 }
 
 void CVideoProcess::processsautocarliMenu(int value)
@@ -1358,7 +1360,7 @@ int CVideoProcess::init()
 	
 
 //#if (!__IPC__)
-	dsInit.keyboardfunc = keyboard_event; // keySpecial_event
+	dsInit.keyboardfunc = keyboard_event; 
 	dsInit.keySpecialfunc = keySpecial_event;
 //#endif
 	

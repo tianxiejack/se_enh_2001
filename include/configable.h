@@ -9,6 +9,20 @@
 
 //#define LINKAGE_FUNC				1
 
+#if LINKAGE_FUNC 
+	typedef enum _MenuDisplay{
+		MENU_PIP=0,
+		MENU_SBS=1,
+		MENU_GUN=2,
+		MENU_BALL=3,
+
+		MENU_DISPLAY_COUNT
+		
+	}MenuDisplay;
+
+
+#endif
+
 enum devvideo{
 	video_gaoqing0=0,
 	video_gaoqing,

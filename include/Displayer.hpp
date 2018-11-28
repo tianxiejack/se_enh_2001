@@ -2,12 +2,12 @@
 #ifndef DISPLAYER_HPP_
 #define DISPLAYER_HPP_
 
-#define DS_RENDER_MAX		(9)
-#define DS_CHAN_MAX         (5)
+#define DS_RENDER_MAX	       (9)
+#define DS_CHAN_MAX            (5)
 //4
-#define DS_CUSTREAM_CNT		(4)
+#define DS_CUSTREAM_CNT	(4)
 
-#define DS_DC_CNT		(5)
+#define DS_DC_CNT		       (5)
 #include "osa.h"
 #include <osa_sem.h>
 #include <cuda.h>
@@ -112,8 +112,11 @@ typedef struct _ds_init_param{
 		PIC_IN_PIC,
 		SIDE_BY_SIDE,
 		LEFT_BALL_RIGHT_GUN,
+		GUN_FULL_SCREEN,
+		BALL_FULL_SCREEN,
 		TOTAL_MODE_COUNT
 	}DISPLAYMODE;
+
 #endif
 
 
@@ -192,6 +195,7 @@ public:
 	bool m_bFullScreen;
 	bool m_bOsd;
 	bool m_crossOsd;
+	bool savePic_once;
 	Mat m_disOsd[DS_DC_CNT];
 	Mat m_imgOsd[DS_DC_CNT];
 	DS_Size m_videoSize[DS_CHAN_MAX];

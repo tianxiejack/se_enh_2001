@@ -1793,7 +1793,7 @@ osdindex++;	//acqRect
 		}	
 	}
 //========================================================
-#if 1
+#if 0
 	{
 		recIn.x=480;
  		recIn.y=270;
@@ -2718,7 +2718,7 @@ void CProcess::OnSpecialKeyDwn(int key,int x, int y)
 
 void CProcess::OnKeyDwn(unsigned char key)
 {
-char flag = 0;
+	char flag = 0;
 	CMD_EXT *pIStuts = extInCtrl;
 	CMD_EXT tmpCmd = {0};
 
@@ -2863,6 +2863,11 @@ char flag = 0;
 				Set_SelectByRect = true ;
 			//pIStuts->ImgZoomStat[0]=(pIStuts->ImgZoomStat[0]+1)%2;
 			//msgdriv_event(MSGID_EXT_INPUT_ENZOOM, NULL);
+		}
+
+		if(key =='n' || key == 'N') {
+			m_display.savePic_once = true;
+		
 		}
 		
 		
