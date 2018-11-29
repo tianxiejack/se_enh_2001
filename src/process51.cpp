@@ -2866,8 +2866,9 @@ void CProcess::OnKeyDwn(unsigned char key)
 		}
 
 		if(key =='n' || key == 'N') {
+#if LINKAGE_FUNC
 			m_display.savePic_once = true;
-		
+#endif
 		}
 		
 		

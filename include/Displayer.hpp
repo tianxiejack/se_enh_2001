@@ -122,13 +122,13 @@ typedef struct _ds_init_param{
 
 class CDisplayer 
 {
+
 #if LINKAGE_FUNC
 public:
 	cv::Mat gun_UndistorMat;
-	char savePicName[20];
 	cv::Mat gun_BMP;
     DISPLAYMODE displayMode;
-
+    char savePicName[20];
 	int videonamex, videonamey, timex, timey, videonamefs;
 
 	typedef enum _WindowSize{
@@ -195,7 +195,9 @@ public:
 	bool m_bFullScreen;
 	bool m_bOsd;
 	bool m_crossOsd;
+#if LINKAGE_FUNC
 	bool savePic_once;
+#endif
 	Mat m_disOsd[DS_DC_CNT];
 	Mat m_imgOsd[DS_DC_CNT];
 	DS_Size m_videoSize[DS_CHAN_MAX];

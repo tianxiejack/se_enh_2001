@@ -134,10 +134,9 @@ CDisplayer::CDisplayer()
 
 #if LINKAGE_FUNC
 	linkage_init();
+	savePic_once = false;
 #endif
 
-	savePic_once = false;
-	
 }
 
 CDisplayer::~CDisplayer()
@@ -1418,7 +1417,7 @@ void CDisplayer::display(Mat frame, int chId, int code)
 	cv::imshow("111",frame_gray);
 	cv::waitKey(1);
 */
-
+#if LINKAGE_FUNC
 if(chId == 0 && savePic_once == true){
 		savePic_once = false;
 		memset(savePicName, 0, 20);
@@ -1428,7 +1427,7 @@ if(chId == 0 && savePic_once == true){
 		cvtColor(frame,Dst,CV_YUV2BGR_YUYV);		
 		imwrite(savePicName,Dst);
 }
-
+#endif
 
 
 	if(nChannel == 1 || code == -1){
