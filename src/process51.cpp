@@ -1733,8 +1733,8 @@ osdindex++;	//acqRect
 				#if LINKAGE_FUNC
 					if(color == 6)
 					{
-						reMapCoords(((*plist).targetRect.x + (*plist).targetRect.width/2),
-										((*plist).targetRect.y - (*plist).targetRect.height/2),false);
+						reMapCoords(((*plist).targetRect.x + (*plist).targetRect.width/2) + 480,
+										((*plist).targetRect.y - (*plist).targetRect.height/2) - 270 ,false);
 					}
 				#endif	
 

@@ -1996,6 +1996,7 @@ void	CVideoProcess::initMvDetect()
 		m_pMovDetector->setWarnMode(WARN_WARN_MODE, i);
 		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
 	}
+
 }
 
 void	CVideoProcess::DeInitMvDetect()
@@ -2024,7 +2025,7 @@ void CVideoProcess::NotifyFunc(void *context, int chId)
 #endif
 	
 	//pParent->m_display.m_bOsd = true;
-	//pThis->m_display.UpDateOsd(1);
+	//pThis->m_display.UpDateOsd(0);
 }
 #endif
 
