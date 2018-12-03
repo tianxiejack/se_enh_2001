@@ -28,10 +28,10 @@
 #include "arm_neon.h"
 
 #if LINKAGE_FUNC
-	#include "CcCamCalibra.h"
-	MenuDisplay g_displayMode = MENU_SBS;
-	SingletonSysParam* SingletonSysParam::m_uniqueInstance = SingletonSysParam::getInstance();
-	SingletonSysParam* g_sysParam = SingletonSysParam::getInstance();
+#include "CcCamCalibra.h"
+MenuDisplay g_displayMode = MENU_SBS;
+SingletonSysParam* SingletonSysParam::m_uniqueInstance = SingletonSysParam::getInstance();
+SingletonSysParam* g_sysParam = SingletonSysParam::getInstance();
 #endif
 
 #define HISTEN 0
@@ -144,11 +144,9 @@ CDisplayer::CDisplayer()
 	g_sysParam->getSysParam().gunposition.general.height = 270;
 	g_sysParam->setGunSize(SingletonSysParam::ONE_4);
 	g_sysParam->setGunPosition(SingletonSysParam::RU);
-	
+	savePic_once = false;
 #endif
 
-	savePic_once = false;
-	
 }
 
 CDisplayer::~CDisplayer()
@@ -1566,6 +1564,7 @@ void CDisplayer::display(Mat frame, int chId, int code)
 	cv::waitKey(1);
 */
 
+#if LINKAGE_FUNC
 if(chId == 0 && savePic_once == true){
 		savePic_once = false;
 		memset(savePicName, 0, 20);
@@ -1575,9 +1574,7 @@ if(chId == 0 && savePic_once == true){
 		cvtColor(frame,Dst,CV_YUV2BGR_YUYV);		
 		imwrite(savePicName,Dst);
 }
-
-
-
+#endif
 	if(nChannel == 1 || code == -1){
 		cudaMalloc_share((void**)&d_src_rgb, byteCount, chId + DS_CHAN_MAX);
 		firbuffer= OSA_bufGetEmpty(&(tskSendBuffir), &bufId, OSA_TIMEOUT_NONE);
@@ -2362,11 +2359,10 @@ void CDisplayer::linkageSwitchMode(void)
 			m_renders[1].displayrect.x =  g_sysParam->getSysParam().gunposition.leftUp.x;//vdisWH[0][0]*3/4;
 			m_renders[1].displayrect.y =  g_sysParam->getSysParam().gunposition.leftUp.y;//vdisWH[0][1]*3/4;
 			m_renders[1].displayrect.w = g_sysParam->getSysParam().gunposition.general.width;//vdisWH[0][0]/4;
-			m_renders[1].displayrect.h =  g_sysParam->getSysParam().gunposition.general.height;//vdisWH[0][1]/4;	
-			
+			m_renders[1].displayrect.h =  g_sysParam->getSysParam().gunposition.general.height;//vdisWH[0][1]/4;			
+
 			//RenderVideoOnOrthoView(VIDEO_0, 0, 0, 1920, 1080);
 			//RenderVideoOnOrthoView(VIDEO_1, 1440, 810, 480, 270);
-
 			if( g_CurDisplayMode != PIC_IN_PIC)
 				g_CurDisplayMode = PIC_IN_PIC;
 			

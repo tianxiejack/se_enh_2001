@@ -9,6 +9,7 @@
 
 //#define LINKAGE_FUNC				1
 
+
 #if LINKAGE_FUNC
 
 typedef struct _Resolution{
@@ -189,8 +190,6 @@ class SingletonSysParam {
 };
 
 #endif
-
-
 
 #if LINKAGE_FUNC 
 	typedef enum _MenuDisplay{
