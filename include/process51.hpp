@@ -10,18 +10,6 @@
 
 using namespace cv;
 
-#if LINKAGE_FUNC
-
-typedef struct _Resolution{
-	int raw, col ;
-}Resolution;
-
-typedef struct _SysParam{
-	Resolution gun_camera;
-	Resolution ball_camera;
-}SysParam;
-
-#endif
 
 class CProcess : public CVideoProcess
 {

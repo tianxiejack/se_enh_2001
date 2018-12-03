@@ -26,7 +26,9 @@ int CVideoProcess::m_iTrackLostCnt = 0;
 int64 CVideoProcess::tstart = 0;
 static int count=0;
 int ScalerLarge,ScalerMid,ScalerSmall;
-
+#if LINKAGE_FUNC
+	extern SingletonSysParam* g_sysParam;
+#endif
 
 int CVideoProcess::MAIN_threadCreate(void)
 {
@@ -485,12 +487,52 @@ void CVideoProcess::processtimeMenu(int value)
 
 void CVideoProcess::processsmanualcarliMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	//printf("%s start, value = %d\n", __FUNCTION__, value);
+	switch(value){
+		case 0:
+			g_sysParam->getSysParam().cameracalibrate.Enable_handleCalibrate = true;
+			g_sysParam->getSysParam().cameracalibrate.Enable_Undistortion = true;
+			break;
+		case 1:
+			g_sysParam->getSysParam().cameracalibrate.Enable_cloneSrcImage = true;
+			break;
+		case 2:
+			g_sysParam->getSysParam().cameracalibrate.Enable_calculateMatrix= true;
+			break;
+		case 3:
+			g_sysParam->getSysParam().cameracalibrate.Enable_saveParameter= true;
+			break;
+		default :
+			break;
+	}
+	
+	
+	
 }
 
 void CVideoProcess::processsautocarliMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	//printf("%s start, value=%d\n", __FUNCTION__, value);
+	switch(value){
+		#if 0
+		case 0:
+			g_sysParam->getSysParam().cameracalibrate.Enable_handleCalibrate = true;
+			g_sysParam->getSysParam().cameracalibrate.Enable_Undistortion = true;
+			break;
+		#endif
+		case 1:
+			g_sysParam->getSysParam().cameracalibrate.Enable_cloneSrcImage = true;
+			break;
+		case 2:
+			g_sysParam->getSysParam().cameracalibrate.Enable_calculateMatrix= true;
+			break;
+		case 3:
+			g_sysParam->getSysParam().cameracalibrate.Enable_saveParameter= true;
+			break;
+		default :
+			break;
+	}
+	
 }
 
 int CVideoProcess::click_legal(int x, int y)
@@ -964,7 +1006,7 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 
 		//pThis->OnMouseLeftDwn(x, y);   // add by swj
 		
-		if(pThis->open_handleCalibra) // Press 'y' or 'Y' , set this flag to 1
+		if(pThis->open_handleCalibra || g_sysParam->isEnable_HandleCalibrate()) // Press 'y' or 'Y' , set this flag to 1
 		{
 			pThis->OnMouseLeftDwn(x, y);
 		}
@@ -1358,7 +1400,7 @@ int CVideoProcess::init()
 	
 
 //#if (!__IPC__)
-	dsInit.keyboardfunc = keyboard_event; // keySpecial_event
+	dsInit.keyboardfunc = keyboard_event; 
 	dsInit.keySpecialfunc = keySpecial_event;
 //#endif
 	
@@ -1776,12 +1818,8 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 		}
 	}
 
-
-
-
-	#if LINKAGE_FUNC
-	
-			if(m_camCalibra->start_cloneVideoSrc == true) 
+	#if LINKAGE_FUNC	
+			if(	m_camCalibra->start_cloneVideoSrc == true || g_sysParam->isEnable_cloneSrcImage() ) 
 			{
 				//m_camCalibra->start_cloneVideoSrc = false;
 				//printf("%s : cloneVideoSrc \n",__func__);

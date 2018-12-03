@@ -7,11 +7,15 @@
 
 #include "CcCamCalibra.h"
 #include <sys/time.h>
-
+#include "configable.h"
 #include "Ipcctl.h"
 
 CamParameters g_camParams;
 OSA_SemHndl m_linkage_getPos;
+#if LINKAGE_FUNC
+	extern SingletonSysParam* g_sysParam;
+#endif
+
 CcCamCalibra::CcCamCalibra():scale(0.5),bCal(false),ret1(false),ret2(false),
 	panPos(1024), tiltPos(13657), zoomPos(16),writeParam_flag(false),
 	Set_Handler_Calibra(false),bool_Calibrate(false),start_cloneVideoSrc(false)
@@ -204,7 +208,7 @@ int CcCamCalibra::Run()
 
 	if( (!ball_frame.empty()) && (!gun_frame.empty()) )
 	{
-		if( Set_Handler_Calibra && bool_Calibrate ) {		
+		if( (Set_Handler_Calibra || g_sysParam->isEnable_Undistortion() ) && (bool_Calibrate || g_sysParam->isEnable_calculateMatrix()) ) {		
 
 			printf("%s : start manual calibrate \n",__func__);
 			
@@ -234,9 +238,10 @@ int CcCamCalibra::Run()
 				}
 			}
 		}
+		
 		else 
 		{	
-			if( bool_Calibrate ) {
+			if( bool_Calibrate || g_sysParam->isEnable_calculateMatrix()) {
 				printf("%s : start auto calibrate \n",__func__);
 				vector<KeyPoint> keypoints_1, keypoints_2;
 				vector<DMatch> matches;
@@ -252,6 +257,7 @@ int CcCamCalibra::Run()
 						pts.push_back(pt);
 					}					
 					bool_Calibrate = false;
+					g_sysParam->getSysParam().cameracalibrate.Enable_calculateMatrix = false;
 					cout << "match points " << matches.size() << endl;
 //-----------------------------------------------------------------------------------------------------
 					SENDST trkmsg={0};

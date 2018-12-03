@@ -28,6 +28,7 @@ SENDST trkmsg={0};
 #if LINKAGE_FUNC
 	extern CamParameters g_camParams;
 	Point dest_ballPoint = Point(-100,-100);
+	extern SingletonSysParam* g_sysParam;
 #endif
 void inputtmp(unsigned char cmdid)
 {
@@ -1763,7 +1764,7 @@ osdindex++;	//acqRect
 #if LINKAGE_FUNC
 	osdindex++;
 	{		
-		if( open_handleCalibra == true ){  
+		if( open_handleCalibra == true || g_sysParam->isEnable_HandleCalibrate()){  
 			sprintf(show_key[key_point1_cnt], "%d", key_point1_cnt);	
 			putText(m_display.m_imgOsd[1],show_key[key_point1_cnt],key1_pos,FONT_HERSHEY_TRIPLEX,0.8, cvScalar(255,0,0,255), 1);	
 			cv::circle( m_display.m_imgOsd[1], key1_pos, 3 , cvScalar(255,0,255,255), 2, 8, 0);
@@ -1793,7 +1794,7 @@ osdindex++;	//acqRect
 		}	
 	}
 //========================================================
-#if 1
+#if 0
 	{
 		recIn.x=480;
  		recIn.y=270;
@@ -2718,7 +2719,7 @@ void CProcess::OnSpecialKeyDwn(int key,int x, int y)
 
 void CProcess::OnKeyDwn(unsigned char key)
 {
-char flag = 0;
+	char flag = 0;
 	CMD_EXT *pIStuts = extInCtrl;
 	CMD_EXT tmpCmd = {0};
 
@@ -2863,6 +2864,11 @@ char flag = 0;
 				Set_SelectByRect = true ;
 			//pIStuts->ImgZoomStat[0]=(pIStuts->ImgZoomStat[0]+1)%2;
 			//msgdriv_event(MSGID_EXT_INPUT_ENZOOM, NULL);
+		}
+
+		if(key =='n' || key == 'N') {
+			m_display.savePic_once = true;
+		
 		}
 		
 		

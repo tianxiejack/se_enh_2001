@@ -28,7 +28,10 @@
 #include "arm_neon.h"
 
 #if LINKAGE_FUNC
-#include "CcCamCalibra.h"
+	#include "CcCamCalibra.h"
+	MenuDisplay g_displayMode = MENU_SBS;
+	SingletonSysParam* SingletonSysParam::m_uniqueInstance = SingletonSysParam::getInstance();
+	SingletonSysParam* g_sysParam = SingletonSysParam::getInstance();
 #endif
 
 #define HISTEN 0
@@ -43,6 +46,7 @@ extern CProcess* plat;
 
 #if LINKAGE_FUNC
 extern CamParameters g_camParams;
+
 #endif
 
 double capTime = 0;
@@ -132,7 +136,18 @@ CDisplayer::CDisplayer()
 
 #if LINKAGE_FUNC
 	linkage_init();
+	g_sysParam->getSysParam().gunposition.leftUp.x = 1440;
+	g_sysParam->getSysParam().gunposition.leftUp.y = 810;
+	g_sysParam->getSysParam().gun_camera.col = 1920;
+	g_sysParam->getSysParam().gun_camera.raw = 1080;
+	g_sysParam->getSysParam().gunposition.general.width = 480;
+	g_sysParam->getSysParam().gunposition.general.height = 270;
+	g_sysParam->setGunSize(SingletonSysParam::ONE_4);
+	g_sysParam->setGunPosition(SingletonSysParam::RU);
+	
 #endif
+
+	savePic_once = false;
 	
 }
 
@@ -382,6 +397,24 @@ void CDisplayer::processLinkageMenu(int value)
 void CDisplayer::processDMMenu(int value)
 {
 	printf("%s start, value=%d\n", __FUNCTION__, value);
+	switch(value) {
+		case 0:		
+			g_displayMode = MENU_PIP;		
+			break;
+		case 1:
+			g_displayMode = MENU_SBS;		
+			break;
+		case 2:
+			g_displayMode = MENU_GUN;		
+			break;
+		case 3:
+			g_displayMode = MENU_BALL;	
+			break;
+		default:
+			break;
+
+	}
+	
 }
 
 void CDisplayer::processgunResMenu(int value)
@@ -397,11 +430,147 @@ void CDisplayer::processballResMenu(int value)
 void CDisplayer::processposMenu(int value)
 {
 	printf("%s start, value=%d\n", __FUNCTION__, value);
+	if(g_sysParam->getSysParam().gun_camera.col != 0) {
+		switch(value) {
+			case 0: // LU
+		#if 0
+				g_sysParam->getSysParam().gunposition.leftUp.x = 0;
+				g_sysParam->getSysParam().gunposition.leftUp.y = g_sysParam->getSysParam().gun_camera.raw*3/4;
+		#else
+				if(g_sysParam->getGunSize(SingletonSysParam::ONE_4)== 1){					
+					g_sysParam->getSysParam().gunposition.leftUp.x = 0;
+					g_sysParam->getSysParam().gunposition.leftUp.y = g_sysParam->getSysParam().gun_camera.raw*3/4;
+				}
+				else if (g_sysParam->getGunSize(SingletonSysParam::ONE_3)== 1){					
+					g_sysParam->getSysParam().gunposition.leftUp.x = 0;
+					g_sysParam->getSysParam().gunposition.leftUp.y = g_sysParam->getSysParam().gun_camera.raw*2/3;
+
+				}
+				else
+				{
+					g_sysParam->getSysParam().gunposition.leftUp.x = 0;
+					g_sysParam->getSysParam().gunposition.leftUp.y = g_sysParam->getSysParam().gun_camera.raw/2;
+				}
+		#endif
+				g_sysParam->setGunPosition(SingletonSysParam::LU);
+				break;
+			case 1: // RU
+				if(g_sysParam->getGunSize(SingletonSysParam::ONE_4)== 1){					
+					g_sysParam->getSysParam().gunposition.leftUp.x = g_sysParam->getSysParam().gun_camera.col*3/4;
+					g_sysParam->getSysParam().gunposition.leftUp.y = g_sysParam->getSysParam().gun_camera.raw*3/4;
+				}
+				else if (g_sysParam->getGunSize(SingletonSysParam::ONE_3)== 1){					
+					g_sysParam->getSysParam().gunposition.leftUp.x = g_sysParam->getSysParam().gun_camera.col*2/3;
+					g_sysParam->getSysParam().gunposition.leftUp.y = g_sysParam->getSysParam().gun_camera.raw*2/3;
+
+				}
+				else
+				{
+					g_sysParam->getSysParam().gunposition.leftUp.x = g_sysParam->getSysParam().gun_camera.col /2;
+					g_sysParam->getSysParam().gunposition.leftUp.y = g_sysParam->getSysParam().gun_camera.raw/2;
+				}
+				g_sysParam->setGunPosition(SingletonSysParam::RU);
+				break;
+			case 2:
+				g_sysParam->getSysParam().gunposition.leftUp.x = 0;
+				g_sysParam->getSysParam().gunposition.leftUp.y = 0;
+				g_sysParam->setGunPosition(SingletonSysParam::LD);
+				break;
+			case 3:
+				if(g_sysParam->getGunSize(SingletonSysParam::ONE_4)== 1){					
+					g_sysParam->getSysParam().gunposition.leftUp.x = g_sysParam->getSysParam().gun_camera.col*3/4;
+					g_sysParam->getSysParam().gunposition.leftUp.y = 0;
+				}
+				else if (g_sysParam->getGunSize(SingletonSysParam::ONE_3)== 1){					
+					g_sysParam->getSysParam().gunposition.leftUp.x = g_sysParam->getSysParam().gun_camera.col*2/3;
+					g_sysParam->getSysParam().gunposition.leftUp.y = 0;
+
+				}
+				else
+				{
+					g_sysParam->getSysParam().gunposition.leftUp.x = g_sysParam->getSysParam().gun_camera.col /2;
+					g_sysParam->getSysParam().gunposition.leftUp.y = 0;
+				}
+				g_sysParam->setGunPosition(SingletonSysParam::RD);
+				break;
+			default:
+				break;
+		}
+	}
+	
 }
 
 void CDisplayer::processsizeMenu(int value)
 {
 	printf("%s start, value=%d\n", __FUNCTION__, value);
+	if(g_sysParam->getSysParam().gun_camera.raw != 0) {
+		switch(value) {
+			case 0: //   1/2
+				if(g_sysParam->getGunPosition(SingletonSysParam::LU) == 1){
+					g_sysParam->getSysParam().gunposition.leftUp.x = 0;
+					g_sysParam->getSysParam().gunposition.leftUp.y = g_sysParam->getSysParam().gun_camera.raw/2;
+				}else if(g_sysParam->getGunPosition(SingletonSysParam::RU) == 1){
+					g_sysParam->getSysParam().gunposition.leftUp.x = g_sysParam->getSysParam().gun_camera.col /2;
+					g_sysParam->getSysParam().gunposition.leftUp.y = g_sysParam->getSysParam().gun_camera.raw /2;
+				}
+				else if(g_sysParam->getGunPosition(SingletonSysParam::LD) == 1){
+					g_sysParam->getSysParam().gunposition.leftUp.x = 0;
+					g_sysParam->getSysParam().gunposition.leftUp.y = 0;
+				}
+				else if(g_sysParam->getGunPosition(SingletonSysParam::RD) == 1){
+					g_sysParam->getSysParam().gunposition.leftUp.x = g_sysParam->getSysParam().gun_camera.col /2;
+					g_sysParam->getSysParam().gunposition.leftUp.y = 0;
+				}
+				g_sysParam->getSysParam().gunposition.general.width = g_sysParam->getSysParam().gun_camera.col*1/2;
+				g_sysParam->getSysParam().gunposition.general.height= g_sysParam->getSysParam().gun_camera.raw*1/2;
+				g_sysParam->setGunSize(SingletonSysParam::ONE_2);
+				break;
+			case 1:  //  1/3
+				if(g_sysParam->getGunPosition(SingletonSysParam::LU) == 1){
+					g_sysParam->getSysParam().gunposition.leftUp.x = 0;
+					g_sysParam->getSysParam().gunposition.leftUp.y = g_sysParam->getSysParam().gun_camera.raw*2/3;
+				}else if(g_sysParam->getGunPosition(SingletonSysParam::RU) == 1){
+					g_sysParam->getSysParam().gunposition.leftUp.x = g_sysParam->getSysParam().gun_camera.col *2/3;
+					g_sysParam->getSysParam().gunposition.leftUp.y = g_sysParam->getSysParam().gun_camera.raw *2/3;
+				}
+				else if(g_sysParam->getGunPosition(SingletonSysParam::LD) == 1){
+					g_sysParam->getSysParam().gunposition.leftUp.x = 0;
+					g_sysParam->getSysParam().gunposition.leftUp.y = 0;
+				}
+				else if(g_sysParam->getGunPosition(SingletonSysParam::RD) == 1){
+					g_sysParam->getSysParam().gunposition.leftUp.x = g_sysParam->getSysParam().gun_camera.col *2/3;
+					g_sysParam->getSysParam().gunposition.leftUp.y = 0;
+				}
+				g_sysParam->getSysParam().gunposition.general.width = g_sysParam->getSysParam().gun_camera.col*1/3;
+				g_sysParam->getSysParam().gunposition.general.height= g_sysParam->getSysParam().gun_camera.raw*1/3;
+				g_sysParam->setGunSize(SingletonSysParam::ONE_3);
+				break;
+				
+			case 2:  //   1/4
+			if(g_sysParam->getGunPosition(SingletonSysParam::LU) == 1){
+					g_sysParam->getSysParam().gunposition.leftUp.x = 0;
+					g_sysParam->getSysParam().gunposition.leftUp.y = g_sysParam->getSysParam().gun_camera.raw*3/4;
+				}else if(g_sysParam->getGunPosition(SingletonSysParam::RU) == 1){
+					g_sysParam->getSysParam().gunposition.leftUp.x = g_sysParam->getSysParam().gun_camera.col *3/4;
+					g_sysParam->getSysParam().gunposition.leftUp.y = g_sysParam->getSysParam().gun_camera.raw *3/4;
+				}
+				else if(g_sysParam->getGunPosition(SingletonSysParam::LD) == 1){
+					g_sysParam->getSysParam().gunposition.leftUp.x = 0;
+					g_sysParam->getSysParam().gunposition.leftUp.y = 0;
+				}
+				else if(g_sysParam->getGunPosition(SingletonSysParam::RD) == 1){
+					g_sysParam->getSysParam().gunposition.leftUp.x = g_sysParam->getSysParam().gun_camera.col *3/4;
+					g_sysParam->getSysParam().gunposition.leftUp.y = 0;
+				}
+				g_sysParam->getSysParam().gunposition.general.width = g_sysParam->getSysParam().gun_camera.col*1/4;
+				g_sysParam->getSysParam().gunposition.general.height= g_sysParam->getSysParam().gun_camera.raw*1/4;
+				g_sysParam->setGunSize(SingletonSysParam::ONE_4);
+				break;
+			default:
+				break;
+		}
+	}
+
 }
 
 void CDisplayer::processnameMenu(int value)
@@ -944,12 +1113,12 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("On",0);
 		glutAddMenuEntry("Screentshot",1);
 		glutAddMenuEntry("Carlibration",2);
-		glutAddMenuEntry("Storage",3);
+		glutAddMenuEntry("Save Parameter",3);
 		int autocarli_submenu = glutCreateMenu(m_initPrm.autocarli);
 		glutAddMenuEntry("On",0);
 		glutAddMenuEntry("Screentshot",1);
 		glutAddMenuEntry("Carlibration",2);
-		glutAddMenuEntry("Storage",3);
+		glutAddMenuEntry("Save Parameter",3);
 		int car_submenu = glutCreateMenu(NULL);
 		glutAddSubMenu("Manual Carlibration",manualcarli_submenu);
 		glutAddSubMenu("Auto Carlibration",autocarli_submenu);
@@ -1358,6 +1527,7 @@ void extractUYVY2Gray1(Mat src, Mat dst)
 
 void CDisplayer::display(Mat frame, int chId, int code)
 {
+	static int saveCount = 0;
 	int i;
 	int bufId=0;
 	unsigned char *d_src = NULL;
@@ -1395,6 +1565,19 @@ void CDisplayer::display(Mat frame, int chId, int code)
 	cv::imshow("111",frame_gray);
 	cv::waitKey(1);
 */
+
+if(chId == 0 && savePic_once == true){
+		savePic_once = false;
+		memset(savePicName, 0, 20);
+		sprintf(savePicName,"%02d.bmp",saveCount);
+		saveCount ++;
+		Mat Dst(1080,1920,CV_8UC3);
+		cvtColor(frame,Dst,CV_YUV2BGR_YUYV);		
+		imwrite(savePicName,Dst);
+}
+
+
+
 	if(nChannel == 1 || code == -1){
 		cudaMalloc_share((void**)&d_src_rgb, byteCount, chId + DS_CHAN_MAX);
 		firbuffer= OSA_bufGetEmpty(&(tskSendBuffir), &bufId, OSA_TIMEOUT_NONE);
@@ -2132,47 +2315,107 @@ void CDisplayer::RenderVideoOnOrthoView( int videoChannel, int x, int y, int wid
 
 void CDisplayer::linkageSwitchMode(void)
 {
+	switch( g_displayMode ){
+		case MENU_PIP:
+			displayMode = PIC_IN_PIC;
+			break;
+		case MENU_SBS:
+			displayMode = PREVIEW_MODE;
+			break;
+		case MENU_GUN:
+			displayMode = GUN_FULL_SCREEN;
+			break;
+		case MENU_BALL:
+			displayMode = BALL_FULL_SCREEN;
+			break;
+		default:
+			break;
+	}
+	
 	switch(displayMode) 
 	{
 		case PREVIEW_MODE:
 			m_renders[0].video_chId = video_gaoqing;
 			m_renders[0].displayrect.x = 0;
-			m_renders[0].displayrect.y = 540;
-			m_renders[0].displayrect.w = 960;
-			m_renders[0].displayrect.h = 540;
+			m_renders[0].displayrect.y = vdisWH[0][1]/2;
+			m_renders[0].displayrect.w = vdisWH[0][0]/2;
+			m_renders[0].displayrect.h = vdisWH[0][1]/2;
 
 			m_renders[1].video_chId = video_gaoqing0;
-			m_renders[1].displayrect.x = 960;
-			m_renders[1].displayrect.y = 540;
-			m_renders[1].displayrect.w = 960;
-			m_renders[1].displayrect.h = 540;
+			m_renders[1].displayrect.x = vdisWH[0][0]/2;
+			m_renders[1].displayrect.y = vdisWH[0][1] /2;
+			m_renders[1].displayrect.w = vdisWH[0][0]/2;
+			m_renders[1].displayrect.h = vdisWH[0][1] /2;
 			
 			if( g_CurDisplayMode != PREVIEW_MODE)
-				g_CurDisplayMode = PREVIEW_MODE;
+				g_CurDisplayMode = PREVIEW_MODE;		
 			break;
 
-		case PIC_IN_PIC:			
-
-			m_renders[0].video_chId = video_gaoqing0;  // video0 == gun camera
+		case PIC_IN_PIC:		
+			m_renders[0].video_chId = video_gaoqing0;  	// video0 == gun camera
 			m_renders[0].displayrect.x = 0;
 			m_renders[0].displayrect.y = 0;
-			m_renders[0].displayrect.w = WINDOW_WIDTH;
-			m_renders[0].displayrect.h = WINDOW_HEIGHT;
+			m_renders[0].displayrect.w =vdisWH[0][0] ;//WINDOW_WIDTH;
+			m_renders[0].displayrect.h = vdisWH[0][1];
 			
-			m_renders[1].video_chId = video_gaoqing;
-			m_renders[1].displayrect.x = WINDOW_WIDTH*3/4;
-			m_renders[1].displayrect.y = WINDOW_HEIGHT*3/4;
-			m_renders[1].displayrect.w = WINDOW_WIDTH/4;
-			m_renders[1].displayrect.h = WINDOW_HEIGHT/4;	
+			m_renders[1].video_chId =    video_gaoqing;
+			m_renders[1].displayrect.x =  g_sysParam->getSysParam().gunposition.leftUp.x;//vdisWH[0][0]*3/4;
+			m_renders[1].displayrect.y =  g_sysParam->getSysParam().gunposition.leftUp.y;//vdisWH[0][1]*3/4;
+			m_renders[1].displayrect.w = g_sysParam->getSysParam().gunposition.general.width;//vdisWH[0][0]/4;
+			m_renders[1].displayrect.h =  g_sysParam->getSysParam().gunposition.general.height;//vdisWH[0][1]/4;	
 			
-			
-	//RenderVideoOnOrthoView(VIDEO_0, 0, 0, 1920, 1080);
-	//RenderVideoOnOrthoView(VIDEO_1, 1440, 810, 480, 270);
+			//RenderVideoOnOrthoView(VIDEO_0, 0, 0, 1920, 1080);
+			//RenderVideoOnOrthoView(VIDEO_1, 1440, 810, 480, 270);
+
 			if( g_CurDisplayMode != PIC_IN_PIC)
 				g_CurDisplayMode = PIC_IN_PIC;
 			
 			break;
+		case GUN_FULL_SCREEN:			
+/*
+			m_renders[0].video_chId = video_gaoqing0;  		// video0 == gun camera
+			m_renders[0].displayrect.x = 0;
+			m_renders[0].displayrect.y = 0;
+			m_renders[0].displayrect.w = WINDOW_WIDTH;
+			m_renders[0].displayrect.h = WINDOW_HEIGHT;
+*/
+			m_renders[1].video_chId = video_gaoqing0;
+			m_renders[1].displayrect.x = 0;
+			m_renders[1].displayrect.y = 0;
+			m_renders[1].displayrect.w = vdisWH[0][0] ;
+			m_renders[1].displayrect.h =  vdisWH[0][1] ;
 			
+			if( g_CurDisplayMode != GUN_FULL_SCREEN)
+				g_CurDisplayMode = GUN_FULL_SCREEN;
+			break;
+		case BALL_FULL_SCREEN:
+		/*	
+			m_renders[1].video_chId = video_gaoqing;
+			m_renders[1].displayrect.x = 0;
+			m_renders[1].displayrect.y = 0;
+			m_renders[1].displayrect.w = WINDOW_WIDTH;
+			m_renders[1].displayrect.h = WINDOW_HEIGHT;
+		*/
+		/*
+			m_renders[0].video_chId = video_gaoqing;  // video0 == gun camera
+			m_renders[0].displayrect.x = 0;
+			m_renders[0].displayrect.y = 0;
+			m_renders[0].displayrect.w = WINDOW_WIDTH;
+			m_renders[0].displayrect.h = WINDOW_HEIGHT;
+*/
+			m_renders[1].video_chId = video_gaoqing;
+			m_renders[1].displayrect.x = 0;
+			m_renders[1].displayrect.y = 0;
+			m_renders[1].displayrect.w = vdisWH[0][0];
+			m_renders[1].displayrect.h =  vdisWH[0][1];
+			if( g_CurDisplayMode != BALL_FULL_SCREEN)
+				g_CurDisplayMode = BALL_FULL_SCREEN;			
+			break;
+			
+	//RenderVideoOnOrthoView(VIDEO_0, 0, 0, 1920, 1080);
+	//RenderVideoOnOrthoView(VIDEO_1, 1440, 810, 480, 270);
+			
+	#if 0		
 		case SIDE_BY_SIDE:
 			m_renders[1].video_chId = video_gaoqing0;
 			m_renders[1].displayrect.x = WINDOW_WIDTH/2;
@@ -2209,8 +2452,8 @@ void CDisplayer::linkageSwitchMode(void)
 			
 			if( g_CurDisplayMode != LEFT_BALL_RIGHT_GUN)
 				g_CurDisplayMode = LEFT_BALL_RIGHT_GUN;
-
 			break;
+	#endif
 			
 		default:
 			break;	

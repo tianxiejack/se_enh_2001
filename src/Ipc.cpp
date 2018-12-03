@@ -35,6 +35,10 @@ OSA_BufHndl msgSendBuf;
 OSA_ThrHndl thrHandleDataIn_recv;
 OSA_ThrHndl thrHandleDataIn_send;
 
+#if LINKAGE_FUNC
+	extern SingletonSysParam* g_sysParam;
+
+#endif
 void initmessage()
 {
     int status;
@@ -567,6 +571,8 @@ void* recv_msg(SENDST *RS422)
 						vcapWH[i][1] = 1080;
 						vdisWH[i][0] = 1920;
 						vdisWH[i][1] = 1080;
+						g_sysParam->getSysParam().gun_camera.raw = vdisWH[i][1];
+						g_sysParam->getSysParam().gun_camera.col  = vdisWH[i][0];
 					}
 					else if((2 == Rresolution.resolution[i])||(3 == Rresolution.resolution[i]))
 					{
