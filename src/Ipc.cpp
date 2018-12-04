@@ -571,8 +571,10 @@ void* recv_msg(SENDST *RS422)
 						vcapWH[i][1] = 1080;
 						vdisWH[i][0] = 1920;
 						vdisWH[i][1] = 1080;
+						#if LINKAGE_FUNC
 						g_sysParam->getSysParam().gun_camera.raw = vdisWH[i][1];
 						g_sysParam->getSysParam().gun_camera.col  = vdisWH[i][0];
+						#endif
 					}
 					else if((2 == Rresolution.resolution[i])||(3 == Rresolution.resolution[i]))
 					{
