@@ -264,7 +264,9 @@ int CcCamCalibra::Run()
 						pts.push_back(pt);
 					}					
 					bool_Calibrate = false;
+					#if LINKAGE_FUNC
 					g_sysParam->getSysParam().cameracalibrate.Enable_calculateMatrix = false;
+					#endif
 					cout << "match points " << matches.size() << endl;
 //-----------------------------------------------------------------------------------------------------
 					SENDST trkmsg={0};
