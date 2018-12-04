@@ -38,6 +38,7 @@ typedef struct _cameraCalibrate{
 	bool Enable_calculateMatrix; // 'M'
 	bool Enable_saveParameter;  // 'U'
 	bool Enable_Undistortion;
+	bool Enable_AutoDetectMoveTargets;
 
 }cameraCalibrate;
 typedef struct _SysParam{
@@ -176,6 +177,9 @@ class SingletonSysParam {
 		bool isEnable_Undistortion(){
 			return sysParameters.cameracalibrate.Enable_Undistortion;
 		};
+		bool isEnable_AutoDetectMoveTargets(){
+			return sysParameters.cameracalibrate.Enable_AutoDetectMoveTargets;
+		};
 	private:
 		/*volatile*/ static SingletonSysParam* m_uniqueInstance;
 		SingletonSysParam(){
@@ -185,6 +189,7 @@ class SingletonSysParam {
 			sysParameters.cameracalibrate.Enable_handleCalibrate = false;
 			sysParameters.cameracalibrate.Enable_saveParameter = false;
 			sysParameters.cameracalibrate.Enable_Undistortion = false;
+			sysParameters.cameracalibrate.Enable_AutoDetectMoveTargets = false;
 		};
 		virtual ~SingletonSysParam(){};
 };

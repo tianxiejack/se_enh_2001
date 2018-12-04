@@ -1041,13 +1041,13 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 					pThis->mRect[curId][pThis->m_rectn[curId]].y2 = floaty;
 
 
-				printf("Rigion%d: Point1(%d,%d),Point2(%d,%d),Point3(%d,%d),Point4(%d,%d)\n",
+				/*printf("Rigion%d: Point1(%d,%d),Point2(%d,%d),Point3(%d,%d),Point4(%d,%d)\n",
 					pThis->m_rectn[curId],
 					pThis->mRect[curId][pThis->m_rectn[curId]].x1,pThis->mRect[curId][pThis->m_rectn[curId]].y1,
 					pThis->mRect[curId][pThis->m_rectn[curId]].x2,pThis->mRect[curId][pThis->m_rectn[curId]].y1,
 					pThis->mRect[curId][pThis->m_rectn[curId]].x1,pThis->mRect[curId][pThis->m_rectn[curId]].y2,
 					pThis->mRect[curId][pThis->m_rectn[curId]].x2,pThis->mRect[curId][pThis->m_rectn[curId]].y2
-				);
+				);*/
 					//point1  ---  lefttop    ,  point2  --- righttop  , point3 --- leftbottom  ,point --- rightbottom
 
 					mouserect rectsrcf;
@@ -1304,7 +1304,7 @@ void CVideoProcess::menu_event(int value)
 
 void CVideoProcess::processrigionMenu(int value)
 {
-	printf("set rigion\n");
+	//printf("set rigion\n");
 	pThis->setrigon_flag = 1;
 }
 
@@ -1315,7 +1315,7 @@ void CVideoProcess::processrigionselMenu(int value)
 
 void CVideoProcess::processrigionpolygonMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	//printf("%s start, value=%d\n", __FUNCTION__, value);
 	pThis->setrigon_polygon = 1;
 }
 

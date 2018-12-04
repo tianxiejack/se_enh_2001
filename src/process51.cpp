@@ -2039,9 +2039,11 @@ void CProcess::manualHandleKeyPoints(int &x,int &y)
 		case PREVIEW_MODE:
 			offset_x = 960;
 			break;
+		/*
 		case LEFT_BALL_RIGHT_GUN:
 			offset_x = 480;	
 			break;
+		*/
 		default:
 			break;
 	}
@@ -2306,19 +2308,19 @@ void CProcess::Set_K_ByDeltaX( int delta_x)
 
 void CProcess::setBallPos(int in_panPos, int in_tilPos, int in_zoom)
 {
-printf("[%s] : ==============>>>Enter ! \r\n", __FUNCTION__);
+//printf("[%s] : ==============>>>Enter ! \r\n", __FUNCTION__);
 
 	panPos = in_panPos ;
 	tiltPos = in_tilPos ;
 	zoomPos = in_zoom ;
 	//OSA_semSignal(&g_linkage_getPos);
-printf("[%s] : ==============<<< Exit ! \r\n", __FUNCTION__);
+//printf("[%s] : ==============<<< Exit ! \r\n", __FUNCTION__);
 
 }
 
 void CProcess::QueryCurBallCamPosition()
 {
-printf("[%s] : ==============>>>Enter ! \r\n",__FUNCTION__);
+//printf("[%s] : ==============>>>Enter ! \r\n",__FUNCTION__);
 	char flag =0;
 	
 	
@@ -2336,13 +2338,15 @@ printf("[%s] : ==============>>>Enter ! \r\n",__FUNCTION__);
 	{		
 		setBallPos(linkagePos.panPos, linkagePos.tilPos, linkagePos.zoom);
 		memset(&linkagePos,0, sizeof(LinkagePos_t));
+	#if 0
 		cout << "\n\n******************Query Ball Camera Position Sucess ! *****************" << endl;
 		cout << "Current : panPos = "<< panPos << endl;
 		cout << "Current : tiltPos = "<< tiltPos << endl;
 		cout << "Current : zoomPos = "<< zoomPos << endl;
 		cout << "*****************************************************************\n\n" << endl;
+	#endif
 	}
-	printf("[%s] : ==============<<< Exit ! \r\n", __FUNCTION__);
+	//printf("[%s] : ==============<<< Exit ! \r\n", __FUNCTION__);
 
 }
 
@@ -2359,6 +2363,7 @@ void CProcess::moveToDest( )
 		case PREVIEW_MODE:
 			offset_x = 0;	
 			break;
+		/*
 		case SIDE_BY_SIDE:
 			offset_x = 0;	
 			LeftPoint.y /=2;
@@ -2371,12 +2376,18 @@ void CProcess::moveToDest( )
 			LeftPoint.y *=2;
 			RightPoint.y *= 2;
 			break;
+		*/
 		case PIC_IN_PIC:
-			offset_x =1440;
-			LeftPoint.x *=2;
-			RightPoint.x *= 2;
-			LeftPoint.y *=2;
-			RightPoint.y *= 2;
+		#if LINKAGE_FUNC
+			if( (g_sysParam->getGunPosition(SingletonSysParam::RU) == 1) &&
+				( g_sysParam->getGunSize(SingletonSysParam::ONE_4) == 1) ) {
+				offset_x =1440;
+				LeftPoint.x *=2;
+				RightPoint.x *= 2;
+				LeftPoint.y *=2;
+				RightPoint.y *= 2;
+			}
+		#endif
 			break;			
 		default:
 			break;
@@ -2393,15 +2404,10 @@ void CProcess::moveToDest( )
 	}else{
 		point_X = abs(LeftPoint.x - RightPoint.x) /2 + RightPoint.x;
 		point_Y = abs(LeftPoint.y - RightPoint.y) /2 + RightPoint.y;	
-	}
-
-	
-	int flag = 0;	
-	
+	}	
+	int flag = 0;		
 //-----------------------------------Query Current Position --------------------------------------	
-
 	QueryCurBallCamPosition();	
-
 //-------------------------------------------------------------------------
 	static int DesPanPos = 0;
 	static int DesTilPos =0;	
@@ -2429,8 +2435,7 @@ void CProcess::moveToDest( )
 	float coefficienty = (float)tmpcofy*0.001f;
 	float tmpficientx = 1.0;
 	inputX = (int)((float)inputX * coefficientx * tmpficientx);
-	inputY = (int)((float)inputY * coefficienty);	
-	
+	inputY = (int)((float)inputY * coefficienty);		
 	
 	if(inputX + curPanPos < 0)
 	{
@@ -2442,7 +2447,6 @@ void CProcess::moveToDest( )
 	}
 	else
 		DesPanPos = curPanPos + inputX;
-
 
 	if(curTilPos > 32768)
 	{
@@ -2485,8 +2489,8 @@ void CProcess::moveToDest( )
 		memcpy(&trkmsg.param[8],&zoomPos  , 4); 
 		ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
 		
-	printf("[%s]: ======>>> Send Set PTZ ( DestPanoPos : %d, DesTilPos: %d, DesZoom: %d )\r\n", __FUNCTION__,
-											DesPanPos , DesTilPos , zoomPos );
+	//printf("[%s]: ======>>> Send Set PTZ ( DestPanoPos : %d, DesTilPos: %d, DesZoom: %d )\r\n", __FUNCTION__,
+										//	DesPanPos , DesTilPos , zoomPos );
 
 }
 void CProcess::clickOnBallImage(int x, int y)
@@ -2498,19 +2502,28 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 {	
 	int point_X , point_Y , offset_x , zoomPos; 
 	int delta_X ;
+	Point opt;
+#if LINKAGE_FUNC
+	if(g_sysParam->isEnable_AutoDetectMoveTargets()){
+		opt = Point(x,y);
+	}
+	else{
+#endif
 
 	switch(m_display.g_CurDisplayMode) 
 	{
 		case PREVIEW_MODE:
-		case SIDE_BY_SIDE:
+		//case SIDE_BY_SIDE:
 			offset_x = 960;			
 			break;
 		case PIC_IN_PIC:
 			offset_x =0;
 			break;
+		/*
 		case LEFT_BALL_RIGHT_GUN:
 			offset_x = 480;			
 			break;
+		*/
 		default:
 			break;
 	}
@@ -2536,8 +2549,7 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 		point_X = (x - offset_x);
 		point_Y = y;
 	}
-
- 	Point opt;
+ 	
 	switch(m_display.g_CurDisplayMode) {
 		case PREVIEW_MODE:
 			opt = Point( point_X*2, point_Y*2 );	
@@ -2545,12 +2557,14 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 		case PIC_IN_PIC:
 			opt = Point( x, y );
 			break;
+		/*	
 		case SIDE_BY_SIDE:
 			opt = Point( point_X*2, point_Y );	
 			break;
 		case LEFT_BALL_RIGHT_GUN:
 			opt = Point( point_X*1920.0/1440.0, point_Y*1080.0/810.0 );	
 			break;
+		*/
 		default:
 			break;
 	}
@@ -2560,8 +2574,9 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 	//cout << "g_camParams.distCoeffs_gun = " << g_camParams.distCoeffs_gun << endl;
 	//cout << "g_camParams.cameraMatrix_ball = " << g_camParams.cameraMatrix_ball << endl;
 	//cout << "g_camParams.homography = " << g_camParams.homography << endl;
-
-	
+#if LINKAGE_FUNC
+	}
+#endif
 	std::vector<cv::Point2d> distorted, normalizedUndistorted;
 	distorted.push_back(cv::Point2d(opt.x, opt.y));
 	undistortPoints(distorted,normalizedUndistorted,g_camParams.cameraMatrix_gun,g_camParams.distCoeffs_gun);
@@ -2587,7 +2602,7 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 
 	
     	Point bpt( pt.x, pt.y );
-		printf("<< ......................................  Ball Image Point: < %d , %d >\r\n", bpt.x, bpt.y);
+		//printf("<< ......................................  Ball Image Point: < %d , %d >\r\n", bpt.x, bpt.y);
 
 	dest_ballPoint.x = bpt.x ;
 	dest_ballPoint.y = bpt.y;
@@ -2621,7 +2636,7 @@ void CProcess::reMapCoords(int x, int y,bool mode)
 	int Origin_PanPos = g_camParams.panPos;
 	int Origin_TilPos = g_camParams.tiltPos;
 
-printf("inputX : %d    , Origin_PanPos  : %d  \n",inputX,Origin_PanPos);
+//printf("inputX : %d    , Origin_PanPos  : %d  \n",inputX,Origin_PanPos);
 
 	if(inputX + Origin_PanPos < 0)
 	{
@@ -2634,7 +2649,7 @@ printf("inputX : %d    , Origin_PanPos  : %d  \n",inputX,Origin_PanPos);
 	else
 		DesPanPos = Origin_PanPos + inputX;
 
-printf("inputY : %d    , Origin_TilPos	: %d  \n",inputY,Origin_TilPos);
+//printf("inputY : %d    , Origin_TilPos	: %d  \n",inputY,Origin_TilPos);
 
 	if(Origin_TilPos > 32768)
 	{
@@ -2685,7 +2700,7 @@ printf("inputY : %d    , Origin_TilPos	: %d  \n",inputY,Origin_TilPos);
 		memcpy(&trkmsg.param[4],&DesTilPos, 4); 	
 	}
 	ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);	
-	printf("%s   LINE:%d   Send Position = < %d, %d >,zoom = %d \r\n",__func__,__LINE__, DesPanPos , DesTilPos ,zoomPos);
+	//printf("%s   LINE:%d   Send Position = < %d, %d >,zoom = %d \r\n",__func__,__LINE__, DesPanPos , DesTilPos ,zoomPos);
 }
 #endif
 
@@ -2705,11 +2720,11 @@ void CProcess::OnSpecialKeyDwn(int key,int x, int y)
 	switch( key ) {
 		case 1:
 			m_bMarkCircle = true;
-			cout << "---------------->>> Press F1 : m_bMarkCircle == true " << endl;
+			//cout << "---------------->>> Press F1 : m_bMarkCircle == true " << endl;
 			break;
 		case 2:
 			m_bMarkCircle = false;
-			cout << "---------------->>> Press F2 : m_bMarkCircle == false " << endl;
+			//cout << "---------------->>> Press F2 : m_bMarkCircle == false " << endl;
 			break;
 		default :
 			break;
@@ -2783,7 +2798,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 		}
 		msgdriv_event(MSGID_EXT_MVDETECT, NULL);
 
-		printf("pIStuts->MtdState[pIStuts->SensorStat]  = %d\n",pIStuts->MtdState[pIStuts->SensorStat] );
+		//printf("pIStuts->MtdState[pIStuts->SensorStat]  = %d\n",pIStuts->MtdState[pIStuts->SensorStat] );
 	}
 
 	if (key == 't' || key == 'T')
@@ -3158,10 +3173,11 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			rc.height=pIStuts->AimW[pIStuts->SensorStat];
 			pIStuts->unitAimX = pIStuts->AvtPosX[pIStuts->SensorStat];
 			pIStuts->unitAimY = pIStuts->AvtPosY[pIStuts->SensorStat];
+/*
 			printf("AvtPosX[%d] , AvtPosY[%d] (%d,%d) \n",pIStuts->SensorStat,
 				pIStuts->SensorStat,pIStuts->AvtPosX[pIStuts->SensorStat],
 				pIStuts->AvtPosY[pIStuts->SensorStat]);
-
+*/
 		}
 		else if(m_curChId == video_pal)
 		{
@@ -3257,14 +3273,14 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 				moveStat = true;
 				//printf("----- XY(%d,%d),WH(%d,%d)\n",pIStuts->unitAimX,pIStuts->unitAimY,pIStuts->unitAimW,pIStuts->unitAimH);
 				
-				printf("111W,H : (%d,%d)\n",pIStuts->unitAimW,pIStuts->unitAimH);
+				//printf("111W,H : (%d,%d)\n",pIStuts->unitAimW,pIStuts->unitAimH);
 				rc.width=pIStuts->unitAimW;
 				rc.height=pIStuts->unitAimH;
-				printf("222rc.width,rc.height : (%f,%f)\n",rc.width,rc.height);
+				//printf("222rc.width,rc.height : (%f,%f)\n",rc.width,rc.height);
 				
 				rc.x = pIStuts->unitAimX-pIStuts->unitAimW/2 + pIStuts->aimRectMoveStepX;
 				rc.y = pIStuts->unitAimY-pIStuts->unitAimH/2  + pIStuts->aimRectMoveStepY;
-				printf("333rc.x,rc.y : (%d,%d)\n",rc.x,rc.y);
+				//printf("333rc.x,rc.y : (%d,%d)\n",rc.x,rc.y);
 
 				pIStuts->aimRectMoveStepX = 0;
 				pIStuts->aimRectMoveStepY = 0;
@@ -4457,7 +4473,7 @@ void CProcess::MSGAPI_update_ballPos(long lParam)
 	
 	//setBallPos(linkagePos.panPos, linkagePos.tilPos, linkagePos.zoom);
 	OSA_semSignal(&g_linkage_getPos);
-	printf("[%s]: ----------------->>>>>>>    OSA_semSignal  (&g_linkage_getPos )\r\n\r\n\r\n",__FUNCTION__);
+	//printf("[%s]: ----------------->>>>>>>    OSA_semSignal  (&g_linkage_getPos )\r\n\r\n\r\n",__FUNCTION__);
 }
 
 #endif

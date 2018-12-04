@@ -383,8 +383,14 @@ void CDisplayer::_reshape(int width, int height)
 #if LINKAGE_FUNC
 void CDisplayer::processLinkageMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
-
+	//printf("%s start, value=%d\n", __FUNCTION__, value);
+	if(value == 1){
+		g_sysParam->getSysParam().cameracalibrate.Enable_AutoDetectMoveTargets = true;
+	}
+	else if(value == 0){
+		g_sysParam->getSysParam().cameracalibrate.Enable_AutoDetectMoveTargets = false;
+	}else{
+	}
 	SENDST	tmp;
 	tmp.cmd_ID = mtdmode;
 	tmp.param[0] = value ;
@@ -394,7 +400,7 @@ void CDisplayer::processLinkageMenu(int value)
 
 void CDisplayer::processDMMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	//printf("%s start, value=%d\n", __FUNCTION__, value);
 	switch(value) {
 		case 0:		
 			g_displayMode = MENU_PIP;		
@@ -417,17 +423,17 @@ void CDisplayer::processDMMenu(int value)
 
 void CDisplayer::processgunResMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	//printf("%s start, value=%d\n", __FUNCTION__, value);
 }
 
 void CDisplayer::processballResMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	//printf("%s start, value=%d\n", __FUNCTION__, value);
 }
 
 void CDisplayer::processposMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	//printf("%s start, value=%d\n", __FUNCTION__, value);
 	if(g_sysParam->getSysParam().gun_camera.col != 0) {
 		switch(value) {
 			case 0: // LU
@@ -500,7 +506,7 @@ void CDisplayer::processposMenu(int value)
 
 void CDisplayer::processsizeMenu(int value)
 {
-	printf("%s start, value=%d\n", __FUNCTION__, value);
+	//printf("%s start, value=%d\n", __FUNCTION__, value);
 	if(g_sysParam->getSysParam().gun_camera.raw != 0) {
 		switch(value) {
 			case 0: //   1/2

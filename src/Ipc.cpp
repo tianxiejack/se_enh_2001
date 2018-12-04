@@ -170,7 +170,7 @@ void* recv_msg(SENDST *RS422)
 		app_ctrl_getSysData(pMsg);
 
 	osdbuffer_t* ppppp  = NULL;	
-	printf("cmdID : %d (%02x %02x %02x %02x %02x)\n",cmdID,imgID1,imgID2,imgID3,imgID4,imgID5);
+	//printf("cmdID : %d (%02x %02x %02x %02x %02x)\n",cmdID,imgID1,imgID2,imgID3,imgID4,imgID5);
 	switch(cmdID)
 	{	
 		case BoresightPos:
@@ -284,7 +284,7 @@ void* recv_msg(SENDST *RS422)
 			
 		case read_shm_osd:
 			{
-				printf("read_shm_osd  \n\n");
+				//printf("read_shm_osd  \n\n");
 				OSDSTATUS *osdtmp = ipc_getosdstatus_p();
 				memcpy(&gConfig_Osd_param,osdtmp,sizeof(OSDSTATUS));
 				get_acqRect_from_aim(&gConfig_Osd_param);	
@@ -313,7 +313,7 @@ void* recv_msg(SENDST *RS422)
 		case trk:				
 			memcpy(&Rtrk,RS422->param,sizeof(Rtrk));
 			imgID1 = Rtrk.AvtTrkStat;
-			printf("recv TRK : imgID1 : %d\n",imgID1);
+			//printf("recv TRK : imgID1 : %d\n",imgID1);
 			if(imgID1 == 0x1)
 				pMsg->AvtTrkStat =eTrk_mode_target;
 			else
@@ -338,7 +338,7 @@ void* recv_msg(SENDST *RS422)
 		case mmt:
 			memcpy(&Rmtd,RS422->param,sizeof(Rmtd));
 			imgID1 = Rmtd.ImgMtdStat;	
-			printf("recv mmt : imgID1 : %d\n",imgID1);
+			//printf("recv mmt : imgID1 : %d\n",imgID1);
 
 			if(imgID1 == 0x01)
 			{
@@ -355,7 +355,7 @@ void* recv_msg(SENDST *RS422)
 		case mmtselect:
 			memcpy(&Rmmtselect,RS422->param,sizeof(Rmmtselect));
 			imgID1 = Rmmtselect.ImgMmtSelect;	
-			printf("recv mmtselect : imgID1 : %d\n",imgID1);
+			//printf("recv mmtselect : imgID1 : %d\n",imgID1);
 			imgID1--;
 			if(imgID1 >5)
 				imgID1 =5;
@@ -370,7 +370,7 @@ void* recv_msg(SENDST *RS422)
 		case enh:
 			memcpy(&Renh,RS422->param,sizeof(Renh));
 			imgID1 = Renh.ImgEnhStat;	
-			printf("recv enh : imgID1 : %d\n",imgID1);
+			//printf("recv enh : imgID1 : %d\n",imgID1);
 			if(imgID1 == 1){
 				pMsg->ImgEnhStat[pMsg->validChId] = ipc_eImgAlg_Enable;
 			}
@@ -385,7 +385,7 @@ void* recv_msg(SENDST *RS422)
 			memcpy(&Rmtd,RS422->param,sizeof(Rmtd));
 			imgID1 = Rmtd.ImgMtdStat;	
 			imgID2 = Rmtd.mtdMode;
-			printf("recv mtd : imgID1 : %d  , mode : %d \n",imgID1,imgID2);
+			//printf("recv mtd : imgID1 : %d  , mode : %d \n",imgID1,imgID2);
 
 			if(imgID1 == 1){
 				pMsg->MtdState[pMsg->SensorStat] = ipc_eImgAlg_Enable;
@@ -454,7 +454,7 @@ void* recv_msg(SENDST *RS422)
 
 		case sensor:
 			memcpy(&Rsensor,RS422->param,sizeof(Rsensor));
-			printf("recv Rsensor: %d\n",Rsensor.SensorStat);
+			//printf("recv Rsensor: %d\n",Rsensor.SensorStat);
 			pMsg->SensorStat = Rsensor.SensorStat;
 			app_ctrl_setSensor(pMsg);
 			MSGAPI_msgsend(sensor);
@@ -462,7 +462,7 @@ void* recv_msg(SENDST *RS422)
 		
 		case pinp:	
 			memcpy(&Rpinp,RS422->param,sizeof(Rpinp));
-			printf("recv pinp : Rpinp.ImgPicp : %d\n",Rpinp.ImgPicp);
+			//printf("recv pinp : Rpinp.ImgPicp : %d\n",Rpinp.ImgPicp);
 			/*if(Rpinp.ImgPicp == 1)
 				pMsg->PicpSensorStat = 0x1;
 			else 
@@ -489,7 +489,7 @@ void* recv_msg(SENDST *RS422)
 			
 		case posmove:	
 			memcpy(&Rposmove,RS422->param,sizeof(Rposmove));
-			printf("recv posmove : Rposmove.AvtMoveX : %d    Rposmove.AvtMoveY :%d\n",Rposmove.AvtMoveX,Rposmove.AvtMoveY);
+			//printf("recv posmove : Rposmove.AvtMoveX : %d    Rposmove.AvtMoveY :%d\n",Rposmove.AvtMoveX,Rposmove.AvtMoveY);
 			pMsg->aimRectMoveStepX = Rposmove.AvtMoveX;
 			pMsg->aimRectMoveStepY = Rposmove.AvtMoveY;
 			app_ctrl_setAimPos(pMsg);
@@ -497,7 +497,7 @@ void* recv_msg(SENDST *RS422)
 
 		case elecZoom:
 			memcpy(&Rzoom,RS422->param,sizeof(Rzoom));
-			printf("recv zoom : Rzoom.ImgZoomStat : %d\n",Rzoom.ImgZoomStat);
+			//printf("recv zoom : Rzoom.ImgZoomStat : %d\n",Rzoom.ImgZoomStat);
 			pMsg->ImgZoomStat[pMsg->SensorStat] = Rzoom.ImgZoomStat;
 			app_ctrl_setZoom(pMsg);
 			break;
@@ -509,7 +509,7 @@ void* recv_msg(SENDST *RS422)
 			memcpy(&Raxismove,RS422->param,sizeof(Raxismove));
 			imgID1 = Raxismove.AvtMoveX;
 			imgID2 = Raxismove.AvtMoveY;		
-			printf("recv axismove : Raxismove.AvtMoveX : %d   Raxismove.AvtMoveY : %d \n",Raxismove.AvtMoveX,Raxismove.AvtMoveY);
+			//printf("recv axismove : Raxismove.AvtMoveX : %d   Raxismove.AvtMoveY : %d \n",Raxismove.AvtMoveX,Raxismove.AvtMoveY);
 			if(imgID1 == eTrk_ref_left)
 				pMsg->axisMoveStepX = -1;
 			else if(imgID1 == eTrk_ref_right)
@@ -541,7 +541,7 @@ void* recv_msg(SENDST *RS422)
 		case algosdrect:
 			memcpy(&Ralgosdrect,RS422->param,sizeof(Ralgosdrect));
 			imgID1 = Ralgosdrect.Imgalgosdrect;
-			printf("algosdrect:%d\n",imgID1);
+			//printf("algosdrect:%d\n",imgID1);
 			if(0 == imgID1)
 				pMsg->Imgalgosdrect = 0;
 			else if(1 == imgID1)
@@ -596,7 +596,7 @@ void* recv_msg(SENDST *RS422)
 		case querypos:
 			#if LINKAGE_FUNC
 				memcpy(&posOfLinkage,RS422->param,sizeof(posOfLinkage));
-				printf("[%s]:Query IPC Rcv :>> panPos ,tilPos , zoom = (%d ,%d ,%d) \n",__FUNCTION__,posOfLinkage.panPos, posOfLinkage.tilPos, posOfLinkage.zoom);
+				//printf("[%s]:Query IPC Rcv :>> panPos ,tilPos , zoom = (%d ,%d ,%d) \n",__FUNCTION__,posOfLinkage.panPos, posOfLinkage.tilPos, posOfLinkage.zoom);
 				app_ctrl_setLinkagePos(posOfLinkage.panPos, posOfLinkage.tilPos, posOfLinkage.zoom);
 				
 			#endif
@@ -630,7 +630,7 @@ int send_msg(SENDST *RS422)
 	{
 		case trk:
 			RS422->param[0] = pIStuts.AvtTrkStat;
-			printf("ack trk  :  %d\n",pIStuts.TrkStat);
+			//printf("ack trk  :  %d\n",pIStuts.TrkStat);
 			break;
 			
 		case mmt:
@@ -643,17 +643,17 @@ int send_msg(SENDST *RS422)
 			
 		case enh:
 			RS422->param[0] = pIStuts.ImgEnhStat[pIStuts.SensorStat];
-			printf("ack enh  :  %d\n",RS422->param[0]);			
+			//printf("ack enh  :  %d\n",RS422->param[0]);			
 			break;
 			
 		case mtd:
 			RS422->param[0] = app_ctrl_getMtdStat();
-			printf("ack mtd  :  %d\n",RS422->param[0]);			
+			//printf("ack mtd  :  %d\n",RS422->param[0]);			
 			break;
 			
 		case sectrk:
 			RS422->param[0] = pIStuts.AvtTrkStat;
-			printf("ack sectrk  :  %d\n",RS422->param[0]);						
+			//printf("ack sectrk  :  %d\n",RS422->param[0]);						
 			break;
 			
 		case trkdoor:
@@ -688,7 +688,7 @@ int send_msg(SENDST *RS422)
 				default:
 					break;		
 			}
-			printf("send ++++++++++ AvtMoveXY = (%02x,%02x)  ++++++++++\n",RS422->param[0],RS422->param[1]);				
+			//printf("send ++++++++++ AvtMoveXY = (%02x,%02x)  ++++++++++\n",RS422->param[0],RS422->param[1]);				
 			break;
 		case sensor:
 			RS422->param[0] = pIStuts.SensorStat;	

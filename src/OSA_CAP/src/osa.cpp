@@ -87,7 +87,7 @@ Int32 OSA_mapMem(UInt32 physAddr, UInt32 memSize , ptr *pMemVirtAddrPtr)
     memOffset   = physAddr & (sysconf(_SC_PAGE_SIZE) - 1);
     mmapMemAddr = physAddr - memOffset;
     mmapMemSize = OSA_align((memSize + memOffset),sysconf(_SC_PAGE_SIZE));
-    printf("mmap of [0x%x:%d]\n",mmapMemAddr,mmapMemSize);
+  //  printf("mmap of [0x%x:%d]\n",mmapMemAddr,mmapMemSize);
     pMemVirtAddr = (unsigned int *)mmap(
            (void *)NULL,
                    mmapMemSize,
@@ -103,7 +103,7 @@ Int32 OSA_mapMem(UInt32 physAddr, UInt32 memSize , ptr *pMemVirtAddrPtr)
      return -1;
    }
     *pMemVirtAddrPtr = (ptr)((UInt64)pMemVirtAddr + memOffset);
-    printf("mmap virt addresss:%p\n",*pMemVirtAddrPtr);
+    //printf("mmap virt addresss:%p\n",*pMemVirtAddrPtr);
     return 0;
 }
 
@@ -118,7 +118,7 @@ Int32 OSA_unmapMem(ptr pMemVirtAddrPtr,UInt32 memSize)
     mmapMemAddr = ((UInt64)pMemVirtAddrPtr) - memOffset;
     mmapMemSize = OSA_align((memSize + memOffset),sysconf(_SC_PAGE_SIZE));
 
-    printf("munmap of [0x%x:%d]\n",mmapMemAddr,mmapMemSize);
+   // printf("munmap of [0x%x:%d]\n",mmapMemAddr,mmapMemSize);
     status = munmap((void*)mmapMemAddr, mmapMemSize);
 
     return status;

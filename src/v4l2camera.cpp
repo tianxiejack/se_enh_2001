@@ -61,6 +61,7 @@ v4l2_camera::v4l2_camera(int devId):io(IO_METHOD_USERPTR),buffers(NULL),force_fo
 			break;
 		default:
 			printf("No such device:%s !!\n", dev_name);
+			break;
 	}
 	if(devId == video_pal)
 	{
