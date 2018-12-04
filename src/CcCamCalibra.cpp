@@ -315,6 +315,9 @@ int CcCamCalibra::Run()
 	#endif
 	{
 		writeParam_flag = false;
+		#if LINKAGE_FUNC
+		g_sysParam->getSysParam().cameracalibrate.Enable_saveParameter = false;
+		#endif
 		if( !getCurrentPosFlag )
 		{
 			cout << "could not get the cuurent Flag \n" << endl;
