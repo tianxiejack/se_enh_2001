@@ -1016,6 +1016,7 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 				if(pThis->m_click == 0)
 				{
 					pThis->m_click = 1;
+					pThis->m_rectn[curId] = 0;
 
 					float floatx,floaty;
 					floatx = x;
