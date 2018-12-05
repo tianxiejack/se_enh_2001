@@ -1697,7 +1697,7 @@ osdindex++;	//acqRect
 				endwarnpoly.y = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].y;
 				DrawcvLine(m_display.m_imgOsd[mtd_warningbox_Id],&startwarnpoly,&endwarnpoly,3,1);
 			}
-		
+
 			detect_bak = detect_vect;
 			
 			mvIndexHandle(mvList,detect_bak,detectNum);
