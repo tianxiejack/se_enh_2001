@@ -1083,10 +1083,8 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 #if LINKAGE_FUNC
 					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	0);
 #else
-					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	curId);
+					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	curId);		
 #endif
-
-
 					pThis->m_rectn[curId]++;
 					if(pThis->m_rectn[curId]>=sizeof(pThis->mRect[0]))
 					{
@@ -2043,6 +2041,7 @@ void	CVideoProcess::DeInitMvDetect()
 void CVideoProcess::NotifyFunc(void *context, int chId)
 {
 	CVideoProcess *pParent = (CVideoProcess*)context;
+	pThis->detect_vect.clear();
 #if LINKAGE_FUNC
 	pThis->m_pMovDetector->getWarnTarget(pThis->detect_vect,0);
 #else
