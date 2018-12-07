@@ -601,6 +601,10 @@ void* recv_msg(SENDST *RS422)
 				
 			#endif
 			break;
+		case switchtarget:
+			pMsg->MtdSelect[pMsg->SensorStat] = ipc_eMTD_Next;
+			app_ctrl_setMtdSelect(pMsg);
+			break;
 		default:
 			break;
 	}
