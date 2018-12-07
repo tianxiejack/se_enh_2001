@@ -41,12 +41,18 @@ class CProcess : public CVideoProcess
 	int key_point1_cnt ;
 	int key_point2_cnt ;
 	int AllPoints_Num  ;
+	int string_cnt1;
+	int string_cnt2;
 	char show_key[64][6];
 	char show_key2[64][6];
 	Point key1_pos;
 	Point key2_pos;
+	Point key1_backup;
+	Point key2_backup;
 	Point textPos1_record[64];
 	Point textPos2_record[64];
+	Point textPos1_backup[64];
+	Point textPos2_backup[64];
 	Point circle_point;
 private:
 	bool m_bMarkCircle;

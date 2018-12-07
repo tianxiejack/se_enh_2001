@@ -158,7 +158,13 @@ CProcess::CProcess()
 	key_point2_cnt =0;
 	AllPoints_Num =0;
 	m_bMarkCircle = false ;
-
+	string_cnt1 =0;
+	string_cnt2 =0;
+	key1_pos = Point(-30,-30);
+	key2_pos = Point(-80,-80);
+	key1_backup = key1_pos;
+	key2_backup = key2_pos;
+	
 	if(!readParams("SysParm.yml")) {
 		printf("read param error\n");
 	}
@@ -1758,28 +1764,38 @@ osdindex++;	//acqRect
 			Osdflag[osdindex]=1;
 		}
 	}
-
 #endif
 
 #if LINKAGE_FUNC
 	osdindex++;
 	{		
 		if( open_handleCalibra == true || g_sysParam->isEnable_HandleCalibrate()){  
-			sprintf(show_key[key_point1_cnt], "%d", key_point1_cnt);	
-			putText(m_display.m_imgOsd[1],show_key[key_point1_cnt],key1_pos,FONT_HERSHEY_TRIPLEX,0.8, cvScalar(255,0,0,255), 1);	
+			sprintf(show_key[string_cnt1], "%d", string_cnt1);	
+			putText(m_display.m_imgOsd[1],show_key[string_cnt1],key1_pos,FONT_HERSHEY_TRIPLEX,0.8, cvScalar(255,0,0,255), 1);	
 			cv::circle( m_display.m_imgOsd[1], key1_pos, 3 , cvScalar(255,0,255,255), 2, 8, 0);
 			//line( m_display.m_imgOsd[1], Point(key1_pos.x-5,key1_pos.y), Point(key1_pos.x+5,key1_pos.y), Scalar(0,0,255), 5, CV_AA );
 			
-			sprintf(show_key2[key_point2_cnt], "%d", key_point2_cnt);
-			putText(m_display.m_imgOsd[1],show_key2[key_point2_cnt],key2_pos,FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,255,0,255), 1);	
+			sprintf(show_key2[string_cnt2], "%d", string_cnt2);
+			putText(m_display.m_imgOsd[1],show_key2[string_cnt2],key2_pos,FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,255,0,255), 1);	
 			cv::circle(m_display.m_imgOsd[1],key2_pos,3 ,cvScalar(0,255,255,255),2,8,0);
 			Osdflag[osdindex]=1;
 		}	
 		else{	
 			if(Osdflag[osdindex])
 			{
-				if( AllPoints_Num !=0 ) 
+				
+				if(key_point1_cnt!=0 || (key_point2_cnt!=0))
 				{
+					textPos1_backup[0] = key1_backup;
+					textPos2_backup[0] = key2_backup;
+					for(int m=0;m<=key_point1_cnt; m++){
+						textPos1_backup[m+1] = textPos1_record[m];
+					}
+					for(int m=0;m<=key_point2_cnt; m++){
+						textPos2_backup[m+1] = textPos2_record[m];
+					}
+					
+				#if 0
 					for(int i=0; i<AllPoints_Num; i++)
 					{
 						putText(m_display.m_imgOsd[1],show_key[i],textPos1_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
@@ -1787,6 +1803,18 @@ osdindex++;	//acqRect
 						
 						putText(m_display.m_imgOsd[1],show_key2[i],textPos2_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
 						cv::circle(m_display.m_imgOsd[1],textPos2_record[i],3 ,cvScalar(0,0,0,0),2,8,0);
+					}
+				#endif
+					for(int i=0; i<=key_point1_cnt; i++)
+					{
+						putText(m_display.m_imgOsd[1],show_key[i],textPos1_backup[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
+						cv::circle(m_display.m_imgOsd[1],textPos1_backup[i],3 ,cvScalar(0,0,0,0),2,8,0);			
+					}
+
+					for(int i=0; i<=key_point2_cnt; i++)
+					{
+						putText(m_display.m_imgOsd[1],show_key2[i],textPos2_backup[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
+						cv::circle(m_display.m_imgOsd[1],textPos2_backup[i],3 ,cvScalar(0,0,0,0),2,8,0);
 					}
 				}
 				Osdflag[osdindex] = 0;			
@@ -2032,8 +2060,8 @@ void CProcess::manualHandleKeyPoints(int &x,int &y)
 {
 	int offset_x = 0;
 	int point_X , point_Y;
-	float f_x = (float)x;
-	float f_y = (float)y;
+	float f_x = x;//(float)x;
+	float f_y = y;//(float)y;
 	
 	switch(m_display.g_CurDisplayMode) {
 		case PREVIEW_MODE:
@@ -2053,15 +2081,18 @@ void CProcess::manualHandleKeyPoints(int &x,int &y)
 	if( x <= offset_x ){
 		m_camCalibra->key_points1.push_back(cv::Point2f(f_x,f_y));
 		key1_pos = Point(x,y);
-		textPos1_record[AllPoints_Num++] = key1_pos;
+		textPos1_record[key_point1_cnt] = key1_pos;
 		key_point1_cnt++;	
+		string_cnt1 ++;
 	}
 	else{
 		m_camCalibra->key_points2.push_back( cv::Point2f( f_x -offset_x, f_y) );
 		key2_pos = Point(x,y);
-		textPos1_record[AllPoints_Num++] = key2_pos;
-		key_point2_cnt ++;		
+		textPos2_record[key_point2_cnt] = key2_pos;
+		key_point2_cnt ++;	
+		string_cnt2++;
 	}
+	
 	for (std::vector<cv::Point2f>::const_iterator itPnt = m_camCalibra->key_points1.begin();
 			itPnt != m_camCalibra->key_points1.end(); ++itPnt){
 		cout<< "*itPnt.x = " <<(*itPnt).x<< "\t*itPnt.y = " << (*itPnt).y << endl;
@@ -2071,6 +2102,7 @@ void CProcess::manualHandleKeyPoints(int &x,int &y)
 			itPnt2 != m_camCalibra->key_points2.end(); ++itPnt2){
 		cout<< "*itPnt2.x = " <<(*itPnt2).x<< "\t*itPnt2.y = " << (*itPnt2).y << endl;
 	}
+	
 }
 
 int CProcess::checkZoomPosTable(int delta)

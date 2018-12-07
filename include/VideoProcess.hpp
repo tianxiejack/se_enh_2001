@@ -241,6 +241,7 @@ protected:
 	static void processtimeMenu(int value);
 	static void processsmanualcarliMenu(int value);
 	static void processsautocarliMenu(int value);
+	
 	int click_legal(int x, int y);
 	int move_legal(int x, int y);
 	int in_gun_area(int x, int y);

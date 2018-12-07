@@ -502,10 +502,17 @@ void CVideoProcess::processsmanualcarliMenu(int value)
 		case 3:
 			g_sysParam->getSysParam().cameracalibrate.Enable_saveParameter= true;
 			break;
+		case 4:
+			g_sysParam->getSysParam().cameracalibrate.Enable_handleCalibrate = false;
+			g_sysParam->getSysParam().cameracalibrate.Enable_Undistortion = false;	
+			g_sysParam->getSysParam().cameracalibrate.Enable_cloneSrcImage = false;	
+			g_sysParam->getSysParam().cameracalibrate.Enable_calculateMatrix= false;	
+			g_sysParam->getSysParam().cameracalibrate.Enable_saveParameter= false;	
+			//g_sysParam->getSysParam().cameracalibrate.Enable_AutoDetectMoveTargets = false;
+		break;
 		default :
 			break;
-	}
-	
+	}	
 }
 
 void CVideoProcess::processsautocarliMenu(int value)
@@ -527,11 +534,20 @@ void CVideoProcess::processsautocarliMenu(int value)
 		case 3:
 			g_sysParam->getSysParam().cameracalibrate.Enable_saveParameter= true;
 			break;
+		case 4:
+			g_sysParam->getSysParam().cameracalibrate.Enable_handleCalibrate = false;
+			g_sysParam->getSysParam().cameracalibrate.Enable_Undistortion = false;	
+			g_sysParam->getSysParam().cameracalibrate.Enable_cloneSrcImage = false;	
+			g_sysParam->getSysParam().cameracalibrate.Enable_calculateMatrix= false;	
+			g_sysParam->getSysParam().cameracalibrate.Enable_saveParameter= false;	
+			//g_sysParam->getSysParam().cameracalibrate.Enable_AutoDetectMoveTargets = false;
+		break;
 		default :
 			break;
-	}
-	
+	}	
 }
+
+
 
 int CVideoProcess::click_legal(int x, int y)
 {
@@ -1373,13 +1389,11 @@ void CVideoProcess::close_event(void)
 int CVideoProcess::init()
 {
 	DS_InitPrm dsInit;
-
 	memset(&dsInit, 0, sizeof(DS_InitPrm));
 #if LINKAGE_FUNC
 	dsInit.timefunc = processtimeMenu;	
 	dsInit.manualcarli = processsmanualcarliMenu;
-	dsInit.autocarli = processsautocarliMenu;
-	
+	dsInit.autocarli = processsautocarliMenu;	
 #else
 	dsInit.motionfunc = mousemotion_event;
 #endif

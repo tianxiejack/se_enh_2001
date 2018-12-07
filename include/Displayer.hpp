@@ -79,6 +79,7 @@ typedef struct _ds_init_param{
 	void (*timefunc)(int value);
 	void (*manualcarli)(int value);
 	void (*autocarli)(int value);
+	void (*closecarli)(int value);
 #else
 	void (*motionfunc)(GLint xMouse, GLint yMouse);
 #endif

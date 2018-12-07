@@ -1117,14 +1117,18 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 		glutAddMenuEntry("Screentshot",1);
 		glutAddMenuEntry("Carlibration",2);
 		glutAddMenuEntry("Save Parameter",3);
+		glutAddMenuEntry("Close Calibrate",4);
 		int autocarli_submenu = glutCreateMenu(m_initPrm.autocarli);
 		glutAddMenuEntry("On",0);
 		glutAddMenuEntry("Screentshot",1);
 		glutAddMenuEntry("Carlibration",2);
 		glutAddMenuEntry("Save Parameter",3);
+		glutAddMenuEntry("Close Calibrate",4);
+		
 		int car_submenu = glutCreateMenu(NULL);
 		glutAddSubMenu("Manual Carlibration",manualcarli_submenu);
 		glutAddSubMenu("Auto Carlibration",autocarli_submenu);
+		
 
 		int rig_submenu = glutCreateMenu(m_initPrm.setrigion);
 		glutAddMenuEntry("Rigion1",0);
@@ -2200,7 +2204,7 @@ void CDisplayer::gl_textureLoad(void)
 
 	
 			#if LINKAGE_FUNC
-				if(chId == 0 && plat->m_camCalibra->Set_Handler_Calibra == true) {
+				if( (chId == 0 )&& (plat->m_camCalibra->Set_Handler_Calibra == true || g_sysParam->isEnable_Undistortion())) {
 					memcpy(gun_UndistorMat.data, x11disbuffer, 1080*1920*3);
 					remap(gun_UndistorMat, gun_UndistorMat, g_camParams.map1, g_camParams.map2, INTER_LINEAR);
 					memcpy( x11disbuffer,gun_UndistorMat.data, 1080*1920*3);
