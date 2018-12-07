@@ -2868,8 +2868,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 			open_handleCalibra = false ; 
 			m_camCalibra->Set_Handler_Calibra = false ;
 			m_camCalibra->start_cloneVideoSrc = false;
-		}
-		
+		}		
 
 		if (key == 'z')
 		{

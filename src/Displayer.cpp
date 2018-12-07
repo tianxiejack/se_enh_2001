@@ -394,8 +394,7 @@ void CDisplayer::processLinkageMenu(int value)
 	SENDST	tmp;
 	tmp.cmd_ID = mtdmode;
 	tmp.param[0] = value ;
-	ipc_sendmsg(&tmp, IPC_FRIMG_MSG);	
-
+	ipc_sendmsg(&tmp, IPC_FRIMG_MSG);
 }
 
 void CDisplayer::processDMMenu(int value)
