@@ -170,7 +170,7 @@ void* recv_msg(SENDST *RS422)
 		app_ctrl_getSysData(pMsg);
 
 	osdbuffer_t* ppppp  = NULL;	
-	//printf("cmdID : %d (%02x %02x %02x %02x %02x)\n",cmdID,imgID1,imgID2,imgID3,imgID4,imgID5);
+	printf("cmdID : %d (%02x %02x %02x %02x %02x)\n",cmdID,imgID1,imgID2,imgID3,imgID4,imgID5);
 	switch(cmdID)
 	{	
 		case BoresightPos:
@@ -186,7 +186,7 @@ void* recv_msg(SENDST *RS422)
 			
 			app_ctrl_setBoresightPos(pMsg);
 			break;
-
+	#if !LINKAGE_FUNC
 		case AcqPos:
 			memcpy(&Racqpos, RS422->param, sizeof(Racqpos));
 			imgID6 = Racqpos.AcqStat;
@@ -228,6 +228,7 @@ void* recv_msg(SENDST *RS422)
 				app_ctrl_setAxisPos(pMsg);
 			}
 			break;
+	#endif
 
 		case osdbuffer:
 			memcpy(&disOsdBuf[imgID1],RS422->param,sizeof(osdbuffer_t));
