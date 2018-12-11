@@ -81,6 +81,7 @@ osdbuffer_t disOsdBufbak[32] = {0};
 wchar_t disOsd[32][33];
 
 #if LINKAGE_FUNC
+
 void CDisplayer::linkage_init()
 {
 	displayMode = PREVIEW_MODE;
@@ -99,11 +100,12 @@ void CDisplayer::linkage_init()
 		cout << "Create gun_UndistorMat Failed !!" << endl;
 	else
 		cout << "Create gun_UndistorMat Success !!" << endl;
-
+/*
 	videonamex = 100;
 	videonamey = 130;
-	timex = 100;
-	timey = 100;
+	*/
+	timex = disOsdBuf[osdID_time].posx;
+	timey = disOsdBuf[osdID_time].posy;
 	videonamefs = 2;
 }
 #endif
@@ -578,36 +580,60 @@ void CDisplayer::processsizeMenu(int value)
 
 void CDisplayer::processnameMenu(int value)
 {
-	osdbuffer_t disarr;
+	const int _osdID = 31;
 	CMD_EXT *extInCtrl = (CMD_EXT*)ipc_getimgstatus_p();
 	extInCtrl->osdTextSize = gThis->videonamefs;
 
 	if(0 == value)
 	{
-		disarr.ctrl = 0;
+		disOsdBuf[osdID_name].ctrl = 0;
 	}
 	else if(1 == value)
 	{
-		disarr.ctrl = 1;
+		disOsdBuf[osdID_name].ctrl = 1;
 	}
-	
+#if 0
 	disarr.color = 2;
 	disarr.osdID = 31;
 	disarr.posx = gThis->videonamex;
 	disarr.posy = gThis->videonamey;
 	disarr.alpha= 0;
 	sprintf((char *)disarr.buf, "Tracker  ShangHai");
+#endif
 
-	memcpy(&disOsdBuf[31],&disarr,sizeof(disarr));
+	//memcpy(&disOsdBuf[31],&disarr,sizeof(disarr));
 	setlocale(LC_ALL, "zh_CN.UTF-8");
-	memcpy(&disOsdBufbak[31],&disOsdBuf[31],sizeof(osdbuffer_t));
-	swprintf(disOsd[31], 33, L"%s", disOsdBuf[31].buf);
+	memcpy(&disOsdBufbak[osdID_name],&disOsdBuf[osdID_name],sizeof(osdbuffer_t));
+	swprintf(disOsd[osdID_name], 33, L"%s", disOsdBuf[osdID_name].buf);
+
+	gThis->sendIPC_Videoname(value);
+}
+
+void CDisplayer::sendIPC_Videoname(int value)
+{
+	osdtext_t* osd_ipc = ipc_getosdtextstatus_p();
+	osd_ipc->osdID[osdID_name] = osdID_name;
+
+	if(0 == value)
+	{
+		osd_ipc->ctrl[osdID_name] = 0;
+	}
+	else if(1 == value)
+	{
+		osd_ipc->ctrl[osdID_name] = 1;
+	}
+
+	SENDST test = {0};
+	test.cmd_ID = read_shm_osdtext;
+	test.param[0] = osdID_name;
+	ipc_sendmsg(&test, IPC_FRIMG_MSG);
 }
 
 void CDisplayer::processfontsizeMenu(int value)
 {
 	CMD_EXT *extInCtrl = (CMD_EXT*)ipc_getimgstatus_p();
-	
+	OSDSTATUS *osdtmp = ipc_getosdstatus_p();
+
 	if(0 == value)
 		gThis->videonamefs = 1;
 	else if(1 == value)
@@ -615,11 +641,18 @@ void CDisplayer::processfontsizeMenu(int value)
 	else if(2 == value)
 		gThis->videonamefs = 3;
 
-	extInCtrl->osdTextSize = gThis->videonamefs;
+	osdtmp->OSD_text_size = extInCtrl->osdTextSize = gThis->videonamefs;
+
+	SENDST test = {0};
+	test.cmd_ID = ipcwordSize;
+	test.param[0] = osdtmp->OSD_text_size;
+	ipc_sendmsg(&test, IPC_FRIMG_MSG);
+
 }
 
 void CDisplayer::processosdposMenu(int value)
 {
+
 	if(0 == value)
 	{
 		gThis->timex = 100;
@@ -636,14 +669,49 @@ void CDisplayer::processosdposMenu(int value)
 		
 	}
 
-	osdbuffer_t disarr = disOsdBuf[31];
-	disarr.posx= gThis->videonamex;
-	disarr.posy= gThis->videonamey;
+	gThis->sendIPC_Time_pos();
+	struct timeval tmp;
+	tmp.tv_sec = 0;
+	tmp.tv_usec = 5000;
+	select(0, NULL, NULL, NULL, &tmp);
+	gThis->sendIPC_VideoName_pos();
 
-	memcpy(&disOsdBuf[31],&disarr,sizeof(disarr));
+}
+
+void CDisplayer::sendIPC_VideoName_pos()
+{
+	osdtext_t* osd_ipc = ipc_getosdtextstatus_p();
+
+	osd_ipc->osdID[osdID_name] = disOsdBuf[osdID_name].osdID = osdID_name;
+	osd_ipc->posx[osdID_name] = disOsdBuf[osdID_name].posx= gThis->videonamex;
+	osd_ipc->posy[osdID_name] = disOsdBuf[osdID_name].posy= gThis->videonamey;
+
 	setlocale(LC_ALL, "zh_CN.UTF-8");
-	memcpy(&disOsdBufbak[31],&disOsdBuf[31],sizeof(osdbuffer_t));
-	swprintf(disOsd[31], 33, L"%s", disOsdBuf[31].buf);
+	memcpy(&disOsdBufbak[osdID_name],&disOsdBuf[osdID_name],sizeof(osdbuffer_t));
+	swprintf(disOsd[osdID_name], 33, L"%s", disOsdBuf[osdID_name].buf);
+
+	SENDST test = {0};
+	test.cmd_ID = read_shm_osdtext;
+	test.param[0] = osdID_name;
+	ipc_sendmsg(&test, IPC_FRIMG_MSG);
+}
+
+void CDisplayer::sendIPC_Time_pos()
+{
+	osdtext_t* osd_ipc = ipc_getosdtextstatus_p();
+
+	osd_ipc->osdID[osdID_time] = disOsdBuf[osdID_time].osdID = osdID_time;
+	osd_ipc->posx[osdID_time] = disOsdBuf[osdID_time].posx= gThis->timex;
+	osd_ipc->posy[osdID_time] = disOsdBuf[osdID_time].posy= gThis->timey;
+
+	setlocale(LC_ALL, "zh_CN.UTF-8");
+	memcpy(&disOsdBufbak[osdID_time],&disOsdBuf[osdID_time],sizeof(osdbuffer_t));
+	swprintf(disOsd[osdID_time], 33, L"%s", disOsdBuf[osdID_time].buf);
+
+	SENDST test = {0};
+	test.cmd_ID = read_shm_osdtext;
+	test.param[0] = osdID_time;
+	ipc_sendmsg(&test, IPC_FRIMG_MSG);
 }
 
 void CDisplayer::processbuadrateMenu(int value)

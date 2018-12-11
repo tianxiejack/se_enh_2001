@@ -255,6 +255,7 @@ protected:
 	int mapgun2fullscreen_point(int *x, int *y);
 	mouserect maprect(mouserect rectcur,mouserect rectsrc,mouserect rectdest);
 	int maprect_point(int *x, int *y, mouserect rectsrc,mouserect rectdest);
+	void sendIPC_Time(int value);
 
 #else
 	static void mousemotion_event(GLint xMouse, GLint yMouse);

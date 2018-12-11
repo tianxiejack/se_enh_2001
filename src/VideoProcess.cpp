@@ -28,6 +28,9 @@ static int count=0;
 int ScalerLarge,ScalerMid,ScalerSmall;
 #if LINKAGE_FUNC
 	extern SingletonSysParam* g_sysParam;
+	extern osdbuffer_t disOsdBuf[32];
+	extern osdbuffer_t disOsdBufbak[32];
+	extern wchar_t disOsd[32][33];
 #endif
 
 int CVideoProcess::MAIN_threadCreate(void)
@@ -337,7 +340,7 @@ void CVideoProcess::linkage_init()
 	
 	m_Gun_GrayMat = Scalar(255);
 
-	m_time_show = m_time_flag = 0;
+	m_time_show = m_time_flag = disOsdBuf[osdID_time].ctrl;
 	
 	m_rgbMat.create(1080,1920,CV_8UC3);
 	if( m_rgbMat.empty())
@@ -483,6 +486,29 @@ void CVideoProcess::processtimeMenu(int value)
 	}
 	else if(1 == value)
 		pThis->m_time_show = 0;
+
+	pThis->sendIPC_Time(value);
+}
+
+void CVideoProcess::sendIPC_Time(int value)
+{
+	osdtext_t* osd_ipc = ipc_getosdtextstatus_p();
+
+	osd_ipc->osdID[osdID_time] = disOsdBuf[osdID_time].osdID = osdID_time;
+
+	if(value == 0)
+		osd_ipc->ctrl[osdID_time] = disOsdBuf[osdID_time].ctrl = 1;
+	else if(value == 1)
+		osd_ipc->ctrl[osdID_time] = disOsdBuf[osdID_time].ctrl = 0;
+
+	setlocale(LC_ALL, "zh_CN.UTF-8");
+	memcpy(&disOsdBufbak[osdID_time],&disOsdBuf[osdID_time],sizeof(osdbuffer_t));
+	swprintf(disOsd[osdID_time], 33, L"%s", disOsdBuf[osdID_time].buf);
+
+	SENDST test = {0};
+	test.cmd_ID = read_shm_osdtext;
+	test.param[0] = osdID_time;
+	ipc_sendmsg(&test, IPC_FRIMG_MSG);
 }
 
 void CVideoProcess::processsmanualcarliMenu(int value)

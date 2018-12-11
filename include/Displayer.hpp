@@ -118,6 +118,9 @@ typedef struct _ds_init_param{
 		TOTAL_MODE_COUNT
 	}DISPLAYMODE;
 
+	const int osdID_time = 30;
+	const int osdID_name = 31;
+
 #endif
 
 
@@ -153,6 +156,11 @@ public:
 	DISPLAYMODE getDisplayMode( );
 	void linkage_init();
 	void linkageSwitchMode(void);
+
+private:
+	void sendIPC_Videoname(int value);
+	void sendIPC_VideoName_pos();
+	void sendIPC_Time_pos();
 #endif
 
 public:

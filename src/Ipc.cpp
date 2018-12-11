@@ -238,6 +238,7 @@ void* recv_msg(SENDST *RS422)
 		case read_shm_osdtext:
 			{
 				osdtext_t *osdtexttmp = ipc_getosdtextstatus_p();
+
 				for(int i = 0; i < 32; i++)
 				{
 					disOsdBuf[i].osdID = osdtexttmp->osdID[i];
@@ -729,10 +730,10 @@ void Ipc_pthread_start(void)
 {
 	int shm_perm[IPC_MAX];
 	shm_perm[IPC_SHA] = shm_rdwr;
-	shm_perm[IPC_OSD_SHA] = shm_rdonly;
+	shm_perm[IPC_OSD_SHA] = shm_rdwr;
 	shm_perm[IPC_UTCTRK_SHA] = shm_rdonly;	
 	shm_perm[IPC_LKOSD_SHA] = shm_rdonly;
-	shm_perm[IPC_OSDTEXT_SHA] = shm_rdonly;
+	shm_perm[IPC_OSDTEXT_SHA] = shm_rdwr;
 	Ipc_init();
 	Ipc_create(shm_perm);
 
