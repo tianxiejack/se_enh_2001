@@ -26,12 +26,6 @@ int CVideoProcess::m_iTrackLostCnt = 0;
 int64 CVideoProcess::tstart = 0;
 static int count=0;
 int ScalerLarge,ScalerMid,ScalerSmall;
-#if LINKAGE_FUNC
-	extern SingletonSysParam* g_sysParam;
-	extern osdbuffer_t disOsdBuf[32];
-	extern osdbuffer_t disOsdBufbak[32];
-	extern wchar_t disOsd[32][33];
-#endif
 
 int CVideoProcess::MAIN_threadCreate(void)
 {
@@ -143,13 +137,8 @@ void CVideoProcess::main_proc_func()
 			continue;
 		}
 
-	#if LINKAGE_FUNC
-		if(chId != m_curSubChId)
-			continue;
-	#else
 		if(chId != m_curChId)
 			continue;
-	#endif
 	
 		frame_gray = Mat(frame.rows, frame.cols, CV_8UC1);
 
@@ -291,11 +280,7 @@ void CVideoProcess::main_proc_func()
 		#if __MOVE_DETECT__
 			if(m_pMovDetector != NULL)
 			{
-#if LINKAGE_FUNC
-				m_pMovDetector->setFrame(frame_gray,0,2,minsize,maxsize,16);
-#else
 				m_pMovDetector->setFrame(frame_gray,chId,2,minsize,maxsize,16);
-#endif
 			}
 		#endif
 		}
@@ -323,45 +308,6 @@ int CVideoProcess::MAIN_threadDestroy(void)
 	return iRet;
 }
 
-#if LINKAGE_FUNC
-void CVideoProcess::linkage_init()
-{
-	m_GrayMat.create(1080,1920,CV_8UC1);
-	if(m_GrayMat.empty()) 
-		cout << "Create m_GrayMat Failed !!" << endl;
-	else
-		cout << "Create m_GrayMat Success !!" << endl;
-	
-	m_Gun_GrayMat.create(1080,1920,CV_8UC1);
-	if(m_Gun_GrayMat.empty())
-		cout << "Create m_Gun_GrayMat Failed !!" << endl;
-	else
-		cout << "Create m_Gun_GrayMat Success !!" << endl;
-	
-	m_Gun_GrayMat = Scalar(255);
-
-	m_time_show = m_time_flag = disOsdBuf[osdID_time].ctrl;
-	
-	m_rgbMat.create(1080,1920,CV_8UC3);
-	if( m_rgbMat.empty())
-		cout << "Create m_rgbMat Failed !!" << endl;
-	else
-		cout << "Create m_rgbMat Success !!" << endl;
-	
-	if(m_camCalibra == NULL)
-		cout << "Create CamCalibrate Object Failed !!" << endl;
-	
-	if( !m_camCalibra->Load_CameraParams("gun_camera_data.yml", "ball_camera_data.yml") )
-		cout << " Load Camera Origin IntrinsicParameters Failed !!!" << endl;
-
-	m_camCalibra->Init_CameraParams();
-	m_camCalibra->RunService();
-}
-
-CcCamCalibra* CVideoProcess::m_camCalibra = new CcCamCalibra();
-
-#endif
-
 CVideoProcess::CVideoProcess()
 	:m_track(NULL),m_curChId(MAIN_CHID),m_curSubChId(-1),adaptiveThred(40)		
 {
@@ -388,9 +334,7 @@ CVideoProcess::CVideoProcess()
 	preAcpSR	={0};
 	algOsdRect = false;
 
-#if (!LINKAGE_FUNC)
 	mptz_click = mptz_originX = mptz_originY = 0;
-#endif
 	
 #if __MOVE_DETECT__
 	m_pMovDetector	=NULL;
@@ -406,13 +350,6 @@ CVideoProcess::CVideoProcess()
 	minsize = 1000;
 #endif
 
-#if LINKAGE_FUNC
-	m_curChId = video_gaoqing ;
-	m_curSubChId = video_gaoqing0 ;
-	Set_SelectByRect = false ;
-	open_handleCalibra = false ;
-	linkage_init();
-#endif
 	m_click = m_draw = m_tempX = m_tempY = 0;
 	memset(m_rectn, 0, sizeof(m_rectn));
 	memset(mRect, 0, sizeof(mRect));
@@ -476,489 +413,6 @@ int CVideoProcess::destroy()
 	return 0;
 }
 
-#if LINKAGE_FUNC	
-void CVideoProcess::processtimeMenu(int value)
-{
-	if(0 == value)
-	{
-		pThis->m_time_show = 1;
-		pThis->m_time_flag = 1;
-	}
-	else if(1 == value)
-		pThis->m_time_show = 0;
-
-	pThis->sendIPC_Time(value);
-}
-
-void CVideoProcess::sendIPC_Time(int value)
-{
-	osdtext_t* osd_ipc = ipc_getosdtextstatus_p();
-
-	osd_ipc->osdID[osdID_time] = disOsdBuf[osdID_time].osdID = osdID_time;
-
-	if(value == 0)
-		osd_ipc->ctrl[osdID_time] = disOsdBuf[osdID_time].ctrl = 1;
-	else if(value == 1)
-		osd_ipc->ctrl[osdID_time] = disOsdBuf[osdID_time].ctrl = 0;
-
-	setlocale(LC_ALL, "zh_CN.UTF-8");
-	memcpy(&disOsdBufbak[osdID_time],&disOsdBuf[osdID_time],sizeof(osdbuffer_t));
-	swprintf(disOsd[osdID_time], 33, L"%s", disOsdBuf[osdID_time].buf);
-
-	SENDST test = {0};
-	test.cmd_ID = read_shm_osdtext;
-	test.param[0] = osdID_time;
-	ipc_sendmsg(&test, IPC_FRIMG_MSG);
-}
-
-void CVideoProcess::processsmanualcarliMenu(int value)
-{
-	//printf("%s start, value = %d\n", __FUNCTION__, value);
-	switch(value){
-		case 0:
-			g_sysParam->getSysParam().cameracalibrate.Enable_handleCalibrate = true;
-			g_sysParam->getSysParam().cameracalibrate.Enable_Undistortion = true;
-			break;
-		case 1:
-			g_sysParam->getSysParam().cameracalibrate.Enable_cloneSrcImage = true;
-			break;
-		case 2:
-			g_sysParam->getSysParam().cameracalibrate.Enable_calculateMatrix= true;
-			break;
-		case 3:
-			g_sysParam->getSysParam().cameracalibrate.Enable_saveParameter= true;
-			break;
-		case 4:
-			g_sysParam->getSysParam().cameracalibrate.Enable_handleCalibrate = false;
-			g_sysParam->getSysParam().cameracalibrate.Enable_Undistortion = false;	
-			g_sysParam->getSysParam().cameracalibrate.Enable_cloneSrcImage = false;	
-			g_sysParam->getSysParam().cameracalibrate.Enable_calculateMatrix= false;	
-			g_sysParam->getSysParam().cameracalibrate.Enable_saveParameter= false;	
-			//g_sysParam->getSysParam().cameracalibrate.Enable_AutoDetectMoveTargets = false;
-		break;
-		default :
-			break;
-	}	
-}
-
-void CVideoProcess::processsautocarliMenu(int value)
-{
-	//printf("%s start, value=%d\n", __FUNCTION__, value);
-	switch(value){
-		#if 0
-		case 0:
-			g_sysParam->getSysParam().cameracalibrate.Enable_handleCalibrate = true;
-			g_sysParam->getSysParam().cameracalibrate.Enable_Undistortion = true;
-			break;
-		#endif
-		case 1:
-			g_sysParam->getSysParam().cameracalibrate.Enable_cloneSrcImage = true;
-			break;
-		case 2:
-			g_sysParam->getSysParam().cameracalibrate.Enable_calculateMatrix= true;
-			break;
-		case 3:
-			g_sysParam->getSysParam().cameracalibrate.Enable_saveParameter= true;
-			break;
-		case 4:
-			g_sysParam->getSysParam().cameracalibrate.Enable_handleCalibrate = false;
-			g_sysParam->getSysParam().cameracalibrate.Enable_Undistortion = false;	
-			g_sysParam->getSysParam().cameracalibrate.Enable_cloneSrcImage = false;	
-			g_sysParam->getSysParam().cameracalibrate.Enable_calculateMatrix= false;	
-			g_sysParam->getSysParam().cameracalibrate.Enable_saveParameter= false;	
-			//g_sysParam->getSysParam().cameracalibrate.Enable_AutoDetectMoveTargets = false;
-		break;
-		default :
-			break;
-	}	
-}
-
-
-
-int CVideoProcess::click_legal(int x, int y)
-{
-	y = 1080 - y;
-	if(in_gun_area(x, y))
-	{
-		click_in_area = 1;	//click in gun area
-		return 1;
-	}
-	else if(in_ball_area(x, y))
-	{
-		click_in_area = 2; //click in ball area
-		return 1;
-	}
-	else 
-	{
-		click_in_area = 0; //click in illegal area
-		return 0;
-	}
-}
-
-int CVideoProcess::move_legal(int x, int y)
-{
-	y = 1080 - y;
-	if(1 == click_in_area)
-	{
-		if(in_gun_area(x, y))
-			return 1;
-		else
-			return 0;
-	}
-	else if(2 == click_in_area)
-	{
-		if(in_ball_area(x, y))
-			return 1;
-		else
-			return 0;
-	}
-}
-
-int CVideoProcess::in_gun_area(int x, int y)
-{
-	int dismode = m_display.displayMode;
-	switch(dismode)
-	{
-		case PREVIEW_MODE:
-			if((x > 960 && x < 1920) && (y > 540 && y < 1080))
-				return 1;
-			else
-				return 0;
-			break;
-		case PIC_IN_PIC:
-			if(((x > 0 && x < 1440) && (y > 0 && y < 1080)) ||((x > 1440 && x < 1920) && (y > 0 && y < 810)))
-				return 1;
-			else
-				return 0;
-			break;
-		case SIDE_BY_SIDE:
-			if((x > 960 && x < 1920) && (y > 0 && y < 1080))
-				return 1;
-			else
-				return 0;
-			break;
-		case LEFT_BALL_RIGHT_GUN:
-			if((x > 480 && x < 1920) && (y > 270 && y < 1080))
-				return 1;
-			else
-				return 0;
-			break;
-		default:
-			printf("%s,%d, unknown displayMode:%d\n", __FILE__, __LINE__, dismode);
-			return 0;
-			break;
-	}
-}
-
-int CVideoProcess::in_ball_area(int x, int y)
-{
-	int dismode = m_display.displayMode;
-	switch(dismode)
-	{
-		case PREVIEW_MODE:
-			if((x > 0 && x < 960) && (y > 540 && y < 1080))
-				return 1;
-			else
-				return 0;
-			break;
-		case PIC_IN_PIC:
-			if((x > 1440 && x < 1920) && (y > 810 && y < 1080))
-				return 1;
-			else
-				return 0;
-			break;
-		case SIDE_BY_SIDE:
-			if((x > 0 && x < 960) && (y > 0 && y < 1080))
-				return 1;
-			else
-				return 0;
-			break;
-		case LEFT_BALL_RIGHT_GUN:
-			if((x > 0 && x < 480) && (y > 810 && y < 1080))
-				return 1;
-			else
-				return 0;
-			break;
-		default:
-			printf("%s,%d, unknown displayMode:%d\n", __FILE__, __LINE__, dismode);
-			return 0;
-			break;
-	}
-}
-
-mouserect CVideoProcess::map2preview(mouserect rectcur)
-{
-	int dismode = m_display.displayMode;
-	switch(dismode)
-	{
-		case PREVIEW_MODE:
-			return rectcur;
-			break;
-		case PIC_IN_PIC:
-			return mappip2preview(rectcur);
-			break;
-		case SIDE_BY_SIDE:
-			return mapsbs2preview(rectcur);
-			break;
-		case LEFT_BALL_RIGHT_GUN:
-			return maplbrg2preview(rectcur);
-			break;
-		default:
-			printf("%s,%d, unknown displayMode:%d\n", __FILE__, __LINE__, dismode);
-			return rectcur;
-			break;			
-	}
-}
-
-mouserect CVideoProcess::mappip2preview(mouserect rectcur)
-{
-	mouserect rectpip;
-	mouserect rectpreview;
-	if(1 == click_in_area)
-	{
-		rectpip.x = 0;
-		rectpip.y = 0;
-		rectpip.w = 1920;
-		rectpip.h = 1080;
-		
-		rectpreview.x = 960;
-		rectpreview.y = 0;
-		rectpreview.w = 960;
-		rectpreview.h = 540;
-	}
-	else if(2 == click_in_area)
-	{
-	
-		rectpip.x = 1440;
-		rectpip.y = 0;
-		rectpip.w = 480;
-		rectpip.h = 270;
-		
-		rectpreview.x = 0;
-		rectpreview.y = 0;
-		rectpreview.w = 960;
-		rectpreview.h = 540;
-	}
-
-	return maprect(rectcur, rectpip, rectpreview);
-}
-
-mouserect CVideoProcess::mapsbs2preview(mouserect rectcur)
-{
-	mouserect rectsbs;
-	mouserect rectpreview;
-	if(1 == click_in_area)
-	{
-		rectsbs.x = 960;
-		rectsbs.y = 0;
-		rectsbs.w = 960;
-		rectsbs.h = 1080;
-		
-		rectpreview.x = 960;
-		rectpreview.y = 0;
-		rectpreview.w = 960;
-		rectpreview.h = 540;
-	}
-	else if(2 == click_in_area)
-	{
-		rectsbs.x = 0;
-		rectsbs.y = 0;
-		rectsbs.w = 960;
-		rectsbs.h = 1080;
-		
-		rectpreview.x = 0;
-		rectpreview.y = 0;
-		rectpreview.w = 960;
-		rectpreview.h = 540;
-	}
-
-	return maprect(rectcur, rectsbs, rectpreview);
-}
-
-mouserect CVideoProcess::maplbrg2preview(mouserect rectcur)
-{
-	mouserect rectlbrg;
-	mouserect rectpreview;
-	if(1 == click_in_area)
-	{
-		rectlbrg.x = 480;
-		rectlbrg.y = 0;
-		rectlbrg.w = 1440;
-		rectlbrg.h = 810;
-		
-		rectpreview.x = 960;
-		rectpreview.y = 0;
-		rectpreview.w = 960;
-		rectpreview.h = 540;
-	}
-	else if(2 == click_in_area)
-	{
-		rectlbrg.x = 0;
-		rectlbrg.y = 0;
-		rectlbrg.w = 480;
-		rectlbrg.h = 270;
-		
-		rectpreview.x = 0;
-		rectpreview.y = 0;
-		rectpreview.w = 960;
-		rectpreview.h = 540;
-	}
-
-	return maprect(rectcur, rectlbrg, rectpreview);
-}
-
-mouserect CVideoProcess::mapfullscreen2gun(mouserect rectcur)
-{
-	mouserect rect1080p;
-	mouserect rectgun;
-	
-	int dismode = m_display.displayMode;
-	rect1080p.x = 0;
-	rect1080p.y = 0;
-	rect1080p.w = 1920;
-	rect1080p.h = 1080;
-		
-	switch(dismode)
-	{
-		case PREVIEW_MODE:
-			rectgun.x = 960;
-			rectgun.y = 0;
-			rectgun.w = 960;
-			rectgun.h = 540;
-			break;
-		case PIC_IN_PIC:
-			rectgun.x = 0;
-			rectgun.y = 0;
-			rectgun.w = 1920;
-			rectgun.h = 1080;
-			break;
-		case SIDE_BY_SIDE:
-			rectgun.x = 960;
-			rectgun.y = 0;
-			rectgun.w = 960;
-			rectgun.h = 1080;
-			break;
-		case LEFT_BALL_RIGHT_GUN:
-			rectgun.x = 480;
-			rectgun.y = 0;
-			rectgun.w = 1440;
-			rectgun.h = 810;
-			break;
-		default:
-			break;
-
-	}
-	
-	return maprect(rectcur, rect1080p, rectgun);
-}
-
-mouserect CVideoProcess::mapgun2fullscreen(mouserect rectcur)
-{
-	mouserect rect1080p;
-	mouserect rectgun;
-	
-	int dismode = m_display.displayMode;
-	rect1080p.x = 0;
-	rect1080p.y = 0;
-	rect1080p.w = 1920;
-	rect1080p.h = 1080;
-		
-	switch(dismode)
-	{
-		case PREVIEW_MODE:
-			rectgun.x = 960;
-			rectgun.y = 0;
-			rectgun.w = 960;
-			rectgun.h = 540;
-			break;
-		case PIC_IN_PIC:
-			rectgun.x = 0;
-			rectgun.y = 0;
-			rectgun.w = 1920;
-			rectgun.h = 1080;
-			break;
-		case SIDE_BY_SIDE:
-			rectgun.x = 960;
-			rectgun.y = 0;
-			rectgun.w = 960;
-			rectgun.h = 1080;
-			break;
-		case LEFT_BALL_RIGHT_GUN:
-			rectgun.x = 480;
-			rectgun.y = 0;
-			rectgun.w = 1440;
-			rectgun.h = 810;
-			break;
-		default:
-			break;
-	}
-	return maprect(rectcur, rectgun, rect1080p);
-}
-
-int CVideoProcess::mapgun2fullscreen_point(int *x, int *y)
-{
-	mouserect rect1080p;
-	mouserect rectgun;
-	
-	int dismode = m_display.displayMode;
-	rect1080p.x = 0;
-	rect1080p.y = 0;
-	rect1080p.w = 1920;
-	rect1080p.h = 1080;
-		
-	switch(dismode)
-	{
-		case PREVIEW_MODE:
-			rectgun.x = 960;
-			rectgun.y = 0;
-			rectgun.w = 960;
-			rectgun.h = 540;
-			break;
-		case PIC_IN_PIC:
-			rectgun.x = 0;
-			rectgun.y = 0;
-			rectgun.w = 1920;
-			rectgun.h = 1080;
-			break;
-		case SIDE_BY_SIDE:
-			rectgun.x = 960;
-			rectgun.y = 0;
-			rectgun.w = 960;
-			rectgun.h = 1080;
-			break;
-		case LEFT_BALL_RIGHT_GUN:
-			rectgun.x = 480;
-			rectgun.y = 0;
-			rectgun.w = 1440;
-			rectgun.h = 810;
-			break;
-		default:
-			break;
-	}
-	return maprect_point(x, y, rectgun, rect1080p);
-}
-
-mouserect CVideoProcess::maprect(mouserect rectcur,mouserect rectsrc,mouserect rectdest)
-{
-	mouserect rect_result;
-
-	rect_result.x = (rectcur.x-rectsrc.x)*rectdest.w/rectsrc.w+rectdest.x;
-	rect_result.y = (rectcur.y-rectsrc.y)*rectdest.h/rectsrc.h+rectdest.y;
-	rect_result.w = rectcur.w*rectdest.w/rectsrc.w;
-	rect_result.h = rectcur.h*rectdest.h/rectsrc.h;
-	return rect_result;
-}
-
-int CVideoProcess::maprect_point(int *x, int *y, mouserect rectsrc,mouserect rectdest)
-{
-	if(NULL != x)
-		*x = (*x-rectsrc.x)*rectdest.w/rectsrc.w+rectdest.x;
-	if(NULL != y)
-		*y = (*y-rectsrc.y)*rectdest.h/rectsrc.h+rectdest.y;
-	return 0;
-}
-
-#else
 
 void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
 {
@@ -975,7 +429,6 @@ void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
 	}
 }
 
-#endif
 
 int CVideoProcess::map1080p2normal_point(float *x, float *y)
 {
@@ -1030,28 +483,10 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 
 	int Critical_Point;	
 
-#if LINKAGE_FUNC
-	if(pThis->m_display.g_CurDisplayMode == PIC_IN_PIC) {
-		curId = 0;	
-	}else{
 		curId = pThis->m_curChId;
-	}
-#else
-		curId = pThis->m_curChId;
-#endif	
 
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-#if LINKAGE_FUNC
-
-		//pThis->OnMouseLeftDwn(x, y);   // add by swj
-		
-		if(pThis->open_handleCalibra || g_sysParam->isEnable_HandleCalibrate()) // Press 'y' or 'Y' , set this flag to 1
-		{
-			pThis->OnMouseLeftDwn(x, y);
-		}
-		else
-#endif
 		{
 			if( pThis->setrigon_flag && !m_bMoveDetect)
 			{
@@ -1111,10 +546,7 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 					pThis->polWarnRect[curId][3].x = rectsrcf.x;
 					pThis->polWarnRect[curId][3].y = rectsrcf.y+rectsrcf.h;
 					pThis->polwarn_count[curId] = 4;
-					
-#if LINKAGE_FUNC
-					rectsrcf = pThis->mapgun2fullscreen(rectsrcf);
-#endif				
+								
 					std::vector<cv::Point> polyWarnRoi ;
 					polyWarnRoi.resize(4);		
 					polyWarnRoi[0] = cv::Point(rectsrcf.x, rectsrcf.y);
@@ -1122,11 +554,7 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 					polyWarnRoi[2] = cv::Point(rectsrcf.x+rectsrcf.w, rectsrcf.y+rectsrcf.h);
 					polyWarnRoi[3] = cv::Point(rectsrcf.x, rectsrcf.y+rectsrcf.h);
 
-#if LINKAGE_FUNC
-					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	0);
-#else
 					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	curId);		
-#endif
 					pThis->m_rectn[curId]++;
 					if(pThis->m_rectn[curId]>=sizeof(pThis->mRect[0]))
 					{
@@ -1153,89 +581,7 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 			}
 			else
 			{
-				#if LINKAGE_FUNC
-					if(pThis->m_click == 0)
-					{
-						if(pThis->click_legal(x,y))
-						{
-							pThis->LeftPoint.x = x;
-							pThis->LeftPoint.y = y;
 
-							pThis->m_click = 1;
-							pThis->m_rectn[curId] = 0;
-							pThis->mRect[curId][pThis->m_rectn[curId]].x1 = x;
-							pThis->mRect[curId][pThis->m_rectn[curId]].y1 = y;
-							cout<<" start:("<<pThis->mRect[curId][pThis->m_rectn[curId]].x1<<","<<pThis->mRect[curId][pThis->m_rectn[curId]].y1<<")"<<endl;
-						}
-						else
-							printf("click illegal!!!\n");
-					}
-					else
-					{
-						if(pThis->move_legal(x,y))
-						{
-						
-							pThis->RightPoint.x = x;
-							pThis->RightPoint.y = y;
-
-							pThis->m_click = 0;
-							pThis->mRect[curId][pThis->m_rectn[curId]].x2 = x;
-							pThis->mRect[curId][pThis->m_rectn[curId]].y2 = y;
-							cout<<" end:("<<pThis->mRect[curId][pThis->m_rectn[curId]].x2<<","<<pThis->mRect[curId][pThis->m_rectn[curId]].y2<<")\n"<<endl;
-
-							mouserect rectsrc, recvdest;
-							rectsrc.x = pThis->mRect[curId][pThis->m_rectn[curId]].x1;
-							rectsrc.y = pThis->mRect[curId][pThis->m_rectn[curId]].y1;
-							rectsrc.w = pThis->mRect[curId][pThis->m_rectn[curId]].x2 - pThis->mRect[curId][pThis->m_rectn[curId]].x1;
-							rectsrc.h = pThis->mRect[curId][pThis->m_rectn[curId]].y2 - pThis->mRect[curId][pThis->m_rectn[curId]].y1;
-
-							recvdest = pThis->map2preview(rectsrc);
-							
-							pThis->m_rectn[curId]++;  
-							if(pThis->m_rectn[curId]>=sizeof(pThis->mRect[0]))
-							{
-								printf("mouse rect reached maxnum:100!\n");
-								pThis->m_rectn[curId]--;
-							}
-							pThis->m_draw = 1;	
-
-						switch( pThis->m_display.g_CurDisplayMode){
-							case PREVIEW_MODE:
-							case SIDE_BY_SIDE:
-								Critical_Point = 960;
-							break;
-							case PIC_IN_PIC:
-								Critical_Point = 1440;
-								break;
-							case LEFT_BALL_RIGHT_GUN:
-								Critical_Point = 480;
-								break;
-							default:
-							break;
-						}
-						
-						if( pThis->m_display.g_CurDisplayMode != PIC_IN_PIC){
-							if(x > Critical_Point) {							
-								pThis->reMapCoords(x,y,true);								
-							}
-							else {
-								pThis->moveToDest();
-							}
-						}else{
-							if(x < Critical_Point) {							
-								pThis->reMapCoords(x,y,true);								
-							}
-							else {
-								pThis->moveToDest();
-							}
-						}
-							
-						}
-						else
-							printf("move illegal!!!\n");
-					}
-					
-				#endif
 			}
 		}
 		
@@ -1260,23 +606,15 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 			{
 				setx = pThis->polRect[curId][i].x;
 				sety = pThis->polRect[curId][i].y;
-#if LINKAGE_FUNC
-				pThis->mapgun2fullscreen_point(&setx, &sety);
-#endif	
 				polyWarnRoi[i] = cv::Point(setx, sety);
-			}
-#if LINKAGE_FUNC
-			pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	0);
-#else			
+			}		
 			pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	curId);
-#endif
 			pThis->setrigon_polygon = 0;
 			pThis->pol_rectn[curId] = 0;
 			pThis->pol_draw = 1;
 		}
 	}
 	
-#if (!LINKAGE_FUNC)
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		pThis->mptz_click = 1;
@@ -1296,20 +634,12 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 		ipc_sendmsg(&test, IPC_FRIMG_MSG);
 
 	}
-#endif
 }
 
 void CVideoProcess::mousemove_event(GLint xMouse, GLint yMouse)
 {
 	unsigned int curId;
-#if LINKAGE_FUNC
-	if(pThis->m_display.g_CurDisplayMode == PIC_IN_PIC)
-		curId = 0;
-	else
 		curId = pThis->m_curChId;
-#else
-		curId = pThis->m_curChId;
-#endif
 
 	float floatx,floaty;
 	floatx = xMouse;
@@ -1416,13 +746,7 @@ int CVideoProcess::init()
 {
 	DS_InitPrm dsInit;
 	memset(&dsInit, 0, sizeof(DS_InitPrm));
-#if LINKAGE_FUNC
-	dsInit.timefunc = processtimeMenu;	
-	dsInit.manualcarli = processsmanualcarliMenu;
-	dsInit.autocarli = processsautocarliMenu;	
-#else
 	dsInit.motionfunc = mousemotion_event;
-#endif
 	dsInit.menufunc = menu_event;
 	dsInit.mousefunc = mouse_event;
 	dsInit.passivemotionfunc = mousemove_event;
@@ -1798,9 +1122,6 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 //	tstart = getTickCount();
 	int  channel= frame.channels();
 
-#if LINKAGE_FUNC
-	static bool copy_once = true;
-#endif
 	
 
 #ifdef TM
@@ -1826,11 +1147,7 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 	OSA_mutexLock(&m_mutex);
 
 
-#if LINKAGE_FUNC
-	if(chId == m_curSubChId)
-#else
 	if(chId == m_curChId)
-#endif
 	{
 		if((chId==video_pal) && (virchId!= PAL_VIRCHID))
 			;
@@ -1855,31 +1172,6 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 		}
 	}
 
-	#if LINKAGE_FUNC	
-			if(	m_camCalibra->start_cloneVideoSrc == true || g_sysParam->isEnable_cloneSrcImage() ) 
-			{
-				//m_camCalibra->start_cloneVideoSrc = false;
-				//printf("%s : cloneVideoSrc \n",__func__);
-				#if !GUN_IMAGE_USEBMP
-					if(chId == GUN_CHID){
-						m_camCalibra->cloneGunSrcImgae(frame);
-						m_camCalibra->cvtGunYuyv2Bgr();
-					}
-				#endif
-					
-				if( chId == BALL_CHID )	{	
-					m_camCalibra->cloneBallSrcImgae(frame);
-					m_camCalibra->cvtBallYuyv2Bgr();
-				}
-			}
-			
-			if(  chId == 0 && copy_once == true) {
-				if(!frame.empty()) {
-					frame.copyTo(gun_srcMat_remap);
-					copy_once = false;
-				}
-			}
-	#endif
 	
 		
 	//OSA_printf("chid =%d  m_curChId=%d m_curSubChId=%d\n", chId,m_curChId,m_curSubChId);
@@ -2045,9 +1337,6 @@ void	CVideoProcess::initMvDetect()
 		recttmp.w = vdisWH[i][0] * (max_width_ratio - min_width_ratio);
 		recttmp.h = vdisWH[i][1] * (max_height_ratio - min_height_ratio); 
 
-#if LINKAGE_FUNC
-		recttmp = mapfullscreen2gun(recttmp);
-#endif
 		pThis->polWarnRect[i][0].x = recttmp.x;
 		pThis->polWarnRect[i][0].y = recttmp.y;
 		pThis->polWarnRect[i][1].x = recttmp.x+recttmp.w;
@@ -2058,9 +1347,6 @@ void	CVideoProcess::initMvDetect()
 		pThis->polWarnRect[i][3].y = recttmp.y+recttmp.h;
 		pThis->polwarn_count[i] = 4;
 
-#if LINKAGE_FUNC
-		recttmp = mapgun2fullscreen(recttmp);
-#endif
 		polyWarnRoi[0]	= cv::Point(recttmp.x,recttmp.y);
 	    polyWarnRoi[1]	= cv::Point(recttmp.x+recttmp.w,recttmp.y);
 	    polyWarnRoi[2]	= cv::Point(recttmp.x+recttmp.w,recttmp.y+recttmp.h);
@@ -2082,13 +1368,8 @@ void CVideoProcess::NotifyFunc(void *context, int chId)
 {
 	CVideoProcess *pParent = (CVideoProcess*)context;
 	pThis->detect_vect.clear();
-#if LINKAGE_FUNC
-	pThis->m_pMovDetector->getWarnTarget(pThis->detect_vect,0);
-#else
 	pThis->m_pMovDetector->getWarnTarget(pThis->detect_vect,chId);
-#endif
 
-#if !LINKAGE_FUNC
 	SENDST test;
 	test.cmd_ID = mtdnum;
 	if(0 == pThis->detect_vect.size())
@@ -2096,7 +1377,6 @@ void CVideoProcess::NotifyFunc(void *context, int chId)
 	else
 		test.param[0] = 1;
 	ipc_sendmsg(&test, IPC_FRIMG_MSG);
-#endif
 	
 	//pParent->m_display.m_bOsd = true;
 	//pThis->m_display.UpDateOsd(0);

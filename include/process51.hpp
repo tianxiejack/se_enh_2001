@@ -37,55 +37,6 @@ class CProcess : public CVideoProcess
 	char timedisplay[128];
 	bool forwardflag,backflag;
 
-#if LINKAGE_FUNC
-	int key_point1_cnt ;
-	int key_point2_cnt ;
-	int AllPoints_Num  ;
-	int string_cnt1;
-	int string_cnt2;
-	char show_key[64][6];
-	char show_key2[64][6];
-	Point key1_pos;
-	Point key2_pos;
-	Point key1_backup;
-	Point key2_backup;
-	Point textPos1_record[64];
-	Point textPos2_record[64];
-	Point textPos1_backup[64];
-	Point textPos2_backup[64];
-	Point circle_point;
-private:
-	bool m_bMarkCircle;
-	void Cmp_SysParam();
-	SysParam m_sysparm;
-	FileStorage readfs;
-	FileStorage writefs;
-	void getParams();
-	void setParams();
-	 //OSA_SemHndl m_linkage_getPos;
-	int panPos ;
-	 int tiltPos ;
-	 int zoomPos ;
-	int m_cofx , m_cofy;
-public:
-	bool readParams(const char* file);
-	bool writeParams(const char* file);
-	void reMapCoords(int x, int y , bool mode);
-	void moveToDest( );
-	void QueryCurBallCamPosition();
-	void setBallPos(int in_panPos, int in_tilPos, int in_zoom);
-	void Set_K_ByDeltaX( int delta_x);
-
-
-	void clickOnBallImage(int x, int y);
-
-	void Init_CameraMatrix();
-	Mat undisImageGun;
-	
-	void manualHandleKeyPoints(int &x,int &y);
-	
-	int checkZoomPosTable(int delta);
-#endif
 
 public:
 	CProcess();
@@ -168,10 +119,6 @@ protected:
 	 static void MSGAPI_update_camera(long IParam);
 	 static void MSGAPI_input_algosdrect(long lParam);
 	 static void MSGAPI_setMtdSelect(long lParam );
-
-#if LINKAGE_FUNC
-	 static void MSGAPI_update_ballPos(long lParam );
-#endif
 
 private:
 	ACK_EXT extOutAck;

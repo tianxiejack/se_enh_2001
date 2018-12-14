@@ -25,11 +25,6 @@ int glosttime = 3000;
 OSA_SemHndl g_linkage_getPos;
 
 SENDST trkmsg={0};
-#if LINKAGE_FUNC
-	extern CamParameters g_camParams;
-	Point dest_ballPoint = Point(-100,-100);
-	extern SingletonSysParam* g_sysParam;
-#endif
 void inputtmp(unsigned char cmdid)
 {
 	plat->OnKeyDwn(cmdid);
@@ -51,11 +46,7 @@ void getMtdxy(int *x,int *y,int *w,int *h)
 }
 #endif
 
-#if LINKAGE_FUNC
-CProcess::CProcess():m_bMarkCircle(false),panPos(1024),tiltPos(13657),zoomPos(16),m_cofx(6200),m_cofy(6320)
-#else
 CProcess::CProcess()
-#endif
 {
 	memset(rcTrackBak, 0, sizeof(rcTrackBak));
 	memset(tgBak, 0, sizeof(tgBak));
@@ -152,40 +143,6 @@ CProcess::CProcess()
 #endif
 	forwardflag = backflag = false;
 
-#if LINKAGE_FUNC
-	
-	key_point1_cnt =0;
-	key_point2_cnt =0;
-	AllPoints_Num =0;
-	m_bMarkCircle = false ;
-	string_cnt1 =0;
-	string_cnt2 =0;
-	key1_pos = Point(-30,-30);
-	key2_pos = Point(-80,-80);
-	key1_backup = key1_pos;
-	key2_backup = key2_pos;
-	
-	if(!readParams("SysParm.yml")) {
-		printf("read param error\n");
-	}
-	else
-	{	
-		 vcapWH[0][0] = m_sysparm.gun_camera.raw;
-		 vcapWH[0][1] = m_sysparm.gun_camera.col;
-		 vcapWH[1][0] = m_sysparm.ball_camera.raw;
-		 vcapWH[1][1] = m_sysparm.ball_camera.col;
-
-		 vdisWH[0][0] = m_sysparm.gun_camera.raw;
-		 vdisWH[0][1] = m_sysparm.gun_camera.col;
-		 vdisWH[1][0] = m_sysparm.ball_camera.raw;
-		 vdisWH[1][1] = m_sysparm.ball_camera.col;
-	}
-
-	if(m_camCalibra != NULL) {
-		m_camCalibra->key_points1.clear();
-		m_camCalibra->key_points2.clear();
-	}
-#endif
 
 	OSA_semCreate(&g_linkage_getPos, 1, 0);
 
@@ -395,70 +352,8 @@ void CProcess::OnCreate()
 {
 	MSGAPI_initial();
 
-	#if LINKAGE_FUNC
-
-		//OnKeyDwn('b');	
-		bool ret = false;
-		if(false==(ret=m_camCalibra->loadLinkageParams("GenerateCameraParam.yml", g_camParams.imageSize, g_camParams.cameraMatrix_gun, 
-					g_camParams.distCoeffs_gun,
-		          g_camParams.cameraMatrix_ball, g_camParams.distCoeffs_ball, g_camParams.homography,
-		          g_camParams.panPos, g_camParams.tiltPos, g_camParams.zoomPos))){
-			cout << "  <<< Load linkage params failed !!!>>> " << endl;  
-		}
-
-		cout << "****************************************<< CamParam >>********************************************************" << endl;
-		cout << "imageSize:\n" << g_camParams.imageSize << endl;
-		cout << "cameraMatrix_gun:\n" << g_camParams.cameraMatrix_gun << endl;
-		cout << "distCoeffs_gun:\n" << g_camParams.distCoeffs_gun << endl;
-		cout << "cameraMatrix_ball:\n" << g_camParams.cameraMatrix_ball << endl;
-		cout << "distCoeffs_ball:\n" << g_camParams.distCoeffs_ball << endl;
-		cout << "homography:\n" << g_camParams.homography << endl;
-		cout << "panPos:\n" << g_camParams.panPos<< endl;
-		cout << "tiltPos:\n" << g_camParams.tiltPos<< endl;
-		cout << "zoomPos:\n" << g_camParams.zoomPos<< endl;
-		cout << "************************************************************************************************" << endl;
- 
-		if(ret == true) {
-			this->Init_CameraMatrix();
-		}
-	#endif
 }
 
-#if LINKAGE_FUNC
-void CProcess::Init_CameraMatrix()
-{	
-    initUndistortRectifyMap(g_camParams.cameraMatrix_gun, g_camParams.distCoeffs_gun, Mat(),
-                            g_camParams.cameraMatrix_ball,
-                            g_camParams.imageSize, CV_16SC2, g_camParams.map1, g_camParams.map2);
-    //Mat imageGun = imread("images/2018-08-16-153720.jpg");
-   // Mat imageBall = imread("ballLinkageCalib.bmp");
- 
-	if(!gun_srcMat_remap.empty()) {
-    		remap(gun_srcMat_remap, undisImageGun, g_camParams.map1, g_camParams.map2, INTER_LINEAR);
-	}
-
-}
-
-
-
-bool CProcess::readParams(const char* filename)
-{
-	FileStorage fs2( filename, FileStorage::READ );
-    bool ret = fs2.isOpened();
-    if(!ret){
-        cout << filename << " can't opened !\n" << endl;
-    }
-   
-    fs2["gun_camera_raw"] >> m_sysparm.gun_camera.raw;
-    fs2["gun_camera_col"] >> m_sysparm.gun_camera.col;
-    fs2["ball_camera_raw"] >> m_sysparm.ball_camera.raw;
-    fs2["ball_camera_col"] >> m_sysparm.ball_camera.col;
-
-    fs2.release();
-    return ret;
-}
-
-#endif
 	
 void CProcess::OnDestroy(){};
 void CProcess::OnInit()
@@ -1563,7 +1458,6 @@ osdindex++;	//cross aim
 			Osdflag[osdindex]=0;
  		}
 
-		#if !LINKAGE_FUNC
 		
 			if(!m_bMoveDetect)
 			{
@@ -1592,7 +1486,6 @@ osdindex++;	//cross aim
 					}
 				}
 			}	
-		#endif
 	}
 
 
@@ -1613,7 +1506,6 @@ osdindex++;	//acqRect
 			Osdflag[osdindex]=0;
  		}
 
-		#if !LINKAGE_FUNC
 			if(!m_bMoveDetect)
 			{
 				if(extInCtrl->AvtTrkStat == eTrk_mode_acq  && !changesensorCnt){
@@ -1632,7 +1524,6 @@ osdindex++;	//acqRect
 					Osdflag[osdindex]=1;
 				}
 			}
-		#endif
 	}
 
 	
@@ -1642,18 +1533,7 @@ osdindex++;	//acqRect
 		unsigned int mtd_warningbox_Id;
 		Osd_cvPoint startwarnpoly,endwarnpoly;
 		int polwarn_flag = 0;
-#if LINKAGE_FUNC
-		if(m_display.g_CurDisplayMode == PIC_IN_PIC)
-		{			
-				mtd_warningbox_Id = 0;
-		}
-		else
-		{
-				mtd_warningbox_Id = extInCtrl->SensorStat;
-		}
-#else
 		mtd_warningbox_Id = extInCtrl->SensorStat;
-#endif
 		if(Osdflag[osdindex])
 		{
 			for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
@@ -1670,19 +1550,7 @@ osdindex++;	//acqRect
 			mouserect recttmp;
 			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{		
-				#if LINKAGE_FUNC
-					recttmp.x = (*plist).targetRect.x;
-					recttmp.y = (*plist).targetRect.y;
-					recttmp.w = (*plist).targetRect.width;
-					recttmp.h = (*plist).targetRect.height;
-					recttmp = mapfullscreen2gun(recttmp);
-					tmp.x = recttmp.x;
-					tmp.y = recttmp.y;
-					tmp.width = recttmp.w;
-					tmp.height = recttmp.h;
-				#else
 					memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
-				#endif
 
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
 			}
@@ -1736,29 +1604,8 @@ osdindex++;	//acqRect
 				else
 					color = 3;
 
-				
-				#if LINKAGE_FUNC
-					if(color == 6)
-					{
-						reMapCoords(((*plist).targetRect.x + (*plist).targetRect.width/2) + 480,
-										((*plist).targetRect.y - (*plist).targetRect.height/2) - 270 ,false);
-					}
-				#endif	
-
-				#if LINKAGE_FUNC
-					recttmp.x = (*plist).targetRect.x;
-					recttmp.y = (*plist).targetRect.y;
-					recttmp.w = (*plist).targetRect.width;
-					recttmp.h = (*plist).targetRect.height;
-					recttmp = mapfullscreen2gun(recttmp);
-					tmp.x = recttmp.x;
-					tmp.y = recttmp.y;
-					tmp.width = recttmp.w;
-					tmp.height = recttmp.h;
-				#else
 					memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
 				
-				#endif
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,color);
 			}
 			Osdflag[osdindex]=1;
@@ -1766,105 +1613,6 @@ osdindex++;	//acqRect
 	}
 #endif
 
-#if LINKAGE_FUNC
-	osdindex++;
-	{		
-		if( open_handleCalibra == true || g_sysParam->isEnable_HandleCalibrate()){  
-			sprintf(show_key[string_cnt1], "%d", string_cnt1);	
-			putText(m_display.m_imgOsd[1],show_key[string_cnt1],key1_pos,FONT_HERSHEY_TRIPLEX,0.8, cvScalar(255,0,0,255), 1);	
-			cv::circle( m_display.m_imgOsd[1], key1_pos, 3 , cvScalar(255,0,255,255), 2, 8, 0);
-			//line( m_display.m_imgOsd[1], Point(key1_pos.x-5,key1_pos.y), Point(key1_pos.x+5,key1_pos.y), Scalar(0,0,255), 5, CV_AA );
-			
-			sprintf(show_key2[string_cnt2], "%d", string_cnt2);
-			putText(m_display.m_imgOsd[1],show_key2[string_cnt2],key2_pos,FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,255,0,255), 1);	
-			cv::circle(m_display.m_imgOsd[1],key2_pos,3 ,cvScalar(0,255,255,255),2,8,0);
-			Osdflag[osdindex]=1;
-		}	
-		else{	
-			if(Osdflag[osdindex])
-			{
-				
-				if(key_point1_cnt!=0 || (key_point2_cnt!=0))
-				{
-					textPos1_backup[0] = key1_backup;
-					textPos2_backup[0] = key2_backup;
-					for(int m=0;m<=key_point1_cnt; m++){
-						textPos1_backup[m+1] = textPos1_record[m];
-					}
-					for(int m=0;m<=key_point2_cnt; m++){
-						textPos2_backup[m+1] = textPos2_record[m];
-					}
-					
-				#if 0
-					for(int i=0; i<AllPoints_Num; i++)
-					{
-						putText(m_display.m_imgOsd[1],show_key[i],textPos1_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
-						cv::circle(m_display.m_imgOsd[1],textPos1_record[i],3 ,cvScalar(0,0,0,0),2,8,0);			
-						
-						putText(m_display.m_imgOsd[1],show_key2[i],textPos2_record[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
-						cv::circle(m_display.m_imgOsd[1],textPos2_record[i],3 ,cvScalar(0,0,0,0),2,8,0);
-					}
-				#endif
-					for(int i=0; i<=key_point1_cnt; i++)
-					{
-						putText(m_display.m_imgOsd[1],show_key[i],textPos1_backup[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
-						cv::circle(m_display.m_imgOsd[1],textPos1_backup[i],3 ,cvScalar(0,0,0,0),2,8,0);			
-					}
-
-					for(int i=0; i<=key_point2_cnt; i++)
-					{
-						putText(m_display.m_imgOsd[1],show_key2[i],textPos2_backup[i],FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);	
-						cv::circle(m_display.m_imgOsd[1],textPos2_backup[i],3 ,cvScalar(0,0,0,0),2,8,0);
-					}
-				}
-				Osdflag[osdindex] = 0;			
-			}			
-		}	
-	}
-//========================================================
-#if 0
-	{
-		recIn.x=480;
- 		recIn.y=270;
-		recIn.width = 200;
-		recIn.height = 100;
-		DrawCross(recIn,frcolor,1,true);
-		Osdflag[osdindex]=1;
-	}
-
-	{
-		recIn.x=580;
- 		recIn.y=270;
-		recIn.width = 200;
-		recIn.height = 100;
-		DrawCross(recIn,frcolor,1,true);
-		Osdflag[osdindex]=1;
-	}
-
-	{
-		recIn.x=680;
- 		recIn.y=270;
-		recIn.width = 200;
-		recIn.height = 100;
-		DrawCross(recIn,frcolor,1,true);
-		Osdflag[osdindex]=1;
-	}
-#endif
-
-
-
-/* 
-*   Here draw circle to Mark the point after remap on the ball image 
-*/
-
-
-	if( m_bMarkCircle == true) {
-		cv::circle(m_display.m_imgOsd[1],dest_ballPoint,3 ,cvScalar(0,255,255,255),2,8,0);
-	}
-	else {
-		cv::circle(m_display.m_imgOsd[1],dest_ballPoint,3 ,cvScalar(0,0,0,0),2,8,0);
-	}
-#endif
 
 
 	//center.x = vdisWH[extInCtrl->SensorStat][0]/2;
@@ -1879,17 +1627,8 @@ osdindex++;	//acqRect
 	unsigned int drawRectId ;
 	if(m_draw)
 	{    
-#if LINKAGE_FUNC
-		if(m_display.g_CurDisplayMode == PIC_IN_PIC){			
-				drawRectId = 0;
-		}
-		else{
-				drawRectId = extInCtrl->SensorStat;
-		}
-#else
 
 		drawRectId = extInCtrl->SensorStat;
-#endif
 
 		for(int k = 0; k <= m_rectnbak[drawRectId]; k++)
 		{
@@ -1928,18 +1667,7 @@ osdindex++;	//acqRect
 	}
 //polygon mtd area
 unsigned int drawpolyRectId ;   
-#if LINKAGE_FUNC
-	if(m_display.g_CurDisplayMode == PIC_IN_PIC)
-	{			
-		drawpolyRectId = 0;
-	}
-	else
-	{
-		drawpolyRectId = extInCtrl->SensorStat;
-	}
-#else
 	drawpolyRectId = extInCtrl->SensorStat;
-#endif
 	if(pol_draw)
 	{
 		Osd_cvPoint start;
@@ -2006,29 +1734,6 @@ unsigned int drawpolyRectId ;
 		pol_draw = 0;
 	}
 	
-#if LINKAGE_FUNC
-//time
-	if(m_time_flag)
-	{
-		if(m_time_show)
-		{
-			time_t t = time(NULL);
-			
-			putText(m_display.m_imgOsd[extInCtrl->SensorStat],timearrbak,Point(timexbak,timeybak),FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);
-			strftime(timearr, sizeof(timearr)-1, "%Y-%m-%d %H:%M:%S", localtime(&t));
-			memcpy(timearrbak, timearr, sizeof(timearr));
-			timexbak = m_display.timex;
-			timeybak = m_display.timey;
-			putText(m_display.m_imgOsd[extInCtrl->SensorStat],timearrbak,Point(timexbak,timeybak),FONT_HERSHEY_TRIPLEX,0.8, cvScalar(255,255,255,255), 1);
-		}
-		else
-		{
-			putText(m_display.m_imgOsd[extInCtrl->SensorStat],timearrbak,Point(timexbak,timeybak),FONT_HERSHEY_TRIPLEX,0.8, cvScalar(0,0,0,0), 1);
-			m_time_flag = 0;
-		}
-	}
-	
-#endif
 
 	static unsigned int count = 0;
 	if((count & 1) == 1)
@@ -2053,715 +1758,15 @@ static inline void my_rotate(GLfloat result[16], float theta)
 	result[15] = 1.0f;
 }
 
-
-#if LINKAGE_FUNC
-
-void CProcess::manualHandleKeyPoints(int &x,int &y)
-{
-	int offset_x = 0;
-	int point_X , point_Y;
-	float f_x = x;//(float)x;
-	float f_y = y;//(float)y;
-	
-	switch(m_display.g_CurDisplayMode) {
-		case PREVIEW_MODE:
-			offset_x = 960;
-			break;
-		/*
-		case LEFT_BALL_RIGHT_GUN:
-			offset_x = 480;	
-			break;
-		*/
-		default:
-			break;
-	}
-	
-	circle_point = Point(x,y);
-	
-	if( x <= offset_x ){
-		m_camCalibra->key_points1.push_back(cv::Point2f(f_x,f_y));
-		key1_pos = Point(x,y);
-		textPos1_record[key_point1_cnt] = key1_pos;
-		key_point1_cnt++;	
-		string_cnt1 ++;
-	}
-	else{
-		m_camCalibra->key_points2.push_back( cv::Point2f( f_x -offset_x, f_y) );
-		key2_pos = Point(x,y);
-		textPos2_record[key_point2_cnt] = key2_pos;
-		key_point2_cnt ++;	
-		string_cnt2++;
-	}
-	
-	for (std::vector<cv::Point2f>::const_iterator itPnt = m_camCalibra->key_points1.begin();
-			itPnt != m_camCalibra->key_points1.end(); ++itPnt){
-		cout<< "*itPnt.x = " <<(*itPnt).x<< "\t*itPnt.y = " << (*itPnt).y << endl;
-	}
-
-	for (std::vector<cv::Point2f>::const_iterator itPnt2 = m_camCalibra->key_points2.begin();
-			itPnt2 != m_camCalibra->key_points2.end(); ++itPnt2){
-		cout<< "*itPnt2.x = " <<(*itPnt2).x<< "\t*itPnt2.y = " << (*itPnt2).y << endl;
-	}
-	
-}
-
-int CProcess::checkZoomPosTable(int delta)
-{
-	int Delta_X = delta;
-	int setZoom = 2849 ;
-	#if 0
-	if( 420 < Delta_X && Delta_X<960){		
-		setZoom = 6800;
-	}
-	else if(320 < Delta_X ){ 
-		setZoom = 9400;
-	}
-	else if(240 < Delta_X ){
-		setZoom = 12530;
-	}
-	else if(200 < Delta_X ){
-		setZoom = 15100;
-	}
-	else if(170 < Delta_X){
-		setZoom = 19370;
-	}
-	else  if(145 < Delta_X ){
-		setZoom = 20800;
-	}
-	else  if(140 < Delta_X ){
-		setZoom = 23336;
-	}
-	else  if(112 < Delta_X ){
-		setZoom = 26780;
-	}
-	else  if(104 < Delta_X ){
-		setZoom = 29916;
-	}
-	else  if(96 < Delta_X ){
-		setZoom = 33330;
-	}
-	else  if(90 < Delta_X ){
-		setZoom = 36750;
-	}
-	else  if(84 < Delta_X){
-		setZoom = 39320;
-	}
-	else  if(76 < Delta_X ){
-		setZoom = 43870;
-	}
-	else  if(68 < Delta_X ){
-		setZoom = 46440;
-	}
-	else  if(62 < Delta_X ){
-		setZoom = 49230;
-	}
-	else  if(56< Delta_X ){
-		setZoom = 52265;
-	}
-	else  if(50 < Delta_X ){
-		setZoom = 55560;
-	}
-	else  if(44 < Delta_X){
-		setZoom = 58520;
-	}
-	else  if(38 < Delta_X ){
-		setZoom = 61240;
-	}
-	else  if(32 < Delta_X){
-		setZoom = 63890;
-	}
-	else  if(26 < Delta_X ){
-		setZoom = 65535;
-	}
-#endif
-
-	if( 420 < Delta_X && Delta_X<960){		
-		setZoom = 2849;
-	}
-	else if(320 < Delta_X ){ 
-		setZoom = 6268;
-	}
-	else if(240 < Delta_X ){
-		setZoom = 9117;
-	}
-	else if(200 < Delta_X ){
-		setZoom = 11967;
-	}
-	else if(170 < Delta_X){
-		setZoom = 15101;
-	}
-	else  if(145 < Delta_X ){
-		setZoom = 18520;
-	}
-	else  if(140 < Delta_X ){
-		setZoom = 21058;
-	}
-	else  if(112 < Delta_X ){
-		setZoom = 24504;
-	}
-	else  if(104 < Delta_X ){
-		setZoom = 28208;
-	}
-	else  if(96 < Delta_X ){
-		setZoom = 33330;
-	}
-	else  if(90 < Delta_X ){
-		setZoom = 36750;
-	}
-	else  if(84 < Delta_X){
-		setZoom = 39320;
-	}
-	else  if(76 < Delta_X ){
-		setZoom = 43870;
-	}
-	else  if(68 < Delta_X ){
-		setZoom = 46440;
-	}
-	else  if(62 < Delta_X ){
-		setZoom = 49230;
-	}
-	else  if(56< Delta_X ){
-		setZoom = 52265;
-	}
-	else  if(50 < Delta_X ){
-		setZoom = 55560;
-	}
-	else  if(44 < Delta_X){
-		setZoom = 58520;
-	}
-	else  if(38 < Delta_X ){
-		setZoom = 61240;
-	}
-	else  if(32 < Delta_X){
-		setZoom = 63890;
-	}
-	else  if(26 < Delta_X ){
-		setZoom = 65535;
-	}
-	return setZoom;
-}
-
-
-void CProcess::Set_K_ByDeltaX( int delta_x)
-{
-	int  tmpcofx   ;		
-	int  tmpcofy    ;
-	int Delta_X = delta_x;
-	
-	if( 420 < Delta_X && Delta_X<960){		
-		 tmpcofx =6200 ;
-		 tmpcofy =6320 ;
-	}
-	else if(Delta_X > 320 ) { 
-		 tmpcofx =3300 ;
-		 tmpcofy =3400 ;
-	}
-	else if(240 < Delta_X ){
-		 tmpcofx =2400 ;
-		 tmpcofy =2400 ;
-	}
-	else if(200 < Delta_X ){
-		 tmpcofx =1850 ;
-		 tmpcofy =1880 ;
-	}
-	else if(170 < Delta_X){
-		 tmpcofx =1500 ;
-		 tmpcofy =1540 ;
-	}
-	else  if(145 < Delta_X ){
-		 tmpcofx =1350 ;
-		 tmpcofy =1360 ;
-	}
-	else  if(140 < Delta_X ){
-		 tmpcofx =1160 ;
-		 tmpcofy =1230 ;
-	}
-	else  if(112 < Delta_X ){
-		 tmpcofx =1000 ;
-		 tmpcofy =1020 ;
-	}
-	else  if(104 < Delta_X ){
-		 tmpcofx =900 ;
-		 tmpcofy =920 ;
-	}
-	else  if(96 < Delta_X ){
-		 tmpcofx =820 ;
-		 tmpcofy =830 ;
-	}
-	else  if(90 < Delta_X ){
-		 tmpcofx =760 ;
-		 tmpcofy =750 ;
-	}
-	else  if(84 < Delta_X){
-		 tmpcofx =700 ;
-		 tmpcofy =710 ;
-	}
-	else  if(76 < Delta_X ){
-		 tmpcofx =670 ;
-		 tmpcofy =680 ;
-	}
-	else  if(68 < Delta_X ){
-		 tmpcofx =650 ;
-		 tmpcofy =660 ;
-	}
-	else  if(62 < Delta_X ){
-		 tmpcofx =630 ;
-		 tmpcofy =635 ;
-	}
-	else  if(56< Delta_X ){
-		 tmpcofx =620 ;
-		 tmpcofy =620 ;
-	}
-	else  if(50 < Delta_X ){
-		 tmpcofx =600 ;
-		 tmpcofy =610 ;
-	}
-	else  if(44 < Delta_X){
-		  tmpcofx =600 ;
-		 tmpcofy =610 ;
-	}
-	else  if(38 < Delta_X ){
-		 tmpcofx =600 ;
-		 tmpcofy =610 ;
-	}
-	else  if(32 < Delta_X){
-		  tmpcofx =600 ;
-		 tmpcofy =610 ;
-	}
-	else  if(26 < Delta_X ){
-		 tmpcofx =600 ;
-		 tmpcofy =610 ;
-	}
-	
-	m_cofx = tmpcofx;
-	m_cofy = tmpcofy;
-
-}
-
-void CProcess::setBallPos(int in_panPos, int in_tilPos, int in_zoom)
-{
-//printf("[%s] : ==============>>>Enter ! \r\n", __FUNCTION__);
-
-	panPos = in_panPos ;
-	tiltPos = in_tilPos ;
-	zoomPos = in_zoom ;
-	//OSA_semSignal(&g_linkage_getPos);
-//printf("[%s] : ==============<<< Exit ! \r\n", __FUNCTION__);
-
-}
-
-void CProcess::QueryCurBallCamPosition()
-{
-//printf("[%s] : ==============>>>Enter ! \r\n",__FUNCTION__);
-	char flag =0;
-	
-	
-	SENDST trkmsg={0};
-	trkmsg.cmd_ID = querypos;
-	ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
-	
-
-	flag = OSA_semWait(&g_linkage_getPos, OSA_TIMEOUT_FOREVER/*200*/);
-	if( -1 == flag ) 
-	{		
-		printf("%s:LINE :%d    could not get the ball current Pos \n",__func__,__LINE__ );
-	}
-	else
-	{		
-		setBallPos(linkagePos.panPos, linkagePos.tilPos, linkagePos.zoom);
-		memset(&linkagePos,0, sizeof(LinkagePos_t));
-	#if 0
-		cout << "\n\n******************Query Ball Camera Position Sucess ! *****************" << endl;
-		cout << "Current : panPos = "<< panPos << endl;
-		cout << "Current : tiltPos = "<< tiltPos << endl;
-		cout << "Current : zoomPos = "<< zoomPos << endl;
-		cout << "*****************************************************************\n\n" << endl;
-	#endif
-	}
-	//printf("[%s] : ==============<<< Exit ! \r\n", __FUNCTION__);
-
-}
-
-void CProcess::moveToDest( )
-{
-	static int static_cofx = 6200;
-	static int static_cofy = 6320;
-
-	int point_X , point_Y , offset_x , zoomPos; 
-	int delta_X ;	
-
-	switch(m_display.g_CurDisplayMode) 
-	{
-		case PREVIEW_MODE:
-			offset_x = 0;	
-			break;
-		/*
-		case SIDE_BY_SIDE:
-			offset_x = 0;	
-			LeftPoint.y /=2;
-			RightPoint.y /= 2;
-			break;
-		case LEFT_BALL_RIGHT_GUN:
-			offset_x = 0;	
-			LeftPoint.x *=2;
-			RightPoint.x *= 2;
-			LeftPoint.y *=2;
-			RightPoint.y *= 2;
-			break;
-		*/
-		case PIC_IN_PIC:
-		#if LINKAGE_FUNC
-			if( (g_sysParam->getGunPosition(SingletonSysParam::RU) == 1) &&
-				( g_sysParam->getGunSize(SingletonSysParam::ONE_4) == 1) ) {
-				offset_x =1440;
-				LeftPoint.x *=2;
-				RightPoint.x *= 2;
-				LeftPoint.y *=2;
-				RightPoint.y *= 2;
-			}
-		#endif
-			break;			
-		default:
-			break;
-	}	
-
-	LeftPoint.x    -= offset_x;
-	RightPoint.x  -= offset_x;
-	
-	delta_X = abs(LeftPoint.x - RightPoint.x) ;
-	
-	if(LeftPoint.x < RightPoint.x) {
-		point_X = abs(LeftPoint.x - RightPoint.x) /2 + LeftPoint.x;
-		point_Y = abs(LeftPoint.y - RightPoint.y) /2 + LeftPoint.y;	
-	}else{
-		point_X = abs(LeftPoint.x - RightPoint.x) /2 + RightPoint.x;
-		point_Y = abs(LeftPoint.y - RightPoint.y) /2 + RightPoint.y;	
-	}	
-	int flag = 0;		
-//-----------------------------------Query Current Position --------------------------------------	
-	QueryCurBallCamPosition();	
-//-------------------------------------------------------------------------
-	static int DesPanPos = 0;
-	static int DesTilPos =0;	
-
-	int curPanPos = DesPanPos;
-	int curTilPos = DesTilPos;
-
-	curPanPos = panPos;	//sThis->m_ptz->m_iPanPos;
-	curTilPos = tiltPos;		//sThis->m_ptz->m_iTiltPos;
-	
-	int  inputX = point_X;	
-	int  inputY = point_Y;	
-	int  tmpcofx = static_cofx;
-	int  tmpcofy = static_cofy;
-	
-	Set_K_ByDeltaX(delta_X);
-	
-	static_cofx = m_cofx;
-	static_cofy = m_cofy;
-
-	inputX -= 480;
-	inputY -= 270;	
-
-	float coefficientx = (float)tmpcofx*0.001f;
-	float coefficienty = (float)tmpcofy*0.001f;
-	float tmpficientx = 1.0;
-	inputX = (int)((float)inputX * coefficientx * tmpficientx);
-	inputY = (int)((float)inputY * coefficienty);		
-	
-	if(inputX + curPanPos < 0)
-	{
-		DesPanPos = 36000 + (inputX + curPanPos);
-	}
-	else if(inputX + curPanPos > 35999)
-	{
-		DesPanPos = inputX - (36000 - curPanPos);
-	}
-	else
-		DesPanPos = curPanPos + inputX;
-
-	if(curTilPos > 32768)
-	{
-		if(inputY < 0)
-		{			
-			DesTilPos = curTilPos - inputY ;
-		}
-		else
-		{
-			if(curTilPos - inputY < 32769)
-				DesTilPos = inputY - (curTilPos - 32768);
-			else
-				DesTilPos = curTilPos - inputY;
-		}
-	}
-	else
-	{
-		if(inputY < 0)
-		{
-			if(curTilPos + inputY < 0)
-			{
-				DesTilPos = -inputY - curTilPos + 32768; 
-			}
-			else 
-			{
-				DesTilPos = curTilPos + inputY;
-			}
-		}
-		else
-		{
-			DesTilPos = curTilPos + inputY;
-		}
-	}
-
-		zoomPos = checkZoomPosTable(delta_X);
-
-		trkmsg.cmd_ID = acqPosAndZoom;
-		memcpy(&trkmsg.param[0],&DesPanPos, 4);
-		memcpy(&trkmsg.param[4],&DesTilPos, 4); 	
-		memcpy(&trkmsg.param[8],&zoomPos  , 4); 
-		ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
-		
-	//printf("[%s]: ======>>> Send Set PTZ ( DestPanoPos : %d, DesTilPos: %d, DesZoom: %d )\r\n", __FUNCTION__,
-										//	DesPanPos , DesTilPos , zoomPos );
-
-}
-void CProcess::clickOnBallImage(int x, int y)
-{
-	
-}
-//==========================================================================
-void CProcess::reMapCoords(int x, int y,bool mode)
-{	
-	int point_X , point_Y , offset_x , zoomPos; 
-	int delta_X ;
-	Point opt;
-#if LINKAGE_FUNC
-	if(g_sysParam->isEnable_AutoDetectMoveTargets()){
-		opt = Point(x,y);
-	}
-	else{
-#endif
-
-	switch(m_display.g_CurDisplayMode) 
-	{
-		case PREVIEW_MODE:
-		//case SIDE_BY_SIDE:
-			offset_x = 960;			
-			break;
-		case PIC_IN_PIC:
-			offset_x =0;
-			break;
-		/*
-		case LEFT_BALL_RIGHT_GUN:
-			offset_x = 480;			
-			break;
-		*/
-		default:
-			break;
-	}
-	
-	LeftPoint.x -= offset_x;
-	RightPoint.x -=offset_x;
-	delta_X = abs(LeftPoint.x - RightPoint.x) ;
-
-	if(mode)
-		zoomPos = checkZoomPosTable(delta_X);			
-	if(mode)
-	{
-		if(LeftPoint.x < RightPoint.x) {
-			point_X = abs(LeftPoint.x - RightPoint.x) /2 + LeftPoint.x;
-			point_Y = abs(LeftPoint.y - RightPoint.y) /2 + LeftPoint.y;	
-		}else{
-			point_X = abs(LeftPoint.x - RightPoint.x) /2 + RightPoint.x;
-			point_Y = abs(LeftPoint.y - RightPoint.y) /2 + RightPoint.y;	
-		}
-	}
-	else
-	{
-		point_X = (x - offset_x);
-		point_Y = y;
-	}
- 	
-	switch(m_display.g_CurDisplayMode) {
-		case PREVIEW_MODE:
-			opt = Point( point_X*2, point_Y*2 );	
-			break;
-		case PIC_IN_PIC:
-			opt = Point( x, y );
-			break;
-		/*	
-		case SIDE_BY_SIDE:
-			opt = Point( point_X*2, point_Y );	
-			break;
-		case LEFT_BALL_RIGHT_GUN:
-			opt = Point( point_X*1920.0/1440.0, point_Y*1080.0/810.0 );	
-			break;
-		*/
-		default:
-			break;
-	}
-
-	//printf("......................................>>>  Gun Image Point: < %d , %d >\r\n", opt.x, opt.y);
-	//cout << "g_camParams.cameraMatrix_gun = " << g_camParams.cameraMatrix_gun << endl;
-	//cout << "g_camParams.distCoeffs_gun = " << g_camParams.distCoeffs_gun << endl;
-	//cout << "g_camParams.cameraMatrix_ball = " << g_camParams.cameraMatrix_ball << endl;
-	//cout << "g_camParams.homography = " << g_camParams.homography << endl;
-#if LINKAGE_FUNC
-	}
-#endif
-	std::vector<cv::Point2d> distorted, normalizedUndistorted;
-	distorted.push_back(cv::Point2d(opt.x, opt.y));
-	undistortPoints(distorted,normalizedUndistorted,g_camParams.cameraMatrix_gun,g_camParams.distCoeffs_gun);
-	std::vector<cv::Point3d> objectPoints;
-
-	for (std::vector<cv::Point2d>::const_iterator itPnt = normalizedUndistorted.begin();
-	itPnt != normalizedUndistorted.end(); ++itPnt)
-	{
-		objectPoints.push_back(cv::Point3d(itPnt->x, itPnt->y, 1));
-	}
-	std::vector<cv::Point2d> imagePoints(objectPoints.size());
-	projectPoints(objectPoints, cv::Vec3d(0,0,0),cv::Vec3d(0,0,0),g_camParams.cameraMatrix_ball,cv::Mat(),imagePoints);
-	std::vector<cv::Point2d> ballImagePoints(imagePoints.size());
-	perspectiveTransform(imagePoints, ballImagePoints, g_camParams.homography);
-	std::vector<cv::Point2d>::iterator itp = imagePoints.begin();
-	cv::Point2d pt = *itp;
-	Point upt( pt.x, pt.y );			
-	itp = ballImagePoints.begin();
-	pt = *itp;
-
-	 pt.x /= 2.0;	//+ 960;
-	 pt.y /= 2.0;
-
-	
-    	Point bpt( pt.x, pt.y );
-		//printf("<< ......................................  Ball Image Point: < %d , %d >\r\n", bpt.x, bpt.y);
-
-	dest_ballPoint.x = bpt.x ;
-	dest_ballPoint.y = bpt.y;
-	
-	int DesPanPos, DesTilPos ;	
-
-	int  inputX = bpt.x;
-	int  inputY = bpt.y;
-	int  tmpcofx = 6300;
-	int  tmpcofy = 6200;
-
-	inputX -= 480;
-	inputY -= 270;
-
-	float coefficientx = (float)tmpcofx*0.001f;
-	float coefficienty = (float)tmpcofy*0.001f;
-
-	float tmpficientx = 1.0;
-
-	inputX = (int)((float)inputX * coefficientx * tmpficientx);
-	inputY = (int)((float)inputY * coefficienty);
-
-	float kx1 = 35.0/600.0;
-	float ky1 = 9.0/600.0;
-	float kx2 = 7.0/600.0;
-	float ky2 = 4.0/600.0;
-
-	inputX	 += (int)(inputX * kx1 + inputY * kx2);
-	inputY	 -= (int)(inputX * ky1 + inputY * ky2); 
-
-	int Origin_PanPos = g_camParams.panPos;
-	int Origin_TilPos = g_camParams.tiltPos;
-
-//printf("inputX : %d    , Origin_PanPos  : %d  \n",inputX,Origin_PanPos);
-
-	if(inputX + Origin_PanPos < 0)
-	{
-		DesPanPos = 36000 + (inputX + Origin_PanPos);
-	}
-	else if(inputX + Origin_PanPos > 35999)
-	{
-		DesPanPos = inputX - (36000 - Origin_PanPos);
-	}
-	else
-		DesPanPos = Origin_PanPos + inputX;
-
-//printf("inputY : %d    , Origin_TilPos	: %d  \n",inputY,Origin_TilPos);
-
-	if(Origin_TilPos > 32768)
-	{
-		if(inputY < 0)
-		{			
-			DesTilPos = Origin_TilPos - inputY ;
-		}
-		else
-		{
-			if(Origin_TilPos - inputY < 32769)
-				DesTilPos = inputY - (Origin_TilPos - 32768);
-			else
-				DesTilPos = Origin_TilPos - inputY;
-		}
-	}
-	else
-	{
-		if(inputY < 0)
-		{
-			if(Origin_TilPos + inputY < 0)
-			{
-				DesTilPos = -inputY - Origin_TilPos + 32768; 
-			}
-			else
-				DesTilPos = Origin_TilPos + inputY;
-		}
-		else
-		{
-			DesTilPos = Origin_TilPos + inputY;
-		}
-	}
-//---------------------------------------------------------------
-	//DesPanPos = 4607;
-	//DesTilPos = 33587;
-	//zoomPos = 2849;
-//---------------------------------------------------------------
-	if(mode)
-	{
-		trkmsg.cmd_ID = acqPosAndZoom;
-		memcpy(&trkmsg.param[0],&DesPanPos, 4);
-		memcpy(&trkmsg.param[4],&DesTilPos, 4); 	
-		memcpy(&trkmsg.param[8],&zoomPos  , 4); 	
-	}
-	else
-	{
-		trkmsg.cmd_ID = speedloop;
-		memcpy(&trkmsg.param[0],&DesPanPos, 4);
-		memcpy(&trkmsg.param[4],&DesTilPos, 4); 	
-	}
-	ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);	
-	//printf("%s   LINE:%d   Send Position = < %d, %d >,zoom = %d \r\n",__func__,__LINE__, DesPanPos , DesTilPos ,zoomPos);
-}
-#endif
-
 void CProcess::OnMouseLeftDwn(int x, int y)
 {
-	#if LINKAGE_FUNC
-		manualHandleKeyPoints(x,y);
-		//reMapCoords(x,y, false);  // add by swj
-	#endif
+
 };
 void CProcess::OnMouseLeftUp(int x, int y){};
 void CProcess::OnMouseRightDwn(int x, int y){};
 void CProcess::OnMouseRightUp(int x, int y){};
 void CProcess::OnSpecialKeyDwn(int key,int x, int y)
 {
-#if LINKAGE_FUNC
-	switch( key ) {
-		case 1:
-			m_bMarkCircle = true;
-			//cout << "---------------->>> Press F1 : m_bMarkCircle == true " << endl;
-			break;
-		case 2:
-			m_bMarkCircle = false;
-			//cout << "---------------->>> Press F2 : m_bMarkCircle == false " << endl;
-			break;
-		default :
-			break;
-	}
-#endif
 }
 
 void CProcess::OnKeyDwn(unsigned char key)
@@ -2866,62 +1871,6 @@ void CProcess::OnKeyDwn(unsigned char key)
 			msgdriv_event(MSGID_EXT_INPUT_MMTSHOW, NULL);
 			OSA_printf("MSGID_EXT_INPUT_MMTSHOW\n");
 		}
-
-
-
-	#if LINKAGE_FUNC
-	
-		if(key == 'v' || key == 'V') {
-			m_camCalibra->start_cloneVideoSrc = true;
-		}
-
-		if(key == 'l') {
-			m_display.changeDisplayMode(SIDE_BY_SIDE);
-		}
-		
-		if(key == 'q') {
-			m_display.switchDisplayMode();
-		}
-
-		if(key == 'M' || key == 'm' ) {
-			m_camCalibra->bool_Calibrate = true;
-		}	
-		
-		if(key == 'U' || key == 'u' ) {
-			m_camCalibra->writeParam_flag = true;
-		}
-
-		if (key == 'y'|| key == 'Y') {		
-			open_handleCalibra = true ;
-			m_camCalibra->Set_Handler_Calibra = true ;
-		}
-			
-		if (key == 'x'|| key == 'X') {
-			open_handleCalibra = false ; 
-			m_camCalibra->Set_Handler_Calibra = false ;
-			m_camCalibra->start_cloneVideoSrc = false;
-		}		
-
-		if (key == 'z')
-		{
-			if(Set_SelectByRect)
-				Set_SelectByRect = false ;
-			else
-				Set_SelectByRect = true ;
-			//pIStuts->ImgZoomStat[0]=(pIStuts->ImgZoomStat[0]+1)%2;
-			//msgdriv_event(MSGID_EXT_INPUT_ENZOOM, NULL);
-		}
-
-		if(key =='n' || key == 'N') {
-
-#if LINKAGE_FUNC
-			m_display.savePic_once = true;
-#endif
-
-		}
-		
-		
-	#endif
 
 	
 }
@@ -3569,39 +2518,6 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 		}
 	}
 #if __MOVE_DETECT__
-#if LINKAGE_FUNC
-	if(msgId == MSGID_EXT_MVDETECT)
-	{	
-		int Mtdstatus = (pIStuts->MtdState[pIStuts->SensorStat]&0x01) ;
-		if(Mtdstatus)
-		{
-			struct timeval tv;
-			while(!m_pMovDetector->isWait(0))
-			{
-				tv.tv_sec = 0;
-				tv.tv_usec = (10%1000)*1000;
-				select(0, NULL, NULL, NULL, &tv);
-			}
-			if(m_pMovDetector->isWait(0))
-			{
-				m_pMovDetector->mvOpen(0);	
-				dynamic_config(VP_CFG_MvDetect, 1,NULL);
-				tmpCmd.MtdState[pIStuts->SensorStat] = 1;
-			}
-		}
-		else
-		{
-			if(m_pMovDetector->isRun(0))
-			{
-				dynamic_config(VP_CFG_MvDetect, 0,NULL);
-				tmpCmd.MtdState[pIStuts->SensorStat] = 0;
-				//app_ctrl_setMtdStat(&tmpCmd);
-				m_pMovDetector->mvClose(0);
-				chooseDetect = 0;
-			}	
-		}
-	}
-#else
     if(msgId == MSGID_EXT_MVDETECT)
     {
         int Mtdstatus = (pIStuts->MtdState[pIStuts->SensorStat]&0x01) ;
@@ -3633,7 +2549,6 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
             }
         }
     }
-#endif
 	if(msgId == MSGID_EXT_MVDETECTSELECT)
 	{
 		int MtdSelect = (pIStuts->MtdSelect[pIStuts->SensorStat]);
@@ -3697,11 +2612,6 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_CAMERA,            MSGAPI_update_camera,           0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ALGOSDRECT,         MSGAPI_input_algosdrect,        0);	
 
-#if LINKAGE_FUNC
-
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_SETCURPOS,     MSGAPI_update_ballPos,        	0);	
-
-#endif
 
     return 0;
 }
@@ -4497,17 +3407,6 @@ void CProcess::MSGAPI_update_camera(long lParam)
 {
 }
 
-#if LINKAGE_FUNC
-void CProcess::MSGAPI_update_ballPos(long lParam)
-{
-	m_camCalibra->setBallPos(linkagePos.panPos, linkagePos.tilPos, linkagePos.zoom);
-	
-	//setBallPos(linkagePos.panPos, linkagePos.tilPos, linkagePos.zoom);
-	OSA_semSignal(&g_linkage_getPos);
-	//printf("[%s]: ----------------->>>>>>>    OSA_semSignal  (&g_linkage_getPos )\r\n\r\n\r\n",__FUNCTION__);
-}
-
-#endif
 
 void CProcess::MSGAPI_input_algosdrect(long lParam)
 {

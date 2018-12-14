@@ -35,10 +35,6 @@ OSA_BufHndl msgSendBuf;
 OSA_ThrHndl thrHandleDataIn_recv;
 OSA_ThrHndl thrHandleDataIn_send;
 
-#if LINKAGE_FUNC
-	extern SingletonSysParam* g_sysParam;
-
-#endif
 void initmessage()
 {
     int status;
@@ -186,7 +182,6 @@ void* recv_msg(SENDST *RS422)
 			
 			app_ctrl_setBoresightPos(pMsg);
 			break;
-	#if !LINKAGE_FUNC
 		case AcqPos:
 			memcpy(&Racqpos, RS422->param, sizeof(Racqpos));
 			imgID6 = Racqpos.AcqStat;
@@ -228,7 +223,6 @@ void* recv_msg(SENDST *RS422)
 				app_ctrl_setAxisPos(pMsg);
 			}
 			break;
-	#endif
 
 		case osdbuffer:
 			memcpy(&disOsdBuf[imgID1],RS422->param,sizeof(osdbuffer_t));
@@ -311,7 +305,6 @@ void* recv_msg(SENDST *RS422)
 			glosttime = losttime;
 			break;
 
-	#if !LINKAGE_FUNC
 		case trk:				
 			memcpy(&Rtrk,RS422->param,sizeof(Rtrk));
 			imgID1 = Rtrk.AvtTrkStat;
@@ -335,7 +328,6 @@ void* recv_msg(SENDST *RS422)
 			app_ctrl_setTrkStat(pMsg); 
 			MSGAPI_msgsend(trk);
 			break;
-	#endif	
 	
 		case mmt:
 			memcpy(&Rmtd,RS422->param,sizeof(Rmtd));
@@ -399,7 +391,6 @@ void* recv_msg(SENDST *RS422)
 			MSGAPI_msgsend(mtd);
 			break;
 
-	#if !LINKAGE_FUNC
 		case mtdSelect:		
 			memcpy(&Rmmtselect,RS422->param,sizeof(Rmmtselect));
 			pMsg->MtdSelect[pMsg->SensorStat] = Rmmtselect.ImgMmtSelect;
@@ -409,7 +400,6 @@ void* recv_msg(SENDST *RS422)
 				MSGAPI_msgsend(mtd);
 			}
 			break;
-	#endif
 			
 #endif
 		case sectrk:
@@ -573,10 +563,6 @@ void* recv_msg(SENDST *RS422)
 						vcapWH[i][1] = 1080;
 						vdisWH[i][0] = 1920;
 						vdisWH[i][1] = 1080;
-						#if LINKAGE_FUNC
-						g_sysParam->getSysParam().gun_camera.raw = vdisWH[i][1];
-						g_sysParam->getSysParam().gun_camera.col  = vdisWH[i][0];
-						#endif
 					}
 					else if((2 == Rresolution.resolution[i])||(3 == Rresolution.resolution[i]))
 					{
@@ -596,12 +582,6 @@ void* recv_msg(SENDST *RS422)
 			break;
 			
 		case querypos:
-			#if LINKAGE_FUNC
-				memcpy(&posOfLinkage,RS422->param,sizeof(posOfLinkage));
-				//printf("[%s]:Query IPC Rcv :>> panPos ,tilPos , zoom = (%d ,%d ,%d) \n",__FUNCTION__,posOfLinkage.panPos, posOfLinkage.tilPos, posOfLinkage.zoom);
-				app_ctrl_setLinkagePos(posOfLinkage.panPos, posOfLinkage.tilPos, posOfLinkage.zoom);
-				
-			#endif
 			break;
 		case switchtarget:
 			pMsg->MtdSelect[pMsg->SensorStat] = ipc_eMTD_Next;

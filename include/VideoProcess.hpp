@@ -77,21 +77,6 @@ class CVideoProcess
 	MAIN_ProcThrObj	mainProcThrObj;
 	Mat mainFrame[2];
 
-#if LINKAGE_FUNC
-
-public:
-	static CcCamCalibra *m_camCalibra;
-	
-	Mat gun_srcMat_remap;
-	Point LeftPoint;
-	Point RightPoint;
-	
-private:
-	Mat m_GrayMat;
-	Mat m_Gun_GrayMat;
-	Mat m_rgbMat;
-	
-#endif
 
 public:
 	CVideoProcess();
@@ -129,19 +114,6 @@ public:
 	virtual void OnKeyDwn(unsigned char key){};
 	virtual void OnSpecialKeyDwn(int key,int  x,int  y){};
 	
-#if LINKAGE_FUNC
-
-	virtual void reMapCoords(int x, int y,bool mode){ };
-	virtual void clickOnBallImage(int x, int y) {};
-	virtual void moveToDest( ){ };
-	//virtual void QueryCurBallCamPosition() { };
-	//virtual void setBallPos(int in_panPos, int in_tilPos, int in_zoom) { };
-
-	void linkage_init();
-	bool Set_SelectByRect;
-	bool open_handleCalibra;
-
-#endif
 
 	int m_SensorStat;
 	int m_acqRectW;
@@ -167,13 +139,8 @@ public :
 	ALGMTD_HANDLE m_mtd[MAX_CHAN];
 public:
 	CDisplayer m_display;
-#if LINKAGE_FUNC
-	int m_time_show,m_time_flag;
-	int click_in_area;
-#else
 	int mptz_click;
 	int mptz_originX, mptz_originY;
-#endif
 	int m_click;
 	int m_draw;
 	RectfNode mRect[MAX_CHAN][100];
@@ -237,29 +204,7 @@ protected:
 	static void call_run(int value);
 	static int callback_process(void *handle, int chId, int virchId, Mat frame);
 
-#if LINKAGE_FUNC
-	static void processtimeMenu(int value);
-	static void processsmanualcarliMenu(int value);
-	static void processsautocarliMenu(int value);
-	
-	int click_legal(int x, int y);
-	int move_legal(int x, int y);
-	int in_gun_area(int x, int y);
-	int in_ball_area(int x, int y);
-	mouserect map2preview(mouserect rectcur);
-	mouserect mappip2preview(mouserect rectcur);
-	mouserect mapsbs2preview(mouserect rectcur);
-	mouserect maplbrg2preview(mouserect rectcur);
-	mouserect mapfullscreen2gun(mouserect rectcur);
-	mouserect mapgun2fullscreen(mouserect rectcur);
-	int mapgun2fullscreen_point(int *x, int *y);
-	mouserect maprect(mouserect rectcur,mouserect rectsrc,mouserect rectdest);
-	int maprect_point(int *x, int *y, mouserect rectsrc,mouserect rectdest);
-	void sendIPC_Time(int value);
-
-#else
 	static void mousemotion_event(GLint xMouse, GLint yMouse);
-#endif
 	int map1080p2normal_point(float *x, float *y);
 	int mapnormal2curchannel_point(float *x, float *y, int w, int h);
 	int map1080p2normal_rect(mouserectf *rect);

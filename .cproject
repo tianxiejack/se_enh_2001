@@ -44,7 +44,6 @@
 								</option>
 								<option id="nvcc.compiler.def.symbols.395705433" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__IPC__=1"/>
-									<listOptionValue builtIn="false" value="LINKAGE_FUNC=0"/>
 									<listOptionValue builtIn="false" value="__TRACK__=1"/>
 									<listOptionValue builtIn="false" value="__MOVE_DETECT__=1"/>
 								</option>
@@ -149,7 +148,6 @@
 								</option>
 								<option id="nvcc.compiler.def.symbols.1717725089" name="Defined symbols (-D)" superClass="nvcc.compiler.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__IPC__=1"/>
-									<listOptionValue builtIn="false" value="LINKAGE_FUNC=0"/>
 									<listOptionValue builtIn="false" value="__TRACK__=1"/>
 									<listOptionValue builtIn="false" value="__MOVE_DETECT__=1"/>
 								</option>

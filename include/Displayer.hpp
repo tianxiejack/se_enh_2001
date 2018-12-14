@@ -75,14 +75,7 @@ typedef struct _ds_init_param{
 	int initloyerId;
 	//void (*displayfunc)(void);
 	
-#if LINKAGE_FUNC
-	void (*timefunc)(int value);
-	void (*manualcarli)(int value);
-	void (*autocarli)(int value);
-	void (*closecarli)(int value);
-#else
 	void (*motionfunc)(GLint xMouse, GLint yMouse);
-#endif
 	void (*passivemotionfunc)(GLint xMouse, GLint yMouse);
 	void (*mousefunc)(int button, int state, int x, int y);
 	void (*menufunc)(int value);
@@ -107,61 +100,11 @@ typedef struct _ds_init_param{
 }DS_InitPrm;
 
 
-#if LINKAGE_FUNC
-	typedef enum _DISPLAYMODE {
-		PREVIEW_MODE = 0,
-		PIC_IN_PIC,
-		SIDE_BY_SIDE,
-		LEFT_BALL_RIGHT_GUN,
-		GUN_FULL_SCREEN,
-		BALL_FULL_SCREEN,
-		TOTAL_MODE_COUNT
-	}DISPLAYMODE;
-
-	const int osdID_time = 30;
-	const int osdID_name = 31;
-
-#endif
 
 
 class CDisplayer 
 {
 
-#if LINKAGE_FUNC
-public:
-	cv::Mat gun_UndistorMat;
-	cv::Mat gun_BMP;
-    DISPLAYMODE displayMode;
-    char savePicName[20];
-	int videonamex, videonamey, timex, timey, videonamefs;
-
-	typedef enum _WindowSize{
-		WINDOW_WIDTH = 1920,
-		WINDOW_HEIGHT = 1080,
-			
-	}WindowSize;
-	typedef enum _VIDEOCNANNEL {
-		VIDEO_0 = 0,
-		VIDEO_1,
-		VIDEO_2,
-		VIDEO_3,
-		VIDEO_4,
-		VIDEO_COUNT			
-	}VIDEOCNANNEL;
-public:
-	DISPLAYMODE g_CurDisplayMode;
-	void RenderVideoOnOrthoView(int videoChannel,int x, int y, int width, int height);
-	void changeDisplayMode(DISPLAYMODE mode);
-	void switchDisplayMode( );
-	DISPLAYMODE getDisplayMode( );
-	void linkage_init();
-	void linkageSwitchMode(void);
-
-private:
-	void sendIPC_Videoname(int value);
-	void sendIPC_VideoName_pos();
-	void sendIPC_Time_pos();
-#endif
 
 public:
 	CDisplayer();
@@ -205,9 +148,6 @@ public:
 	bool m_bOsd;
 	bool m_crossOsd;
 
-#if LINKAGE_FUNC
-	bool savePic_once;
-#endif
 	Mat m_disOsd[DS_DC_CNT];
 	Mat m_imgOsd[DS_DC_CNT];
 	DS_Size m_videoSize[DS_CHAN_MAX];
@@ -273,23 +213,6 @@ protected:
 	static void _display(void);
 	static void _timeFunc(int value);
 	static void _reshape(int width, int height);
-#if LINKAGE_FUNC
-	static void processLinkageMenu(int value);
-	static void processDMMenu(int value);
-	static void processgunResMenu(int value);
-	static void processballResMenu(int value);
-	static void processposMenu(int value);
-	static void processsizeMenu(int value);
-	static void processnameMenu(int value);
-	static void processfontsizeMenu(int value);
-	static void processosdposMenu(int value);
-	static void processbuadrateMenu(int value);
-	static void processdatabitMenu(int value);
-	static void processstopbitMenu(int value);
-	static void processparityMenu(int value);
-	static void processaddressMenu(int value);
-	static void processprotocolMenu(int value);
-#endif
 	static void processSenMenu(int value);
 	static void processtargetspeedMenu(int value);
 	static void processtargetdircMenu(int value);

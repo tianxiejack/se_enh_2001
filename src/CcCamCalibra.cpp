@@ -12,9 +12,6 @@
 
 CamParameters g_camParams;
 OSA_SemHndl m_linkage_getPos;
-#if LINKAGE_FUNC
-	extern SingletonSysParam* g_sysParam;
-#endif
 
 CcCamCalibra::CcCamCalibra():scale(0.5),bCal(false),ret1(false),ret2(false),
 	panPos(1024), tiltPos(13657), zoomPos(16),writeParam_flag(false),
@@ -208,11 +205,7 @@ int CcCamCalibra::Run()
 
 	if( (!ball_frame.empty()) && (!gun_frame.empty()) )
 	{
-		#if LINKAGE_FUNC
-		if( (Set_Handler_Calibra || g_sysParam->isEnable_Undistortion() ) && (bool_Calibrate || g_sysParam->isEnable_calculateMatrix()) ) {		
-		#else
 		if( Set_Handler_Calibra && bool_Calibrate){
-		#endif
 			printf("%s : start manual calibrate \n",__func__);
 			
 			if(key_points1.size() > 4 && key_points2.size() > 4){
@@ -244,11 +237,7 @@ int CcCamCalibra::Run()
 		
 		else 
 		{	
-		#if LINKAGE_FUNC
-			if( bool_Calibrate || g_sysParam->isEnable_calculateMatrix()) {
-		#else
 			if( bool_Calibrate ) {
-		#endif
 				printf("%s : start auto calibrate \n",__func__);
 				vector<KeyPoint> keypoints_1, keypoints_2;
 				vector<DMatch> matches;
@@ -264,9 +253,6 @@ int CcCamCalibra::Run()
 						pts.push_back(pt);
 					}					
 					bool_Calibrate = false;
-					#if LINKAGE_FUNC
-					g_sysParam->getSysParam().cameracalibrate.Enable_calculateMatrix = false;
-					#endif
 					cout << "match points " << matches.size() << endl;
 //-----------------------------------------------------------------------------------------------------
 					SENDST trkmsg={0};
@@ -308,16 +294,9 @@ int CcCamCalibra::Run()
 			}	
 		}
 	}
-	#if LINKAGE_FUNC
-	if( writeParam_flag || g_sysParam->isEnable_saveParameter()) 
-	#else
 	if( writeParam_flag ) 
-	#endif
 	{
 		writeParam_flag = false;
-		#if LINKAGE_FUNC
-		g_sysParam->getSysParam().cameracalibrate.Enable_saveParameter = false;
-		#endif
 		if( !getCurrentPosFlag )
 		{
 			cout << "could not get the cuurent Flag \n" << endl;
