@@ -973,7 +973,7 @@ void CDisplayer::transfer()
 	unsigned int byteCount ;
 	unsigned int byteBlock ;
 	int mask = 0;
-
+	int i =0;
 	for(winId=0; winId<m_renderCount; winId++)
 	{
 		chId = m_renders[winId].video_chId;
