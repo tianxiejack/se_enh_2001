@@ -139,6 +139,8 @@ public :
 	ALGMTD_HANDLE m_mtd[MAX_CHAN];
 public:
 	CDisplayer m_display;
+	int m_time_show,m_time_flag;
+	int click_in_area;
 	int mptz_click;
 	int mptz_originX, mptz_originY;
 	int m_click;

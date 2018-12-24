@@ -173,7 +173,7 @@ static cudaError_t cudaResource_RegisterBuffer(int index, GLuint buffer, size_t 
 	        fprintf(stderr, "cudaGraphicsGLRegisterBuffer failed line[%d]!", __LINE__);
 	        OSA_assert(0);
 	}
-	resourceArray[index].iReg = 1;
+	resourceArray[index].iReg = 2;//1;
 	resourceArray[index].buffer = buffer;
 	resourceArray[index].size = size;
 

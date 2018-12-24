@@ -136,10 +136,12 @@ public:
 	int dynamic_config(DS_CFG type, int iPrm, void* pPrm);
 	int get_videoSize(int chId, DS_Size &size);
 	void display(Mat frame, int chId, int code = -1);/*CV_YUV2BGR_UYVY*/
+	void transfer();
 	GLuint async_display(int chId, int width, int height, int channels);
 	int setFullScreen(bool bFull);
 	void reDisplay(void);
 	void UpDateOsd(int idc);
+	int setFPS(float fps);
 
 	int m_mainWinWidth_new[eSen_Max];
 	int m_mainWinHeight_new[eSen_Max];
@@ -208,6 +210,26 @@ protected:
 	unsigned char *x11disbuffer;
 	int initRender(bool bInitBind = true);
 	void uninitRender();
+protected:
+	Mat  m_frame[DS_CHAN_MAX][2];
+	int	 m_code[DS_CHAN_MAX];
+	int	pp[DS_CHAN_MAX];
+
+	uint64  m_interval;
+	double m_telapse;
+	uint64  m_tmBak[DS_CHAN_MAX];
+	int64   m_tmRender;
+	bool m_waitSync;
+
+	pthread_mutex_t render_lock;    /**< Used for synchronization. */
+	pthread_cond_t render_cond;     /**< Used for synchronization. */
+	uint64_t render_time_sec;       /**< Seconds component of the time for which a
+										 frame should be displayed. */
+	uint64_t render_time_nsec;      /**< Nanoseconds component of the time for which
+										 a frame should be displayed. */
+	struct timespec last_render_time;   /**< Rendering time for the last buffer. */
+	int m_nSwapTimeOut;
+	int64 tStamp[10];
 
 protected:
 	static void _display(void);

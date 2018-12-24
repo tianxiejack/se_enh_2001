@@ -73,7 +73,8 @@ wchar_t disOsd[32][33];
 
 CDisplayer::CDisplayer()
 :m_renderCount(0),m_bRun(false),m_bFullScreen(false),m_bOsd(false),
- m_glProgram(0), m_bUpdateVertex(false)
+ m_glProgram(0), m_bUpdateVertex(false),m_tmRender(0ul),m_waitSync(false),
+ m_telapse(5.0), m_nSwapTimeOut(0)
 {
 	int i;
 	gThis = this;
@@ -97,6 +98,7 @@ CDisplayer::CDisplayer()
 	frameCount = 0;
 	frameRate = 0.0;
 
+	m_initPrm.disSched = 3.5;
 }
 
 CDisplayer::~CDisplayer()
@@ -198,6 +200,13 @@ int CDisplayer::destroy()
 			m_cuStream[i] = NULL;
 		}
 	}
+
+	pthread_mutex_lock(&render_lock);
+	pthread_cond_broadcast(&render_cond);
+	pthread_mutex_unlock(&render_lock);
+
+	pthread_mutex_destroy(&render_lock);
+	pthread_cond_destroy(&render_cond);
 
 	return 0;
 }
@@ -476,6 +485,13 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	
 	if(m_initPrm.timerInterval<=0)
 		m_initPrm.timerInterval = 40;
+	if(m_initPrm.disFPS<=0)
+		m_initPrm.disFPS = 25;
+
+	pthread_mutex_init(&render_lock, NULL);
+	pthread_cond_init(&render_cond, NULL);
+
+	setFPS(m_initPrm.disFPS);
 
     //glutInitWindowPosition(m_initPrm.winPosX, m_initPrm.winPosY);
     glutInitWindowSize(VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
@@ -786,6 +802,7 @@ void extractUYVY2Gray1(Mat src, Mat dst)
 	}
 }
 
+#if 0
 void CDisplayer::display(Mat frame, int chId, int code)
 {
 	static int saveCount = 0;
@@ -933,6 +950,97 @@ void CDisplayer::display(Mat frame, int chId, int code)
 		cudaFree_share(d_src_rgb, chId + DS_CHAN_MAX);
 	}
 
+}
+#else
+void CDisplayer::display(Mat frame, int chId, int code)
+{
+	assert(chId>=0 && chId<DS_CHAN_MAX);
+
+	OSA_mutexLock(&m_mutex);
+
+	m_frame[chId][pp[chId]] = frame;
+	m_code[chId] = code;
+
+	OSA_mutexUnlock(&m_mutex);
+}
+#endif
+
+void CDisplayer::transfer()
+{
+	int winId, chId, nChannel,code;
+	unsigned char *d_src = NULL;
+	unsigned char *d_src_rgb = NULL;
+	unsigned int byteCount ;
+	unsigned int byteBlock ;
+	int mask = 0;
+
+	for(winId=0; winId<m_renderCount; winId++)
+	{
+		chId = m_renders[winId].video_chId;
+
+		if(chId < 0 || chId >= DS_CHAN_MAX)
+		{
+			continue;
+		}
+
+		OSA_mutexLock(&m_mutex);
+		dism_img[chId]=	m_frame[chId][pp[chId]];
+		code = m_code[chId];
+		OSA_mutexUnlock(&m_mutex);
+
+		if(dism_img[chId].cols <=0 || dism_img[chId].rows <=0 || dism_img[chId].channels() == 0)
+		{
+			continue;
+		}
+		nChannel = dism_img[chId].channels();
+		byteCount = dism_img[chId].rows * dism_img[chId].cols * nChannel * sizeof(unsigned char);
+		byteBlock = byteCount/DS_CUSTREAM_CNT;
+
+		if(!((mask >> chId)&1))
+		{
+			if(nChannel == 1|| code == -1)
+			{
+				cudaMalloc_share((void**)&d_src_rgb, byteCount, chId + DS_CHAN_MAX);
+				cudaMemcpyAsync(d_src_rgb, dism_img[chId].data, byteCount, cudaMemcpyHostToDevice,  m_cuStream[0]);
+				m_img[chId] = cv::Mat(dism_img[chId].rows, dism_img[chId].cols, CV_MAKETYPE(CV_8U,nChannel), d_src_rgb);
+				cudaFree_share(d_src_rgb, chId + DS_CHAN_MAX);
+			}
+			else
+			{
+				unsigned int byteCount_rgb = dism_img[chId].rows * dism_img[chId].cols * 3* sizeof(unsigned char);
+				unsigned int byteBlock_rgb = byteCount_rgb/DS_CUSTREAM_CNT;
+				unsigned char *d_src_gray = NULL;
+
+				cudaMalloc_share((void**)&d_src, byteCount, chId);
+				cudaMalloc_share((void**)&d_src_rgb, byteCount_rgb, chId + DS_CHAN_MAX);
+
+				for(i = 0; i<DS_CUSTREAM_CNT; i++)
+					cudaMemcpyAsync(d_src + byteBlock*i, dism_img[chId].data + byteBlock*i, byteBlock, cudaMemcpyHostToDevice, m_cuStream[i]);
+
+				if(code == CV_YUV2BGR_YUYV)
+				{
+					for(i = 0; i<DS_CUSTREAM_CNT; i++)
+					{
+						yuyv2bgr_(d_src_rgb + byteBlock_rgb*i, d_src + byteBlock*i, dism_img[chId].cols, (dism_img[chId].rows/DS_CUSTREAM_CNT), m_cuStream[i]);
+					}
+				}
+
+				if(code == CV_YUV2BGR_UYVY)
+				{
+					for(i = 0; i<DS_CUSTREAM_CNT; i++)
+					{
+						uyvy2bgr_(d_src_rgb + byteBlock_rgb*i, d_src + byteBlock*i, dism_img[chId].cols, (dism_img[chId].rows/DS_CUSTREAM_CNT), m_cuStream[i]);
+					}
+				}
+
+				m_img[chId] = cv::Mat(dism_img[chId].rows, dism_img[chId].cols, CV_8UC3, d_src_rgb);
+
+				cudaFree_share(d_src, chId);
+				cudaFree_share(d_src_rgb, chId + DS_CHAN_MAX);
+			}
+			mask |= (1<<chId);
+		}
+	}
 }
 
 GLuint CDisplayer::async_display(int chId, int width, int height, int channels)
@@ -1250,6 +1358,7 @@ static unsigned int firdupcount=800;
 
 static unsigned int tvclearbuffer=1;
 static unsigned int firclearbuffer=1;
+#if 0
 void CDisplayer::gl_textureLoad(void)
 {
 		
@@ -1497,6 +1606,147 @@ void CDisplayer::gl_textureLoad(void)
 
 	float telapse = ( (getTickCount() - tstart)/getTickFrequency());
 }
+#else
+static int64  tend = 0ul;
+void CDisplayer::gl_textureLoad(void)
+{
+	int winId, chId;
+	unsigned int mask = 0;
+	unsigned int byteCount=0;
+
+	tStamp[0] = getTickCount();
+	tstart = tStamp[0];
+	if(tend == 0ul)
+		tend = tstart;
+	if(1)
+	{
+		double wms = m_interval*0.000001 - m_telapse;
+		double wmsl = (m_tmRender == 0ul) ? 0.f : ((tStamp[0] - m_tmRender)*0.000001f);
+		wms -= wmsl;
+		if(m_waitSync && wms>2.0){
+			struct timeval timeout;
+			timeout.tv_sec = 0;
+			timeout.tv_usec = wms*1000.0;
+			select( 0, NULL, NULL, NULL, &timeout );
+		}else{
+			wms = 0.0;
+		}
+	}
+	tStamp[1] = getTickCount();
+
+	transfer();
+
+	tStamp[2] = getTickCount();
+
+	for(winId=0; winId<m_renderCount; winId++)
+	{
+		chId = m_renders[winId].video_chId;
+
+		if(chId < 0 || chId >= DS_CHAN_MAX)
+		{
+			continue;
+		}
+		dism_img[chId]=m_img[chId];
+
+		if(dism_img[chId].cols <=0 || dism_img[chId].rows <=0 || dism_img[chId].channels() == 0)
+		{
+			continue;
+		}
+
+		if(!((mask >> chId)&1))
+		{
+			if(!m_renders[winId].bFreeze)
+			{
+				GLuint pbo = async_display(chId, dism_img[chId].cols, dism_img[chId].rows, dism_img[chId].channels());
+				byteCount = dism_img[chId].cols*dism_img[chId].rows*dism_img[chId].channels()*sizeof(unsigned char);
+				unsigned char *dev_pbo = NULL;
+				size_t tmpSize;
+				freezeonece=1;
+				OSA_assert(pbo == buffId_input[chId]);
+
+				cudaResource_RegisterBuffer(chId, pbo, byteCount);
+				cudaResource_mapBuffer(chId, (void **)&dev_pbo, &tmpSize);
+				if(tmpSize != byteCount)
+				{
+					OSA_printf("%s: WARNING!!! %d - %d \n", __func__, (unsigned int)tmpSize, byteCount);
+				}
+/*
+				if( (chId == 0 )&& (plat->m_camCalibra->Set_Handler_Calibra == true || g_sysParam->isEnable_Undistortion())) {
+					if(m_renders[chId].videodect)
+						cudaMemcpy(x11disbuffer, dism_img[chId].data,byteCount, cudaMemcpyDeviceToHost);
+					else
+						cudaMemcpy(x11disbuffer, m_img_novideo.data,byteCount, cudaMemcpyDeviceToHost);
+
+					cv::Mat undistorMat = cv::Mat(dism_img[chId].rows, dism_img[chId].cols, CV_8UC3, x11disbuffer);
+					remap(undistorMat, undistorMat, g_camParams.map1, g_camParams.map2, INTER_LINEAR);
+
+				}else{
+*/				
+				if(m_renders[chId].videodect)
+						cudaMemcpy(dev_pbo, dism_img[chId].data, byteCount, cudaMemcpyDeviceToDevice);
+					else
+						cudaMemcpy(dev_pbo, m_img_novideo.data, byteCount, cudaMemcpyDeviceToDevice);
+//		 		}
+				cudaResource_unmapBuffer(chId);
+				cudaResource_UnregisterBuffer(chId);
+			}
+/*
+			if( (chId == 0 )&& (plat->m_camCalibra->Set_Handler_Calibra == true || g_sysParam->isEnable_Undistortion())) {
+				if(dism_img[chId].channels() == 1){
+//					glTexImage2D(GL_TEXTURE_2D, 0, m_videoSize[chId].c, m_videoSize[chId].w, m_videoSize[chId].h, 0, GL_RED, GL_UNSIGNED_BYTE, x11disbuffer);
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_videoSize[chId].w, m_videoSize[chId].h, GL_RED, GL_UNSIGNED_BYTE, x11disbuffer);
+				}else{
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_videoSize[chId].w, m_videoSize[chId].h, GL_BGR_EXT, GL_UNSIGNED_BYTE, x11disbuffer);
+				}
+			}else{
+*/			
+				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffId_input[chId]);
+				glBindTexture(GL_TEXTURE_2D, textureId_input[chId]);
+				if(dism_img[chId].channels() == 1){
+					//glTexImage2D(GL_TEXTURE_2D, 0, m_videoSize[chId].c, m_videoSize[chId].w, m_videoSize[chId].h, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_videoSize[chId].w, m_videoSize[chId].h, GL_RED, GL_UNSIGNED_BYTE, NULL);
+				}else{
+					//glTexImage2D(GL_TEXTURE_2D, 0, m_videoSize[chId].c, m_videoSize[chId].w, m_videoSize[chId].h, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, NULL);
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_videoSize[chId].w, m_videoSize[chId].h, GL_BGR_EXT, GL_UNSIGNED_BYTE, NULL);
+				}
+				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+			//}
+
+			mask |= (1<<chId);
+		}
+	}
+
+	if(m_bOsd)
+	{
+		for(int i=0; i<DS_DC_CNT;  i++)	{
+			if(updata_osd[i]) {
+				glBindTexture(GL_TEXTURE_2D, textureId_osd[i]);
+				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_disOsd[i].cols, m_disOsd[i].rows, GL_BGRA_EXT, GL_UNSIGNED_BYTE, m_disOsd[i].data);
+				updata_osd[i] = false;
+			}
+		}
+	}
+	
+}
+#endif
+
+int CDisplayer::setFPS(float fps)
+{
+    if (fps == 0)
+    {
+        OSA_printf("[Render]Fps 0 is not allowed. Not changing fps");
+        return -1;
+    }
+    pthread_mutex_lock(&render_lock);
+    m_initPrm.disFPS = fps;
+    m_interval = (1000000000ul)/(uint64)m_initPrm.disFPS;
+    render_time_sec = m_interval / 1000000000ul;
+    render_time_nsec = (m_interval % 1000000000ul);
+    memset(&last_render_time, 0, sizeof(last_render_time));
+    pthread_mutex_unlock(&render_lock);
+    return 0;
+}
+
 void CDisplayer::disp_fps(){
     static GLint frames = 0;
     static GLint t0 = 0;
