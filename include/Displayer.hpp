@@ -74,6 +74,9 @@ typedef struct _ds_init_param{
 	char szScriptFile[256];
 	int initloyerId;
 	//void (*displayfunc)(void);
+
+	int disFPS;      // Add 20181224
+	float disSched;  // Add 20181224
 	
 	void (*motionfunc)(GLint xMouse, GLint yMouse);
 	void (*passivemotionfunc)(GLint xMouse, GLint yMouse);
@@ -136,12 +139,12 @@ public:
 	int dynamic_config(DS_CFG type, int iPrm, void* pPrm);
 	int get_videoSize(int chId, DS_Size &size);
 	void display(Mat frame, int chId, int code = -1);/*CV_YUV2BGR_UYVY*/
-	void transfer();
+	void transfer();// add 20181224
 	GLuint async_display(int chId, int width, int height, int channels);
 	int setFullScreen(bool bFull);
 	void reDisplay(void);
 	void UpDateOsd(int idc);
-	int setFPS(float fps);
+	int setFPS(float fps);// add 20181224
 
 	int m_mainWinWidth_new[eSen_Max];
 	int m_mainWinHeight_new[eSen_Max];
