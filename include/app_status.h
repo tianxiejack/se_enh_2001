@@ -2,6 +2,8 @@
 #ifndef _GLOBAL_STATUS_H_
 #define _GLOBAL_STATUS_H_
 
+#include "Ipcctl.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -245,6 +247,10 @@ typedef struct
 	
 	volatile unsigned int  	ImgMmtshow[eSen_Max];	//not sure show what
 	volatile unsigned char 	MmtOffsetXY[20]; 		//not sure the func
+
+	volatile unsigned int MenuStat;
+	AppMenu menuarray[menumaxid];
+	char Passwd[128];
 	
 } CMD_EXT;
 #endif

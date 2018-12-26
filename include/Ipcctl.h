@@ -68,10 +68,12 @@ typedef enum
     mtdoutput,
     mtdpolar,
     mtdtrktime,
-    setconfig,	/*50*/
+    setconfig,/*50*/
     querypos,
     speedloop,
     acqPosAndZoom,
+    reset_swtarget_timer,
+    mtdFrame,
     invalid
 }CMD_ID;
 
@@ -81,6 +83,29 @@ typedef enum
 	shm_rdonly,
 	shm_rdwr
 }shm_perms;
+
+typedef enum{
+	mainmenu0=0,
+	mainmenu1,
+	mainmenu2,
+	submenu_carli,
+	submenu_gunball,
+	submenu_mtd,
+	submenu_setimg,
+	submenu_setball,
+	submenu_setcom,
+	submenu_setnet,
+	menumaxid
+}AppMenuId;
+
+typedef struct
+{
+	int id;
+	int pointer;
+	int submenu_cnt;
+	int start;
+	int end;
+}AppMenu;
 
 typedef struct{
 	unsigned int panPos;
@@ -273,6 +298,16 @@ typedef struct{
 	int Class;
 	int IPCID;
 }IPC_Handl;
+
+typedef struct{
+	int detectArea;
+	int detectNum;
+	int detectSpeed;
+	int tmpUpdateSpeed;
+	int tmpMaxPixel;
+	int tmpMinPixel;
+	int sensitivityThreshold;
+}CMD_Mtd_Frame;
 
 typedef struct{
     volatile unsigned char unitFaultStat;/*0:FR ok,TV ok; 1:FR ok,TV err; 2:FR err,TV ok; 3:FR err,TV err*/
@@ -563,6 +598,10 @@ typedef struct
 	
 	volatile unsigned int  	ImgMmtshow[ipc_eSen_Max];	//not sure show what
 	volatile unsigned char 	MmtOffsetXY[20]; 		//not sure the func
+
+	volatile unsigned int MenuStat;
+	AppMenu menuarray[menumaxid];
+	char Passwd[128];
 	
 } IMGSTATUS;
 
