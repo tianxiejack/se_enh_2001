@@ -95,6 +95,7 @@ typedef enum{
 	submenu_setball,
 	submenu_setcom,
 	submenu_setnet,
+	submenu_setmtdrigion,
 	menumaxid
 }AppMenuId;
 
