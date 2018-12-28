@@ -14,6 +14,7 @@
 
 using namespace vmath;
 extern CMD_EXT *msgextInCtrl;
+extern CMD_Mtd_Frame Mtd_Frame;
 int CVideoProcess::m_mouseEvent = 0;
 int CVideoProcess::m_mousex = 0;
 int CVideoProcess::m_mousey = 0;
@@ -280,7 +281,7 @@ void CVideoProcess::main_proc_func()
 		#if __MOVE_DETECT__
 			if(m_pMovDetector != NULL)
 			{
-				m_pMovDetector->setFrame(frame_gray,chId,2,minsize,maxsize,16);
+				m_pMovDetector->setFrame(frame_gray, 0, Mtd_Frame.detectSpeed, Mtd_Frame.tmpMinPixel, Mtd_Frame.tmpMaxPixel, Mtd_Frame.sensitivityThreshold);
 			}
 		#endif
 		}
@@ -344,11 +345,6 @@ CVideoProcess::CVideoProcess()
 	memset(m_tgtBox, 0, sizeof(TARGETBOX)*MAX_TARGET_NUMBER);
 #endif
 
-#if __MOVE_DETECT__
-	detectNum = 10;
-	maxsize = 50000;
-	minsize = 1000;
-#endif
 
 	m_click = m_draw = m_tempX = m_tempY = 0;
 	memset(m_rectn, 0, sizeof(m_rectn));
@@ -694,25 +690,25 @@ void CVideoProcess::processrigionpolygonMenu(int value)
 void CVideoProcess::processmaxnumMenu(int value)
 {
 	if(0 == value)
-		pThis->detectNum = 5;
+		Mtd_Frame.detectNum = 5;
 	else if(1 == value)
-		pThis->detectNum = 10;
+		Mtd_Frame.detectNum = 10;
 }
 
 void CVideoProcess::processmaxtargetsizeMenu(int value)
 {
 	if(0 == value)
-		pThis->maxsize= 40000;
+		Mtd_Frame.tmpMaxPixel = 40000;
 	else if(1 == value)
-		pThis->maxsize= 50000;
+		Mtd_Frame.tmpMaxPixel = 50000;
 }
 
 void CVideoProcess::processmintargetsizeMenu(int value)
 {
 	if(0 == value)
-		pThis->minsize= 100;
+		Mtd_Frame.tmpMinPixel = 100;
 	else if(1 == value)
-		pThis->minsize= 1000;
+		Mtd_Frame.tmpMinPixel = 1000;
 }
 #endif
 void CVideoProcess::keyboard_event(unsigned char key, int x, int y)

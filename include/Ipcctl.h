@@ -98,6 +98,13 @@ typedef enum{
 	menumaxid
 }AppMenuId;
 
+typedef struct{
+		int button;
+		int state;
+		int x;
+		int y;
+}mouse_t;
+
 typedef struct
 {
 	int id;
@@ -300,13 +307,18 @@ typedef struct{
 }IPC_Handl;
 
 typedef struct{
-	int detectArea;
 	int detectNum;
 	int detectSpeed;
 	int tmpUpdateSpeed;
 	int tmpMaxPixel;
 	int tmpMinPixel;
 	int sensitivityThreshold;
+	int detectArea_X;
+	int detectArea_Y;
+	int detectArea_wide;
+	int detectArea_high;
+	int priority;
+	int alarm_delay;
 }CMD_Mtd_Frame;
 
 typedef struct{
@@ -583,6 +595,8 @@ typedef struct
 
 	volatile unsigned char  MtdState[ipc_eSen_Max];	//record moving obj detect state of each channel
 	volatile unsigned int  MtdSelect[ipc_eSen_Max];
+	volatile unsigned int  MtdSetRigion;
+	
 	/***** cmd osd part *****/
 	volatile unsigned int  DispGrp[ipc_eSen_Max];       	// eDispGrade
 	volatile unsigned int  DispColor[ipc_eSen_Max];  	// eOSDColor or eGRPColor
@@ -602,6 +616,8 @@ typedef struct
 	volatile unsigned int MenuStat;
 	AppMenu menuarray[menumaxid];
 	char Passwd[128];
+
+	mouse_t Mtdmouseclick;
 	
 } IMGSTATUS;
 

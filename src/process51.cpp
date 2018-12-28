@@ -18,6 +18,7 @@ OSDSTATUS gConfig_Osd_param = {0};
 UTCTRKSTATUS gConfig_Alg_param = {0};
 extern int ScalerLarge,ScalerMid,ScalerSmall;
 extern LinkagePos_t linkagePos; 
+extern CMD_Mtd_Frame Mtd_Frame;
 CProcess * CProcess::sThis = NULL;
 CProcess* plat = NULL;
 int glosttime = 3000;
@@ -1574,7 +1575,8 @@ osdindex++;	//acqRect
 
 			detect_bak = detect_vect;
 			
-			mvIndexHandle(mvList,detect_bak,detectNum);
+			printf("%%%%%%  Mtd_Frame.detectNum  = %d\n",  Mtd_Frame.detectNum);
+			mvIndexHandle(mvList,detect_bak,Mtd_Frame.detectNum);
 	
 			if(forwardflag)
 			{
