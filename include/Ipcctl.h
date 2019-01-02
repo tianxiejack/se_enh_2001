@@ -74,6 +74,7 @@ typedef enum
     acqPosAndZoom,
     reset_swtarget_timer,
     mtdFrame,
+    ballbaud,
     invalid
 }CMD_ID;
 
@@ -538,6 +539,9 @@ typedef struct
 	volatile int osdTextFont;
 	volatile int osdTextSize;
 	volatile int osdDrawColor;
+
+	volatile int ipcballComAddress;
+	volatile int ipcballComBaud;
 
 	/***** old status ,remaining tidy*****/	
 	volatile unsigned int  unitVerNum;      	// 1.23=>0x0123
