@@ -1576,6 +1576,7 @@ osdindex++;	//acqRect
 			detect_bak = detect_vect;
 			
 			mvIndexHandle(mvList,detect_bak,Mtd_Frame.detectNum);
+			
 			if(mvList.size())
 			{
 				SENDST test;
@@ -1589,6 +1590,38 @@ osdindex++;	//acqRect
 	
 			if(forwardflag)
 			{
+				#if 0
+				switch(Mtd_Frame.priority)
+				{
+					case 1:
+						MvdetectObjHandle_FarToCenter(mvList);
+						break;
+
+					case 2:
+						MvdetectObjHandle_NearToCenter();
+						break;
+
+					case 3:
+						MvdetectObjHandle_BrightnessMax();
+						break;
+
+					case 4:
+						MvdetectObjHandle_BrightnessMin();
+						break;
+
+					case 5:
+						MvdetectObjHandle_AreaMax();
+						break;
+
+					case 6:
+						MvdetectObjHandle_AreaMin();
+						break;
+
+					default:
+						break;
+				}
+				#endif
+
 				if(++chooseDetect > mvList.size())
 					chooseDetect = 0;
 				
@@ -3483,3 +3516,38 @@ void CProcess::MSGAPI_handle_mvUpdate(long lParam)
 {
 	pThis->m_pMovDetector->setUpdateFactor( Mtd_Frame.tmpUpdateSpeed ,sThis->extInCtrl->SensorStat );
 }
+
+
+void CProcess::MvdetectObjHandle_FarToCenter(std::vector<TRK_RECT_INFO> &mvList)
+{
+
+
+
+	
+}
+
+void CProcess::MvdetectObjHandle_NearToCenter(std::vector<TRK_RECT_INFO> &mvList)
+{
+
+}
+
+void CProcess::MvdetectObjHandle_BrightnessMax(std::vector<TRK_RECT_INFO> &mvList)
+{
+
+}
+
+void CProcess::MvdetectObjHandle_BrightnessMin(std::vector<TRK_RECT_INFO> &mvList)
+{
+
+}
+
+void CProcess::MvdetectObjHandle_AreaMax(std::vector<TRK_RECT_INFO> &mvList)
+{
+
+}
+
+void CProcess::MvdetectObjHandle_AreaMin(std::vector<TRK_RECT_INFO> &mvList)
+{
+
+}
+
