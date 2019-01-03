@@ -119,6 +119,9 @@ protected:
 	 static void MSGAPI_update_camera(long IParam);
 	 static void MSGAPI_input_algosdrect(long lParam);
 	 static void MSGAPI_setMtdSelect(long lParam );
+	 
+	static void MSGAPI_handle_mvAera(long lParam);
+	static void MSGAPI_handle_mvUpdate(long lParam);
 
 private:
 	ACK_EXT extOutAck;
@@ -166,6 +169,8 @@ public:
 
 	PointNode polyRectbak[MAX_CHAN][100];
 	int polytempXbak, polytempYbak, polyrectnbak[MAX_CHAN];
+
+
 
 };
 

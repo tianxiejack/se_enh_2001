@@ -10,6 +10,7 @@ CMD_EXT *msgextInCtrl;
 
 static int pristatus=0;
 LinkagePos_t linkagePos; 
+extern CMD_Mtd_Frame Mtd_Frame;
 
 void getMmtTg(unsigned char index,int *x,int *y);
 #if __MOVE_DETECT__
@@ -494,4 +495,83 @@ void app_ctrl_setWordSize(CMD_EXT * pInCmd)
 	{
 		pIStuts->osdTextSize = pInCmd->osdTextSize;
 	}
+}
+
+void app_ctrl_mtdParamHandle(CMD_Mtd_Frame * pInParam)
+{
+	if(pInParam == NULL || msgextInCtrl == NULL)
+		return ;
+
+	CMD_EXT *pIStuts = msgextInCtrl;
+	
+	if( pInParam->alarm_delay != Mtd_Frame.alarm_delay )
+	{
+		
+	}
+
+	if(pInParam->detectArea_high != Mtd_Frame.detectArea_high   
+		|| pInParam->detectArea_wide != Mtd_Frame.detectArea_wide
+		|| pInParam->detectArea_X != Mtd_Frame.detectArea_X
+		|| pInParam->detectArea_Y != Mtd_Frame.detectArea_Y)
+	{
+		if( (pInParam->detectArea_X + pInParam->detectArea_wide/2 < vdisWH[pIStuts->SensorStat][0])
+			&& (pInParam->detectArea_Y+ pInParam->detectArea_high/2 < vdisWH[pIStuts->SensorStat][1]))
+		{
+			Mtd_Frame.detectArea_X = pInParam->detectArea_X;
+			Mtd_Frame.detectArea_Y= pInParam->detectArea_Y;
+			Mtd_Frame.detectArea_wide = pInParam->detectArea_wide;
+			Mtd_Frame.detectArea_high  = pInParam->detectArea_high;	
+			MSGDRIV_send(MSGID_EXT_MVDETECTAERA, 0);
+		}		
+	}	
+
+	if(pInParam->detectNum != Mtd_Frame.detectNum)
+	{
+		if(pInParam->detectNum <= 10)
+			Mtd_Frame.detectNum = pInParam->detectNum;
+	}
+
+	if(pInParam->detectSpeed != Mtd_Frame.detectSpeed)	
+	{
+		Mtd_Frame.detectSpeed = pInParam->detectSpeed;
+	}
+
+	if(pInParam->priority != Mtd_Frame.priority)
+	{
+		Mtd_Frame.priority = pInParam->priority;
+		/*
+			1.distance to the center max
+			2. ... close
+			3. brightness max
+			4. brightness min
+			5. aera max
+			6. aera min
+		*/
+	}
+
+	if(pInParam->sensitivityThreshold != Mtd_Frame.sensitivityThreshold)
+	{
+		Mtd_Frame.sensitivityThreshold = pInParam->sensitivityThreshold;
+		
+	}
+
+	if(pInParam->tmpMaxPixel != Mtd_Frame.tmpMaxPixel)
+	{
+		Mtd_Frame.tmpMaxPixel = pInParam->tmpMaxPixel;
+		
+	}
+
+	if(pInParam->tmpMinPixel != Mtd_Frame.tmpMinPixel)
+	{
+		Mtd_Frame.tmpMinPixel = pInParam->tmpMinPixel;
+		
+	}
+
+	if(pInParam->tmpUpdateSpeed != Mtd_Frame.tmpUpdateSpeed)
+	{
+		Mtd_Frame.tmpUpdateSpeed = pInParam->tmpUpdateSpeed ;
+		MSGDRIV_send(MSGID_EXT_MVDETECTUPDATE, 0);
+	}	
+	
+	return ;
 }

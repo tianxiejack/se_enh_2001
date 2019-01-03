@@ -32,5 +32,6 @@ void app_ctrl_setalgosdrect(CMD_EXT * pInCmd);
 void app_ctrl_setWordFont(CMD_EXT * pInCmd);
 void app_ctrl_setWordSize(CMD_EXT * pInCmd);
 
+void app_ctrl_mtdParamHandle(CMD_Mtd_Frame * pInParam);
 
 #endif /* APP_CTRL_H_ */

@@ -2623,6 +2623,8 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_CAMERA,            MSGAPI_update_camera,           0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ALGOSDRECT,         MSGAPI_input_algosdrect,        0);	
 
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTAERA,         MSGAPI_handle_mvAera,        0);	
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTUPDATE,         MSGAPI_handle_mvUpdate,        0);	
 
     return 0;
 }
@@ -3464,3 +3466,20 @@ float  CProcess::PiexltoWindowsyf(float y,int channel)
 	return  ret;
 }
 
+void CProcess::MSGAPI_handle_mvAera(long lParam)
+{
+	std::vector<cv::Point> polyWarnRoi ;
+	polyWarnRoi.resize(4);
+
+	polyWarnRoi[0]= cv::Point(Mtd_Frame.detectArea_X,Mtd_Frame.detectArea_Y);
+	polyWarnRoi[1]= cv::Point(Mtd_Frame.detectArea_X+Mtd_Frame.detectArea_wide,Mtd_Frame.detectArea_Y);
+	polyWarnRoi[2]= cv::Point(Mtd_Frame.detectArea_X+Mtd_Frame.detectArea_wide,Mtd_Frame.detectArea_Y+Mtd_Frame.detectArea_high);
+	polyWarnRoi[3]= cv::Point(Mtd_Frame.detectArea_X,Mtd_Frame.detectArea_Y+Mtd_Frame.detectArea_high);
+
+	pThis->m_pMovDetector->setWarningRoi( polyWarnRoi, sThis->extInCtrl->SensorStat );
+}
+
+void CProcess::MSGAPI_handle_mvUpdate(long lParam)
+{
+	pThis->m_pMovDetector->setUpdateFactor( Mtd_Frame.tmpUpdateSpeed ,sThis->extInCtrl->SensorStat );
+}

@@ -171,20 +171,9 @@ void* recv_msg(SENDST *RS422)
 	switch(cmdID)
 	{	
 
-	case mtdFrame:
-		memcpy(&Mtd_Frame, RS422->param, sizeof(Mtd_Frame));
-		printf("RmtdFrame->detectNum = %d\n", Mtd_Frame.detectNum);
-		printf("RmtdFrame->detectSpeed = %d\n", Mtd_Frame.detectSpeed);
-		printf("RmtdFrame->sensitivityThreshold = %d\n", Mtd_Frame.sensitivityThreshold);
-		printf("RmtdFrame->tmpMaxPixel = %d\n", Mtd_Frame.tmpMaxPixel);
-		printf("RmtdFrame->tmpMinPixel = %d\n", Mtd_Frame.tmpMinPixel);
-		printf("RmtdFrame->tmpUpdateSpeed = %d\n", Mtd_Frame.tmpUpdateSpeed);
-		printf("RmtdFrame->detectArea_X = %d\n", Mtd_Frame.detectArea_X);
-		printf("RmtdFrame->detectArea_Y = %d\n", Mtd_Frame.detectArea_Y);
-		printf("RmtdFrame->detectArea_high = %d\n", Mtd_Frame.detectArea_high);
-		printf("RmtdFrame->detectArea_wide = %d\n", Mtd_Frame.detectArea_wide);
-		printf("RmtdFrame->priority = %d\n", Mtd_Frame.priority);
-		printf("RmtdFrame->alarm_delay = %d\n", Mtd_Frame.alarm_delay);
+		case mtdFrame:
+			memcpy(&Mtd_Frame, RS422->param, sizeof(Mtd_Frame));
+
 		break;
 
 		case BoresightPos:
