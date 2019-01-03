@@ -13,7 +13,7 @@ LinkagePos_t linkagePos;
 
 void getMmtTg(unsigned char index,int *x,int *y);
 #if __MOVE_DETECT__
-void getMtdxy(int *x,int *y,int *w,int *h);
+void getMtdxy(int &x,int &y,int &w,int &h);
 #endif
 
 
@@ -236,7 +236,7 @@ void app_ctrl_setMtdSelect(CMD_EXT * pInCmd)
 	else if(3 == pInCmd->MtdSelect[pInCmd->SensorStat])
 	{
 		int curx,cury,curw,curh;
-		getMtdxy(&curx, &cury, &curw, &curh);
+		getMtdxy(curx, cury, curw, curh);
 				
 		pMsg.AvtTrkStat =eTrk_mode_sectrk;
 		pMsg.AvtPosX[pIStuts->SensorStat]  = curx;

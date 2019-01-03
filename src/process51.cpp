@@ -38,12 +38,12 @@ void getMmtTg(unsigned char index,int *x,int *y)
 }
 
 #if __MOVE_DETECT__
-void getMtdxy(int *x,int *y,int *w,int *h)
+void getMtdxy(int &x,int &y,int &w,int &h)
 {
-	*x = plat->mvList[plat->chooseDetect].targetRect.x + plat->mvList[plat->chooseDetect].targetRect.width/2;
-	*y = plat->mvList[plat->chooseDetect].targetRect.y + plat->mvList[plat->chooseDetect].targetRect.height/2;
-	*w = plat->mvList[plat->chooseDetect].targetRect.width;
-	*h = plat->mvList[plat->chooseDetect].targetRect.height;
+	x = plat->mvList[plat->chooseDetect].targetRect.x + plat->mvList[plat->chooseDetect].targetRect.width/2;
+	y = plat->mvList[plat->chooseDetect].targetRect.y + plat->mvList[plat->chooseDetect].targetRect.height/2;
+	w = plat->mvList[plat->chooseDetect].targetRect.width;
+	h = plat->mvList[plat->chooseDetect].targetRect.height;
 }
 #endif
 
@@ -1575,8 +1575,17 @@ osdindex++;	//acqRect
 
 			detect_bak = detect_vect;
 			
-			printf("%%%%%%  Mtd_Frame.detectNum  = %d\n",  Mtd_Frame.detectNum);
 			mvIndexHandle(mvList,detect_bak,Mtd_Frame.detectNum);
+			if(mvList.size())
+			{
+				SENDST test;
+				test.cmd_ID = mtdnum;
+				if(0 == pThis->detect_vect.size())
+					test.param[0] = 0;
+				else
+					test.param[0] = 1;
+				ipc_sendmsg(&test, IPC_FRIMG_MSG);
+			}
 	
 			if(forwardflag)
 			{

@@ -281,7 +281,7 @@ void CVideoProcess::main_proc_func()
 		#if __MOVE_DETECT__
 			if(m_pMovDetector != NULL)
 			{
-				m_pMovDetector->setFrame(frame_gray, 0, Mtd_Frame.detectSpeed, Mtd_Frame.tmpMinPixel, Mtd_Frame.tmpMaxPixel, Mtd_Frame.sensitivityThreshold);
+				m_pMovDetector->setFrame(frame_gray, chId, Mtd_Frame.detectSpeed, Mtd_Frame.tmpMinPixel, Mtd_Frame.tmpMaxPixel, Mtd_Frame.sensitivityThreshold);
 			}
 		#endif
 		}
@@ -1367,14 +1367,6 @@ void CVideoProcess::NotifyFunc(void *context, int chId)
 	CVideoProcess *pParent = (CVideoProcess*)context;
 	pThis->detect_vect.clear();
 	pThis->m_pMovDetector->getWarnTarget(pThis->detect_vect,chId);
-
-	SENDST test;
-	test.cmd_ID = mtdnum;
-	if(0 == pThis->detect_vect.size())
-		test.param[0] = 0;
-	else
-		test.param[0] = 1;
-	ipc_sendmsg(&test, IPC_FRIMG_MSG);
 	
 	//pParent->m_display.m_bOsd = true;
 	//pThis->m_display.UpDateOsd(0);
