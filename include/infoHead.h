@@ -5,8 +5,8 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #define		TRK_TG_NUM		10
-#define  	SAMPLE_NUMBER 	256
-#define		DETECTOR_NUM		10
+#define  		SAMPLE_NUMBER 	256
+#define		DETECTOR_NUM		5
 
 #define ASSERT			CV_Assert
 #define TRACE			printf
@@ -66,14 +66,24 @@ typedef struct _pattern_t
 typedef	struct	 _trk_rect_t{
 	cv::Rect							targetRect;
 	TRK_STATE						trkState;
-	TARGET_TYPE				targetType;
+	TARGET_TYPE					targetType;
 	double							distance;
 	int									disp_frames;
 	int									trk_frames;
 	int									lost_frames;
 	WARN_ROI_STATE			warnType;
 	int									index;
+	cv::Rect 							targetVector[10];
+	float								mean;
+	float								var;
+	cv::Point2f						lostVel;
 }TRK_RECT_INFO;
+
+
+typedef	struct	 _lost_rect_t{
+	cv::Rect							targetRect;
+	int									disp_frames;
+}LOST_RECT_INFO;
 
 
 typedef	struct _trk_thred_t{
