@@ -58,6 +58,7 @@
 									<listOptionValue builtIn="false" value="Mvdetect"/>
 									<listOptionValue builtIn="false" value="freetype"/>
 									<listOptionValue builtIn="false" value="GLU"/>
+									<listOptionValue builtIn="false" value="crScene"/>
 									<listOptionValue builtIn="false" value="opencv_legacy"/>
 									<listOptionValue builtIn="false" value="ipc"/>
 									<listOptionValue builtIn="false" value="opencv_video"/>
@@ -164,6 +165,7 @@
 									<listOptionValue builtIn="false" value="GLU"/>
 									<listOptionValue builtIn="false" value="opencv_legacy"/>
 									<listOptionValue builtIn="false" value="ipc"/>
+									<listOptionValue builtIn="false" value="crScene"/>
 									<listOptionValue builtIn="false" value="opencv_video"/>
 									<listOptionValue builtIn="false" value="opencv_core"/>
 									<listOptionValue builtIn="false" value="opencv_imgproc"/>
