@@ -13,6 +13,7 @@
 #include "configable.h"
 
 #include "CcCamCalibra.h"
+#include "sceneProcess.hpp"
 
 typedef struct
 {
@@ -34,9 +35,10 @@ typedef struct _main_thr_obj_cxt{
 	bool bTrack;
 	bool bMtd;
 	bool bMoveDetect;
+	bool bSceneTrack;
 	int chId;
 	int iTrackStat;
-	
+	int iSceneTrackStat;
 	//Mat frame;
 }MAIN_ProcThrObj_cxt;
 
@@ -91,6 +93,7 @@ public:
 		VP_CFG_MmtEnable,
 		VP_CFG_SubPicpChId,
 		VP_CFG_MvDetect,
+		VP_CFG_SceneTrkEnable,
 		VP_CFG_Max
 	}VP_CFG;
 	int dynamic_config(int type, int iPrm, void* pPrm = NULL);
@@ -166,9 +169,12 @@ protected:
 	static bool m_bMtd;			// old singla for mmt : multi target detect
 	static bool m_bBlobDetect;
 	static bool m_bMoveDetect;
+	static bool m_bSceneTrack;
 	static int m_iTrackStat;
 	static int m_iTrackLostCnt;
-	
+	static int m_iSceneTrackStat;
+	static int m_iSceneTrackLostCnt;
+
 	Uint32 rememtime;
 	bool rememflag;
 	int m_curChId;
@@ -282,7 +288,8 @@ public:
 		std::vector<TRK_RECT_INFO> mvList;
 		char chooseDetect;
 #endif
-
+public:
+	CSceneProcess m_sceneObj;
 
 };
 

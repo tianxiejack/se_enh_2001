@@ -132,6 +132,8 @@ CProcess::CProcess()
 	pIStuts->DispGrp[1] = 1;
 	pIStuts->DispColor[0]=2;
 	pIStuts->DispColor[1]=2;
+	
+	pIStuts->SceneAvtTrkStat = 0;
 
 	m_tempXbak = m_tempYbak = 0;
 	memset(m_rectnbak, 0, sizeof(m_rectnbak));
@@ -1527,6 +1529,34 @@ osdindex++;	//acqRect
 			}
 	}
 
+	osdindex++;
+	{
+		if(changesensorCnt){
+			recIn = mtdFrameRectBak;
+			if(extInCtrl->SensorStatpri>MAX_CHAN)
+				extInCtrl->SensorStatpri = 1;
+			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,0);
+		}
+				
+		if(Osdflag[osdindex])
+		{
+			recIn = mtdFrameRectBak;
+			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,0);
+			Osdflag[osdindex]=0;
+		}
+
+		if(Mtd_Frame.areaSetBox)
+		{
+			recIn.x = Mtd_Frame.detectArea_X ;
+			recIn.y = Mtd_Frame.detectArea_Y;
+			recIn.width = Mtd_Frame.detectArea_wide;
+			recIn.height = Mtd_Frame.detectArea_high;
+			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor);
+			mtdFrameRectBak = recIn;
+			Osdflag[osdindex]=1;
+		}
+	}
+
 	
 #if __MOVE_DETECT__
 	osdindex++;
@@ -2615,6 +2645,21 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 	 	algOsdRect=pIStuts->Imgalgosdrect;
 	}
 	
+	if(msgId == MSGID_EXT_INPUT_SCENETRK)
+	{
+	 	if(prm != NULL)
+		{
+			pInCmd = (CMD_EXT *)prm;
+			pIStuts->SceneAvtTrkStat = pInCmd->SceneAvtTrkStat;
+		}
+		if (pIStuts->AvtTrkStat == eTrk_mode_acq)
+			dynamic_config(VP_CFG_SceneTrkEnable, 0);
+		else if(pIStuts->AvtTrkStat == eTrk_mode_target)
+			dynamic_config(VP_CFG_SceneTrkEnable, 1);
+
+	}
+	
+	
 }
 
 
@@ -2658,7 +2703,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTAERA,         MSGAPI_handle_mvAera,        0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTUPDATE,         MSGAPI_handle_mvUpdate,        0);	
-
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_SCENETRK,         MSGAPI_handle_mvUpdate,        0);	
     return 0;
 }
 
@@ -3520,9 +3565,6 @@ void CProcess::MSGAPI_handle_mvUpdate(long lParam)
 
 void CProcess::MvdetectObjHandle_FarToCenter(std::vector<TRK_RECT_INFO> &mvList)
 {
-
-
-
 	
 }
 
@@ -3551,3 +3593,7 @@ void CProcess::MvdetectObjHandle_AreaMin(std::vector<TRK_RECT_INFO> &mvList)
 
 }
 
+void CProcess::MSGAPI_INPUT_SCENETRK(long lParam)
+{
+	sThis->msgdriv_event(MSGID_EXT_INPUT_SCENETRK,NULL);
+}

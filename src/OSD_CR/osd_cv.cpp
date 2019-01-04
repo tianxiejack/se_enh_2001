@@ -240,6 +240,10 @@ void Drawcvcrossaim(Mat frame,Line_Param_fb *lineparm)
 	
 }
 
+void DrawRect(Mat frame,int x,int y,int width,int height,int frcolor)
+{
+	
+}
 
 void drawcvrect(Mat frame,int x,int y,int width,int height,int frcolor)
 {

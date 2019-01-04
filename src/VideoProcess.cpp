@@ -22,8 +22,11 @@ CVideoProcess * CVideoProcess::pThis = NULL;
 bool CVideoProcess::m_bTrack = false;
 bool CVideoProcess::m_bMtd = false;
 bool CVideoProcess::m_bMoveDetect = false;
+bool CVideoProcess::m_bSceneTrack = false;
 int CVideoProcess::m_iTrackStat = 0;
 int CVideoProcess::m_iTrackLostCnt = 0;
+int CVideoProcess::m_iSceneTrackStat = 0;
+int CVideoProcess::m_iSceneTrackLostCnt = 0;
 int64 CVideoProcess::tstart = 0;
 static int count=0;
 int ScalerLarge,ScalerMid,ScalerSmall;
@@ -100,7 +103,7 @@ void CVideoProcess::main_proc_func()
 	static UTC_ACQ_param acqRect;
 	CMD_EXT tmpCmd={0};
 	double value;
-
+	int tmpVal;
 #if 1
 	
 	static int timeFlag = 2;
@@ -111,7 +114,7 @@ void CVideoProcess::main_proc_func()
 	char file[128];
 	const int MvDetectAcqRectWidth  =  80;
 	const int MvDetectAcqRectHeight =  80;
-	
+	cv::Point2f tmpPoint;
 #endif
 	while(mainProcThrObj.exitProcThread ==  false)
 	{
@@ -124,6 +127,9 @@ void CVideoProcess::main_proc_func()
 		int chId = mainProcThrObj.cxt[mainProcThrObj.pp^1].chId;
 		int iTrackStat = mainProcThrObj.cxt[mainProcThrObj.pp^1].iTrackStat;
 
+		bool bSceneTrack = mainProcThrObj.cxt[mainProcThrObj.pp^1].bSceneTrack;
+		int iSceneTrackStat = mainProcThrObj.cxt[mainProcThrObj.pp^1].iSceneTrackStat;
+			
 		int channel = frame.channels();
 		Mat frame_gray;
 
@@ -133,7 +139,7 @@ void CVideoProcess::main_proc_func()
 		if(!OnPreProcess(chId, frame))
 			continue;
 
-		if(!m_bTrack && !m_bMtd &&!m_bMoveDetect){
+		if(!m_bTrack && !m_bMtd &&!m_bMoveDetect&&!m_bSceneTrack){
 			OnProcess(chId, frame);
 			continue;
 		}
@@ -284,6 +290,20 @@ void CVideoProcess::main_proc_func()
 				m_pMovDetector->setFrame(frame_gray, chId, Mtd_Frame.detectSpeed, Mtd_Frame.tmpMinPixel, Mtd_Frame.tmpMaxPixel, Mtd_Frame.sensitivityThreshold);
 			}
 		#endif
+		}
+		else if( bSceneTrack)
+		{
+			m_sceneObj.detect(frame_gray, chId);
+			m_sceneObj.getResult(tmpPoint);
+
+			//send IPC
+			SENDST scenetrk;
+			scenetrk.cmd_ID = sceneTrk;
+			tmpVal = msgextInCtrl->SceneAvtTrkStat;
+			memcpy(&scenetrk.param[0] ,&tmpVal, 4);
+			memcpy(&scenetrk.param[4] ,&tmpPoint.x , 4);
+			memcpy(&scenetrk.param[5] ,&tmpPoint.y , 4);
+			ipc_sendmsg(&scenetrk, IPC_FRIMG_MSG);
 		}
 		
 		OnProcess(chId, frame);
@@ -846,6 +866,18 @@ int CVideoProcess::dynamic_config(int type, int iPrm, void* pPrm)
 	case VP_CFG_MvDetect:
 		m_bMoveDetect = iPrm;
 		break;
+	case VP_CFG_SceneTrkEnable:
+		m_bSceneTrack = iPrm;
+		m_iSceneTrackStat = 0;
+		m_iSceneTrackLostCnt = 0;
+		mainProcThrObj.bFirst = true;
+		if(m_bSceneTrack)
+			m_sceneObj.start();
+
+		msgextInCtrl->SceneAvtTrkStat = m_bSceneTrack;
+		
+		break;
+		
 	default:
 		break;
 	}

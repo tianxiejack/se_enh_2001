@@ -10,7 +10,7 @@ CMD_EXT *msgextInCtrl;
 
 static int pristatus=0;
 LinkagePos_t linkagePos; 
-extern CMD_Mtd_Frame Mtd_Frame;
+CMD_Mtd_Frame Mtd_Frame;
 
 void getMmtTg(unsigned char index,int *x,int *y);
 #if __MOVE_DETECT__
@@ -503,10 +503,10 @@ void app_ctrl_mtdParamHandle(CMD_Mtd_Frame * pInParam)
 		return ;
 
 	CMD_EXT *pIStuts = msgextInCtrl;
-	
-	if( pInParam->alarm_delay != Mtd_Frame.alarm_delay )
-	{
 		
+	if( pInParam->areaSetBox != Mtd_Frame.areaSetBox )
+	{
+		Mtd_Frame.areaSetBox = pInParam->areaSetBox;
 	}
 
 	if(pInParam->detectArea_high != Mtd_Frame.detectArea_high   
@@ -571,7 +571,27 @@ void app_ctrl_mtdParamHandle(CMD_Mtd_Frame * pInParam)
 	{
 		Mtd_Frame.tmpUpdateSpeed = pInParam->tmpUpdateSpeed ;
 		MSGDRIV_send(MSGID_EXT_MVDETECTUPDATE, 0);
-	}	
+	}
 	
+	return ;
+}
+
+void app_ctrl_setSceneTrk(CMD_EXT * pInCmd)
+{
+	if(msgextInCtrl==NULL)
+		return ;
+	CMD_EXT *pIStuts = msgextInCtrl;
+
+	if (pInCmd->SceneAvtTrkStat != pIStuts->SceneAvtTrkStat)
+	{
+		pIStuts->SceneAvtTrkStat = pInCmd->SceneAvtTrkStat;
+		if(pIStuts->SceneAvtTrkStat == eTrk_mode_search)
+		{
+			return ;
+		}	
+		
+		MSGDRIV_send(MSGID_EXT_INPUT_SCENETRK, 0);
+	}
+
 	return ;
 }

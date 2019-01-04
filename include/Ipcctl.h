@@ -75,6 +75,7 @@ typedef enum
     reset_swtarget_timer,
     mtdFrame,
     ballbaud,
+    sceneTrk,
     invalid
 }CMD_ID;
 
@@ -309,12 +310,16 @@ typedef struct{
 }IPC_Handl;
 
 typedef struct{
+	int areaSetBox;
 	int detectNum;
 	int detectSpeed;
 	int tmpUpdateSpeed;
 	int tmpMaxPixel;
 	int tmpMinPixel;
 	int sensitivityThreshold;
+	int TrkMaxTime;
+	int output;
+	int outputPolarity;
 	int detectArea_X;
 	int detectArea_Y;
 	int detectArea_wide;
@@ -478,6 +483,7 @@ typedef struct{
 
 typedef struct{
 	volatile unsigned char resolution[ipc_eSen_Max];
+	volatile unsigned char outputresol;
 }CMD_IPCRESOLUTION;
 
 typedef struct{
@@ -570,6 +576,8 @@ typedef struct
 	volatile unsigned int  AvtCfgSave;      	// eSaveMode
 	volatile unsigned int  AvtTrkCoast;
 	volatile unsigned int  TrkErrFeedback;  	// eTrkMode 
+
+	volatile unsigned int SceneAvtTrkStat; 
 
 	volatile float  trkerrx;
 	volatile float  trkerry;	

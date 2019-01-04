@@ -21,7 +21,6 @@ extern UTCTRKSTATUS gConfig_Alg_param;
 int IrisAndFocusAndExit = 0;
 CMD_triangle cmd_triangle;
 OSD_param m_osd;
-CMD_Mtd_Frame Mtd_Frame;
 int ipc_loop = 1;
 
 extern void inputtmp(unsigned char cmdid);
@@ -144,6 +143,7 @@ void* recv_msg(SENDST *RS422)
 	CMD_ALGOSDRECT Ralgosdrect;
 	CMD_IPCRESOLUTION Rresolution;
 	LinkagePos posOfLinkage;
+	CMD_Mtd_Frame RmtdFrame;
 
 	//OSD_param* pOsd = NULL;
 	//pOsd = &m_osd;
@@ -172,8 +172,8 @@ void* recv_msg(SENDST *RS422)
 	{	
 
 		case mtdFrame:
-			memcpy(&Mtd_Frame, RS422->param, sizeof(Mtd_Frame));
-
+			memcpy(&RmtdFrame, RS422->param, sizeof(RmtdFrame));
+			app_ctrl_mtdParamHandle(&RmtdFrame);
 		break;
 
 		case BoresightPos:
@@ -311,7 +311,19 @@ void* recv_msg(SENDST *RS422)
 			memcpy(&losttime,RS422->param,4);
 			glosttime = losttime;
 			break;
+#if 1
+		case querypos:
+			memcpy(&Rtrk,RS422->param,sizeof(Rtrk));
+			imgID1 = Rtrk.AvtTrkStat;
+			//printf("recv TRK : imgID1 : %d\n",imgID1);
+			if(imgID1 == 0x1)
+				pMsg->SceneAvtTrkStat =eTrk_mode_target;
+			else
+				pMsg->SceneAvtTrkStat = eTrk_mode_acq;
 
+			app_ctrl_setSceneTrk(pMsg); 
+			break;
+#endif
 		case trk:				
 			memcpy(&Rtrk,RS422->param,sizeof(Rtrk));
 			imgID1 = Rtrk.AvtTrkStat;
@@ -587,13 +599,12 @@ void* recv_msg(SENDST *RS422)
 				vdisWH[ipc_eSen_CH4][1] = 576;
 			}
 			break;
-			
-		case querypos:
-			break;
+
 		case switchtarget:
 			pMsg->MtdSelect[pMsg->SensorStat] = ipc_eMTD_Next;
 			app_ctrl_setMtdSelect(pMsg);
 			break;
+	
 		default:
 			break;
 	}

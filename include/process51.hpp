@@ -19,6 +19,7 @@ class CProcess : public CVideoProcess
 	Osd_cvPoint crossBak;
 	Osd_cvPoint crossWHBak;
 	cv::Rect acqRectBak;
+	cv::Rect mtdFrameRectBak;
 	Osd_cvPoint freezecrossBak;
 	Osd_cvPoint crosspicpBak;
 	Osd_cvPoint crosspicpWHBak;
@@ -122,6 +123,8 @@ protected:
 	 
 	static void MSGAPI_handle_mvAera(long lParam);
 	static void MSGAPI_handle_mvUpdate(long lParam);
+	static void MSGAPI_INPUT_SCENETRK(long lParam);
+
 
 private:
 	ACK_EXT extOutAck;
