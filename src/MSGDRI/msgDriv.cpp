@@ -172,12 +172,14 @@ void* MSGDRIV_ProcTask(void *pPrm)
 
             SDK_ASSERT(msg.msgId >= 0 && msg.msgId < MAX_MSG_NUM);
 
-	 //    printf(" [DEBUG:] %s run   msg.msgId=%d   fun=%p\r\n",__func__, msg.msgId,pMsgDrvObj->msgTab[msg.msgId].pRtnFun );
+	     //printf(" [DEBUG:] %s run   msg.msgId=%d   fun=%p\r\n",__func__, msg.msgId,pMsgDrvObj->msgTab[msg.msgId].pRtnFun );
 
             if (pMsgDrvObj->msgTab[msg.msgId].pRtnFun != NULL)
             {
                 pMsgDrvObj->msgTab[msg.msgId].pRtnFun(msg.refContext);
             }
+		// printf(" [DEBUG:] @@@@@@@  after  pRtnFun \n" );
+		
         }
         else if (msg_recv.cmd == MSGDRIV_FREE_CMD)
         {

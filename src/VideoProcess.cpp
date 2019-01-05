@@ -151,10 +151,10 @@ void CVideoProcess::main_proc_func()
 
 		if(channel == 2)
 		{
-		if((chId == video_gaoqing0)||(chId == video_gaoqing)||(chId == video_gaoqing2)||(chId == video_gaoqing3))
-			extractYUYV2Gray2(frame, frame_gray);
-		else if(chId == video_pal)
-			extractUYVY2Gray(frame, frame_gray);
+			if((chId == video_gaoqing0)||(chId == video_gaoqing)||(chId == video_gaoqing2)||(chId == video_gaoqing3))
+				extractYUYV2Gray2(frame, frame_gray);
+			else if(chId == video_pal)
+				extractUYVY2Gray(frame, frame_gray);
 		}
 		else
 		{
@@ -305,7 +305,6 @@ void CVideoProcess::main_proc_func()
 			memcpy(&scenetrk.param[5] ,&tmpPoint.y , 4);
 			ipc_sendmsg(&scenetrk, IPC_FRIMG_MSG);
 		}
-		
 		OnProcess(chId, frame);
 		framecount++;
 
@@ -871,11 +870,10 @@ int CVideoProcess::dynamic_config(int type, int iPrm, void* pPrm)
 		m_iSceneTrackStat = 0;
 		m_iSceneTrackLostCnt = 0;
 		mainProcThrObj.bFirst = true;
-		if(m_bSceneTrack)
-			m_sceneObj.start();
 
 		msgextInCtrl->SceneAvtTrkStat = m_bSceneTrack;
-		
+		if(m_bSceneTrack)
+			m_sceneObj.start();
 		break;
 		
 	default:
@@ -1188,6 +1186,8 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 			mainProcThrObj.cxt[mainProcThrObj.pp].bMtd = m_bMtd;
 			mainProcThrObj.cxt[mainProcThrObj.pp].bMoveDetect = m_bMoveDetect;
 			mainProcThrObj.cxt[mainProcThrObj.pp].iTrackStat = m_iTrackStat;
+			mainProcThrObj.cxt[mainProcThrObj.pp].bSceneTrack= m_bSceneTrack;
+			mainProcThrObj.cxt[mainProcThrObj.pp].iSceneTrackStat = m_iSceneTrackStat;
 			mainProcThrObj.cxt[mainProcThrObj.pp].chId = chId;
 			if(mainProcThrObj.bFirst){
 				mainFrame[mainProcThrObj.pp^1] = frame;
@@ -1195,6 +1195,8 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 				mainProcThrObj.cxt[mainProcThrObj.pp^1].bMtd = m_bMtd;
 				mainProcThrObj.cxt[mainProcThrObj.pp^1].bMoveDetect = m_bMoveDetect;
 				mainProcThrObj.cxt[mainProcThrObj.pp^1].iTrackStat = m_iTrackStat;
+				mainProcThrObj.cxt[mainProcThrObj.pp].bSceneTrack= m_bSceneTrack;
+				mainProcThrObj.cxt[mainProcThrObj.pp].iSceneTrackStat = m_iSceneTrackStat;
 				mainProcThrObj.cxt[mainProcThrObj.pp^1].chId = chId;
 				mainProcThrObj.bFirst = false;
 			}

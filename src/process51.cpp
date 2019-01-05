@@ -2616,9 +2616,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
             if(m_pMovDetector->isRun(pIStuts->SensorStat))
             {
                 dynamic_config(VP_CFG_MvDetect, 0,NULL);
-                tmpCmd.MtdState[pIStuts->SensorStat] = 0;
-                //app_ctrl_setMtdStat(&tmpCmd);
-                m_pMovDetector->mvClose(pIStuts->SensorStat);
+		   m_pMovDetector->mvClose(pIStuts->SensorStat);\
                 chooseDetect = 0;
             }
         }
@@ -2651,10 +2649,10 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 		{
 			pInCmd = (CMD_EXT *)prm;
 			pIStuts->SceneAvtTrkStat = pInCmd->SceneAvtTrkStat;
-		}
-		if (pIStuts->AvtTrkStat == eTrk_mode_acq)
+		}		
+		if (pIStuts->SceneAvtTrkStat == eTrk_mode_acq)
 			dynamic_config(VP_CFG_SceneTrkEnable, 0);
-		else if(pIStuts->AvtTrkStat == eTrk_mode_target)
+		else if(pIStuts->SceneAvtTrkStat == eTrk_mode_target)
 			dynamic_config(VP_CFG_SceneTrkEnable, 1);
 
 	}
@@ -2703,7 +2701,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTAERA,         MSGAPI_handle_mvAera,        0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTUPDATE,         MSGAPI_handle_mvUpdate,        0);	
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_SCENETRK,         MSGAPI_handle_mvUpdate,        0);	
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_SCENETRK,         MSGAPI_INPUT_SCENETRK,        0);	
     return 0;
 }
 

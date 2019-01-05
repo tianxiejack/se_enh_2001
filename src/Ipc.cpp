@@ -311,11 +311,10 @@ void* recv_msg(SENDST *RS422)
 			memcpy(&losttime,RS422->param,4);
 			glosttime = losttime;
 			break;
-#if 1
-		case querypos:
+
+		case sceneTrk:
 			memcpy(&Rtrk,RS422->param,sizeof(Rtrk));
 			imgID1 = Rtrk.AvtTrkStat;
-			//printf("recv TRK : imgID1 : %d\n",imgID1);
 			if(imgID1 == 0x1)
 				pMsg->SceneAvtTrkStat =eTrk_mode_target;
 			else
@@ -323,7 +322,7 @@ void* recv_msg(SENDST *RS422)
 
 			app_ctrl_setSceneTrk(pMsg); 
 			break;
-#endif
+
 		case trk:				
 			memcpy(&Rtrk,RS422->param,sizeof(Rtrk));
 			imgID1 = Rtrk.AvtTrkStat;
