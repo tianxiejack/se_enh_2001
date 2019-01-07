@@ -2613,7 +2613,6 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
             {
                 m_pMovDetector->mvOpen(pIStuts->SensorStat);
                 dynamic_config(VP_CFG_MvDetect, 1,NULL);
-                tmpCmd.MtdState[pIStuts->SensorStat] = 1;
             }
         }
         else
@@ -2621,7 +2620,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
             if(m_pMovDetector->isRun(pIStuts->SensorStat))
             {
                 dynamic_config(VP_CFG_MvDetect, 0,NULL);
-		   m_pMovDetector->mvClose(pIStuts->SensorStat);\
+		   m_pMovDetector->mvClose(pIStuts->SensorStat);
                 chooseDetect = 0;
             }
         }
