@@ -13,15 +13,16 @@ void CSceneProcess::start()
 }
 
 void CSceneProcess::detect(const Mat& frame, int chId)
-{
-	//Rect roi = Rect(100-100*sin((m_cnt[chId]%60)*6*M3D_PI_DIV_180), 100, frame.cols-200, frame.rows-200);
-	Rect roi = Rect(100,100,frame.cols-100, frame.rows-100);
-	Mat frameROI(frame, roi);
+{	
+	struct timespec now;
+	clock_gettime(CLOCK_MONOTONIC, &now);
+	unsigned int us = now.tv_sec*1000000+now.tv_nsec/1000;
+	*(unsigned int*)frame.data = us;
 
 	if(m_cnt[chId] == 0)
-		m_obj.InitSceneLock(frameROI);
+		m_obj.InitSceneLock(frame);
 	else
-		;//m_obj.CalSceneLock(frameROI);
+		m_obj.CalSceneLock(frame);
 
 	if(!m_cnt[chId])
 		m_cnt[chId]++;
