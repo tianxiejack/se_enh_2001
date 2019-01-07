@@ -551,8 +551,10 @@ void app_ctrl_mtdParamHandle(CMD_Mtd_Frame * pInParam)
 
 	if(pInParam->sensitivityThreshold != Mtd_Frame.sensitivityThreshold)
 	{
-		Mtd_Frame.sensitivityThreshold = pInParam->sensitivityThreshold;
-		
+		if(!pInParam->sensitivityThreshold)
+			Mtd_Frame.sensitivityThreshold = 16;
+		else
+			Mtd_Frame.sensitivityThreshold = pInParam->sensitivityThreshold;
 	}
 
 	if(pInParam->tmpMaxPixel != Mtd_Frame.tmpMaxPixel)

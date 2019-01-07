@@ -27,6 +27,7 @@ int main(int argc, char **argv)
 		tv.tv_usec = 50000;
 		select( 0, NULL, NULL, NULL, &tv );
 	};
+	proc.loadIPCParam();
 	proc.creat();
 	proc.init();
 	proc.run();

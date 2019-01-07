@@ -172,7 +172,6 @@ void* recv_msg(SENDST *RS422)
 
 		case mtdFrame:
 			memcpy(&RmtdFrame, RS422->param, sizeof(RmtdFrame));
-			printf("\nRmtdFrame.sensitivityThreshold = %d \n",RmtdFrame.sensitivityThreshold);
 			app_ctrl_mtdParamHandle(&RmtdFrame);
 			break;
 
