@@ -302,7 +302,7 @@ void CVideoProcess::main_proc_func()
 			tmpVal = msgextInCtrl->SceneAvtTrkStat;
 			memcpy(&scenetrk.param[0] ,&tmpVal, 4);
 			memcpy(&scenetrk.param[4] ,&tmpPoint.x , 4);
-			memcpy(&scenetrk.param[5] ,&tmpPoint.y , 4);
+			memcpy(&scenetrk.param[8] ,&tmpPoint.y , 4);
 			ipc_sendmsg(&scenetrk, IPC_FRIMG_MSG);
 		}
 		OnProcess(chId, frame);
