@@ -1462,7 +1462,7 @@ osdindex++;	//cross aim
  		}
 
 		
-			if(!m_bMoveDetect)
+			if(!m_bMoveDetect || !m_bSceneTrack)
 			{
 				if(extInCtrl->DispGrp[extInCtrl->SensorStat] <= 3  &&  !changesensorCnt)
 				{
@@ -1509,7 +1509,7 @@ osdindex++;	//acqRect
 			Osdflag[osdindex]=0;
  		}
 
-			if(!m_bMoveDetect)
+			if(!m_bMoveDetect || !m_bSceneTrack)
 			{
 				if(extInCtrl->AvtTrkStat == eTrk_mode_acq  && !changesensorCnt){
 					recIn.x  = PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
