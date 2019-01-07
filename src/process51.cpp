@@ -48,7 +48,24 @@ void getMtdxy(int &x,int &y,int &w,int &h)
 #endif
 
 CProcess::CProcess()
+{	
+	extInCtrl = (CMD_EXT*)ipc_getimgstatus_p();
+	memset(extInCtrl,0,sizeof(CMD_EXT));
+	msgextInCtrl = extInCtrl;
+	sThis = this;
+	plat = this;
+}
+
+CProcess::~CProcess()
 {
+	sThis=NULL;
+}
+
+
+void CProcess::loadIPCParam()
+{
+	CMD_EXT *pIStuts = extInCtrl;
+	
 	memset(rcTrackBak, 0, sizeof(rcTrackBak));
 	memset(tgBak, 0, sizeof(tgBak));
 	memset(&extOutAck, 0, sizeof(ACK_EXT));
@@ -58,9 +75,6 @@ CProcess::CProcess()
 	rememflag=false;
 	rememtime=0;
 	// default cmd value
-	extInCtrl = (CMD_EXT*)ipc_getimgstatus_p();
-	memset(extInCtrl,0,sizeof(CMD_EXT));
-	CMD_EXT *pIStuts = extInCtrl;
 	
 	for(int i = 0; i < MAX_CHAN; i++)
 	{
@@ -122,10 +136,6 @@ CProcess::CProcess()
 	rendpos[3].w=vdisWH[0][0]/3;
 	rendpos[3].h=vdisWH[0][1]/3;
 
-	msgextInCtrl = extInCtrl;
-	sThis = this;
-	plat = this;
-
 	update_param_osd();
 
 	pIStuts->DispGrp[0] = 1;
@@ -151,10 +161,6 @@ CProcess::CProcess()
 
 }
 
-CProcess::~CProcess()
-{
-	sThis=NULL;
-}
 
 int  CProcess::WindowstoPiexlx(int x,int channel)
 {
@@ -354,7 +360,6 @@ int  CProcess::PiexltoWindowsyzoom_TrkRect(int y,int channel)
 void CProcess::OnCreate()
 {
 	MSGAPI_initial();
-
 }
 
 	

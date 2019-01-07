@@ -42,7 +42,7 @@ class CProcess : public CVideoProcess
 public:
 	CProcess();
 	~CProcess();
-
+	void loadIPCParam();
 	void OnCreate();
 	void OnDestroy();
 	void OnInit();

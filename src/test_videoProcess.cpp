@@ -15,18 +15,18 @@ bool startEnable = false;
 int main(int argc, char **argv)
 {
 	struct timeval tv;
-	tv.tv_sec = 0;
-	tv.tv_usec = 50000;
+
 	MSGDRIV_create();
 #ifdef __IPC__
 	Ipc_pthread_start();
 #endif
+	CProcess proc;
 	while(false == startEnable)
 	{
+		tv.tv_sec = 0;
+		tv.tv_usec = 50000;
 		select( 0, NULL, NULL, NULL, &tv );
 	};
-	
-	CProcess proc;
 	proc.creat();
 	proc.init();
 	proc.run();

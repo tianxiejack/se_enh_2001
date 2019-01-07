@@ -166,15 +166,15 @@ void* recv_msg(SENDST *RS422)
 	if(startEnable)
 		app_ctrl_getSysData(pMsg);
 
-	osdbuffer_t* ppppp  = NULL;	
 	printf("cmdID : %d (%02x %02x %02x %02x %02x)\n",cmdID,imgID1,imgID2,imgID3,imgID4,imgID5);
 	switch(cmdID)
 	{	
 
 		case mtdFrame:
 			memcpy(&RmtdFrame, RS422->param, sizeof(RmtdFrame));
+			printf("\nRmtdFrame.sensitivityThreshold = %d \n",RmtdFrame.sensitivityThreshold);
 			app_ctrl_mtdParamHandle(&RmtdFrame);
-		break;
+			break;
 
 		case BoresightPos:
 			memcpy(&Rboresightmove, RS422->param, sizeof(Rboresightmove));
