@@ -40,10 +40,17 @@ void getMmtTg(unsigned char index,int *x,int *y)
 #if __MOVE_DETECT__
 void getMtdxy(int &x,int &y,int &w,int &h)
 {
-	x = plat->mvList[plat->chooseDetect].targetRect.x + plat->mvList[plat->chooseDetect].targetRect.width/2;
-	y = plat->mvList[plat->chooseDetect].targetRect.y + plat->mvList[plat->chooseDetect].targetRect.height/2;
-	w = plat->mvList[plat->chooseDetect].targetRect.width;
-	h = plat->mvList[plat->chooseDetect].targetRect.height;
+	if(plat->chooseDetect < plat->mvList.size())
+	{
+		x = plat->mvList[plat->chooseDetect].targetRect.x + plat->mvList[plat->chooseDetect].targetRect.width/2;
+		y = plat->mvList[plat->chooseDetect].targetRect.y + plat->mvList[plat->chooseDetect].targetRect.height/2;
+		w = plat->mvList[plat->chooseDetect].targetRect.width;
+		h = plat->mvList[plat->chooseDetect].targetRect.height;
+	}
+	else
+	{
+		x = y = w = h = -1;
+	}
 }
 #endif
 
