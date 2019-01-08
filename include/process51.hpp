@@ -173,12 +173,12 @@ public:
 	PointNode polyRectbak[MAX_CHAN][100];
 	int polytempXbak, polytempYbak, polyrectnbak[MAX_CHAN];
 
-	void MvdetectObjHandle_FarToCenter(std::vector<TRK_RECT_INFO> &mvList);
-	void MvdetectObjHandle_NearToCenter(std::vector<TRK_RECT_INFO> &mvList);
-	void MvdetectObjHandle_BrightnessMax(std::vector<TRK_RECT_INFO> &mvList);
-	void MvdetectObjHandle_BrightnessMin(std::vector<TRK_RECT_INFO> &mvList);
-	void MvdetectObjHandle_AreaMax(std::vector<TRK_RECT_INFO> &mvList);
-	void MvdetectObjHandle_AreaMin(std::vector<TRK_RECT_INFO> &mvList);
+	void MvdetectObjHandle_FarToCenter();
+	void MvdetectObjHandle_NearToCenter();
+	void MvdetectObjHandle_BrightnessMax();
+	void MvdetectObjHandle_BrightnessMin();
+	void MvdetectObjHandle_AreaMax();
+	void MvdetectObjHandle_AreaMin();
 
 };
 

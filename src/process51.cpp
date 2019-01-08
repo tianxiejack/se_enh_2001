@@ -1611,25 +1611,31 @@ osdindex++;	//acqRect
 			detect_bak = detect_vect;
 			
 			mvIndexHandle(mvList,detect_bak,Mtd_Frame.detectNum);
-			
-			if(mvList.size())
-			{
-				SENDST test;
-				test.cmd_ID = mtdnum;
-				if(0 == pThis->detect_vect.size())
-					test.param[0] = 0;
-				else
-					test.param[0] = 1;
-				ipc_sendmsg(&test, IPC_FRIMG_MSG);
-			}
 	
 			if(forwardflag)
 			{
-				#if 0
+
+				if(++chooseDetect > mvList.size())
+					chooseDetect = 0;
+				
+				forwardflag = 0;
+			}
+			else if(backflag)
+			{
+				if( --chooseDetect < 0)
+					chooseDetect = mvList.size()-1;		
+				
+				backflag = 0;
+			}
+			
+			if(chooseDetect > mvList.size())
+				chooseDetect = mvList.size()-1 ;
+
+			#if 1
 				switch(Mtd_Frame.priority)
 				{
 					case 1:
-						MvdetectObjHandle_FarToCenter(mvList);
+						MvdetectObjHandle_FarToCenter();
 						break;
 
 					case 2:
@@ -1653,38 +1659,35 @@ osdindex++;	//acqRect
 						break;
 
 					default:
+						chooseDetect = 0;
 						break;
 				}
-				#endif
+			#endif
 
-				if(++chooseDetect > mvList.size())
-					chooseDetect = 0;
-				
-				forwardflag = 0;
-			}
-			else if(backflag)
+
+			if(mvList.size())
 			{
-				if( --chooseDetect < 0)
-					chooseDetect = mvList.size()-1;		
-				
-				backflag = 0;
+				SENDST test;
+				test.cmd_ID = mtdnum;
+				if(0 == pThis->detect_vect.size())
+					test.param[0] = 0;
+				else
+					test.param[0] = 1;
+				ipc_sendmsg(&test, IPC_FRIMG_MSG);
 			}
+
 			
-			if(chooseDetect > mvList.size())
-				chooseDetect = mvList.size()-1 ;
 			
 			char tmpNum = 0;
 			cv::Rect tmp;
 			mouserect recttmp;
 			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
-				if( chooseDetect == tmpNum++)
+				if( chooseDetect == tmpNum++ )
 					color = 6;
 				else
 					color = 3;
-
-					memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
-				
+				memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,color);
 			}
 			Osdflag[osdindex]=1;
@@ -3565,34 +3568,95 @@ void CProcess::MSGAPI_handle_mvUpdate(long lParam)
 }
 
 
-void CProcess::MvdetectObjHandle_FarToCenter(std::vector<TRK_RECT_INFO> &mvList)
+void CProcess::MvdetectObjHandle_FarToCenter()
 {
-	
+	unsigned int distance = 0;
+	unsigned int tmp=0 ;
+	unsigned int x,y;
+	for(int i=0;i<mvList.size();i++)
+	{
+		x = abs(mvList[i].targetRect.x - vcapWH[extInCtrl->SensorStat][0]);	
+		y = abs(mvList[i].targetRect.y - vcapWH[extInCtrl->SensorStat][1]);
+		tmp = (x*x + y*y);
+		if( tmp > distance )
+		{
+			distance = tmp;
+			chooseDetect = i;
+		}
+	}
 }
 
-void CProcess::MvdetectObjHandle_NearToCenter(std::vector<TRK_RECT_INFO> &mvList)
+void CProcess::MvdetectObjHandle_NearToCenter()
 {
-
+	unsigned int distance = 4000*4000;
+	unsigned int tmp=0 ;
+	unsigned int x,y;
+	for(int i=0;i<mvList.size();i++)
+	{
+		x = abs(mvList[i].targetRect.x - vcapWH[extInCtrl->SensorStat][0]);	
+		y = abs(mvList[i].targetRect.y - vcapWH[extInCtrl->SensorStat][1]);
+		tmp = (x*x + y*y);
+		if( tmp < distance )
+		{
+			distance = tmp;
+			chooseDetect = i;
+		}
+	}
 }
 
-void CProcess::MvdetectObjHandle_BrightnessMax(std::vector<TRK_RECT_INFO> &mvList)
+void CProcess::MvdetectObjHandle_BrightnessMax()
 {
-
+	float briMax = 0.0;
+	for(int i=0;i<mvList.size();i++)
+	{
+		if( mvList[i].var > briMax )
+		{
+			briMax = mvList[i].var;
+			chooseDetect = i;
+		}
+	}
 }
 
-void CProcess::MvdetectObjHandle_BrightnessMin(std::vector<TRK_RECT_INFO> &mvList)
+void CProcess::MvdetectObjHandle_BrightnessMin()
 {
-
+	float briMin = 255*255;
+	for(int i=0;i<mvList.size();i++)
+	{
+		if( mvList[i].var < briMin )
+		{
+			chooseDetect = i;
+		}
+	}
 }
 
-void CProcess::MvdetectObjHandle_AreaMax(std::vector<TRK_RECT_INFO> &mvList)
+void CProcess::MvdetectObjHandle_AreaMax()
 {
-
+	unsigned int aeraMax = 0;
+	unsigned int tmp =0 ;
+	for(int i=0;i<mvList.size();i++)
+	{
+		tmp = mvList[i].targetRect.x * mvList[i].targetRect.y ; 
+		if( tmp > aeraMax )
+		{	
+			aeraMax = tmp;
+			chooseDetect = i;
+		}
+	}
 }
 
-void CProcess::MvdetectObjHandle_AreaMin(std::vector<TRK_RECT_INFO> &mvList)
+void CProcess::MvdetectObjHandle_AreaMin()
 {
-
+	unsigned int aeraMin = 1920*1920;
+	unsigned int tmp =0 ;
+	for(int i=0;i<mvList.size();i++)
+	{
+		tmp = mvList[i].targetRect.x * mvList[i].targetRect.y ; 
+		if( tmp < aeraMin )
+		{	
+			aeraMin = tmp;
+			chooseDetect = i;
+		}
+	}
 }
 
 void CProcess::MSGAPI_INPUT_SCENETRK(long lParam)
