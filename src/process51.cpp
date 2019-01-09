@@ -1271,7 +1271,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 		 {
 			extInCtrl->TrkXtmp = rcResult.x + rcResult.width/2;
 			extInCtrl->TrkYtmp = rcResult.y + rcResult.height/2;
-			
+
 			startx=PiexltoWindowsxzoom_TrkRect(rcResult.x+rcResult.width/2-aimw/2,extInCtrl->SensorStat);			
 			starty=PiexltoWindowsyzoom_TrkRect(rcResult.y+rcResult.height/2-aimh/2 ,extInCtrl->SensorStat);
 			endx  =PiexltoWindowsxzoom_TrkRect(rcResult.x+rcResult.width/2+aimw/2,extInCtrl->SensorStat);
@@ -1296,10 +1296,13 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				}
 				else
 				{
+					if(m_display.m_boxOsd)
+					{
 					rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
 						Point( startx, starty ),
 						Point( endx, endy),
 						colour, 1, 8 );
+					}
 				}
 			}
 			else
@@ -1526,6 +1529,8 @@ osdindex++;	//acqRect
 				if(extInCtrl->AvtTrkStat == eTrk_mode_acq  && !changesensorCnt){
 					recIn.x  = PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
 			 		recIn.y  = PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
+			 		if(m_display.m_boxOsd)
+			 		{
 					recIn.width  = extInCtrl->AcqRectW[extInCtrl->SensorStat];
 					recIn.height = extInCtrl->AcqRectH[extInCtrl->SensorStat]; 
 					if(recIn.width%2 == 1)
@@ -1537,6 +1542,7 @@ osdindex++;	//acqRect
 					DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,true);
 					acqRectBak = recIn;
 					Osdflag[osdindex]=1;
+			 		}
 				}
 			}
 	}
@@ -3060,6 +3066,8 @@ void CProcess::update_param_osd()
 	pIStuts->osdTextShow 			= gConfig_Osd_param.OSD_text_show;
 	pIStuts->osdDrawShow 			= gConfig_Osd_param.OSD_draw_show;
 	pIStuts->crossDrawShow 			= gConfig_Osd_param.CROSS_draw_show;
+	pIStuts->osdBoxShow = gConfig_Osd_param.osdBoxShow;
+	pIStuts->osdUserShow = gConfig_Osd_param.osdUserShow;
 	pIStuts->osdTextColor 			=  gConfig_Osd_param.OSD_text_color;
 	pIStuts->osdTextAlpha			=  gConfig_Osd_param.OSD_text_alpha;
 	pIStuts->osdTextFont			= gConfig_Osd_param.OSD_text_font;
@@ -3097,7 +3105,8 @@ void CProcess::update_param_osd()
 	m_display.disptimeEnable = gConfig_Osd_param.Timedisp_9;
 	m_display.m_bOsd = pIStuts->osdDrawShow;
 	m_display.m_crossOsd = pIStuts->crossDrawShow;
-
+	m_display.m_boxOsd = pIStuts->osdBoxShow;
+	m_display.m_userOsd = pIStuts->osdUserShow;
 
 	//pIStuts->crossAxisWidth 		= gConfig_Osd_param.CROSS_AXIS_WIDTH;
 	//pIStuts->crossAxisHeight		= gConfig_Osd_param.CROSS_AXIS_HEIGHT;

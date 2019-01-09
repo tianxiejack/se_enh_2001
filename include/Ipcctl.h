@@ -76,6 +76,7 @@ typedef enum
     mtdFrame,
     ballbaud,
     sceneTrk,
+    ipcjoyevent,
     invalid
 }CMD_ID;
 
@@ -85,37 +86,6 @@ typedef enum
 	shm_rdonly,
 	shm_rdwr
 }shm_perms;
-
-typedef enum{
-	mainmenu0=0,
-	mainmenu1,
-	mainmenu2,
-	submenu_carli,
-	submenu_gunball,
-	submenu_mtd,
-	submenu_setimg,
-	submenu_setball,
-	submenu_setcom,
-	submenu_setnet,
-	submenu_setmtdrigion,
-	menumaxid
-}AppMenuId;
-
-typedef struct{
-		int button;
-		int state;
-		int x;
-		int y;
-}mouse_t;
-
-typedef struct
-{
-	int id;
-	int pointer;
-	int submenu_cnt;
-	int start;
-	int end;
-}AppMenu;
 
 typedef struct{
 	unsigned int panPos;
@@ -301,6 +271,16 @@ typedef enum ipc_Dram_saveMode
 	ipc_eSave_Enable        = 0x01,
 	ipc_eSave_Cancel        = 0x02,
 } ipc_eSaveMode;
+
+typedef enum {
+	IPC_JS_EVENT_BUTTON = 1,
+	IPC_JS_EVENT_AXIS = 2,
+}JOY_EVENT_TYPE;
+
+typedef enum{
+	IPC_MSGID_INPUT_AXISX = 0,
+	IPC_MSGID_INPUT_AXISY = 1,
+}JOY_EVENT_AXIS_NUMBER;
 
 typedef struct{
 	char *name;
@@ -502,6 +482,12 @@ typedef struct{
 }CMD_SETCONFIG;
 
 typedef struct{
+    signed short value;
+    unsigned char type;
+    unsigned char number;
+}CMD_JOY_EVENT;
+
+typedef struct{
     unsigned char cmd_ID;
 	unsigned char param[PARAMLEN];
 }SENDST;
@@ -540,6 +526,8 @@ typedef struct
 	volatile bool osdTextShow;
 	volatile bool osdDrawShow;
 	volatile bool crossDrawShow;
+	volatile bool osdUserShow;
+	volatile bool osdBoxShow;
 	volatile int osdTextColor;
 	volatile int osdTextAlpha;
 	volatile int osdTextFont;
@@ -625,12 +613,6 @@ typedef struct
 	
 	volatile unsigned int  	ImgMmtshow[ipc_eSen_Max];	//not sure show what
 	volatile unsigned char 	MmtOffsetXY[20]; 		//not sure the func
-
-	volatile unsigned int MenuStat;
-	AppMenu menuarray[menumaxid];
-	char Passwd[128];
-
-	mouse_t Mtdmouseclick;
 	
 } IMGSTATUS;
 
@@ -644,6 +626,8 @@ typedef struct {
 	int OSD_text_size;
 	bool OSD_draw_show;
 	bool CROSS_draw_show;
+	bool osdUserShow;
+	bool osdBoxShow;
 	int OSD_draw_color;
 	int CROSS_AXIS_WIDTH;
 	int CROSS_AXIS_HEIGHT;
