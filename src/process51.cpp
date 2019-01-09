@@ -42,10 +42,10 @@ void getMtdxy(int &x,int &y,int &w,int &h)
 {
 	if(plat->chooseDetect < plat->mvList.size())
 	{
-		x = plat->mvList[plat->chooseDetect].targetRect.x + plat->mvList[plat->chooseDetect].targetRect.width/2;
-		y = plat->mvList[plat->chooseDetect].targetRect.y + plat->mvList[plat->chooseDetect].targetRect.height/2;
-		w = plat->mvList[plat->chooseDetect].targetRect.width;
-		h = plat->mvList[plat->chooseDetect].targetRect.height;
+		x = plat->mvList[plat->chooseDetect].trkobj.targetRect.x + plat->mvList[plat->chooseDetect].trkobj.targetRect.width/2;
+		y = plat->mvList[plat->chooseDetect].trkobj.targetRect.y + plat->mvList[plat->chooseDetect].trkobj.targetRect.height/2;
+		w = plat->mvList[plat->chooseDetect].trkobj.targetRect.width;
+		h  = plat->mvList[plat->chooseDetect].trkobj.targetRect.height;
 	}
 	else
 	{
@@ -163,7 +163,8 @@ void CProcess::loadIPCParam()
 #endif
 	forwardflag = backflag = false;
 
-
+	memset(validMtdRecord,0,10);
+	
 	OSA_semCreate(&g_linkage_getPos, 1, 0);
 
 }
@@ -1130,19 +1131,79 @@ void CProcess::DrawdashRect(int startx,int starty,int endx,int endy,int colour)
 }
 
 #if __MOVE_DETECT__
-void CProcess::mvIndexHandle(std::vector<TRK_RECT_INFO> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum)
+char CProcess::getMvListValidNum()
+{
+	char tmp = 0;	
+	for(int i =0 ;i < 10 ; i++)
+	{
+		if(validMtdRecord[i])
+			tmp++;
+	}
+	return tmp;
+}
+
+char CProcess::getMvListFirstValidNum()
+{	
+	for(int i =0 ;i < 10 ; i++)
+	{
+		if(!validMtdRecord[i])
+			return i;
+	}
+	return -1;
+}
+
+void CProcess::addMvListValidNum(char num)
+{
+	if(num < 10)
+		validMtdRecord[num] = true;
+	return ;
+}
+
+void CProcess::removeMvListValidNum(char num)
+{
+	if(num < 10)
+		validMtdRecord[num] = false;
+	return ;
+}
+
+
+void CProcess::switchMvTargetForwad()
+{
+	if(getMvListValidNum())
+	{
+		do{
+			chooseDetect = (chooseDetect + 1)%10;
+		}while(!validMtdRecord[chooseDetect]);
+	}	
+	return ;
+}
+
+void CProcess::switchMvTargetBack()
+{
+	if(getMvListValidNum())
+	{
+		do{
+			chooseDetect--;
+			if( -1 == chooseDetect)
+				chooseDetect = 9;
+		}while(!validMtdRecord[chooseDetect]);
+	}	
+	return ;
+}
+
+void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum)
 {	
 	int tmpIndex , i ;
 	bool flag;
-	
+	TRK_INFO_APP pTmpMv;
 	if(!mvList.empty())
 	{	
 		i = 0;
-		std::vector<TRK_RECT_INFO>::iterator pMvList = mvList.begin();
+		std::vector<TRK_INFO_APP>::iterator pMvList = mvList.begin();
 		
 		for( ; pMvList !=  mvList.end(); )
 		{
-			tmpIndex = (*pMvList).index;
+			tmpIndex = (*pMvList).trkobj.index;
 
 			flag = 0;
 			std::vector<TRK_RECT_INFO>::iterator pDetect = detect.begin();
@@ -1150,9 +1211,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_RECT_INFO> &mvList,std::vector<TRK_
 			{
 				if( tmpIndex == (*pDetect).index )
 				{
-					mvList.erase(pMvList);
-					mvList.insert(pMvList,*pDetect);					
-					
+					memcpy(&pMvList->trkobj,pDetect,sizeof(TRK_RECT_INFO));
 					detect.erase(pDetect);
 					flag = 1;
 					break;
@@ -1162,7 +1221,10 @@ void CProcess::mvIndexHandle(std::vector<TRK_RECT_INFO> &mvList,std::vector<TRK_
 			}	
 
 			if(!flag)
+			{
+				removeMvListValidNum(pMvList->number);
 				mvList.erase(pMvList);
+			}
 			else
 				++pMvList;
 		
@@ -1173,14 +1235,22 @@ void CProcess::mvIndexHandle(std::vector<TRK_RECT_INFO> &mvList,std::vector<TRK_
 		{	
 			if(mvList.size() >= detectNum)
 				break ;
-			mvList.push_back(detect[i++]);		
+			pTmpMv.number = getMvListFirstValidNum();
+			addMvListValidNum(pTmpMv.number);
+			memcpy(&pTmpMv->trkobj,&detect[i++],sizeof(TRK_RECT_INFO));
+			mvList.push_back(pTmpMv);		
 		}	
 	}
 	else
 	{
 		int tmpnum = detect.size() < detectNum ? detect.size() : detectNum ;
 		for(i =0 ; i < tmpnum ; i++)
-			mvList.push_back(detect.at(i));
+		{
+			pTmpMv.number = getMvListFirstValidNum();
+			addMvListValidNum(pTmpMv.number);
+			memcpy(&pTmpMv->trkobj,&detect[i++],sizeof(TRK_RECT_INFO));			
+			mvList.push_back(pTmpMv);
+		}
 	}
 	
 }
@@ -1593,11 +1663,15 @@ osdindex++;	//acqRect
 			mouserect recttmp;
 			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{		
-					memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
-
+				memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
+				sprintf(trkFPSDisplay, "%d", (*plist).number);
+				putText(m_display.m_imgOsd[1],trkFPSDisplay,
+						Point(tmp.x, tmp.y),
+						FONT_HERSHEY_TRIPLEX,1,
+						cvScalar(0,0,0,0), 1
+						);			
 			}
-			
 			Osdflag[osdindex]=0;
 		}
 
@@ -1621,56 +1695,47 @@ osdindex++;	//acqRect
 	
 			if(forwardflag)
 			{
-
-				if(++chooseDetect > mvList.size())
-					chooseDetect = 0;
-				
+				switchMvTargetForwad();
 				forwardflag = 0;
 			}
 			else if(backflag)
 			{
-				if( --chooseDetect < 0)
-					chooseDetect = mvList.size()-1;		
-				
+				switchMvTargetBack();
 				backflag = 0;
 			}
 			
-			if(chooseDetect > mvList.size())
-				chooseDetect = mvList.size()-1 ;
+			#if 0
+			switch(Mtd_Frame.priority)
+			{
+				case 1:
+					MvdetectObjHandle_FarToCenter();
+					break;
 
-			#if 1
-				switch(Mtd_Frame.priority)
-				{
-					case 1:
-						MvdetectObjHandle_FarToCenter();
-						break;
+				case 2:
+					MvdetectObjHandle_NearToCenter();
+					break;
 
-					case 2:
-						MvdetectObjHandle_NearToCenter();
-						break;
+				case 3:
+					MvdetectObjHandle_BrightnessMax();
+					break;
 
-					case 3:
-						MvdetectObjHandle_BrightnessMax();
-						break;
+				case 4:
+					MvdetectObjHandle_BrightnessMin();
+					break;
 
-					case 4:
-						MvdetectObjHandle_BrightnessMin();
-						break;
+				case 5:
+					MvdetectObjHandle_AreaMax();
+					break;
 
-					case 5:
-						MvdetectObjHandle_AreaMax();
-						break;
+				case 6:
+					MvdetectObjHandle_AreaMin();
+					break;
 
-					case 6:
-						MvdetectObjHandle_AreaMin();
-						break;
-
-					default:
-						chooseDetect = 0;
-						break;
-				}
+				default:
+					chooseDetect = 0;
+					break;
+			}
 			#endif
-
 
 			if(mvList.size())
 			{
@@ -1682,9 +1747,7 @@ osdindex++;	//acqRect
 					test.param[0] = 1;
 				ipc_sendmsg(&test, IPC_FRIMG_MSG);
 			}
-
-			
-			
+		
 			char tmpNum = 0;
 			cv::Rect tmp;
 			mouserect recttmp;
@@ -1694,15 +1757,21 @@ osdindex++;	//acqRect
 					color = 6;
 				else
 					color = 3;
-				memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
+				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,color);
+
+printf("num = %d \n",(*plist).number);
+				sprintf(trkFPSDisplay, "%d", (*plist).number);
+				putText(m_display.m_imgOsd[1],trkFPSDisplay,
+						Point(tmp.x, tmp.y),
+						FONT_HERSHEY_TRIPLEX,1,
+						cvScalar(255,255,0,255), 1
+						);			
 			}
 			Osdflag[osdindex]=1;
 		}
 	}
 #endif
-
-
 
 	//center.x = vdisWH[extInCtrl->SensorStat][0]/2;
 	//center.y = vdisWH[extInCtrl->SensorStat][1]/2;

@@ -74,6 +74,11 @@ typedef struct{
     int y;   
 }PointNode;
 
+typedef struct{
+	char number;
+	TRK_RECT_INFO trkobj;
+}TRK_INFO_APP;
+
 class CVideoProcess
 {
 	MAIN_ProcThrObj	mainProcThrObj;
@@ -285,7 +290,7 @@ public:
 		static void NotifyFunc(void *context, int chId);
 		std::vector<TRK_RECT_INFO> detect_vect;
 		std::vector<TRK_RECT_INFO> detect_bak;
-		std::vector<TRK_RECT_INFO> mvList;
+		std::vector<TRK_INFO_APP> mvList;
 		char chooseDetect;
 #endif
 public:

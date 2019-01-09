@@ -37,7 +37,7 @@ class CProcess : public CVideoProcess
 	Osd_cvPoint debugBak;
 	char timedisplay[128];
 	bool forwardflag,backflag;
-
+	bool validMtdRecord[10];
 
 public:
 	CProcess();
@@ -158,7 +158,7 @@ private:
 	void set_trktype(CMD_EXT *p, unsigned int stat);
 
 	#if __MOVE_DETECT__
-	void mvIndexHandle(std::vector<TRK_RECT_INFO> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum);
+	void mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum);
 	#endif
 	
 public:
