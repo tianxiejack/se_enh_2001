@@ -63,6 +63,12 @@ public:
 	CMD_EXT* extInCtrl;
 	static CProcess *sThis;
 	void process_osd_test(void *pPrm);
+	void switchMvTargetForwad();
+	void switchMvTargetBack();
+	char getMvListValidNum();
+	char getMvListFirstValidNum();
+	void addMvListValidNum(char num);
+	void removeMvListValidNum(char num);
 
 
 protected:

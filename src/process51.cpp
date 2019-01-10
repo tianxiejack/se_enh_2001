@@ -1211,7 +1211,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 			{
 				if( tmpIndex == (*pDetect).index )
 				{
-					memcpy(&pMvList->trkobj,pDetect,sizeof(TRK_RECT_INFO));
+					memcpy((void*)&((*pMvList).trkobj.targetRect),(void*)&((*pDetect).targetRect),sizeof(TRK_RECT_INFO));
 					detect.erase(pDetect);
 					flag = 1;
 					break;
@@ -1222,7 +1222,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 
 			if(!flag)
 			{
-				removeMvListValidNum(pMvList->number);
+				removeMvListValidNum((*pMvList).number);
 				mvList.erase(pMvList);
 			}
 			else
@@ -1236,8 +1236,10 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 			if(mvList.size() >= detectNum)
 				break ;
 			pTmpMv.number = getMvListFirstValidNum();
+			if(pTmpMv.number < 0)
+				break;
 			addMvListValidNum(pTmpMv.number);
-			memcpy(&pTmpMv->trkobj,&detect[i++],sizeof(TRK_RECT_INFO));
+			memcpy((void*)&(pTmpMv.trkobj),(void *)&(detect[i++].targetRect),sizeof(TRK_RECT_INFO));
 			mvList.push_back(pTmpMv);		
 		}	
 	}
@@ -1248,7 +1250,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 		{
 			pTmpMv.number = getMvListFirstValidNum();
 			addMvListValidNum(pTmpMv.number);
-			memcpy(&pTmpMv->trkobj,&detect[i++],sizeof(TRK_RECT_INFO));			
+			memcpy((void*)&(pTmpMv.trkobj),(void *)&(detect[i++].targetRect),sizeof(TRK_RECT_INFO));
 			mvList.push_back(pTmpMv);
 		}
 	}
@@ -1661,16 +1663,18 @@ osdindex++;	//acqRect
 
 			cv::Rect tmp;
 			mouserect recttmp;
-			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
+			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{		
-				memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
+				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
-				sprintf(trkFPSDisplay, "%d", (*plist).number);
-				putText(m_display.m_imgOsd[1],trkFPSDisplay,
-						Point(tmp.x, tmp.y),
-						FONT_HERSHEY_TRIPLEX,1,
-						cvScalar(0,0,0,0), 1
-						);			
+	
+				sprintf(trkFPSDisplay, "%2d", (*plist).number);
+				putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
+					Point(tmp.x, tmp.y),
+					FONT_HERSHEY_TRIPLEX,1,
+					cvScalar(0,0,0,0), 1
+					);
+
 			}
 			Osdflag[osdindex]=0;
 		}
@@ -1751,22 +1755,21 @@ osdindex++;	//acqRect
 			char tmpNum = 0;
 			cv::Rect tmp;
 			mouserect recttmp;
-			for(std::vector<TRK_RECT_INFO>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
+			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
 				if( chooseDetect == tmpNum++ )
 					color = 6;
 				else
 					color = 3;
-				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
+				memcpy((void*)&tmp,(void *)&((*plist).trkobj.targetRect),sizeof(cv::Rect));
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,color);
 
-printf("num = %d \n",(*plist).number);
-				sprintf(trkFPSDisplay, "%d", (*plist).number);
-				putText(m_display.m_imgOsd[1],trkFPSDisplay,
-						Point(tmp.x, tmp.y),
-						FONT_HERSHEY_TRIPLEX,1,
-						cvScalar(255,255,0,255), 1
-						);			
+				sprintf(trkFPSDisplay, "%2d", (*plist).number);
+				putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
+					Point(tmp.x, tmp.y),
+					FONT_HERSHEY_TRIPLEX,1,
+					cvScalar(255,255,0,255), 1
+					);
 			}
 			Osdflag[osdindex]=1;
 		}
@@ -3651,8 +3654,8 @@ void CProcess::MvdetectObjHandle_FarToCenter()
 	unsigned int x,y;
 	for(int i=0;i<mvList.size();i++)
 	{
-		x = abs(mvList[i].targetRect.x - vcapWH[extInCtrl->SensorStat][0]);	
-		y = abs(mvList[i].targetRect.y - vcapWH[extInCtrl->SensorStat][1]);
+		x = abs(mvList[i].trkobj.targetRect.x - vcapWH[extInCtrl->SensorStat][0]);	
+		y = abs(mvList[i].trkobj.targetRect.y - vcapWH[extInCtrl->SensorStat][1]);
 		tmp = (x*x + y*y);
 		if( tmp > distance )
 		{
@@ -3669,8 +3672,8 @@ void CProcess::MvdetectObjHandle_NearToCenter()
 	unsigned int x,y;
 	for(int i=0;i<mvList.size();i++)
 	{
-		x = abs(mvList[i].targetRect.x - vcapWH[extInCtrl->SensorStat][0]);	
-		y = abs(mvList[i].targetRect.y - vcapWH[extInCtrl->SensorStat][1]);
+		x = abs(mvList[i].trkobj.targetRect.x - vcapWH[extInCtrl->SensorStat][0]);	
+		y = abs(mvList[i].trkobj.targetRect.y - vcapWH[extInCtrl->SensorStat][1]);
 		tmp = (x*x + y*y);
 		if( tmp < distance )
 		{
@@ -3685,9 +3688,9 @@ void CProcess::MvdetectObjHandle_BrightnessMax()
 	float briMax = 0.0;
 	for(int i=0;i<mvList.size();i++)
 	{
-		if( mvList[i].var > briMax )
+		if( mvList[i].trkobj.var > briMax )
 		{
-			briMax = mvList[i].var;
+			briMax = mvList[i].trkobj.var;
 			chooseDetect = i;
 		}
 	}
@@ -3698,7 +3701,7 @@ void CProcess::MvdetectObjHandle_BrightnessMin()
 	float briMin = 255*255;
 	for(int i=0;i<mvList.size();i++)
 	{
-		if( mvList[i].var < briMin )
+		if( mvList[i].trkobj.var < briMin )
 		{
 			chooseDetect = i;
 		}
@@ -3711,7 +3714,7 @@ void CProcess::MvdetectObjHandle_AreaMax()
 	unsigned int tmp =0 ;
 	for(int i=0;i<mvList.size();i++)
 	{
-		tmp = mvList[i].targetRect.x * mvList[i].targetRect.y ; 
+		tmp = mvList[i].trkobj.targetRect.x * mvList[i].trkobj.targetRect.y ; 
 		if( tmp > aeraMax )
 		{	
 			aeraMax = tmp;
@@ -3726,7 +3729,7 @@ void CProcess::MvdetectObjHandle_AreaMin()
 	unsigned int tmp =0 ;
 	for(int i=0;i<mvList.size();i++)
 	{
-		tmp = mvList[i].targetRect.x * mvList[i].targetRect.y ; 
+		tmp = mvList[i].trkobj.targetRect.x * mvList[i].trkobj.targetRect.y ; 
 		if( tmp < aeraMin )
 		{	
 			aeraMin = tmp;
