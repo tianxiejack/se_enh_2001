@@ -69,6 +69,7 @@ public:
 	char getMvListFirstValidNum();
 	void addMvListValidNum(char num);
 	void removeMvListValidNum(char num);
+	static void getTargetNearToCenter();
 
 
 protected:
