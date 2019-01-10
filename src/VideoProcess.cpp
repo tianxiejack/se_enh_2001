@@ -797,7 +797,9 @@ int CVideoProcess::init()
 	m_display.init(&dsInit);
 
 	m_display.m_bOsd = true;
-	m_display.m_crossOsd = true;
+	//m_display.m_crossOsd = true;
+	//m_display.m_boxOsd = true;
+	//m_display.m_userOsd = true;
 	OnInit();
 	prichnalid=1;//fir
 

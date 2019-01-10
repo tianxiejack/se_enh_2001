@@ -1840,7 +1840,8 @@ void CDisplayer::gl_display(void)
 
 		
 		IrisAndFocus();
-		OSDFunc();
+		if(m_userOsd)
+			OSDFunc();
 	}
 	
 	glUseProgram(0);
