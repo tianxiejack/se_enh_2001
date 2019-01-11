@@ -67,8 +67,10 @@ public:
 	void switchMvTargetBack();
 	char getMvListValidNum();
 	char getMvListFirstValidNum();
+	char getMvListFirstUnusedNum();
 	void addMvListValidNum(char num);
 	void removeMvListValidNum(char num);
+	char getMvListNextValidNum(char index);
 	static void getTargetNearToCenter();
 
 

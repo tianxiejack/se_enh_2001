@@ -1146,6 +1146,33 @@ char CProcess::getMvListValidNum()
 }
 
 char CProcess::getMvListFirstValidNum()
+{
+	for(int i =0 ;i < 10 ; i++)
+	{
+		if(validMtdRecord[i])
+			return i;
+	}
+	return -1;
+}
+
+
+char CProcess::getMvListNextValidNum(char index)
+{
+	for(int i = index+1 ;i < 10 ; i++)
+	{
+		if(validMtdRecord[i])
+			return i;
+	}
+
+	for(int i = 0 ; i<index ; i++)
+	{
+		if(validMtdRecord[i])
+			return i;
+	}
+	return -1;
+}
+
+char CProcess::getMvListFirstUnusedNum()
 {	
 	for(int i =0 ;i < 10 ; i++)
 	{
@@ -1212,8 +1239,8 @@ void CProcess::getTargetNearToCenter()
 	using namespace std;
 	
 	int sizeNum = sThis->detect_bak.size();
-	OSA_assert(sizeNum!=0);
-	sort(sThis->detect_bak.begin(),sThis->detect_bak.end(),comp);
+	if(sizeNum)
+		sort(sThis->detect_bak.begin(),sThis->detect_bak.end(),comp);
 }
 
 void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum)
@@ -1249,6 +1276,8 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 			{
 				removeMvListValidNum((*pMvList).number);
 				mvList.erase(pMvList);
+				if( (*pMvList).number == chooseDetect )
+					chooseDetect = getMvListNextValidNum(chooseDetect);
 			}
 			else
 				++pMvList;
@@ -1260,7 +1289,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 		{	
 			if(mvList.size() >= detectNum)
 				break ;
-			pTmpMv.number = getMvListFirstValidNum();
+			pTmpMv.number = getMvListFirstUnusedNum();
 			if(pTmpMv.number < 0)
 				break;
 			addMvListValidNum(pTmpMv.number);
@@ -1273,7 +1302,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 		int tmpnum = detect.size() < detectNum ? detect.size() : detectNum ;
 		for(i =0 ; i < tmpnum ; i++)
 		{
-			pTmpMv.number = getMvListFirstValidNum();
+			pTmpMv.number = getMvListFirstUnusedNum();
 			addMvListValidNum(pTmpMv.number);
 			memcpy((void*)&(pTmpMv.trkobj),(void *)&(detect[i++].targetRect),sizeof(TRK_RECT_INFO));
 			mvList.push_back(pTmpMv);
@@ -1694,21 +1723,20 @@ osdindex++;	//acqRect
 
 			cv::Rect tmp;
 			mouserect recttmp;
-			if(detect_bak.size())
-			{
-				for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
-				{		
-					memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
-					DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
 		
-					sprintf(trkFPSDisplay, "%2d", (*plist).number);
-					putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
-						Point(tmp.x, tmp.y),
-						FONT_HERSHEY_TRIPLEX,1,
-						cvScalar(0,0,0,0), 1
-						);
-				}
+			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
+			{		
+				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
+				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
+	
+				sprintf(trkFPSDisplay, "%2d", (*plist).number);
+				putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
+					Point(tmp.x, tmp.y),
+					FONT_HERSHEY_TRIPLEX,1,
+					cvScalar(0,0,0,0), 1
+					);
 			}
+		
 			Osdflag[osdindex]=0;
 		}
 
@@ -1727,86 +1755,85 @@ osdindex++;	//acqRect
 			}
 			
 			detect_bak = detect_vect;
-			if(detect_bak.size())
+	
+			getTargetNearToCenter();
+			mvIndexHandle(mvList,detect_bak,Mtd_Frame.detectNum);
+	
+			if(forwardflag)
 			{
-				getTargetNearToCenter();
-				mvIndexHandle(mvList,detect_bak,Mtd_Frame.detectNum);
-		
-				if(forwardflag)
-				{
-					switchMvTargetForwad();
-					forwardflag = 0;
-				}
-				else if(backflag)
-				{
-					switchMvTargetBack();
-					backflag = 0;
-				}
-				
-				#if 0
-				switch(Mtd_Frame.priority)
-				{
-					case 1:
-						MvdetectObjHandle_FarToCenter();
-						break;
-
-					case 2:
-						MvdetectObjHandle_NearToCenter();
-						break;
-
-					case 3:
-						MvdetectObjHandle_BrightnessMax();
-						break;
-
-					case 4:
-						MvdetectObjHandle_BrightnessMin();
-						break;
-
-					case 5:
-						MvdetectObjHandle_AreaMax();
-						break;
-
-					case 6:
-						MvdetectObjHandle_AreaMin();
-						break;
-
-					default:
-						chooseDetect = 0;
-						break;
-				}
-				#endif
-
-				if(mvList.size())
-				{
-					SENDST test;
-					test.cmd_ID = mtdnum;
-					if(0 == pThis->mvList.size())
-						test.param[0] = 0;
-					else
-						test.param[0] = 1;
-					ipc_sendmsg(&test, IPC_FRIMG_MSG);
-				}
-			
-				char tmpNum = 0;
-				cv::Rect tmp;
-				mouserect recttmp;
-				for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
-				{	
-					if( chooseDetect == tmpNum++ )
-						color = 6;
-					else
-						color = 3;
-					memcpy((void*)&tmp,(void *)&((*plist).trkobj.targetRect),sizeof(cv::Rect));
-					DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,color);
-
-					sprintf(trkFPSDisplay, "%2d", (*plist).number);
-					putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
-						Point(tmp.x, tmp.y),
-						FONT_HERSHEY_TRIPLEX,1,
-						cvScalar(255,255,0,255), 1
-						);
-				}
+				switchMvTargetForwad();
+				forwardflag = 0;
 			}
+			else if(backflag)
+			{
+				switchMvTargetBack();
+				backflag = 0;
+			}
+			
+			#if 1
+			switch(Mtd_Frame.priority)
+			{
+				case 1:
+					MvdetectObjHandle_FarToCenter();
+					break;
+
+				case 2:
+					MvdetectObjHandle_NearToCenter();
+					break;
+
+				case 3:
+					MvdetectObjHandle_BrightnessMax();
+					break;
+
+				case 4:
+					MvdetectObjHandle_BrightnessMin();
+					break;
+
+				case 5:
+					MvdetectObjHandle_AreaMax();
+					break;
+
+				case 6:
+					MvdetectObjHandle_AreaMin();
+					break;
+
+				default:
+					break;
+			}
+			#endif
+
+			if(mvList.size())
+			{
+				SENDST test;
+				test.cmd_ID = mtdnum;
+				if(0 == pThis->mvList.size())
+					test.param[0] = 0;
+				else
+					test.param[0] = 1;
+				ipc_sendmsg(&test, IPC_FRIMG_MSG);
+			}
+		
+			char tmpNum = 0;
+			cv::Rect tmp;
+			mouserect recttmp;
+			
+			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
+			{	
+				if( chooseDetect == tmpNum++ )
+					color = 6;
+				else
+					color = 3;
+				memcpy((void*)&tmp,(void *)&((*plist).trkobj.targetRect),sizeof(cv::Rect));
+				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,color);
+
+				sprintf(trkFPSDisplay, "%2d", (*plist).number);
+				putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
+					Point(tmp.x, tmp.y),
+					FONT_HERSHEY_TRIPLEX,1,
+					cvScalar(255,255,0,255), 1
+					);
+			}
+	
 			Osdflag[osdindex]=1;	
 		}
 	}
