@@ -1607,8 +1607,8 @@ osdindex++;	//cross aim
 			{
 				if(extInCtrl->DispGrp[extInCtrl->SensorStat] <= 3  &&  !changesensorCnt)
 				{
-					recIn.x=PiexltoWindowsx(extInCtrl->opticAxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
-			 		recIn.y=PiexltoWindowsy(extInCtrl->opticAxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
+					recIn.x=PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
+			 		recIn.y=PiexltoWindowsy(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
 					recIn.width = extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
 					recIn.height= extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
 					crossBak.x = recIn.x;
