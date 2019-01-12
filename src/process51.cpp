@@ -1608,7 +1608,7 @@ osdindex++;	//cross aim
 				if(extInCtrl->DispGrp[extInCtrl->SensorStat] <= 3  &&  !changesensorCnt)
 				{
 					recIn.x=PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
-			 		recIn.y=PiexltoWindowsy(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
+			 		recIn.y=PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
 					recIn.width = extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
 					recIn.height= extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
 					crossBak.x = recIn.x;
@@ -1618,6 +1618,7 @@ osdindex++;	//cross aim
 
 					if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
 					{
+					printf("x,y= (%d , %d ) \n",recIn.x,recIn.y);
 						if(m_display.m_crossOsd)
 							DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
 						Osdflag[osdindex]=1;
