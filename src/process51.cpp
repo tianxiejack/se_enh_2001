@@ -1422,7 +1422,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				}
 				else
 				{
-					if(m_display.m_boxOsd)
+					//if(m_display.m_boxOsd)
 					{
 					rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
 						Point( startx, starty ),
@@ -1618,7 +1618,7 @@ osdindex++;	//cross aim
 
 					if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
 					{
-						if(m_display.m_crossOsd[extInCtrl->SensorStat])
+						//if(m_display.m_crossOsd[extInCtrl->SensorStat])
 							DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
 						Osdflag[osdindex]=1;
 					}
@@ -1655,7 +1655,7 @@ osdindex++;	//acqRect
 				if(extInCtrl->AvtTrkStat == eTrk_mode_acq  && !changesensorCnt){
 					recIn.x  = PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
 			 		recIn.y  = PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
-			 		if(m_display.m_boxOsd)
+			 		//if(m_display.m_boxOsd)
 			 		{
 					recIn.width  = extInCtrl->AcqRectW[extInCtrl->SensorStat];
 					recIn.height = extInCtrl->AcqRectH[extInCtrl->SensorStat]; 
