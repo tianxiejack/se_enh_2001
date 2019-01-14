@@ -1618,7 +1618,6 @@ osdindex++;	//cross aim
 
 					if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
 					{
-					printf("x,y= (%d , %d ) \n",recIn.x,recIn.y);
 						if(m_display.m_crossOsd)
 							DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
 						Osdflag[osdindex]=1;
