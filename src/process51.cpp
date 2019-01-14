@@ -3355,12 +3355,12 @@ void CProcess::update_param_alg()
 	else
 		segPixelY = 450;
 
-	/*
+
 	if(gConfig_Alg_param.algOsdRect_Enable == 1)
 		algOsdRect = true;
 	else
 		algOsdRect = false;
-	*/
+
 
 	if(gConfig_Alg_param.ScalerLarge > 0)
 		ScalerLarge = gConfig_Alg_param.ScalerLarge;
