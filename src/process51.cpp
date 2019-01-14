@@ -1617,6 +1617,7 @@ osdindex++;	//cross aim
 
 					if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
 					{
+
 					//printf("x,y= (%d , %d ) \n",recIn.x,recIn.y);
 						if(m_display.m_crossOsd[extInCtrl->SensorStat])
 							DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
@@ -1655,6 +1656,7 @@ osdindex++;	//acqRect
 				if(extInCtrl->AvtTrkStat == eTrk_mode_acq  && !changesensorCnt){
 					recIn.x  = PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
 			 		recIn.y  = PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
+
 			 		if(m_display.m_boxOsd[extInCtrl->SensorStat])
 			 		{
 					recIn.width  = extInCtrl->AcqRectW[extInCtrl->SensorStat];
@@ -3240,7 +3242,6 @@ void CProcess::update_param_osd()
 	m_display.m_userOsd = pIStuts->osdUserShow;
 	m_display.m_chidIDOsd = pIStuts->osdChidIDShow[pIStuts->SensorStat];
 	m_display.m_chidNameOsd = pIStuts->osdChidNameShow[pIStuts->SensorStat];
-printf("m_display.m_chidIDOsd  = %d ;  m_display.m_chidNameOsd =  %d \n", m_display.m_chidIDOsd, m_display.m_chidNameOsd);
 	//pIStuts->crossAxisWidth 		= gConfig_Osd_param.CROSS_AXIS_WIDTH;
 	//pIStuts->crossAxisHeight		= gConfig_Osd_param.CROSS_AXIS_HEIGHT;
 	//pIStuts->picpCrossAxisWidth		= gConfig_Osd_param.Picp_CROSS_AXIS_WIDTH;
