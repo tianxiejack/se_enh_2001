@@ -151,7 +151,7 @@ public:
 	bool m_bRun;
 	bool m_bFullScreen;
 	bool m_bOsd;
-	bool m_crossOsd;
+	bool m_crossOsd[DS_DC_CNT];
 	bool m_boxOsd;
 	bool m_userOsd;
 

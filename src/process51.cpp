@@ -1618,7 +1618,7 @@ osdindex++;	//cross aim
 
 					if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
 					{
-						if(m_display.m_crossOsd)
+						if(m_display.m_crossOsd[extInCtrl->SensorStat])
 							DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
 						Osdflag[osdindex]=1;
 					}
@@ -3193,9 +3193,11 @@ void CProcess::update_param_osd()
 	CMD_EXT *pIStuts = extInCtrl;
 	pIStuts->SensorStatBegin 		= gConfig_Osd_param.MAIN_Sensor;
 	pIStuts->osdTextShow 			= gConfig_Osd_param.OSD_text_show;
-	pIStuts->osdDrawShow 			= gConfig_Osd_param.OSD_draw_show;
-	pIStuts->crossDrawShow 			= gConfig_Osd_param.CROSS_draw_show;
-	pIStuts->osdBoxShow = gConfig_Osd_param.osdBoxShow;
+	pIStuts->osdDrawShow 		= gConfig_Osd_param.OSD_draw_show;
+	for(int j=0;j<MAX_CHAN;j++)
+		pIStuts->crossDrawShow[j] 	= gConfig_Osd_param.CROSS_draw_show[j];
+	for(int j=0;j<MAX_CHAN;j++)
+		pIStuts->osdBoxShow[j] = gConfig_Osd_param.osdBoxShow[j];
 	pIStuts->osdUserShow = gConfig_Osd_param.osdUserShow;
 	pIStuts->osdTextColor 			=  gConfig_Osd_param.OSD_text_color;
 	pIStuts->osdTextAlpha			=  gConfig_Osd_param.OSD_text_alpha;
@@ -3233,8 +3235,9 @@ void CProcess::update_param_osd()
 	
 	m_display.disptimeEnable = gConfig_Osd_param.Timedisp_9;
 	m_display.m_bOsd = pIStuts->osdDrawShow;
-	m_display.m_crossOsd = pIStuts->crossDrawShow;
-	m_display.m_boxOsd = pIStuts->osdBoxShow;
+	for(int j=0;j<MAX_CHAN;j++)
+		m_display.m_crossOsd[j] = pIStuts->crossDrawShow[j];
+	m_display.m_boxOsd = pIStuts->osdBoxShow[extInCtrl->SensorStat];
 	m_display.m_userOsd = pIStuts->osdUserShow;
 
 	//pIStuts->crossAxisWidth 		= gConfig_Osd_param.CROSS_AXIS_WIDTH;
