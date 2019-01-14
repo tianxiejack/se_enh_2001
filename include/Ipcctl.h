@@ -14,6 +14,7 @@
 #define SHMEMFRAMESIZE 10485760
 #define MMTNUM 10
 #define PARAMLEN 164
+#define CAMERACHID 5
 
 
 typedef enum 
@@ -525,9 +526,9 @@ typedef struct
 	volatile int picpCrossAxisHeight;
 	volatile bool osdTextShow;
 	volatile bool osdDrawShow;
-	volatile bool crossDrawShow;
+	volatile bool crossDrawShow[CAMERACHID];
 	volatile bool osdUserShow;
-	volatile bool osdBoxShow;
+	volatile bool osdBoxShow[CAMERACHID];
 	volatile int osdTextColor;
 	volatile int osdTextAlpha;
 	volatile int osdTextFont;
@@ -625,9 +626,9 @@ typedef struct {
 	int OSD_text_font;
 	int OSD_text_size;
 	bool OSD_draw_show;
-	bool CROSS_draw_show;
+	bool CROSS_draw_show[CAMERACHID];
 	bool osdUserShow;
-	bool osdBoxShow;
+	bool osdBoxShow[CAMERACHID];
 	int OSD_draw_color;
 	int CROSS_AXIS_WIDTH;
 	int CROSS_AXIS_HEIGHT;
