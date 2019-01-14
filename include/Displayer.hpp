@@ -8,6 +8,7 @@
 #define DS_CUSTREAM_CNT	(4)
 
 #define DS_DC_CNT		       (5)
+const char chid = 5;
 #include "osa.h"
 #include <osa_sem.h>
 #include <cuda.h>
@@ -151,9 +152,11 @@ public:
 	bool m_bRun;
 	bool m_bFullScreen;
 	bool m_bOsd;
-	bool m_crossOsd;
-	bool m_boxOsd;
+	bool m_crossOsd[chid];
+	bool m_boxOsd[chid];
 	bool m_userOsd;
+	bool m_chidIDOsd;
+	bool m_chidNameOsd;
 
 	Mat m_disOsd[DS_DC_CNT];
 	Mat m_imgOsd[DS_DC_CNT];

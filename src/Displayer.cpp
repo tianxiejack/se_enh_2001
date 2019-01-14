@@ -1840,16 +1840,54 @@ void CDisplayer::gl_display(void)
 
 		
 		IrisAndFocus();
+		if(m_chidIDOsd)
+		{
+			switch(plat->extInCtrl->SensorStat)
+			{
+			case 0:
+				chinese_osd(15,20,L"通道号：1",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+				break;
+			case 1:
+				chinese_osd(15,20,L"通道号：2",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+				break;
+			case 2:
+				chinese_osd(15,20,L"通道号：3",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+				break;
+			case 3:
+				chinese_osd(15,20,L"通道号：4",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+				break;
+			case 4:
+				chinese_osd(15,20,L"通道号：5",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+				break;
+			}
+		}
+
+		if(m_chidNameOsd)
+		{
+			switch(plat->extInCtrl->SensorStat)
+			{
+			case 0:
+				chinese_osd(15,65,L"通道名称：测试1",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+				break;
+			case 1:
+				chinese_osd(15,65,L"通道名称：测试2",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+				break;
+			case 2:
+				chinese_osd(15,65,L"通道名称：测试3",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+				break;
+			case 3:
+				chinese_osd(15,65,L"通道名称：测试4",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+				break;
+			case 4:
+				chinese_osd(15,65,L"通道名称：测试5",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+				break;
+			}
+		}
 		if(m_userOsd)
 			OSDFunc();
 	}
 	
 	glUseProgram(0);
-
-
-
-
-	
 	glutSwapBuffers();
 	glutPostRedisplay();
 	GetFPS();

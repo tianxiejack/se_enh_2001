@@ -71,7 +71,6 @@ CProcess::~CProcess()
 	sThis=NULL;
 }
 
-
 void CProcess::loadIPCParam()
 {
 	CMD_EXT *pIStuts = extInCtrl;
@@ -1422,7 +1421,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				}
 				else
 				{
-					if(m_display.m_boxOsd)
+					if(m_display.m_boxOsd[extInCtrl->SensorStat])
 					{
 					rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
 						Point( startx, starty ),
@@ -1618,8 +1617,8 @@ osdindex++;	//cross aim
 
 					if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
 					{
-					printf("x,y= (%d , %d ) \n",recIn.x,recIn.y);
-						if(m_display.m_crossOsd)
+					//printf("x,y= (%d , %d ) \n",recIn.x,recIn.y);
+						if(m_display.m_crossOsd[extInCtrl->SensorStat])
 							DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
 						Osdflag[osdindex]=1;
 					}
@@ -1656,7 +1655,7 @@ osdindex++;	//acqRect
 				if(extInCtrl->AvtTrkStat == eTrk_mode_acq  && !changesensorCnt){
 					recIn.x  = PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
 			 		recIn.y  = PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
-			 		if(m_display.m_boxOsd)
+			 		if(m_display.m_boxOsd[extInCtrl->SensorStat])
 			 		{
 					recIn.width  = extInCtrl->AcqRectW[extInCtrl->SensorStat];
 					recIn.height = extInCtrl->AcqRectH[extInCtrl->SensorStat]; 
@@ -3195,9 +3194,11 @@ void CProcess::update_param_osd()
 	pIStuts->SensorStatBegin 		= gConfig_Osd_param.MAIN_Sensor;
 	pIStuts->osdTextShow 			= gConfig_Osd_param.OSD_text_show;
 	pIStuts->osdDrawShow 			= gConfig_Osd_param.OSD_draw_show;
-	pIStuts->crossDrawShow 			= gConfig_Osd_param.CROSS_draw_show;
-	pIStuts->osdBoxShow = gConfig_Osd_param.osdBoxShow;
+	pIStuts->crossDrawShow[pIStuts->SensorStat] = gConfig_Osd_param.CROSS_draw_show[pIStuts->SensorStat];
+	pIStuts->osdBoxShow[pIStuts->SensorStat] = gConfig_Osd_param.osdBoxShow[pIStuts->SensorStat];
 	pIStuts->osdUserShow = gConfig_Osd_param.osdUserShow;
+	pIStuts->osdChidIDShow[pIStuts->SensorStat] = gConfig_Osd_param.osdChidIDShow[pIStuts->SensorStat];
+	pIStuts->osdChidNameShow[pIStuts->SensorStat] = gConfig_Osd_param.osdChidNmaeShow[pIStuts->SensorStat];
 	pIStuts->osdTextColor 			=  gConfig_Osd_param.OSD_text_color;
 	pIStuts->osdTextAlpha			=  gConfig_Osd_param.OSD_text_alpha;
 	pIStuts->osdTextFont			= gConfig_Osd_param.OSD_text_font;
@@ -3234,10 +3235,12 @@ void CProcess::update_param_osd()
 	
 	m_display.disptimeEnable = gConfig_Osd_param.Timedisp_9;
 	m_display.m_bOsd = pIStuts->osdDrawShow;
-	m_display.m_crossOsd = pIStuts->crossDrawShow;
-	m_display.m_boxOsd = pIStuts->osdBoxShow;
+	m_display.m_crossOsd[pIStuts->SensorStat] = pIStuts->crossDrawShow[pIStuts->SensorStat];
+	m_display.m_boxOsd[pIStuts->SensorStat] = pIStuts->osdBoxShow[pIStuts->SensorStat];
 	m_display.m_userOsd = pIStuts->osdUserShow;
-
+	m_display.m_chidIDOsd = pIStuts->osdChidIDShow[pIStuts->SensorStat];
+	m_display.m_chidNameOsd = pIStuts->osdChidNameShow[pIStuts->SensorStat];
+printf("m_display.m_chidIDOsd  = %d ;  m_display.m_chidNameOsd =  %d \n", m_display.m_chidIDOsd, m_display.m_chidNameOsd);
 	//pIStuts->crossAxisWidth 		= gConfig_Osd_param.CROSS_AXIS_WIDTH;
 	//pIStuts->crossAxisHeight		= gConfig_Osd_param.CROSS_AXIS_HEIGHT;
 	//pIStuts->picpCrossAxisWidth		= gConfig_Osd_param.Picp_CROSS_AXIS_WIDTH;
