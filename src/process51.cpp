@@ -1168,7 +1168,7 @@ char CProcess::getMvListNextValidNum(char index)
 		if(validMtdRecord[i])
 			return i;
 	}
-	return -1;
+	return index;
 }
 
 char CProcess::getMvListFirstUnusedNum()
@@ -1247,6 +1247,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 	int tmpIndex , i ;
 	bool flag;
 	TRK_INFO_APP pTmpMv;
+
 	if(!mvList.empty())
 	{	
 		i = 0;
@@ -1280,7 +1281,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 			}
 			else
 				++pMvList;
-		
+
 		}
 
 		i = 0;
@@ -1757,10 +1758,9 @@ osdindex++;	//acqRect
 			}
 			
 			detect_bak = detect_vect;
-	
+
 			getTargetNearToCenter();
 			mvIndexHandle(mvList,detect_bak,Mtd_Frame.detectNum);
-	
 			if(forwardflag)
 			{
 				switchMvTargetForwad();
@@ -1803,7 +1803,7 @@ osdindex++;	//acqRect
 					break;
 			}
 			#endif
-
+			
 			if(mvList.size())
 			{
 				SENDST test;
@@ -2760,6 +2760,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
             {
                 m_pMovDetector->mvOpen(pIStuts->SensorStat);
                 dynamic_config(VP_CFG_MvDetect, 1,NULL);
+		   chooseDetect = 0;
             }
         }
         else
@@ -2768,7 +2769,6 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
             {
                 dynamic_config(VP_CFG_MvDetect, 0,NULL);
 		   m_pMovDetector->mvClose(pIStuts->SensorStat);
-                chooseDetect = 0;
             }
         }
     }
