@@ -152,11 +152,11 @@ public:
 	bool m_bRun;
 	bool m_bFullScreen;
 	bool m_bOsd;
+	bool m_userOsd;
 	bool m_crossOsd[chid];
 	bool m_boxOsd[chid];
-	bool m_userOsd;
-	bool m_chidIDOsd;
-	bool m_chidNameOsd;
+	bool m_chidIDOsd[chid];
+	bool m_chidNameOsd[chid];
 
 	Mat m_disOsd[DS_DC_CNT];
 	Mat m_imgOsd[DS_DC_CNT];

@@ -1840,7 +1840,7 @@ void CDisplayer::gl_display(void)
 
 		
 		IrisAndFocus();
-		if(m_chidIDOsd)
+		if(m_chidIDOsd[plat->extInCtrl->SensorStat])
 		{
 			switch(plat->extInCtrl->SensorStat)
 			{
@@ -1862,7 +1862,7 @@ void CDisplayer::gl_display(void)
 			}
 		}
 
-		if(m_chidNameOsd)
+		if(m_chidNameOsd[plat->extInCtrl->SensorStat])
 		{
 			switch(plat->extInCtrl->SensorStat)
 			{

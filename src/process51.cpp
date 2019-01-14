@@ -3196,11 +3196,16 @@ void CProcess::update_param_osd()
 	pIStuts->SensorStatBegin 		= gConfig_Osd_param.MAIN_Sensor;
 	pIStuts->osdTextShow 			= gConfig_Osd_param.OSD_text_show;
 	pIStuts->osdDrawShow 			= gConfig_Osd_param.OSD_draw_show;
-	pIStuts->crossDrawShow[pIStuts->SensorStat] = gConfig_Osd_param.CROSS_draw_show[pIStuts->SensorStat];
-	pIStuts->osdBoxShow[pIStuts->SensorStat] = gConfig_Osd_param.osdBoxShow[pIStuts->SensorStat];
+	for(int i = 0; i<5; i++)
+	{
+		pIStuts->crossDrawShow[i] = gConfig_Osd_param.CROSS_draw_show[i];
+		pIStuts->osdBoxShow[i] = gConfig_Osd_param.osdBoxShow[i];
+		pIStuts->osdChidIDShow[i] = gConfig_Osd_param.osdChidIDShow[i];
+		pIStuts->osdChidNameShow[i] = gConfig_Osd_param.osdChidNmaeShow[i];
+		printf("pIStuts->osdChidIDShow[%d] = %d \n", i, pIStuts->osdChidIDShow[i]);
+	}
 	pIStuts->osdUserShow = gConfig_Osd_param.osdUserShow;
-	pIStuts->osdChidIDShow[pIStuts->SensorStat] = gConfig_Osd_param.osdChidIDShow[pIStuts->SensorStat];
-	pIStuts->osdChidNameShow[pIStuts->SensorStat] = gConfig_Osd_param.osdChidNmaeShow[pIStuts->SensorStat];
+
 	pIStuts->osdTextColor 			=  gConfig_Osd_param.OSD_text_color;
 	pIStuts->osdTextAlpha			=  gConfig_Osd_param.OSD_text_alpha;
 	pIStuts->osdTextFont			= gConfig_Osd_param.OSD_text_font;
@@ -3237,11 +3242,15 @@ void CProcess::update_param_osd()
 	
 	m_display.disptimeEnable = gConfig_Osd_param.Timedisp_9;
 	m_display.m_bOsd = pIStuts->osdDrawShow;
-	m_display.m_crossOsd[pIStuts->SensorStat] = pIStuts->crossDrawShow[pIStuts->SensorStat];
-	m_display.m_boxOsd[pIStuts->SensorStat] = pIStuts->osdBoxShow[pIStuts->SensorStat];
 	m_display.m_userOsd = pIStuts->osdUserShow;
-	m_display.m_chidIDOsd = pIStuts->osdChidIDShow[pIStuts->SensorStat];
-	m_display.m_chidNameOsd = pIStuts->osdChidNameShow[pIStuts->SensorStat];
+	for(int j = 0; j < 5; j++)
+	{
+		m_display.m_crossOsd[j] = pIStuts->crossDrawShow[j];
+		m_display.m_boxOsd[j] = pIStuts->osdBoxShow[j];
+		m_display.m_chidIDOsd[j] = pIStuts->osdChidIDShow[j];
+		m_display.m_chidNameOsd[j] = pIStuts->osdChidNameShow[j];
+	}
+
 	//pIStuts->crossAxisWidth 		= gConfig_Osd_param.CROSS_AXIS_WIDTH;
 	//pIStuts->crossAxisHeight		= gConfig_Osd_param.CROSS_AXIS_HEIGHT;
 	//pIStuts->picpCrossAxisWidth		= gConfig_Osd_param.Picp_CROSS_AXIS_WIDTH;
