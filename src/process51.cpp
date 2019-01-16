@@ -161,7 +161,7 @@ void CProcess::loadIPCParam()
 	memset(timearrbak, 0, sizeof(timearrbak));
 	timexbak = timeybak = 0;
 #if __MOVE_DETECT__
-	chooseDetect = 0;
+	chooseDetect = 10;
 #endif
 	forwardflag = backflag = false;
 
@@ -1168,7 +1168,7 @@ char CProcess::getMvListNextValidNum(char index)
 		if(validMtdRecord[i])
 			return i;
 	}
-	return index;
+	return 10;
 }
 
 char CProcess::getMvListFirstUnusedNum()
@@ -1178,7 +1178,13 @@ char CProcess::getMvListFirstUnusedNum()
 		if(!validMtdRecord[i])
 			return i;
 	}
-	return -1;
+	return 10;
+}
+
+
+void CProcess::memsetMvList()
+{
+	memset(validMtdRecord,0,10);
 }
 
 void CProcess::addMvListValidNum(char num)
@@ -1274,10 +1280,10 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 
 			if(!flag)
 			{
+				if( (*pMvList).number == chooseDetect )
+					chooseDetect = getMvListNextValidNum(chooseDetect);	
 				removeMvListValidNum((*pMvList).number);
 				mvList.erase(pMvList);
-				if( (*pMvList).number == chooseDetect )
-					chooseDetect = getMvListNextValidNum(chooseDetect);
 			}
 			else
 				++pMvList;
@@ -1290,11 +1296,14 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 			if(mvList.size() >= detectNum)
 				break ;
 			pTmpMv.number = getMvListFirstUnusedNum();
-			if(pTmpMv.number < 0)
-				break;
-			addMvListValidNum(pTmpMv.number);
-			memcpy((void*)&(pTmpMv.trkobj),(void *)&(detect[i++].targetRect),sizeof(TRK_RECT_INFO));
-			mvList.push_back(pTmpMv);		
+			if(pTmpMv.number < 10)
+			{
+				addMvListValidNum(pTmpMv.number);
+				memcpy((void*)&(pTmpMv.trkobj),(void *)&(detect[i++].targetRect),sizeof(TRK_RECT_INFO));
+				mvList.push_back(pTmpMv);		
+			}
+			if( chooseDetect == 10 )
+				chooseDetect = pTmpMv.number;
 		}	
 	}
 	else
@@ -1303,9 +1312,14 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 		for(i =0 ; i < tmpnum ; i++)
 		{
 			pTmpMv.number = getMvListFirstUnusedNum();
-			addMvListValidNum(pTmpMv.number);
-			memcpy((void*)&(pTmpMv.trkobj),(void *)&(detect[i++].targetRect),sizeof(TRK_RECT_INFO));
-			mvList.push_back(pTmpMv);
+			if(pTmpMv.number < 10)
+			{
+				addMvListValidNum(pTmpMv.number);
+				memcpy((void*)&(pTmpMv.trkobj),(void *)&(detect[i++].targetRect),sizeof(TRK_RECT_INFO));
+				mvList.push_back(pTmpMv);
+			}
+			if( chooseDetect == 10 )
+				chooseDetect = pTmpMv.number;
 		}
 	}
 	
@@ -1516,20 +1530,20 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			}
 
 			#if __IPC__
-					if(extInCtrl->TrkStat != 3)
-					{
-							extInCtrl->trkerrx = extInCtrl->trkerrx - extInCtrl->opticAxisPosX[extInCtrl->SensorStat];
-							extInCtrl->trkerry = extInCtrl->trkerry - extInCtrl->opticAxisPosY[extInCtrl->SensorStat];
-					}
-					else
-					{
-						extInCtrl->trkerrx = 0;
-						extInCtrl->trkerry = 0;
-					}
-					ipc_settrack(extInCtrl->TrkStat, extInCtrl->trkerrx, extInCtrl->trkerry);
-					trkmsg.cmd_ID = read_shm_trkpos;
-					//printf("ack the trackerr to mainThr\n");
-					ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
+				if(extInCtrl->TrkStat != 3)
+				{
+						extInCtrl->trkerrx = extInCtrl->trkerrx - extInCtrl->opticAxisPosX[extInCtrl->SensorStat];
+						extInCtrl->trkerry = extInCtrl->trkerry - extInCtrl->opticAxisPosY[extInCtrl->SensorStat];
+				}
+				else
+				{
+					extInCtrl->trkerrx = 0;
+					extInCtrl->trkerry = 0;
+				}
+				ipc_settrack(extInCtrl->TrkStat, extInCtrl->trkerrx, extInCtrl->trkerry);
+				trkmsg.cmd_ID = read_shm_trkpos;
+				//printf("ack the trackerr to mainThr\n");
+				ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
 
 				if(m_display.disptimeEnable == 1){
 				//test zhou qi  time
@@ -1723,12 +1737,12 @@ osdindex++;	//acqRect
 				endwarnpoly.y = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].y;
 				DrawcvLine(m_display.m_imgOsd[mtd_warningbox_Id],&startwarnpoly,&endwarnpoly,0,1);
 			}
-
+			
 			cv::Rect tmp;
 			mouserect recttmp;
 		
 			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
-			{		
+			{	
 				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
 	
@@ -1761,6 +1775,7 @@ osdindex++;	//acqRect
 
 			getTargetNearToCenter();
 			mvIndexHandle(mvList,detect_bak,Mtd_Frame.detectNum);
+
 			if(forwardflag)
 			{
 				switchMvTargetForwad();
@@ -1772,6 +1787,7 @@ osdindex++;	//acqRect
 				backflag = 0;
 			}
 			
+		
 			#if 1
 			switch(Mtd_Frame.priority)
 			{
@@ -1821,7 +1837,7 @@ osdindex++;	//acqRect
 			
 			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
-				if( chooseDetect == tmpNum++ )
+				if( chooseDetect == plist->number )
 					color = 6;
 				else
 					color = 3;
@@ -2056,7 +2072,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 		{
 			pIStuts->MtdState[pIStuts->SensorStat] = eImgAlg_Enable;
 #if __MOVE_DETECT__
-			chooseDetect = 0;
+			chooseDetect = 10;
 #endif
 		}
 		msgdriv_event(MSGID_EXT_MVDETECT, NULL);
@@ -2760,7 +2776,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
             {
                 m_pMovDetector->mvOpen(pIStuts->SensorStat);
                 dynamic_config(VP_CFG_MvDetect, 1,NULL);
-		   chooseDetect = 0;
+		   chooseDetect = 10;
             }
         }
         else
