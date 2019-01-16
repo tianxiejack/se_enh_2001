@@ -519,9 +519,13 @@ void app_ctrl_mtdParamHandle(CMD_Mtd_Frame * pInParam)
 		|| pInParam->detectArea_wide != Mtd_Frame.detectArea_wide
 		|| pInParam->detectArea_X != Mtd_Frame.detectArea_X
 		|| pInParam->detectArea_Y != Mtd_Frame.detectArea_Y)
-	{
+	{	
+		#if 0
 		if( (pInParam->detectArea_X + pInParam->detectArea_wide/2 < vdisWH[pIStuts->SensorStat][0])
-			&& (pInParam->detectArea_Y+ pInParam->detectArea_high/2 < vdisWH[pIStuts->SensorStat][1]))
+			&& (pInParam->detectArea_Y+ pInParam->detectArea_high/2 < vdisWH[pIStuts->SensorStat][1])
+			&& (pInParam->detectArea_X - pInParam->detectArea_wide/2 > 0)
+			&& (pInParam->detectArea_X - pInParam->detectArea_wide/2 > 0))
+		#endif
 		{
 			Mtd_Frame.detectArea_X = pInParam->detectArea_X;
 			Mtd_Frame.detectArea_Y= pInParam->detectArea_Y;

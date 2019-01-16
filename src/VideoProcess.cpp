@@ -1320,32 +1320,6 @@ int CVideoProcess::process_track(int trackStatus, Mat frame_gray, Mat frame_dis,
 vector<Rect> Box(MAX_TARGET_NUMBER);
 int CVideoProcess::process_mtd(ALGMTD_HANDLE pChPrm, Mat frame_gray, Mat frame_dis)
 {
-	
-
-#if 0
-	if(pChPrm != NULL && (pChPrm->state > 0))
-	{
-//		medium.create(frame_gray.rows, frame_gray.cols, frame_gray.type());
-
-//		MediumFliter(frame_gray.data, medium.data, pChPrm->i_width, pChPrm->i_height);
-
-		GaussFliter(frame_gray.data, pChPrm->Img[0], pChPrm->i_width, pChPrm->i_height);
-		
-
-		for(i = 0; i < MAX_SCALER; i++)
-		{
-			DownSample(pChPrm, pChPrm->Img[i], pChPrm->Img[i+1],
-										pChPrm->i_width>>i, pChPrm->i_height>>i);
-		}
-
-		IMG_sobel(pChPrm->Img[1], pChPrm->sobel, pChPrm->i_width>>1,	 pChPrm->i_height>>1);
-
-		AutoDetectTarget(pChPrm, frame_gray.data);
-
-		FilterMultiTarget(pChPrm);
-
-	}
-#endif
 	return 0;
 }
 
@@ -1380,13 +1354,35 @@ void	CVideoProcess::initMvDetect()
 		pThis->polwarn_count[i] = 4;
 
 		polyWarnRoi[0]	= cv::Point(recttmp.x,recttmp.y);
-	    polyWarnRoi[1]	= cv::Point(recttmp.x+recttmp.w,recttmp.y);
-	    polyWarnRoi[2]	= cv::Point(recttmp.x+recttmp.w,recttmp.y+recttmp.h);
-	    polyWarnRoi[3]	= cv::Point(recttmp.x,recttmp.y+recttmp.h);
+		polyWarnRoi[1]	= cv::Point(recttmp.x+recttmp.w,recttmp.y);
+		polyWarnRoi[2]	= cv::Point(recttmp.x+recttmp.w,recttmp.y+recttmp.h);
+		polyWarnRoi[3]	= cv::Point(recttmp.x,recttmp.y+recttmp.h);
 
 		m_pMovDetector->setWarnMode(WARN_WARN_MODE, i);
-		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
+		//m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
 	}
+
+		recttmp.x = Mtd_Frame.detectArea_X - Mtd_Frame.detectArea_wide/2;
+		recttmp.y = Mtd_Frame.detectArea_Y - Mtd_Frame.detectArea_high/2;
+		recttmp.w =Mtd_Frame.detectArea_wide;
+		recttmp.h = Mtd_Frame.detectArea_high;
+
+		pThis->polWarnRect[msgextInCtrl->SensorStat][0].x = recttmp.x;
+		pThis->polWarnRect[msgextInCtrl->SensorStat][0].y = recttmp.y;
+		pThis->polWarnRect[msgextInCtrl->SensorStat][1].x = recttmp.x+recttmp.w;
+		pThis->polWarnRect[msgextInCtrl->SensorStat][1].y = recttmp.y;
+		pThis->polWarnRect[msgextInCtrl->SensorStat][2].x = recttmp.x+recttmp.w;
+		pThis->polWarnRect[msgextInCtrl->SensorStat][2].y = recttmp.y+recttmp.h;
+		pThis->polWarnRect[msgextInCtrl->SensorStat][3].x = recttmp.x;
+		pThis->polWarnRect[msgextInCtrl->SensorStat][3].y = recttmp.y+recttmp.h;
+		pThis->polwarn_count[msgextInCtrl->SensorStat] = 4;
+
+		polyWarnRoi[0]	= cv::Point(recttmp.x,recttmp.y);
+		polyWarnRoi[1]	= cv::Point(recttmp.x+recttmp.w,recttmp.y);
+		polyWarnRoi[2]	= cv::Point(recttmp.x+recttmp.w,recttmp.y+recttmp.h);
+		polyWarnRoi[3]	= cv::Point(recttmp.x,recttmp.y+recttmp.h);
+		
+		m_pMovDetector->setWarningRoi(polyWarnRoi, msgextInCtrl->SensorStat);
 
 }
 

@@ -1626,8 +1626,7 @@ osdindex++;	//cross aim
 					}
 					else if(extInCtrl->AvtTrkStat == eTrk_mode_search)
 					{
-						frcolor = 3;
-						DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
+						DrawCross(recIn,3,extInCtrl->SensorStat,true);
 						Osdflag[osdindex]=1;
 					}
 				}
@@ -1690,14 +1689,15 @@ osdindex++;	//acqRect
 			recIn = mtdFrameRectBak;
 			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,0);
 			Osdflag[osdindex]=0;
-		}
+		}		
 
 		if(Mtd_Frame.areaSetBox)
 		{
-			recIn.x = Mtd_Frame.detectArea_X ;
-			recIn.y = Mtd_Frame.detectArea_Y;
+			recIn.x = Mtd_Frame.detectArea_X - Mtd_Frame.detectArea_wide/2;
+			recIn.y = Mtd_Frame.detectArea_Y - Mtd_Frame.detectArea_high/2;
 			recIn.width = Mtd_Frame.detectArea_wide;
 			recIn.height = Mtd_Frame.detectArea_high;
+
 			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor);
 			mtdFrameRectBak = recIn;
 			Osdflag[osdindex]=1;
@@ -3710,14 +3710,64 @@ float  CProcess::PiexltoWindowsyf(float y,int channel)
 
 void CProcess::MSGAPI_handle_mvAera(long lParam)
 {
+	if(sThis->m_pMovDetector == NULL)
+		return ;
+	
 	std::vector<cv::Point> polyWarnRoi ;
 	polyWarnRoi.resize(4);
+	cv::Point tmp;
+	int cx,cy,w,h;
 
-	polyWarnRoi[0]= cv::Point(Mtd_Frame.detectArea_X,Mtd_Frame.detectArea_Y);
-	polyWarnRoi[1]= cv::Point(Mtd_Frame.detectArea_X+Mtd_Frame.detectArea_wide,Mtd_Frame.detectArea_Y);
-	polyWarnRoi[2]= cv::Point(Mtd_Frame.detectArea_X+Mtd_Frame.detectArea_wide,Mtd_Frame.detectArea_Y+Mtd_Frame.detectArea_high);
-	polyWarnRoi[3]= cv::Point(Mtd_Frame.detectArea_X,Mtd_Frame.detectArea_Y+Mtd_Frame.detectArea_high);
+	cx = Mtd_Frame.detectArea_X;
+	cy = Mtd_Frame.detectArea_Y;
+	w = Mtd_Frame.detectArea_wide;
+	h = Mtd_Frame.detectArea_high;
 
+	tmp.x = cx - w/2;
+	tmp.y = cy - h/2;
+	if(tmp.x < 0)
+		tmp.x = 0;
+	if(tmp.y < 0)
+		tmp.y = 0;
+	polyWarnRoi[0]= cv::Point(tmp.x,tmp.y);
+	sThis->polWarnRect[sThis->extInCtrl->SensorStat][0].x = tmp.x ;
+	sThis->polWarnRect[sThis->extInCtrl->SensorStat][0].y = tmp.y ;
+
+
+	tmp.x = cx + w/2;
+	tmp.y = cy - h/2;
+	if(tmp.x > vdisWH[sThis->extInCtrl->SensorStat][0])
+		tmp.x = vdisWH[sThis->extInCtrl->SensorStat][0];
+	if(tmp.y < 0)
+		tmp.y = 0;
+	polyWarnRoi[1]= cv::Point(tmp.x,tmp.y);
+	sThis->polWarnRect[sThis->extInCtrl->SensorStat][1].x = tmp.x ;
+	sThis->polWarnRect[sThis->extInCtrl->SensorStat][1].y = tmp.y ;
+
+
+	tmp.x = cx + w/2;
+	tmp.y = cy + h/2;
+	if(tmp.x > vcapWH[sThis->extInCtrl->SensorStat][0])
+		tmp.x = vcapWH[sThis->extInCtrl->SensorStat][0];
+	if(tmp.y > vcapWH[sThis->extInCtrl->SensorStat][1])
+		tmp.y = vcapWH[sThis->extInCtrl->SensorStat][1];
+	polyWarnRoi[2]= cv::Point(tmp.x,tmp.y);
+	sThis->polWarnRect[sThis->extInCtrl->SensorStat][2].x = tmp.x ;
+	sThis->polWarnRect[sThis->extInCtrl->SensorStat][2].y = tmp.y ;
+
+
+	tmp.x = cx - w/2;
+	tmp.y = cy + h/2;
+	if(tmp.x < 0 )
+		tmp.x = 0;
+	if(tmp.y > vcapWH[sThis->extInCtrl->SensorStat][1])
+		tmp.y = vcapWH[sThis->extInCtrl->SensorStat][1];	
+	polyWarnRoi[3]= cv::Point(tmp.x,tmp.y);
+	sThis->polWarnRect[sThis->extInCtrl->SensorStat][3].x = tmp.x ;
+	sThis->polWarnRect[sThis->extInCtrl->SensorStat][3].y = tmp.y ;
+
+	sThis->polwarn_count[sThis->extInCtrl->SensorStat] = 4 ; 
+	
 	pThis->m_pMovDetector->setWarningRoi( polyWarnRoi, sThis->extInCtrl->SensorStat );
 }
 
