@@ -1828,8 +1828,7 @@ osdindex++;	//acqRect
 					test.param[0] = 1;
 				ipc_sendmsg(&test, IPC_FRIMG_MSG);
 			}
-printf("@@@chooseDetect = %d \n",chooseDetect);
-			char tmpNum = 0;
+
 			cv::Rect tmp;
 			mouserect recttmp;
 			
