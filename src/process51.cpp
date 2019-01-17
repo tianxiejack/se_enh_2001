@@ -1817,17 +1817,6 @@ osdindex++;	//acqRect
 			}
 			#endif
 			
-			if(mvList.size())
-			{
-				SENDST test;
-				test.cmd_ID = mtdnum;
-				if(0 == pThis->mvList.size())
-					test.param[0] = 0;
-				else
-					test.param[0] = 1;
-				ipc_sendmsg(&test, IPC_FRIMG_MSG);
-			}
-
 			cv::Rect tmp;
 			mouserect recttmp;
 			
@@ -1847,19 +1836,24 @@ osdindex++;	//acqRect
 					cvScalar(255,255,0,255), 1
 					);
 			}
-	
+
+			if(mvList.size())
+			{
+				SENDST test;
+				test.cmd_ID = mtdnum;
+				if(0 == pThis->mvList.size())
+					test.param[0] = 0;
+				else
+					test.param[0] = 1;
+				ipc_sendmsg(&test, IPC_FRIMG_MSG);
+			}
+
 			Osdflag[osdindex]=1;	
 		}
 	}
 #endif
 
-	//center.x = vdisWH[extInCtrl->SensorStat][0]/2;
-	//center.y = vdisWH[extInCtrl->SensorStat][1]/2;
-	//int radius = 4;
-	//cv::circle(m_display.m_imgOsd[extInCtrl->SensorStat],center,radius ,cvScalar(255,0,255,255),8,8,0);
-
 	prisensorstatus=extInCtrl->SensorStat;
-
 
 //mouse rect
 	unsigned int drawRectId ;
