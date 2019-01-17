@@ -1617,32 +1617,31 @@ osdindex++;	//cross aim
 			Osdflag[osdindex]=0;
  		}
 
-		
-			if(!m_bMoveDetect && !m_bSceneTrack)
+		{
+			if(extInCtrl->DispGrp[extInCtrl->SensorStat] <= 3  &&  !changesensorCnt)
 			{
-				if(extInCtrl->DispGrp[extInCtrl->SensorStat] <= 3  &&  !changesensorCnt)
+				recIn.x=PiexltoWindowsx(extInCtrl->opticAxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
+		 		recIn.y=PiexltoWindowsy(extInCtrl->opticAxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
+				recIn.width = 40;//extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
+				recIn.height= 40;//extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
+				crossBak.x = recIn.x;
+				crossBak.y = recIn.y;
+				crossWHBak.x = recIn.width;
+				crossWHBak.y = recIn.height;
+				if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
 				{
-					recIn.x=PiexltoWindowsx(extInCtrl->opticAxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
-			 		recIn.y=PiexltoWindowsy(extInCtrl->opticAxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
-					recIn.width = 40;//extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
-					recIn.height= 40;//extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
-					crossBak.x = recIn.x;
-					crossBak.y = recIn.y;
-					crossWHBak.x = recIn.width;
-					crossWHBak.y = recIn.height;
-					if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
-					{
-						if(m_display.m_crossOsd[extInCtrl->SensorStat])
-							DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
-						Osdflag[osdindex]=1;
-					}
-					else if(extInCtrl->AvtTrkStat == eTrk_mode_search)
-					{
-						DrawCross(recIn,3,extInCtrl->SensorStat,true);
-						Osdflag[osdindex]=1;
-					}
+					if(m_display.m_crossOsd[extInCtrl->SensorStat])
+						DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
+					Osdflag[osdindex]=1;
 				}
-			}	
+				else if(extInCtrl->AvtTrkStat == eTrk_mode_search)
+				{
+					if(m_display.m_crossOsd[extInCtrl->SensorStat])
+						DrawCross(recIn,3,extInCtrl->SensorStat,true);
+					Osdflag[osdindex]=1;
+				}
+			}
+		}	
 	}
 
 
