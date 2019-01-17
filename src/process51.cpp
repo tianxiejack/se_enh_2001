@@ -1218,9 +1218,10 @@ void CProcess::switchMvTargetBack()
 	if(getMvListValidNum())
 	{
 		do{
-			chooseDetect--;
-			if( -1 == chooseDetect)
+			if(chooseDetect == 0)
 				chooseDetect = 9;
+			else
+				chooseDetect--;
 		}while(!validMtdRecord[chooseDetect]);
 	}	
 	return ;
@@ -1621,19 +1622,16 @@ osdindex++;	//cross aim
 			{
 				if(extInCtrl->DispGrp[extInCtrl->SensorStat] <= 3  &&  !changesensorCnt)
 				{
-					recIn.x=PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
-			 		recIn.y=PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
-					recIn.width = extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
-					recIn.height= extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
+					recIn.x=PiexltoWindowsx(extInCtrl->opticAxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
+			 		recIn.y=PiexltoWindowsy(extInCtrl->opticAxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
+					recIn.width = 40;//extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
+					recIn.height= 40;//extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
 					crossBak.x = recIn.x;
 					crossBak.y = recIn.y;
 					crossWHBak.x = recIn.width;
 					crossWHBak.y = recIn.height;
-
 					if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
 					{
-
-					//printf("x,y= (%d , %d ) \n",recIn.x,recIn.y);
 						if(m_display.m_crossOsd[extInCtrl->SensorStat])
 							DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
 						Osdflag[osdindex]=1;
@@ -1830,7 +1828,7 @@ osdindex++;	//acqRect
 					test.param[0] = 1;
 				ipc_sendmsg(&test, IPC_FRIMG_MSG);
 			}
-		
+printf("@@@chooseDetect = %d \n",chooseDetect);
 			char tmpNum = 0;
 			cv::Rect tmp;
 			mouserect recttmp;

@@ -179,7 +179,6 @@ void* recv_msg(SENDST *RS422)
 			memcpy(&Rboresightmove, RS422->param, sizeof(Rboresightmove));
 			pMsg->opticAxisPosX[pMsg->SensorStat] = Rboresightmove.BoresightPos_x;
 			pMsg->opticAxisPosY[pMsg->SensorStat] = Rboresightmove.BoresightPos_y;
-
 			pMsg->AxisPosX[pMsg->SensorStat] = pMsg->opticAxisPosX[pMsg->SensorStat];
 			pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
 
