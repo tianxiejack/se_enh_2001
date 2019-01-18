@@ -43,6 +43,8 @@ void getMmtTg(unsigned char index,int *x,int *y)
 #if __MOVE_DETECT__
 void getMtdxy(int &x,int &y,int &w,int &h)
 {
+printf("@@@@@@@  chooseDetect = %d \n",plat->chooseDetect);
+
 	if(plat->chooseDetect < plat->mvList.size())
 	{
 		x = plat->mvList[plat->chooseDetect].trkobj.targetRect.x + plat->mvList[plat->chooseDetect].trkobj.targetRect.width/2;
@@ -1395,7 +1397,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				cvScalar(0,0,0, 0), 1, 8 );
 		}
 
-		if(Osdflag[osdindex]==1)
+		if(Osdflag[osdindex])
  		{			
 			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
 				Point( resultTrackBak.x, resultTrackBak.y ),
@@ -1409,7 +1411,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			Osdflag[osdindex]=0;
 		}
 		 if(m_bTrack)
-		 {
+		 {	 
 			extInCtrl->TrkXtmp = rcResult.x + rcResult.width/2;
 			extInCtrl->TrkYtmp = rcResult.y + rcResult.height/2;
 
@@ -1439,10 +1441,10 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				{
 					if(m_display.m_boxOsd[extInCtrl->SensorStat])
 					{
-					rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-						Point( startx, starty ),
-						Point( endx, endy),
-						colour, 1, 8 );
+						rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
+							Point( startx, starty ),
+							Point( endx, endy),
+							colour, 1, 8 );
 					}
 				}
 			}
@@ -1587,8 +1589,8 @@ osdindex++; //sekCorssBak
 		if(Osdflag[osdindex]){
 			recIn.x=sekCrossBak.x;
 	 		recIn.y=sekCrossBak.y;
-			recIn.width = 50;
-			recIn.height = 50;
+			recIn.width = extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
+			recIn.height = extInCtrl->crossAxisHeight[extInCtrl->SensorStat];
 			DrawCross(recIn,frcolor,extInCtrl->SensorStat,false);
 			Osdflag[osdindex]=0;
  		}
@@ -1597,8 +1599,8 @@ osdindex++; //sekCorssBak
 		{
 			recIn.x=PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
 	 		recIn.y=PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
-			recIn.width = 50;//extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
-			recIn.height= 50;//extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
+			recIn.width = extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
+			recIn.height= extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
 			sekCrossBak.x = recIn.x;
 			sekCrossBak.y = recIn.y;
 
@@ -1633,13 +1635,13 @@ osdindex++;	//cross aim
 		{
 			recIn.x=PiexltoWindowsx(extInCtrl->opticAxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
 	 		recIn.y=PiexltoWindowsy(extInCtrl->opticAxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
-			recIn.width = 40;//extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
-			recIn.height= 40;//extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
+			recIn.width = extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
+			recIn.height= extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
 			crossBak.x = recIn.x;
 			crossBak.y = recIn.y;
 			crossWHBak.x = recIn.width;
 			crossWHBak.y = recIn.height;
-			if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
+			
 			{
 				if(m_display.m_crossOsd[extInCtrl->SensorStat])
 				{
@@ -1668,14 +1670,14 @@ osdindex++;	//acqRect
 			Osdflag[osdindex]=0;
  		}
 
-			if(!m_bMoveDetect && !m_bSceneTrack)
-			{
-				if(extInCtrl->AvtTrkStat == eTrk_mode_acq  && !changesensorCnt){
-					recIn.x  = PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
-			 		recIn.y  = PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
+		if(!m_bMoveDetect && !m_bSceneTrack)
+		{
+			if(extInCtrl->AvtTrkStat == eTrk_mode_acq  && !changesensorCnt){
+				recIn.x  = PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
+		 		recIn.y  = PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
 
-			 		if(m_display.m_boxOsd[extInCtrl->SensorStat])
-			 		{
+		 		if(m_display.m_boxOsd[extInCtrl->SensorStat])
+			 	{
 					recIn.width  = extInCtrl->AcqRectW[extInCtrl->SensorStat];
 					recIn.height = extInCtrl->AcqRectH[extInCtrl->SensorStat]; 
 					if(recIn.width%2 == 1)
@@ -1687,9 +1689,9 @@ osdindex++;	//acqRect
 					DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,true);
 					acqRectBak = recIn;
 					Osdflag[osdindex]=1;
-			 		}
-				}
+			 	}
 			}
+		}
 	}
 
 	osdindex++;
@@ -1843,14 +1845,14 @@ osdindex++;	//acqRect
 					);
 			}
 
-			if(mvList.size())
+			
 			{
 				SENDST test;
 				test.cmd_ID = mtdnum;
-				if(0 == pThis->mvList.size())
-					test.param[0] = 0;
-				else
+				if(mvList.size())
 					test.param[0] = 1;
+				else
+					test.param[0] = 0;
 				ipc_sendmsg(&test, IPC_FRIMG_MSG);
 			}
 
@@ -2297,8 +2299,8 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			dynamic_config(VP_CFG_TrkEnable, 0);
 			pIStuts->AvtPosX[extInCtrl->SensorStat] = pIStuts->AxisPosX[extInCtrl->SensorStat];
 			pIStuts->AvtPosY[extInCtrl->SensorStat] = pIStuts->AxisPosY[extInCtrl->SensorStat];	
-			pIStuts->AimW[pIStuts->SensorStat] = 60;
-			pIStuts->AimH[pIStuts->SensorStat] = 60;
+			//pIStuts->AimW[pIStuts->SensorStat] = 60;
+			//pIStuts->AimH[pIStuts->SensorStat] = 60;
 			
 			pIStuts->unitAimX = pIStuts->AvtPosX[extInCtrl->SensorStat] ;
 			if(pIStuts->unitAimX < 0)
@@ -3208,7 +3210,7 @@ void CProcess::update_param_osd()
 	pIStuts->SensorStatBegin 		= gConfig_Osd_param.MAIN_Sensor;
 	pIStuts->osdTextShow 			= gConfig_Osd_param.OSD_text_show;
 	pIStuts->osdDrawShow 			= gConfig_Osd_param.OSD_draw_show;
-	for(int i = 0; i<5; i++)
+	for(int i = 0; i<MAX_CHAN; i++)
 	{
 		pIStuts->crossDrawShow[i] = gConfig_Osd_param.CROSS_draw_show[i];
 		pIStuts->osdBoxShow[i] = gConfig_Osd_param.osdBoxShow[i];
@@ -3222,7 +3224,7 @@ void CProcess::update_param_osd()
 	pIStuts->osdTextAlpha			=  gConfig_Osd_param.OSD_text_alpha;
 	pIStuts->osdTextFont			= gConfig_Osd_param.OSD_text_font;
 	pIStuts->osdTextSize			= gConfig_Osd_param.OSD_text_size;
-	pIStuts->osdDrawColor 			= gConfig_Osd_param.OSD_draw_color;
+	pIStuts->osdDrawColor 		= gConfig_Osd_param.OSD_draw_color;
 	pIStuts->AcqRectW[0] 			= gConfig_Osd_param.ch0_acqRect_width;
 	pIStuts->AcqRectW[1] 			= gConfig_Osd_param.ch1_acqRect_width;
 	pIStuts->AcqRectW[2] 			= gConfig_Osd_param.ch2_acqRect_width;
@@ -3235,7 +3237,7 @@ void CProcess::update_param_osd()
 	pIStuts->AcqRectH[3] 			= gConfig_Osd_param.ch3_acqRect_height;
 	pIStuts->AcqRectH[4] 			= gConfig_Osd_param.ch4_acqRect_height;
 	pIStuts->AcqRectH[5] 			= gConfig_Osd_param.ch5_acqRect_height;
-
+printf("ch1_aim_width  = %d \n",gConfig_Osd_param.ch0_aim_width);
 	pIStuts->AimW[0] 				= gConfig_Osd_param.ch0_aim_width;
 	pIStuts->AimW[1] 				= gConfig_Osd_param.ch1_aim_width;
 	pIStuts->AimW[2] 				= gConfig_Osd_param.ch2_aim_width;
@@ -3255,7 +3257,7 @@ void CProcess::update_param_osd()
 	m_display.disptimeEnable = gConfig_Osd_param.Timedisp_9;
 	m_display.m_bOsd = pIStuts->osdDrawShow;
 	m_display.m_userOsd = pIStuts->osdUserShow;
-	for(int j = 0; j < 5; j++)
+	for(int j = 0; j < MAX_CHAN ; j++)
 	{
 		m_display.m_crossOsd[j] = pIStuts->crossDrawShow[j];
 		m_display.m_boxOsd[j] = pIStuts->osdBoxShow[j];
@@ -3263,10 +3265,6 @@ void CProcess::update_param_osd()
 		m_display.m_chidNameOsd[j] = pIStuts->osdChidNameShow[j];
 	}
 
-	//pIStuts->crossAxisWidth 		= gConfig_Osd_param.CROSS_AXIS_WIDTH;
-	//pIStuts->crossAxisHeight		= gConfig_Osd_param.CROSS_AXIS_HEIGHT;
-	//pIStuts->picpCrossAxisWidth		= gConfig_Osd_param.Picp_CROSS_AXIS_WIDTH;
-	//pIStuts->picpCrossAxisHeight	= gConfig_Osd_param.Picp_CROSS_AXIS_HEIGHT;
 	pIStuts->crossAxisWidth[video_pal] = 40;
 	pIStuts->crossAxisHeight[video_pal] = 40;
 	pIStuts->crossAxisWidth[video_gaoqing0] = 60;

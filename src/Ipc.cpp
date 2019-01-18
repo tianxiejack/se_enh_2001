@@ -188,6 +188,8 @@ void* recv_msg(SENDST *RS422)
 			app_ctrl_setBoresightPos(pMsg);
 			break;
 		case AcqPos:
+			if( pMsg->MtdState[pMsg->SensorStat] )
+				break;
 			memcpy(&Racqpos, RS422->param, sizeof(Racqpos));
 			imgID6 = Racqpos.AcqStat;
 			if(2 == imgID6){
@@ -277,6 +279,8 @@ void* recv_msg(SENDST *RS422)
 				UTCTRKSTATUS *utctmp = ipc_getutstatus_p();
 				memcpy(&gConfig_Alg_param,utctmp,sizeof(UTCTRKSTATUS));
 				memcpy(&gConfig_Osd_param,osdtmp,sizeof(OSDSTATUS));	
+
+				printf("get ch1 aim width = %d \n",gConfig_Osd_param.ch0_aim_width);
 				get_acqRect_from_aim(&gConfig_Osd_param);
 				MSGDRIV_send(MSGID_EXT_UPDATE_OSD, 0);
 				startEnable = 1;
@@ -410,8 +414,9 @@ void* recv_msg(SENDST *RS422)
 		case mtdSelect:		
 			memcpy(&Rmmtselect,RS422->param,sizeof(Rmmtselect));
 			pMsg->MtdSelect[pMsg->SensorStat] = Rmmtselect.ImgMmtSelect;
+		printf("$$$$$$$$$$$$$$$   mtdSelect  \n");
 			app_ctrl_setMtdSelect(pMsg);
-			if(ipc_eMMT_Select == Rmmtselect.ImgMmtSelect)
+			if( ipc_eMMT_Select == Rmmtselect.ImgMmtSelect)
 			{
 				MSGAPI_msgsend(mtd);
 			}
