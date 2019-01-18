@@ -78,6 +78,7 @@ typedef enum
     ballbaud,
     sceneTrk,
     ipcjoyevent,
+    refreshptz,
     invalid
 }CMD_ID;
 
