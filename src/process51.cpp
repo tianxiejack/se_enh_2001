@@ -1574,29 +1574,41 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			#endif	
 				
 		 }
-		 else
-	 	{
+		else
+		{
 			rememflag=false;
 			extInCtrl->TrkErrFeedback = 0;
-	 	}
+		}
 	}
 #endif
 
-/*
-	//mtd
-osdindex++;
+osdindex++; //sekCorssBak
 	{
-		if(Osdflag[osdindex]==1)
-		{
-			erassdrawmmtnew(Mdrawbak, false);
+		if(Osdflag[osdindex]){
+			recIn.x=sekCrossBak.x;
+	 		recIn.y=sekCrossBak.y;
+			recIn.width = 50;
+			recIn.height = 50;
+			DrawCross(recIn,frcolor,extInCtrl->SensorStat,false);
 			Osdflag[osdindex]=0;
-		}
-		if(m_bMtd && changesensorCnt)
+ 		}
+		
+		if(extInCtrl->AvtTrkStat == eTrk_mode_search)
 		{
-			drawmmtnew(m_mtd[chId]->tg, true);		
+			recIn.x=PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
+	 		recIn.y=PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
+			recIn.width = 50;//extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
+			recIn.height= 50;//extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
+			sekCrossBak.x = recIn.x;
+			sekCrossBak.y = recIn.y;
+
+			if(m_display.m_crossOsd[extInCtrl->SensorStat])
+			{
+				DrawCross(recIn,3,extInCtrl->SensorStat,true);
+				Osdflag[osdindex]=1;
+			}
 		}
 	}
-*/
 
 osdindex++;	//cross aim
 	{
@@ -1617,31 +1629,25 @@ osdindex++;	//cross aim
 			Osdflag[osdindex]=0;
  		}
 
+		if(extInCtrl->DispGrp[extInCtrl->SensorStat] <= 3  &&  !changesensorCnt)
 		{
-			if(extInCtrl->DispGrp[extInCtrl->SensorStat] <= 3  &&  !changesensorCnt)
+			recIn.x=PiexltoWindowsx(extInCtrl->opticAxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
+	 		recIn.y=PiexltoWindowsy(extInCtrl->opticAxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
+			recIn.width = 40;//extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
+			recIn.height= 40;//extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
+			crossBak.x = recIn.x;
+			crossBak.y = recIn.y;
+			crossWHBak.x = recIn.width;
+			crossWHBak.y = recIn.height;
+			if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
 			{
-				recIn.x=PiexltoWindowsx(extInCtrl->opticAxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
-		 		recIn.y=PiexltoWindowsy(extInCtrl->opticAxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
-				recIn.width = 40;//extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
-				recIn.height= 40;//extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
-				crossBak.x = recIn.x;
-				crossBak.y = recIn.y;
-				crossWHBak.x = recIn.width;
-				crossWHBak.y = recIn.height;
-				if(extInCtrl->AvtTrkStat == eTrk_mode_acq)
+				if(m_display.m_crossOsd[extInCtrl->SensorStat])
 				{
-					if(m_display.m_crossOsd[extInCtrl->SensorStat])
-						DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
-					Osdflag[osdindex]=1;
-				}
-				else if(extInCtrl->AvtTrkStat == eTrk_mode_search)
-				{
-					if(m_display.m_crossOsd[extInCtrl->SensorStat])
-						DrawCross(recIn,3,extInCtrl->SensorStat,true);
+					DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
 					Osdflag[osdindex]=1;
 				}
 			}
-		}	
+		}
 	}
 
 
