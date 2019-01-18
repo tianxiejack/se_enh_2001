@@ -1586,6 +1586,15 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 
 osdindex++; //sekCorssBak
 	{
+		if(changesensorCnt)
+		{
+			recIn.x=sekCrossBak.x;
+	 		recIn.y=sekCrossBak.y;
+			recIn.width = extInCtrl->crossAxisWidth[extInCtrl->SensorStatpri];
+			recIn.height = extInCtrl->crossAxisHeight[extInCtrl->SensorStatpri];
+			DrawCross(recIn,frcolor,extInCtrl->SensorStatpri,false);
+		}
+
 		if(Osdflag[osdindex]){
 			recIn.x=sekCrossBak.x;
 	 		recIn.y=sekCrossBak.y;
