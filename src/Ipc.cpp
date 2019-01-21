@@ -340,9 +340,11 @@ void* recv_msg(SENDST *RS422)
 				pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
 				pMsg->AvtPosX[pMsg->SensorStat]  = pMsg->AxisPosX[pMsg->SensorStat];
 				pMsg->AvtPosY[pMsg->SensorStat]  = pMsg->AxisPosY[pMsg->SensorStat];
-				
+				pMsg->AimW[pMsg->SensorStat]  = pMsg->AcqRectW[pMsg->SensorStat];
+				pMsg->AimH[pMsg->SensorStat]  = pMsg->AcqRectH[pMsg->SensorStat];
 				app_ctrl_setAimPos(pMsg);
 				app_ctrl_setAxisPos(pMsg);
+				app_ctrl_setAimSize(pMsg);
 			}
 
 			app_ctrl_setTrkStat(pMsg); 
