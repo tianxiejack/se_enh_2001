@@ -1667,8 +1667,6 @@ osdindex++;	//acqRect
 	{
 		if(changesensorCnt){
 			recIn = acqRectBak;
-			if(extInCtrl->SensorStatpri>MAX_CHAN)
-				extInCtrl->SensorStatpri = 1;
 			DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStatpri],recIn,frcolor,false);
 		}
 
@@ -1708,8 +1706,6 @@ osdindex++;	//acqRect
 	{
 		if(changesensorCnt){
 			recIn = mtdFrameRectBak;
-			if(extInCtrl->SensorStatpri>MAX_CHAN)
-				extInCtrl->SensorStatpri = 1;
 			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,0);
 		}
 				

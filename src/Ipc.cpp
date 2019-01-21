@@ -176,16 +176,19 @@ void* recv_msg(SENDST *RS422)
 			break;
 
 		case BoresightPos:
-			memcpy(&Rboresightmove, RS422->param, sizeof(Rboresightmove));
-			pMsg->opticAxisPosX[pMsg->SensorStat] = Rboresightmove.BoresightPos_x;
-			pMsg->opticAxisPosY[pMsg->SensorStat] = Rboresightmove.BoresightPos_y;
-			pMsg->AxisPosX[pMsg->SensorStat] = pMsg->opticAxisPosX[pMsg->SensorStat];
-			pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
+			if(!pMsg->AvtTrkStat)
+			{
+				memcpy(&Rboresightmove, RS422->param, sizeof(Rboresightmove));
+				pMsg->opticAxisPosX[pMsg->SensorStat] = Rboresightmove.BoresightPos_x;
+				pMsg->opticAxisPosY[pMsg->SensorStat] = Rboresightmove.BoresightPos_y;
+				pMsg->AxisPosX[pMsg->SensorStat] = pMsg->opticAxisPosX[pMsg->SensorStat];
+				pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
 
-			pMsg->AvtPosX[pMsg->SensorStat] = pMsg->AxisPosX[pMsg->SensorStat];
-			pMsg->AvtPosY[pMsg->SensorStat] = pMsg->AxisPosY[pMsg->SensorStat];
-			
-			app_ctrl_setBoresightPos(pMsg);
+				pMsg->AvtPosX[pMsg->SensorStat] = pMsg->AxisPosX[pMsg->SensorStat];
+				pMsg->AvtPosY[pMsg->SensorStat] = pMsg->AxisPosY[pMsg->SensorStat];
+				
+				app_ctrl_setBoresightPos(pMsg);
+			}
 			break;
 		case AcqPos:
 			if( pMsg->MtdState[pMsg->SensorStat] )
@@ -467,11 +470,14 @@ void* recv_msg(SENDST *RS422)
 			break;
 
 		case sensor:
-			memcpy(&Rsensor,RS422->param,sizeof(Rsensor));
-			//printf("recv Rsensor: %d\n",Rsensor.SensorStat);
-			pMsg->SensorStat = Rsensor.SensorStat;
-			app_ctrl_setSensor(pMsg);
-			MSGAPI_msgsend(sensor);
+			if(!pMsg->AvtTrkStat)
+			{
+				memcpy(&Rsensor,RS422->param,sizeof(Rsensor));
+				//printf("recv Rsensor: %d\n",Rsensor.SensorStat);
+				pMsg->SensorStat = Rsensor.SensorStat;
+				app_ctrl_setSensor(pMsg);
+				MSGAPI_msgsend(sensor);
+			}	
 			break;
 		
 		case pinp:	
