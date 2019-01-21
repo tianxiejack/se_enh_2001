@@ -297,8 +297,8 @@ void CVideoProcess::main_proc_func()
 			resize(frame_gray,sceneFrame,cv::Size(frame_gray.cols/2,frame_gray.rows/2));
 			m_sceneObj.detect(sceneFrame, chId);
 			m_sceneObj.getResult(tmpPoint);
-			tmpPoint.x *= 2;
-			tmpPoint.y *= 2;
+			tmpPoint.x = (-2)*tmpPoint.x;
+			tmpPoint.y *= (-2)*tmpPoint.y;
 			//send IPC
 			SENDST scenetrk;
 			scenetrk.cmd_ID = sceneTrk;
