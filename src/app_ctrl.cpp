@@ -240,11 +240,10 @@ void app_ctrl_setMtdSelect(CMD_EXT * pInCmd)
 		getMtdxy(curx, cury, curw, curh);
 		if( -1 == curw && -1 == curh )	
 		{
-			printf("222222\n");
 			//do nothing
 		}
 		else
-		{printf("3333\n");
+		{
 			pMsg.AvtTrkStat =eTrk_mode_sectrk;
 			pMsg.AvtPosX[pIStuts->SensorStat]  = curx;
 			pMsg.AvtPosY[pIStuts->SensorStat]  = cury;

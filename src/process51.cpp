@@ -43,18 +43,19 @@ void getMmtTg(unsigned char index,int *x,int *y)
 #if __MOVE_DETECT__
 void getMtdxy(int &x,int &y,int &w,int &h)
 {
-printf("@@@@@@@  chooseDetect = %d \n",plat->chooseDetect);
-
-	if(plat->chooseDetect < plat->mvList.size())
+	x = y = w = h = -1;
+	if(plat->validMtdRecord[plat->chooseDetect])
 	{
-		x = plat->mvList[plat->chooseDetect].trkobj.targetRect.x + plat->mvList[plat->chooseDetect].trkobj.targetRect.width/2;
-		y = plat->mvList[plat->chooseDetect].trkobj.targetRect.y + plat->mvList[plat->chooseDetect].trkobj.targetRect.height/2;
-		w = plat->mvList[plat->chooseDetect].trkobj.targetRect.width;
-		h  = plat->mvList[plat->chooseDetect].trkobj.targetRect.height;
-	}
-	else
-	{
-		x = y = w = h = -1;
+		for(int i = 0 ;i<plat->mvList.size();i++)
+		{
+			if(plat->chooseDetect == plat->mvList[i].number)
+			{
+				x = plat->mvList[i].trkobj.targetRect.x + plat->mvList[i].trkobj.targetRect.width/2;
+				y = plat->mvList[i].trkobj.targetRect.y + plat->mvList[i].trkobj.targetRect.height/2;
+				w = plat->mvList[i].trkobj.targetRect.width;
+				h  = plat->mvList[i].trkobj.targetRect.height;
+			}
+		}	
 	}
 }
 #endif
