@@ -299,7 +299,6 @@ void CVideoProcess::main_proc_func()
 		{
 			m_sceneObj.detect(frame_gray, chId);		
 			m_sceneObj.getResult(tmpPoint);
-			//printf("sceneFrame    output  pixel    x,y = (%f  , %f )\n",tmpPoint.x,tmpPoint.y);
 
 			//send IPC
 			SENDST scenetrk;
@@ -875,7 +874,7 @@ int CVideoProcess::dynamic_config(int type, int iPrm, void* pPrm)
 		m_iSceneTrackStat = 0;
 		m_iSceneTrackLostCnt = 0;
 		mainProcThrObj.bFirst = true;
-
+		
 		msgextInCtrl->SceneAvtTrkStat = m_bSceneTrack;
 		if(m_bSceneTrack)
 			m_sceneObj.start();

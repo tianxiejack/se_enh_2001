@@ -22,6 +22,8 @@ public :
 	void detect(const Mat& frame, int chId);
 	void getResult(cv::Point2f & result);
 	void start();
+private:
+	cv::Point2f calcErr;
 };
 
 

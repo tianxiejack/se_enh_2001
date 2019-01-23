@@ -10,6 +10,7 @@
 void CSceneProcess::start()
 {
 	memset(m_cnt,0,sizeof(m_cnt));
+	calcErr.x = calcErr.y = 0;
 }
 
 void CSceneProcess::detect(const Mat& frame, int chId)
@@ -30,10 +31,12 @@ void CSceneProcess::detect(const Mat& frame, int chId)
 
 void CSceneProcess::getResult(cv::Point2f & result)
 {	
-	result.x = m_obj.m_filterVel.x;
-	result.y = m_obj.m_filterVel.y;
-	//m_instanVel
-	//printf("m_instanVel.x = %f ,m_instanVel.y = %f  \n ",m_obj.m_instanVel.x/2,m_obj.m_instanVel.y/2);
+	calcErr.x += m_obj.m_filterVel.x;
+	calcErr.y += m_obj.m_filterVel.y;
+	
+	result.x = calcErr.x;
+	result.y = calcErr.y;
+	
 	return ;
 }
 
