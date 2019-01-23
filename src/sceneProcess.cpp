@@ -33,7 +33,7 @@ void CSceneProcess::getResult(cv::Point2f & result)
 	result.x = m_obj.m_filterVel.x;
 	result.y = m_obj.m_filterVel.y;
 	//m_instanVel
-	printf("m_instanVel.x = %f ,m_instanVel.y = %f  \n ",m_obj.m_instanVel.x/2,m_obj.m_instanVel.y/2);
+	//printf("m_instanVel.x = %f ,m_instanVel.y = %f  \n ",m_obj.m_instanVel.x/2,m_obj.m_instanVel.y/2);
 	return ;
 }
 

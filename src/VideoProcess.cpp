@@ -89,29 +89,6 @@ void extractUYVY2Gray(Mat src, Mat dst)
 
 char trkINFODisplay[256];
 
-
-void translateTransform(cv::Mat const& src, cv::Mat& dst, int dx, int dy)
-{
-	if(dx >= src.cols - 10)
-		return ;
-	dst = cv::Mat::zeros(src.rows,src.cols,CV_8UC1);
-	printf("%s:dx=%d\n",__func__, dx);
-	for (int j=0 ; j<src.rows-dy; j++)
-	{
-		memcpy(dst.ptr<uchar>(j+dy,dx),src.ptr<uchar>(j,0), src.cols -dx);
-//		for (int i=0 ; i<src.cols -dx ; i++)
-//		{
-//			dst.at<uchar>(j+dy,i+dx) = (int)src.at<uchar>(j,i);
-//		}
-	}
-
-//	for (int j=0 ; j<src.rows; j++)
-//		for (int i=0 ; i<dx ; i++)
-//			dst.at<uchar>(j,i) = 0;
-}
-
-
-
 void CVideoProcess::main_proc_func()
 {
 	OSA_printf("%s: Main Proc Tsk Is Entering...\n",__func__);
@@ -320,36 +297,9 @@ void CVideoProcess::main_proc_func()
 		}
 		else if( bSceneTrack)
 		{
-			Mat sceneFrame ;	
-			resize(frame_gray,sceneFrame,cv::Size(frame_gray.cols/2,frame_gray.rows/2));
-			
-			Mat dst = cv::Mat::zeros(sceneFrame.cols, sceneFrame.rows, CV_8UC1);
-
-			movex += 1;
-			movex = (movex%(sceneFrame.cols>>1));
-	
-			translateTransform(sceneFrame, dst,movex, movey);
-
-#if 1
-	static unsigned int t1 ;
-	static unsigned int tt = 0;
-	static char time = 0;
-	t1 = OSA_getCurTimeInMsec();
-		m_sceneObj.detect(dst, chId);
-	tt += OSA_getCurTimeInMsec() - t1;
-	time++;
-
-	if(time == 100)
-	{
-		printf( "avr time = %d \n",tt/100);
-		tt = 0;
-		time = 0;
-	}
-#endif
+			m_sceneObj.detect(frame_gray, chId);		
 			m_sceneObj.getResult(tmpPoint);
-			tmpPoint.x = tmpPoint.x/2;
-			tmpPoint.y = tmpPoint.y/2;
-		printf("sceneFrame    output  pixel    x,y = (%f  , %f )\n",tmpPoint.x,tmpPoint.y);
+			//printf("sceneFrame    output  pixel    x,y = (%f  , %f )\n",tmpPoint.x,tmpPoint.y);
 
 			//send IPC
 			SENDST scenetrk;
@@ -358,12 +308,7 @@ void CVideoProcess::main_proc_func()
 			memcpy(&scenetrk.param[0] ,&tmpVal, 4);
 			memcpy(&scenetrk.param[4] ,&tmpPoint.x , 4);
 			memcpy(&scenetrk.param[8] ,&tmpPoint.y , 4);
-			//ipc_sendmsg(&scenetrk, IPC_FRIMG_MSG);
-		}
-
-		if(!bSceneTrack)
-		{
-			movex = movey = 0;
+			ipc_sendmsg(&scenetrk, IPC_FRIMG_MSG);
 		}
 		OnProcess(chId, frame);
 		framecount++;
