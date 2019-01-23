@@ -22,6 +22,11 @@ public :
 	void detect(const Mat& frame, int chId);
 	void getResult(cv::Point2f & result);
 	void start();
+
+	void optFlowDetect(const Mat& frame, int chId);
+	void optFlowGetResult(cv::Point2f & result);
+
+
 private:
 	cv::Point2f calcErr;
 };

@@ -297,9 +297,14 @@ void CVideoProcess::main_proc_func()
 		}
 		else if( bSceneTrack)
 		{
-			m_sceneObj.detect(frame_gray, chId);		
-			m_sceneObj.getResult(tmpPoint);
-
+			#if 0
+				m_sceneObj.detect(frame_gray, chId);		
+				m_sceneObj.getResult(tmpPoint);
+			#else
+				m_sceneObj.optFlowDetect(frame_gray, chId);	
+				m_sceneObj.optFlowGetResult(tmpPoint);
+			#endif
+		
 			//send IPC
 			SENDST scenetrk;
 			scenetrk.cmd_ID = sceneTrk;
