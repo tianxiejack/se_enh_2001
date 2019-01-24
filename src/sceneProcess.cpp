@@ -18,7 +18,7 @@ void CSceneProcess::detect(const Mat& frame, int chId)
 	struct timespec now;
 	clock_gettime(CLOCK_MONOTONIC, &now);
 	unsigned int us = now.tv_sec*1000000+now.tv_nsec/1000;
-	*(unsigned int*)frame.data = us;
+	*(unsigned long long*)frame.data = us;
 	bool bInit = false;
 	if(m_cnt[chId] == 0)
 		m_obj.InitSceneLock(frame);
@@ -35,7 +35,7 @@ void CSceneProcess::optFlowDetect(const Mat& frame, int chId,cv::Rect &getBound)
 	struct timespec now;
 	clock_gettime(CLOCK_MONOTONIC, &now);
 	unsigned int us = now.tv_sec*1000000+now.tv_nsec/1000;
-	*(unsigned int*)frame.data = us;
+	*(unsigned long long*)frame.data = us;
 	bool bInit = true;
 	if(m_cnt[chId] == 0)
 		m_obj.optFlowInitSceneLock(frame);

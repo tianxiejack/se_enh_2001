@@ -323,18 +323,22 @@ void CVideoProcess::main_proc_func()
 				m_sceneObj.optFlowDetect(frame_gray, chId,getbound);
 				//m_sceneObj.optFlowGetResult(tmpPoint);
 				//drawcvrect(m_display.m_imgOsd[msgextInCtrl->SensorStat],getbound.x,getbound.y,getbound.width,getbound.height,2);
-				tmpPoint.x = getbound.x + getbound.width/2;
-				tmpPoint.y = getbound.y + getbound.height/2;
+				tmpPoint.x = (float)(getbound.x + getbound.width/2 - msgextInCtrl->opticAxisPosX[msgextInCtrl->SensorStat]); 
+				tmpPoint.y = (float)(getbound.y + getbound.height/2 - msgextInCtrl->opticAxisPosY[msgextInCtrl->SensorStat]);
 			#endif
-			
+
 			//send IPC
-			SENDST scenetrk;
-			scenetrk.cmd_ID = sceneTrk;
-			tmpVal = msgextInCtrl->SceneAvtTrkStat;
-			memcpy(&scenetrk.param[0] ,&tmpVal, 4);
-			memcpy(&scenetrk.param[4] ,&tmpPoint.x , 4);
-			memcpy(&scenetrk.param[8] ,&tmpPoint.y , 4);
-			ipc_sendmsg(&scenetrk, IPC_FRIMG_MSG);
+			if( getbound.width && getbound.height && getbound.x && getbound.y )
+			{
+				SENDST scenetrk;
+				scenetrk.cmd_ID = sceneTrk;
+				tmpVal = msgextInCtrl->SceneAvtTrkStat;
+				memcpy(&scenetrk.param[0] ,&tmpVal, 4);
+				memcpy(&scenetrk.param[4] ,&tmpPoint.x , 4);
+				memcpy(&scenetrk.param[8] ,&tmpPoint.y , 4);
+				ipc_sendmsg(&scenetrk, IPC_FRIMG_MSG);
+			}
+			
 		}
 		OnProcess(chId, frame);
 		framecount++;
