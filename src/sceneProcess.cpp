@@ -38,9 +38,9 @@ void CSceneProcess::optFlowDetect(const Mat& frame, int chId)
 	*(unsigned int*)frame.data = us;
 	bool bInit = false;
 	if(m_cnt[chId] == 0)
-		m_obj.InitSceneLock(frame);
+		m_obj.optFlowInitSceneLock(frame);
 	else
-		bInit = m_obj.CalSceneLock(frame);
+		bInit = m_obj.optFlowCalcSceneLock(frame);
 
 	if(!m_cnt[chId])
 		m_cnt[chId]++;
