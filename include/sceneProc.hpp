@@ -47,8 +47,8 @@ public:
 
 
 	void optFlowInitSceneLock(const cv::Mat image);
-	bool optFlowCalcSceneLock(const cv::Mat image);
-
+	//bool optFlowCalcSceneLock(const cv::Mat image);
+	bool optFlowCalcSceneLock(const cv::Mat image,cv::Rect &bound);
 
 public:
 

@@ -23,9 +23,9 @@ public :
 	void getResult(cv::Point2f & result);
 	void start();
 
-	void optFlowDetect(const Mat& frame, int chId);
+	//void optFlowDetect(const Mat& frame, int chId);
 	void optFlowGetResult(cv::Point2f & result);
-
+	void optFlowDetect(const Mat& frame, int chId,cv::Rect &getBound);
 
 private:
 	cv::Point2f calcErr;

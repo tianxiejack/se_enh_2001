@@ -11,6 +11,7 @@
 
 #include "app_ctrl.h"
 #include "Ipcctl.h"
+#include "osd_cv.h"
 
 using namespace vmath;
 extern CMD_EXT *msgextInCtrl;
@@ -89,6 +90,23 @@ void extractUYVY2Gray(Mat src, Mat dst)
 
 char trkINFODisplay[256];
 
+void translateTransform(cv::Mat const& src, cv::Mat& dst, int dx, int dy)
+{
+	if(dx >= src.cols - 10)
+		return ;
+	dst = cv::Mat::zeros(src.rows,src.cols,CV_8UC1);
+	printf("%s:dx=%d\n",__func__, dx);
+	for (int j=0 ; j<src.rows-dy; j++)
+	{
+		memcpy(dst.ptr<uchar>(j+dy,dx),src.ptr<uchar>(j,0), src.cols -dx);
+		for (int i=0 ; i<src.cols -dx ; i++)
+		{
+			dst.at<uchar>(j+dy,i+dx) = (int)src.at<uchar>(j,i);
+		}
+	}
+
+}
+
 void CVideoProcess::main_proc_func()
 {
 	OSA_printf("%s: Main Proc Tsk Is Entering...\n",__func__);
@@ -118,7 +136,7 @@ void CVideoProcess::main_proc_func()
 
 	static int movex = 0;
 	static int movey = 0;
-	
+	cv::Rect getbound;
 #endif
 	while(mainProcThrObj.exitProcThread ==  false)
 	{
@@ -296,15 +314,19 @@ void CVideoProcess::main_proc_func()
 		#endif
 		}
 		else if( bSceneTrack)
-		{
+		{	
 			#if 0
 				m_sceneObj.detect(frame_gray, chId);		
 				m_sceneObj.getResult(tmpPoint);
 			#else
-				m_sceneObj.optFlowDetect(frame_gray, chId);	
-				m_sceneObj.optFlowGetResult(tmpPoint);
+				//drawcvrect(m_display.m_imgOsd[msgextInCtrl->SensorStat],getbound.x,getbound.y,getbound.width,getbound.height,0);
+				m_sceneObj.optFlowDetect(frame_gray, chId,getbound);
+				//m_sceneObj.optFlowGetResult(tmpPoint);
+				//drawcvrect(m_display.m_imgOsd[msgextInCtrl->SensorStat],getbound.x,getbound.y,getbound.width,getbound.height,2);
+				tmpPoint.x = getbound.x + getbound.width/2;
+				tmpPoint.y = getbound.y + getbound.height/2;
 			#endif
-		
+			
 			//send IPC
 			SENDST scenetrk;
 			scenetrk.cmd_ID = sceneTrk;

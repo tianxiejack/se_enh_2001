@@ -30,23 +30,26 @@ void CSceneProcess::detect(const Mat& frame, int chId)
 
 }
 
-void CSceneProcess::optFlowDetect(const Mat& frame, int chId)
+void CSceneProcess::optFlowDetect(const Mat& frame, int chId,cv::Rect &getBound)
 {	
 	struct timespec now;
 	clock_gettime(CLOCK_MONOTONIC, &now);
 	unsigned int us = now.tv_sec*1000000+now.tv_nsec/1000;
 	*(unsigned int*)frame.data = us;
-	bool bInit = false;
+	bool bInit = true;
 	if(m_cnt[chId] == 0)
 		m_obj.optFlowInitSceneLock(frame);
 	else
-		bInit = m_obj.optFlowCalcSceneLock(frame);
+		bInit = m_obj.optFlowCalcSceneLock(frame,getBound);
 
 	if(!m_cnt[chId])
 		m_cnt[chId]++;
 
-	if(bInit)
+	if(!bInit)
+	{
+		printf("optFlowDetect : lost !!! \ n");
 		m_cnt[chId] = 0;
+	}
 }
 
 void CSceneProcess::optFlowGetResult(cv::Point2f & result)
