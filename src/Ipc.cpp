@@ -176,8 +176,8 @@ void* recv_msg(SENDST *RS422)
 			break;
 
 		case BoresightPos:
-			if(!pMsg->AvtTrkStat)
-			{
+			//if(!pMsg->AvtTrkStat)
+			//{
 				memcpy(&Rboresightmove, RS422->param, sizeof(Rboresightmove));
 				pMsg->opticAxisPosX[pMsg->SensorStat] = Rboresightmove.BoresightPos_x;
 				pMsg->opticAxisPosY[pMsg->SensorStat] = Rboresightmove.BoresightPos_y;
@@ -188,7 +188,7 @@ void* recv_msg(SENDST *RS422)
 				pMsg->AvtPosY[pMsg->SensorStat] = pMsg->AxisPosY[pMsg->SensorStat];
 				
 				app_ctrl_setBoresightPos(pMsg);
-			}
+			//}
 			break;
 		case AcqPos:
 			if( pMsg->MtdState[pMsg->SensorStat] )
