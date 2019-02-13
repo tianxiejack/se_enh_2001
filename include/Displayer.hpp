@@ -306,7 +306,9 @@ public:
 
 	void IrisAndFocus();
 	int OSDFunc();
+	int OSDChid();
 	void drawtriangle(Mat frame, char direction, char alpha);
+	void OSDWorkMode();
 
 	
 };

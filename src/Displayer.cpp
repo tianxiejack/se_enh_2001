@@ -33,7 +33,7 @@
 #define DARKEN 0
 
 static CDisplayer *gThis = NULL;
-extern int IrisAndFocusAndExit;
+extern OSD_ctrlParams osd_params;
 extern CMD_triangle cmd_triangle;
 extern OSD_param m_osd;
 extern CProcess* plat;
@@ -1840,49 +1840,8 @@ void CDisplayer::gl_display(void)
 
 		
 		IrisAndFocus();
-		if(m_chidIDOsd[plat->extInCtrl->SensorStat])
-		{
-			switch(plat->extInCtrl->SensorStat)
-			{
-			case 0:
-				chinese_osd(15,20,L"通道号：1",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-				break;
-			case 1:
-				chinese_osd(15,20,L"通道号：2",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-				break;
-			case 2:
-				chinese_osd(15,20,L"通道号：3",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-				break;
-			case 3:
-				chinese_osd(15,20,L"通道号：4",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-				break;
-			case 4:
-				chinese_osd(15,20,L"通道号：5",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-				break;
-			}
-		}
-
-		if(m_chidNameOsd[plat->extInCtrl->SensorStat])
-		{
-			switch(plat->extInCtrl->SensorStat)
-			{
-			case 0:
-				chinese_osd(15,65,L"通道名称：测试1",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-				break;
-			case 1:
-				chinese_osd(15,65,L"通道名称：测试2",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-				break;
-			case 2:
-				chinese_osd(15,65,L"通道名称：测试3",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-				break;
-			case 3:
-				chinese_osd(15,65,L"通道名称：测试4",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-				break;
-			case 4:
-				chinese_osd(15,65,L"通道名称：测试5",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-				break;
-			}
-		}
+		OSDChid();
+		OSDWorkMode();
 		if(m_userOsd)
 			OSDFunc();
 	}
@@ -1895,7 +1854,7 @@ void CDisplayer::gl_display(void)
 
 void CDisplayer::IrisAndFocus()
 {
-	switch(IrisAndFocusAndExit)
+	switch(osd_params.IrisAndFocusAndExit)
 	{
 	case Enable_Iris:
 		chinese_osd(905,1000,L"光圈调节",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
@@ -1910,6 +1869,83 @@ void CDisplayer::IrisAndFocus()
 		drawtriangle(plat->m_display.m_imgOsd[plat->extInCtrl->SensorStat], cmd_triangle.dir, cmd_triangle.alpha);
 		break;
 	}
+}
+
+void CDisplayer::OSDWorkMode()
+{
+	switch(osd_params.OSD_workMode)
+	{
+	case 2:
+		chinese_osd(1800,20,L"自动检测",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		break;
+
+	case 3:
+		chinese_osd(1800,20,L"场景跟踪",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		break;
+
+	case 4:
+		chinese_osd(1800,20,L"移动转台",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		break;
+
+	case 5:
+		chinese_osd(1800,20,L"移动波门",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		break;
+
+	case 6:
+		chinese_osd(1800,20,L"手动检测",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		break;
+
+		default:
+		break;
+	}
+}
+
+int CDisplayer::OSDChid()
+{
+	if(m_chidIDOsd[plat->extInCtrl->SensorStat])
+	{
+		switch(plat->extInCtrl->SensorStat)
+		{
+		case 0:
+			chinese_osd(15,20,L"通道号：1",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
+		case 1:
+			chinese_osd(15,20,L"通道号：2",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
+		case 2:
+			chinese_osd(15,20,L"通道号：3",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
+		case 3:
+			chinese_osd(15,20,L"通道号：4",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
+		case 4:
+			chinese_osd(15,20,L"通道号：5",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
+		}
+	}
+
+	if(m_chidNameOsd[plat->extInCtrl->SensorStat])
+	{
+		switch(plat->extInCtrl->SensorStat)
+		{
+		case 0:
+			chinese_osd(15,65,L"通道名称：测试1",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
+		case 1:
+			chinese_osd(15,65,L"通道名称：测试2",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
+		case 2:
+			chinese_osd(15,65,L"通道名称：测试3",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
+		case 3:
+			chinese_osd(15,65,L"通道名称：测试4",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
+		case 4:
+			chinese_osd(15,65,L"通道名称：测试5",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
+		}
+	}
+	return 0;
 }
 
 int CDisplayer::OSDFunc()

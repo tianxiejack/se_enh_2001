@@ -18,7 +18,7 @@
 extern  bool startEnable;
 extern OSDSTATUS gConfig_Osd_param ;
 extern UTCTRKSTATUS gConfig_Alg_param;
-int IrisAndFocusAndExit = 0;
+OSD_ctrlParams osd_params;
 CMD_triangle cmd_triangle;
 OSD_param m_osd;
 int ipc_loop = 1;
@@ -261,17 +261,17 @@ void* recv_msg(SENDST *RS422)
 			break;
 
 		case Iris:
-			IrisAndFocusAndExit = Enable_Iris;
+			osd_params.IrisAndFocusAndExit = Enable_Iris;
 			memcpy(&cmd_triangle, RS422->param, sizeof(cmd_triangle));
 			break;
 
 		case focus:
-			IrisAndFocusAndExit = Enable_Focus;
+			osd_params.IrisAndFocusAndExit = Enable_Focus;
 			memcpy(&cmd_triangle, RS422->param, sizeof(cmd_triangle));
 			break;
 
 		case exit_IrisAndFocus:
-			IrisAndFocusAndExit = Disable;
+			osd_params.IrisAndFocusAndExit = Disable;
 			memcpy(&cmd_triangle, RS422->param, sizeof(cmd_triangle));
 			break;
 
@@ -614,6 +614,10 @@ void* recv_msg(SENDST *RS422)
 			app_ctrl_setMtdSelect(pMsg);
 			break;
 	
+		case workmode:
+			osd_params.OSD_workMode = RS422->param[0];
+			break;
+
 		default:
 			break;
 	}

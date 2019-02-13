@@ -79,6 +79,8 @@ typedef enum
     sceneTrk,
     ipcjoyevent,
     refreshptz,
+    josctrl,
+    workmode,
     invalid
 }CMD_ID;
 
@@ -88,6 +90,50 @@ typedef enum
 	shm_rdonly,
 	shm_rdwr
 }shm_perms;
+
+typedef enum
+{
+	cursor_move = 1,
+	jos_button,
+	jos_Dir,
+	mouse_button,
+	enter,
+	jos_menu,
+	workMode,
+	ctrlMode
+}josType;
+
+typedef enum{
+	manual_linkage = 1,
+	Auto_linkage,
+	ballctrl
+}work_Mode;
+
+typedef enum{
+	jos = 1,
+	mouse
+}jos_Mode;
+
+typedef enum{
+	cursor_up = 1,
+	cursor_down,
+	cursor_left,
+	cursor_right,
+}josDir;
+
+typedef struct{
+	int type;
+	int cursor_x;  //0~1920
+	int cursor_y;	//0~1080
+	int jos_button;	//0~9
+	int jos_Dir;	//上，下，左，右
+	int mouse_button;	//左键 右键
+	int mouse_state;	//抬起2；按下1
+	int enter;	//0,1
+	int menu;	//0,1
+	int workMode;	//1~3
+	int ctrlMode;	//1,2
+}ctrlParams;
 
 typedef struct{
 	unsigned int panPos;
@@ -766,6 +812,10 @@ typedef struct{
 	unsigned int commuDuratInfo:16;
 }LKOSDSTATUS;
 
+typedef struct{
+	int IrisAndFocusAndExit;
+	int OSD_workMode;
+}OSD_ctrlParams;
 
 typedef struct out_frame_angle
 {
