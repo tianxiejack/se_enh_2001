@@ -24,7 +24,7 @@ extern LinkagePos_t linkagePos;
 extern CMD_Mtd_Frame Mtd_Frame;
 CProcess * CProcess::sThis = NULL;
 CProcess* plat = NULL;
-int glosttime = 3000;
+int glosttime;
 
 OSA_SemHndl g_linkage_getPos;
 
