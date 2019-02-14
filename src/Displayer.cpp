@@ -1880,7 +1880,7 @@ void CDisplayer::OSDWorkMode()
 		break;
 
 	case 3:
-		chinese_osd(1800,20,L"场景跟踪",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		chinese_osd(15,105,L"场景选择",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
 		break;
 
 	case 4:
@@ -1893,6 +1893,10 @@ void CDisplayer::OSDWorkMode()
 
 	case 6:
 		chinese_osd(1800,20,L"手动检测",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		break;
+
+	case 7:
+		chinese_osd(15,105,L"场景锁定",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
 		break;
 
 		default:
