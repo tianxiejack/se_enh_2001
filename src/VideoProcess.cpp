@@ -122,6 +122,8 @@ void CVideoProcess::main_proc_func()
 	CMD_EXT tmpCmd={0};
 	double value;
 	int tmpVal;
+	static bool motionlessflag = false;
+	static char motionlessNum;
 #if 1
 	
 	static int timeFlag = 2;
@@ -137,6 +139,7 @@ void CVideoProcess::main_proc_func()
 	static int movex = 0;
 	static int movey = 0;
 	cv::Rect getbound;
+	cv::Rect boundBak[5];
 #endif
 	while(mainProcThrObj.exitProcThread ==  false)
 	{
@@ -308,8 +311,25 @@ void CVideoProcess::main_proc_func()
 		{
 		#if __MOVE_DETECT__
 			if(m_pMovDetector != NULL)
-			{
-				m_pMovDetector->setFrame(frame_gray,msgextInCtrl->SensorStat,Mtd_Frame.detectSpeed, Mtd_Frame.tmpMinPixel, Mtd_Frame.tmpMaxPixel, Mtd_Frame.sensitivityThreshold);
+			{	
+ 
+				if(!motionlessflag)
+				{ 					
+					m_sceneObj.optFlowDetect(frame_gray, chId,getbound);	
+					boundBak[motionlessNum++] = getbound ;
+							
+					if(motionlessNum >= 5 )
+					{
+						if(boundBak[0] == boundBak[1] && boundBak[1] == boundBak[2] \
+							&& boundBak[2] == boundBak[3] && boundBak[3] == boundBak[4])
+							motionlessflag = true;
+						motionlessNum = 0;
+					}
+				}
+				 (motionlessflag)
+				{
+					m_pMovDetector->setFrame(frame_gray,msgextInCtrl->SensorStat,Mtd_Frame.detectSpeed, Mtd_Frame.tmpMinPixel, Mtd_Frame.tmpMaxPixel, Mtd_Frame.sensitivityThreshold);
+				}
 			}
 		#endif
 		}
@@ -319,12 +339,14 @@ void CVideoProcess::main_proc_func()
 				m_sceneObj.detect(frame_gray, chId);		
 				m_sceneObj.getResult(tmpPoint);
 			#else
+		
 				//drawcvrect(m_display.m_imgOsd[msgextInCtrl->SensorStat],getbound.x,getbound.y,getbound.width,getbound.height,0);
 				m_sceneObj.optFlowDetect(frame_gray, chId,getbound);
 				//m_sceneObj.optFlowGetResult(tmpPoint);
 				//drawcvrect(m_display.m_imgOsd[msgextInCtrl->SensorStat],getbound.x,getbound.y,getbound.width,getbound.height,2);
 				tmpPoint.x = (float)(getbound.x + getbound.width/2 - msgextInCtrl->opticAxisPosX[msgextInCtrl->SensorStat]); 
 				tmpPoint.y = (float)(getbound.y + getbound.height/2 - msgextInCtrl->opticAxisPosY[msgextInCtrl->SensorStat]);
+				
 			#endif
 
 			//send IPC
@@ -339,6 +361,10 @@ void CVideoProcess::main_proc_func()
 				ipc_sendmsg(&scenetrk, IPC_FRIMG_MSG);
 			}
 			
+		}
+		if(!bMoveDetect){
+			motionlessflag = false;
+			motionlessNum = 0;
 		}
 		OnProcess(chId, frame);
 		framecount++;
