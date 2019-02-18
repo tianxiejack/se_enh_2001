@@ -326,7 +326,7 @@ void CVideoProcess::main_proc_func()
 						motionlessNum = 0;
 					}
 				}
-				 (motionlessflag)
+				 if(motionlessflag)
 				{
 					m_pMovDetector->setFrame(frame_gray,msgextInCtrl->SensorStat,Mtd_Frame.detectSpeed, Mtd_Frame.tmpMinPixel, Mtd_Frame.tmpMaxPixel, Mtd_Frame.sensitivityThreshold);
 				}
