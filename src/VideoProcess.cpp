@@ -139,7 +139,7 @@ void CVideoProcess::main_proc_func()
 	static int movex = 0;
 	static int movey = 0;
 	cv::Rect getbound;
-	cv::Rect boundBak[5];
+	cv::Rect boundBak[10];
 #endif
 	while(mainProcThrObj.exitProcThread ==  false)
 	{
@@ -318,12 +318,16 @@ void CVideoProcess::main_proc_func()
 					m_sceneObj.optFlowDetect(frame_gray, chId,getbound);	
 					boundBak[motionlessNum++] = getbound ;
 							
-					if(motionlessNum >= 5 )
+					if(motionlessNum >= 10)
 					{
 						if(boundBak[0] == boundBak[1] && boundBak[1] == boundBak[2] \
-							&& boundBak[2] == boundBak[3] && boundBak[3] == boundBak[4])
+							&& boundBak[2] == boundBak[3] && boundBak[3] == boundBak[4]
+							&& boundBak[4] == boundBak[5] && boundBak[5] == boundBak[6]
+							&& boundBak[6] == boundBak[7] && boundBak[7] == boundBak[8]
+							&& boundBak[8] == boundBak[9])
 							motionlessflag = true;
 						motionlessNum = 0;
+						memset(boundBak,0,10*sizeof(cv::Rect));
 					}
 				}
 				 if(motionlessflag)

@@ -2125,6 +2125,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 {
 	int tempvalue=0;
+	static unsigned char recordNum = 0;
 	CMD_EXT *pIStuts = extInCtrl;
 	CMD_EXT *pInCmd = NULL;
 	CMD_EXT tmpCmd = {0};
@@ -2773,8 +2774,11 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
             while(!m_pMovDetector->isWait(pIStuts->SensorStat))
             {
                 tv.tv_sec = 0;
-                tv.tv_usec = (10%1000)*1000;
+                tv.tv_usec = (20%1000)*1000;
                 select(0, NULL, NULL, NULL, &tv);
+   	         if( m_pMovDetector->isStopping(pIStuts->SensorStat) )
+	 		m_pMovDetector->stoppingReset(pIStuts->SensorStat);
+		   recordNum++;
             }
             if(m_pMovDetector->isWait(pIStuts->SensorStat))
             {
