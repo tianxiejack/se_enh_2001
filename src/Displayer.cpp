@@ -1876,27 +1876,32 @@ void CDisplayer::OSDWorkMode()
 	switch(osd_params.OSD_workMode)
 	{
 	case 2:
-		chinese_osd(1800,20,L"自动检测",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		chinese_osd(15,105,L"工作模式:自动检测",1,4,0,0,255,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
 		break;
 
 	case 3:
-		chinese_osd(15,105,L"场景选择",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		chinese_osd(15,105,L"工作模式:场景跟踪",1,4,0,0,255,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		chinese_osd(1800,20,L"场景选择",1,4,0,0,255,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
 		break;
 
 	case 4:
-		chinese_osd(1800,20,L"移动转台",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		chinese_osd(15,105,L"工作模式:人工选择目标",1,4,0,0,255,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		chinese_osd(1800,20,L"移动转台",1,4,0,0,255,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
 		break;
 
 	case 5:
-		chinese_osd(1800,20,L"移动波门",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		chinese_osd(15,105,L"工作模式:人工选择目标",1,4,0,0,255,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		chinese_osd(1800,20,L"移动波门",1,4,0,0,255,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
 		break;
 
 	case 6:
-		chinese_osd(1800,20,L"手动检测",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		chinese_osd(15,105,L"工作模式:人工选择目标",1,4,0,0,255,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		chinese_osd(1800,20,L"手动检测",1,4,0,0,255,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
 		break;
 
 	case 7:
-		chinese_osd(15,105,L"场景锁定",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		chinese_osd(15,105,L"工作模式:场景跟踪",1,4,0,0,255,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		chinese_osd(1800,20,L"场景锁定",1,4,0,0,255,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
 		break;
 
 		default:

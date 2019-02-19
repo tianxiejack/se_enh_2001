@@ -191,7 +191,7 @@ void* recv_msg(SENDST *RS422)
 			//}
 			break;
 		case AcqPos:
-			if( pMsg->MtdState[pMsg->SensorStat] )
+			if( pMsg->MtdState[pMsg->SensorStat])
 				break;
 			memcpy(&Racqpos, RS422->param, sizeof(Racqpos));
 			imgID6 = Racqpos.AcqStat;
