@@ -161,6 +161,7 @@ public:
 	PointNode polRect[MAX_CHAN][100];
 	int pol_tempX, pol_tempY, pol_rectn[MAX_CHAN];
 	int setrigon_polygon;
+	static bool motionlessflag;
 protected:
 	MultiChVideo MultiCh;
 	//BigChVideo		BigChannel;

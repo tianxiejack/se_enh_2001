@@ -28,6 +28,7 @@ int CVideoProcess::m_iTrackStat = 0;
 int CVideoProcess::m_iTrackLostCnt = 0;
 int CVideoProcess::m_iSceneTrackStat = 0;
 int CVideoProcess::m_iSceneTrackLostCnt = 0;
+bool CVideoProcess::motionlessflag = false;
 int64 CVideoProcess::tstart = 0;
 static int count=0;
 int ScalerLarge,ScalerMid,ScalerSmall;
@@ -115,15 +116,16 @@ void CVideoProcess::main_proc_func()
 	float speedx,speedy;
 	float optValue;
 	UTC_Rect AcqRect;
-	
+	unsigned int t1 ;
 	static bool Movedetect=false;
 	Point pt1,pt2,erspt1,erspt2,erspt3,erspt4;
 	static UTC_ACQ_param acqRect;
 	CMD_EXT tmpCmd={0};
 	double value;
 	int tmpVal;
-	static bool motionlessflag = false;
-	static char motionlessNum;
+	
+	std::vector<cv::Point2f> sceDetectResult;
+	cv::Point2f tmpSceDetectResult;
 #if 1
 	
 	static int timeFlag = 2;
@@ -138,8 +140,9 @@ void CVideoProcess::main_proc_func()
 
 	static int movex = 0;
 	static int movey = 0;
+	static int sceneJudge;
 	cv::Rect getbound;
-	cv::Rect boundBak[10];
+	
 #endif
 	while(mainProcThrObj.exitProcThread ==  false)
 	{
@@ -191,8 +194,8 @@ void CVideoProcess::main_proc_func()
 		#if __TRACK__
 			iTrackStat = ReAcqTarget();
 			if(Movedetect&&(iTrackStat==0))
-				{
-				}
+			{
+			}
 			int64 trktime = 0;
 			if(algOsdRect == true)
 				trktime = getTickCount();//OSA_getCurTimeInMsec();
@@ -312,23 +315,40 @@ void CVideoProcess::main_proc_func()
 		#if __MOVE_DETECT__
 			if(m_pMovDetector != NULL)
 			{	
- 
 				if(!motionlessflag)
-				{ 					
-					m_sceneObj.optFlowDetect(frame_gray, chId,getbound);	
-					boundBak[motionlessNum++] = getbound ;
-							
-					if(motionlessNum >= 10)
-					{
-						if(boundBak[0] == boundBak[1] && boundBak[1] == boundBak[2] \
-							&& boundBak[2] == boundBak[3] && boundBak[3] == boundBak[4]
-							&& boundBak[4] == boundBak[5] && boundBak[5] == boundBak[6]
-							&& boundBak[6] == boundBak[7] && boundBak[7] == boundBak[8]
-							&& boundBak[8] == boundBak[9])
+				{ 		
+					#if 1
+						if( 0 == sceneJudge )
+							t1 = OSA_getCurTimeInMsec();
+						m_sceneObj.detect(frame_gray, chId);	
+						m_sceneObj.getResult(tmpSceDetectResult);
+						sceDetectResult.push_back(tmpSceDetectResult);
+						if(sceDetectResult.size() >= 5)
+						{
+						
+							if( abs(sceDetectResult[0].x -  sceDetectResult[1].x ) < 1
+								&& abs(sceDetectResult[1].x -  sceDetectResult[2].x ) < 1
+								&& abs(sceDetectResult[2].x -  sceDetectResult[3].x ) < 1
+								&& abs(sceDetectResult[3].x -  sceDetectResult[4].x ) < 1
+								&& abs(sceDetectResult[0].y -  sceDetectResult[1].y ) < 1
+								&& abs(sceDetectResult[1].y -  sceDetectResult[2].y ) < 1
+								&& abs(sceDetectResult[2].y -  sceDetectResult[3].y ) < 1
+								&& abs(sceDetectResult[3].y -  sceDetectResult[4].y ) < 1 )
+							{
+								motionlessflag = true;
+								sceDetectResult.clear();
+							}
+							sceDetectResult.erase(sceDetectResult.begin(),sceDetectResult.begin()+1);
+						}
+						if( sceneJudge > 50 )
 							motionlessflag = true;
-						motionlessNum = 0;
-						memset(boundBak,0,10*sizeof(cv::Rect));
-					}
+					#else
+						if( 0 == sceneJudge )
+							t1 = OSA_getCurTimeInMsec();
+						if( OSA_getCurTimeInMsec() - t1 > 1000)
+							motionlessflag = true;
+					#endif
+					sceneJudge++;
 				}
 				 if(motionlessflag)
 				{
@@ -368,7 +388,8 @@ void CVideoProcess::main_proc_func()
 		}
 		if(!bMoveDetect){
 			motionlessflag = false;
-			motionlessNum = 0;
+			sceneJudge = 0;
+			sceDetectResult.clear();
 		}
 		OnProcess(chId, frame);
 		framecount++;

@@ -1343,7 +1343,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	static int coastCnt = 1;
 	static int bDraw = 0;
 	int color = 0;
-			
+	static unsigned char bdrawMvRect = 0;		
 	static int changesensorCnt = 0;
 
 	if(extInCtrl->changeSensorFlag == 1)
@@ -1773,6 +1773,11 @@ osdindex++;	//acqRect
 		{
 			memcpy(&polwarn_count_bak, &polwarn_count, sizeof(polwarn_count));
 			memcpy(&polWarnRectBak, &polWarnRect, sizeof(polWarnRect));
+
+			if(motionlessflag && bdrawMvRect < 100 )
+				bdrawMvRect++;
+
+			if(bdrawMvRect > 20)
 			for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
 			{
 				polwarn_flag = (i+1)%polwarn_count_bak[mtd_warningbox_Id];
@@ -1865,6 +1870,8 @@ osdindex++;	//acqRect
 
 			Osdflag[osdindex]=1;	
 		}
+		else
+			bdrawMvRect = 0;
 	}
 #endif
 
