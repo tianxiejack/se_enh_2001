@@ -104,14 +104,15 @@ void CProcess::loadIPCParam()
 	pIStuts->PicpSensorStatpri	=	pIStuts->PicpSensorStat = 0xFF;
 	
 	pIStuts->changeSensorFlag = 0;
-	crossBak.x = pIStuts->opticAxisPosX[pIStuts->SensorStat ];
-	crossBak.y = pIStuts->opticAxisPosY[pIStuts->SensorStat ];
+	
 	pIStuts->AvtTrkAimSize= AVT_TRK_AIM_SIZE;
 
 	for(int i = 0; i < MAX_CHAN; i++)
 	{
 		pIStuts->AvtPosX[i] = pIStuts->AxisPosX[i] = pIStuts->opticAxisPosX[i];
 		pIStuts->AvtPosY[i] = pIStuts->AxisPosY[i] = pIStuts->opticAxisPosY[i];
+		crossBak[i].x = pIStuts->opticAxisPosX[i];
+		crossBak[i].y = pIStuts->opticAxisPosY[i];
 	}
 	
 	pIStuts->PicpPosStat = 0;
@@ -1625,16 +1626,16 @@ osdindex++; //sekCorssBak
 osdindex++;	//cross aim
 	{
 		if(changesensorCnt){
-			recIn.x=crossBak.x;
-	 		recIn.y=crossBak.y;
+			recIn.x=crossBak[extInCtrl->SensorStatpri].x;
+	 		recIn.y=crossBak[extInCtrl->SensorStatpri].y;
 			recIn.width = crossWHBak.x;
 			recIn.height = crossWHBak.y;
 			DrawCross(recIn,frcolor,extInCtrl->SensorStatpri,false);
 		}
 		
 	 	if(Osdflag[osdindex]==1){
-			recIn.x=crossBak.x;
-	 		recIn.y=crossBak.y;
+			recIn.x=crossBak[extInCtrl->SensorStat].x;
+	 		recIn.y=crossBak[extInCtrl->SensorStat].y;
 			recIn.width = crossWHBak.x;
 			recIn.height = crossWHBak.y;
 			DrawCross(recIn,frcolor,extInCtrl->SensorStat,false);
@@ -1647,8 +1648,8 @@ osdindex++;	//cross aim
 	 		recIn.y=PiexltoWindowsy(extInCtrl->opticAxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
 			recIn.width = extInCtrl->crossAxisWidth[extInCtrl->SensorStat];
 			recIn.height= extInCtrl->crossAxisHeight[extInCtrl->SensorStat];		
-			crossBak.x = recIn.x;
-			crossBak.y = recIn.y;
+			crossBak[extInCtrl->SensorStat].x = recIn.x;
+			crossBak[extInCtrl->SensorStat].y = recIn.y;
 			crossWHBak.x = recIn.width;
 			crossWHBak.y = recIn.height;
 			
@@ -1666,12 +1667,12 @@ osdindex++;	//cross aim
 osdindex++;	//acqRect
 	{
 		if(changesensorCnt){
-			recIn = acqRectBak;
+			recIn = acqRectBak[extInCtrl->SensorStatpri];
 			DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStatpri],recIn,frcolor,false);
 		}
 
 		if(Osdflag[osdindex]==1){
-			recIn = acqRectBak;
+			recIn = acqRectBak[extInCtrl->SensorStat];
 			if(extInCtrl->SensorStat>=MAX_CHAN)
 				extInCtrl->SensorStat = 1;
 			DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,false);
@@ -1695,7 +1696,7 @@ osdindex++;	//acqRect
 					recIn.x = recIn.x  - recIn.width/2;
 					recIn.y = recIn.y  + recIn.height/2;
 					DrawAcqRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor,true);
-					acqRectBak = recIn;
+					acqRectBak[extInCtrl->SensorStat] = recIn;
 					Osdflag[osdindex]=1;
 			 	}
 			}

@@ -16,9 +16,9 @@ class CProcess : public CVideoProcess
 	UTC_RECT_float rcTrackBak[2],resultTrackBak;
 	TARGET tgBak[MAX_TARGET_NUMBER];
 	TARGETDRAW Mdrawbak[MAX_TARGET_NUMBER];
-	Osd_cvPoint crossBak,sekCrossBak;
+	Osd_cvPoint crossBak[eSen_Max],sekCrossBak;
 	Osd_cvPoint crossWHBak;
-	cv::Rect acqRectBak;
+	cv::Rect acqRectBak[eSen_Max];
 	cv::Rect mtdFrameRectBak;
 	Osd_cvPoint freezecrossBak;
 	Osd_cvPoint crosspicpBak;
