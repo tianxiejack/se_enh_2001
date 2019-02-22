@@ -7,6 +7,8 @@
 #include "sceneProcess.hpp"
 #include <stdio.h>
 
+bool sceneLost;
+
 void CSceneProcess::start()
 {
 	memset(m_cnt,0,sizeof(m_cnt));
@@ -38,7 +40,9 @@ void CSceneProcess::optFlowDetect(const Mat& frame, int chId,cv::Rect &getBound)
 	*(unsigned long long*)frame.data = us;
 	bool bInit = true;
 	if(m_cnt[chId] == 0)
+	{
 		m_obj.optFlowInitSceneLock(frame);
+	}
 	else
 		bInit = m_obj.optFlowCalcSceneLock(frame,getBound);
 
@@ -47,9 +51,21 @@ void CSceneProcess::optFlowDetect(const Mat& frame, int chId,cv::Rect &getBound)
 
 	if(!bInit)
 	{
+			sceneLost = true;
 		printf("optFlowDetect : lost !!! \ n");
 		m_cnt[chId] = 0;
 	}
+	else
+	{
+		static int Sframe;
+		Sframe++;
+		if(Sframe == 20)
+		{
+			sceneLost = false;
+			Sframe = 0;
+		}
+	}
+
 }
 
 void CSceneProcess::optFlowGetResult(cv::Point2f & result)
