@@ -37,6 +37,7 @@ extern OSD_ctrlParams osd_params;
 extern CMD_triangle cmd_triangle;
 extern OSD_param m_osd;
 extern CProcess* plat;
+extern bool sceneLost;
 
 
 double capTime = 0;
@@ -1903,7 +1904,10 @@ void CDisplayer::OSDWorkMode()
 
 	case 7:
 		chinese_osd(x,y,L"工作模式:场景跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		chinese_osd(x1,y,L"状态:跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		if(sceneLost)
+			chinese_osd(x1,y,L"状态:丟失",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+		else
+			chinese_osd(x1,y,L"状态:跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
 		break;
 
 		default:
