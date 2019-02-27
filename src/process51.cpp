@@ -1777,7 +1777,6 @@ osdindex++;	//acqRect
 			if(motionlessflag && bdrawMvRect < 100 )
 				bdrawMvRect++;
 
-			if(bdrawMvRect > 20)
 			for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
 			{
 				polwarn_flag = (i+1)%polwarn_count_bak[mtd_warningbox_Id];
@@ -1839,6 +1838,11 @@ osdindex++;	//acqRect
 			
 			cv::Rect tmp;
 			mouserect recttmp;
+
+			if(bdrawMvRect < HOLDING_NUM )
+				chooseDetect = 20;
+			else if( HOLDING_NUM == bdrawMvRect )
+				chooseDetect = 0;
 			
 			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
