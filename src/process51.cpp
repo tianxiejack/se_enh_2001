@@ -1838,15 +1838,10 @@ osdindex++;	//acqRect
 			
 			cv::Rect tmp;
 			mouserect recttmp;
-
-			if(bdrawMvRect < HOLDING_NUM )
-				chooseDetect = 20;
-			else if( HOLDING_NUM == bdrawMvRect )
-				chooseDetect = 0;
 			
 			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
-				if( chooseDetect == plist->number )
+				if( chooseDetect == plist->number && bdrawMvRect >= HOLDING_NUM )
 					color = 6;
 				else
 					color = 3;
@@ -1861,7 +1856,7 @@ osdindex++;	//acqRect
 					);
 			}
 
-			
+			if( bdrawMvRect >= HOLDING_NUM )
 			{
 				SENDST test;
 				test.cmd_ID = mtdnum;
