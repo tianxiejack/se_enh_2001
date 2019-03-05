@@ -950,16 +950,17 @@ int CVideoProcess::dynamic_config(int type, int iPrm, void* pPrm)
 		break;
 	case VP_CFG_MvDetect:
 		m_bMoveDetect = iPrm;
+		if(m_bMoveDetect)
+			m_sceneObj.start();
 		break;
 	case VP_CFG_SceneTrkEnable:
 		m_bSceneTrack = iPrm;
-		m_iSceneTrackStat = 0;
-		m_iSceneTrackLostCnt = 0;
-		mainProcThrObj.bFirst = true;
-		
-		msgextInCtrl->SceneAvtTrkStat = m_bSceneTrack;
 		if(m_bSceneTrack)
 			m_sceneObj.start();
+		m_iSceneTrackStat = 0;
+		m_iSceneTrackLostCnt = 0;
+		mainProcThrObj.bFirst = true;	
+		msgextInCtrl->SceneAvtTrkStat = m_bSceneTrack;
 		break;
 		
 	default:
