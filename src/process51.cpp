@@ -4,18 +4,17 @@
 #include "vmath.h"
 #include "msgDriv.h"
 #include "app_ctrl.h"
-
 #include "osd_cv.h"
 #include "app_status.h"
 #include "configable.h"
-#include "Ipcctl.h"
-//#include "Ipcctl.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
 #include <algorithm>
 #include <iostream>
+#include "ipc_custom_head.hpp"
 
 OSDSTATUS gConfig_Osd_param = {0};
 UTCTRKSTATUS gConfig_Alg_param = {0};

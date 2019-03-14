@@ -2,13 +2,12 @@
 #ifndef _GLOBAL_STATUS_H_
 #define _GLOBAL_STATUS_H_
 
-#include "Ipcctl.h"
+#include "ipc_custom_head.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-//#include "Ipcctl.h"
 
 #ifndef MTD_TARGET_NUM
 #define MTD_TARGET_NUM  8

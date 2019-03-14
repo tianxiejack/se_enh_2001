@@ -7,6 +7,10 @@
 #include "msgDriv.h"
 #include <sys/time.h>
 
+
+#include "Gststreamercontrl.hpp"
+#include "hahaha.hpp"
+
 using namespace std;
 using namespace cv;
 
@@ -15,6 +19,12 @@ bool startEnable = false;
 int main(int argc, char **argv)
 {
 	struct timeval tv;
+	//gst_init (NULL, NULL);
+
+	//GstreamerContrl* p = GstreamerContrl::getInstance() ;
+
+	//getInstance();
+
 
 	MSGDRIV_create();
 #ifdef __IPC__

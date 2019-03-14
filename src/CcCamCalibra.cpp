@@ -8,7 +8,7 @@
 #include "CcCamCalibra.h"
 #include <sys/time.h>
 #include "configable.h"
-#include "Ipcctl.h"
+#include "ipc_custom_head.hpp"
 
 CamParameters g_camParams;
 OSA_SemHndl m_linkage_getPos;

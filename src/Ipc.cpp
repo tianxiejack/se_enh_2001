@@ -1,4 +1,4 @@
-#include "Ipcctl.h"
+
 #include <string.h>
 #include "osa_thr.h"
 #include "osa_buf.h"
@@ -7,9 +7,9 @@
 #include "configable.h"
 #include "osd_text.hpp"
 #include "msgDriv.h"
-#include "Ipcctl.h"
 #include "locale.h"
 #include "wchar.h"
+#include "ipc_custom_head.hpp"
 
 #define DATAIN_TSK_PRI              (2)
 #define DATAIN_TSK_STACK_SIZE       (0)
@@ -63,6 +63,100 @@ void MSGAPI_msgsend(int cmdID)
    quebuf[0]=cmdID & 0xFF;	
 
    OSA_bufPutFull(&(msgSendBuf), bufId);
+}
+
+int send_msg(SENDST *RS422)
+{
+	if(msgextInCtrl == NULL)
+		return -1;
+
+	unsigned char cmdID = 0;
+	unsigned char imgID1 = 0;
+	unsigned char imgID2 = 0;
+	unsigned char imgID3 = 0;
+	unsigned char imgID4 = 0;
+	unsigned char imgID5 = 0;
+	CMD_EXT pIStuts;
+
+	memcpy(&pIStuts,msgextInCtrl,sizeof(CMD_EXT));
+
+	if(RS422==NULL)
+	{
+		return  -1 ;
+	}
+	cmdID = RS422->cmd_ID;
+	switch (cmdID)
+	{
+		case trk:
+			RS422->param[0] = pIStuts.AvtTrkStat;
+			//printf("ack trk  :  %d\n",pIStuts.TrkStat);
+			break;
+
+		case mmt:
+			RS422->param[0] = pIStuts.MmtStat[pIStuts.SensorStat];
+			//printf("ack mmt  :  %d\n",RS422->param[0]);
+			break;
+
+		case mmtselect:
+			break;
+
+		case enh:
+			RS422->param[0] = pIStuts.ImgEnhStat[pIStuts.SensorStat];
+			//printf("ack enh  :  %d\n",RS422->param[0]);
+			break;
+
+		case mtd:
+			RS422->param[0] = app_ctrl_getMtdStat();
+			//printf("ack mtd  :  %d\n",RS422->param[0]);
+			break;
+
+		case sectrk:
+			RS422->param[0] = pIStuts.AvtTrkStat;
+			//printf("ack sectrk  :  %d\n",RS422->param[0]);
+			break;
+
+		case trkdoor:
+			break;
+
+		case posmove:
+			switch(pIStuts.aimRectMoveStepX)
+			{
+				case 0:
+					RS422->param[0] = 0;
+					break;
+				case 1:
+					RS422->param[0] = 2;
+					break;
+				case -1:
+					RS422->param[0] = 1;
+					break;
+				default:
+					break;
+			}
+			switch(pIStuts.aimRectMoveStepY)
+			{
+				case 0:
+					RS422->param[1] = 0;
+					break;
+				case 1:
+					RS422->param[1] = 2;
+					break;
+				case -1:
+					RS422->param[1] = 1;
+					break;
+				default:
+					break;
+			}
+			//printf("send ++++++++++ AvtMoveXY = (%02x,%02x)  ++++++++++\n",RS422->param[0],RS422->param[1]);
+			break;
+		case sensor:
+			RS422->param[0] = pIStuts.SensorStat;
+		case exit_img:
+			break;
+		default:
+			break;
+	}
+	return 0;
 }
 
 int  send_msgpth(SENDST * RS422)
@@ -623,99 +717,7 @@ void* recv_msg(SENDST *RS422)
 	}
 }
 
-int send_msg(SENDST *RS422)
-{
-	if(msgextInCtrl == NULL)
-		return -1;
-		
-	unsigned char cmdID = 0;
-	unsigned char imgID1 = 0;
-	unsigned char imgID2 = 0;
-	unsigned char imgID3 = 0;
-	unsigned char imgID4 = 0;
-	unsigned char imgID5 = 0;	
-	CMD_EXT pIStuts;
 
-	memcpy(&pIStuts,msgextInCtrl,sizeof(CMD_EXT));
-
-	if(RS422==NULL)
-	{
-		return  -1 ;
-	}
-	cmdID = RS422->cmd_ID;
-	switch (cmdID)
-	{
-		case trk:
-			RS422->param[0] = pIStuts.AvtTrkStat;
-			//printf("ack trk  :  %d\n",pIStuts.TrkStat);
-			break;
-			
-		case mmt:
-			RS422->param[0] = pIStuts.MmtStat[pIStuts.SensorStat];
-			//printf("ack mmt  :  %d\n",RS422->param[0]);
-			break;
-			
-		case mmtselect:
-			break;
-			
-		case enh:
-			RS422->param[0] = pIStuts.ImgEnhStat[pIStuts.SensorStat];
-			//printf("ack enh  :  %d\n",RS422->param[0]);			
-			break;
-			
-		case mtd:
-			RS422->param[0] = app_ctrl_getMtdStat();
-			//printf("ack mtd  :  %d\n",RS422->param[0]);			
-			break;
-			
-		case sectrk:
-			RS422->param[0] = pIStuts.AvtTrkStat;
-			//printf("ack sectrk  :  %d\n",RS422->param[0]);						
-			break;
-			
-		case trkdoor:
-			break;	
-		
-		case posmove:
-			switch(pIStuts.aimRectMoveStepX)
-			{
-				case 0:
-					RS422->param[0] = 0;
-					break;
-				case 1:
-					RS422->param[0] = 2;
-					break;
-				case -1:
-					RS422->param[0] = 1;
-					break;
-				default:
-					break;		
-			}
-			switch(pIStuts.aimRectMoveStepY)
-			{
-				case 0:
-					RS422->param[1] = 0;
-					break;
-				case 1:
-					RS422->param[1] = 2;
-					break;
-				case -1:
-					RS422->param[1] = 1;
-					break;
-				default:
-					break;		
-			}
-			//printf("send ++++++++++ AvtMoveXY = (%02x,%02x)  ++++++++++\n",RS422->param[0],RS422->param[1]);				
-			break;
-		case sensor:
-			RS422->param[0] = pIStuts.SensorStat;	
-		case exit_img:					
-			break;
-		default:
-			break;
-	}
-	return 0;
-}
 
 static void * ipc_dataRecv(Void * prm)
 {
@@ -740,15 +742,13 @@ static void * ipc_dataSend(Void * prm)
 
 void Ipc_pthread_start(void)
 {
-	int shm_perm[IPC_MAX];
-	shm_perm[IPC_SHA] = shm_rdwr;
-	shm_perm[IPC_OSD_SHA] = shm_rdwr;
-	shm_perm[IPC_UTCTRK_SHA] = shm_rdonly;	
-	shm_perm[IPC_LKOSD_SHA] = shm_rdonly;
-	shm_perm[IPC_OSDTEXT_SHA] = shm_rdwr;
 	Ipc_init();
-	Ipc_create(shm_perm);
-
+	int ret = Ipc_create();
+	if(-1 == ret)
+	{
+		printf("error : give error param \n");
+	}
+		
 	initmessage();
 	OSA_thrCreate(&thrHandleDataIn_recv,
                       ipc_dataRecv,

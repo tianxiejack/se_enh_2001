@@ -10,7 +10,7 @@
 #include "opencv2/highgui/highgui.hpp"
 
 #include "app_ctrl.h"
-#include "Ipcctl.h"
+#include "ipc_custom_head.hpp"
 #include "osd_cv.h"
 
 using namespace vmath;
