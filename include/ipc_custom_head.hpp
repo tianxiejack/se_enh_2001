@@ -994,8 +994,8 @@ static void Ipc_init()
 	IpcHandl[IPC_SEM].name = DEFAULTPATH;
 	IpcHandl[IPC_SEM].Identify = IPC_SEM;
 	IpcHandl[IPC_SEM].Class = IPC_Class_SEM;	
-	IpcHandl[IPC_TOIMG_MSG].IPCID = 0;
-	IpcHandl[IPC_TOIMG_MSG].ptr = NULL;
+	IpcHandl[IPC_SEM].IPCID = 0;
+	IpcHandl[IPC_SEM].ptr = NULL;
 
 	return;
 }
