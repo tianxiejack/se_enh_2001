@@ -596,6 +596,7 @@ typedef struct
 	volatile unsigned int  TrkErrFeedback;  	// eTrkMode 
 
 	volatile unsigned int SceneAvtTrkStat; 
+	volatile unsigned int PatternDetect;
 
 	volatile float  trkerrx;
 	volatile float  trkerry;	
@@ -611,7 +612,7 @@ typedef struct
 	volatile unsigned int  ImgZoomStat[ipc_eSen_Max];   	
 	volatile unsigned int  ImgEnhStat[ipc_eSen_Max];    	
 	volatile unsigned int  ImgBlobDetect[ipc_eSen_Max];    
-	volatile unsigned int  ImgFrezzStat[ipc_eSen_Max];    	
+	volatile unsigned int  ImgFrezzStat[ipc_eSen_Max];
 	volatile unsigned int  ImgVideoTrans[ipc_eSen_Max]; 
 	volatile unsigned int  ImgPicp[ipc_eSen_Max];   	
 
@@ -627,7 +628,7 @@ typedef struct
 	volatile unsigned char  MtdState[ipc_eSen_Max];	//record moving obj detect state of each channel
 	volatile unsigned int  MtdSelect[ipc_eSen_Max];
 	volatile unsigned int  MtdSetRigion;
-	
+		
 	/***** cmd osd part *****/
 	volatile unsigned int  DispGrp[ipc_eSen_Max];       	// eDispGrade
 	volatile unsigned int  DispColor[ipc_eSen_Max];  	// eOSDColor or eGRPColor

@@ -12,8 +12,8 @@ enum devvideo{
 	video_gaoqing,
 	video_gaoqing2,
 	video_gaoqing3,
-	video_pal,
 	MAX_CHAN,
+	video_pal,
 };
 
 #define MAIN_CHID					video_gaoqing

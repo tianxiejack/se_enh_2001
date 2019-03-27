@@ -15,6 +15,11 @@
 #include "CcCamCalibra.h"
 #include "sceneProcess.hpp"
 
+#include "DetecterFactory.hpp"
+#include "Detector.hpp"
+
+
+
 typedef struct
 {
 	int x;
@@ -35,6 +40,7 @@ typedef struct _main_thr_obj_cxt{
 	bool bTrack;
 	bool bMtd;
 	bool bMoveDetect;
+	bool bPatternDetect;
 	bool bSceneTrack;
 	int chId;
 	int iTrackStat;
@@ -99,6 +105,7 @@ public:
 		VP_CFG_SubPicpChId,
 		VP_CFG_MvDetect,
 		VP_CFG_SceneTrkEnable,
+		VP_CFG_PatterDetectEnable,
 		VP_CFG_Max
 	}VP_CFG;
 	int dynamic_config(int type, int iPrm, void* pPrm = NULL);
@@ -165,22 +172,28 @@ public:
 protected:
 	MultiChVideo MultiCh;
 	//BigChVideo		BigChannel;
-	
 	int adaptiveThred;
+	
+	Detector * detectornew;
+	std::vector<BoundingBox> trackbox;
+	std::vector<BoundingBox> algbox;
+	std::vector<BoundingBox> algboxBK;
+	std::vector<std::string> model;
+	std::vector<cv::Size> modelsize;
 
 	UTCTRACK_HANDLE m_track;
 
-	
 	static bool m_bTrack;
 	static bool m_bMtd;			// old singla for mmt : multi target detect
 	static bool m_bBlobDetect;
 	static bool m_bMoveDetect;
 	static bool m_bSceneTrack;
+	static bool m_bPatterDetect;
 	static int m_iTrackStat;
 	static int m_iTrackLostCnt;
 	static int m_iSceneTrackStat;
 	static int m_iSceneTrackLostCnt;
-
+	
 	Uint32 rememtime;
 	bool rememflag;
 	int m_curChId;
