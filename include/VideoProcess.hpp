@@ -169,6 +169,10 @@ public:
 	int pol_tempX, pol_tempY, pol_rectn[MAX_CHAN];
 	int setrigon_polygon;
 	static bool motionlessflag;
+
+	
+	unsigned int PatternDetect;
+	
 protected:
 	MultiChVideo MultiCh;
 	//BigChVideo		BigChannel;

@@ -143,7 +143,8 @@ void CVideoProcess::main_proc_func()
 	static int movey = 0;
 	static int sceneJudge;
 	cv::Rect getbound;
-	
+	unsigned int patternTime,pTime;
+	unsigned int count;
 #endif
 	while(mainProcThrObj.exitProcThread ==  false)
 	{
@@ -391,8 +392,22 @@ void CVideoProcess::main_proc_func()
 
 		if(bPatternDetect)
 		{
-			
-			detectornew->detect(frame,algbox,trackbox);		
+			if(!count)
+				patternTime = 0;
+			pTime = OSA_getCurTimeInMsec();
+			detectornew->detect(frame,algbox,trackbox);
+			patternTime += OSA_getCurTimeInMsec() - pTime ;
+			count++;
+
+			if( 10 == count )
+			{
+				printf("patternDetect avg Time : %f \n",(double)patternTime/10);
+				count = 0;
+			}
+		}
+		else
+		{
+			count = 0;
 		}
 
 		

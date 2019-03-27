@@ -1986,6 +1986,11 @@ unsigned int drawpolyRectId ;
 		pol_draw = 0;
 	}
 
+	for(int i=0; i<algboxBK.size(); i++)
+	{
+		cv::Rect r = algboxBK[i];
+		rectangle(m_display.m_imgOsd[extInCtrl->SensorStat], r.tl(), r.br(), Scalar(0,0,0,0), 3);
+	}
 	if(m_bPatterDetect)
 		drawPatternRect();
 	
@@ -1999,11 +2004,6 @@ unsigned int drawpolyRectId ;
 
 void CProcess::drawPatternRect()
 {
-	for(int i=0; i<algboxBK.size(); i++)
-	{
-		cv::Rect r = algboxBK[i];
-		rectangle(m_display.m_imgOsd[extInCtrl->SensorStat], r.tl(), r.br(), Scalar(0,0,0,0), 3);
-	}
 	algboxBK = algbox;
 	for(int i=0; i<algboxBK.size(); i++)
 	{
@@ -2095,10 +2095,10 @@ void CProcess::OnKeyDwn(unsigned char key)
 		
 	if (key == 'l' || key == 'L')
 	{
-		if(pIStuts->PatternDetect)
-			pIStuts->PatternDetect = eImgAlg_Disable;
+		if(PatternDetect)
+			PatternDetect = eImgAlg_Disable;
 		else
-			pIStuts->PatternDetect = eImgAlg_Enable;
+			PatternDetect = eImgAlg_Enable;
 		msgdriv_event(MSGID_EXT_PATTERNDETECT, NULL);
 	}
 
@@ -2869,16 +2869,10 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 
 	if( msgId == MSGID_EXT_PATTERNDETECT )
 	{
-	 	if(prm != NULL)
-		{
-			pInCmd = (CMD_EXT *)prm;
-			pIStuts->PatternDetect = pInCmd->PatternDetect;
-		}		
-		if (pIStuts->PatternDetect == eTrk_mode_acq)
+		if (PatternDetect == eTrk_mode_acq)
 			dynamic_config(VP_CFG_PatterDetectEnable, 0);
-		else if(pIStuts->PatternDetect == eTrk_mode_target)
+		else if(PatternDetect == eTrk_mode_target)
 			dynamic_config(VP_CFG_PatterDetectEnable, 1);
-
 	}
 	
 	

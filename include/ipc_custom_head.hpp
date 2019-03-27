@@ -596,7 +596,6 @@ typedef struct
 	volatile unsigned int  TrkErrFeedback;  	// eTrkMode 
 
 	volatile unsigned int SceneAvtTrkStat; 
-	volatile unsigned int PatternDetect;
 
 	volatile float  trkerrx;
 	volatile float  trkerry;	
