@@ -16,7 +16,7 @@ enum devvideo{
 	video_pal,
 };
 
-#define MAIN_CHID					video_gaoqing
+#define MAIN_CHID					video_gaoqing0
 #define PAL_VIRCHID					0
 
 #define VIDEO_DIS_WIDTH		1920

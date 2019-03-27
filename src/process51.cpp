@@ -2004,11 +2004,15 @@ unsigned int drawpolyRectId ;
 
 void CProcess::drawPatternRect()
 {
+	//algboxBK = trackbox;
 	algboxBK = algbox;
 	for(int i=0; i<algboxBK.size(); i++)
 	{
-		cv::Rect r = algboxBK[i];
-		rectangle(m_display.m_imgOsd[extInCtrl->SensorStat], r.tl(), r.br(), Scalar(255,0,0,255), 3);
+		//if( 1 == algboxBK[i].trackstatus )
+		{
+			cv::Rect r = algboxBK[i];
+			rectangle(m_display.m_imgOsd[extInCtrl->SensorStat], r.tl(), r.br(), Scalar(255,0,0,255), 3);
+		}
 	}
 	return ;
 }
