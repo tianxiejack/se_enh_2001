@@ -1092,6 +1092,7 @@ int CVideoProcess::run()
 	
 	#if __TRACK__
 	m_track = CreateUtcTrk();
+	UtcSetAxisSech(m_track , false);
 	#endif
 	
 	for(int i=0; i<MAX_CHAN; i++){
