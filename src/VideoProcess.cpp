@@ -144,7 +144,7 @@ void CVideoProcess::main_proc_func()
 	static int sceneJudge;
 	cv::Rect getbound;
 	unsigned int patternTime,pTime;
-	unsigned int count;
+
 #endif
 	while(mainProcThrObj.exitProcThread ==  false)
 	{
@@ -392,25 +392,9 @@ void CVideoProcess::main_proc_func()
 
 		if(bPatternDetect)
 		{
-			if(!count)
-				patternTime = 0;
-			pTime = OSA_getCurTimeInMsec();
-			detectornew->detect(frame,algbox,trackbox);
-			patternTime += OSA_getCurTimeInMsec() - pTime ;
-			count++;
-
-			if( 10 == count )
-			{
-				printf("patternDetect avg Time : %f \n",(double)patternTime/10);
-				count = 0;
-			}
-		}
-		else
-		{
-			count = 0;
+			detectornew->detectasync(frame);
 		}
 
-		
 		if(!bMoveDetect){
 			motionlessflag = false;
 			sceneJudge = 0;
@@ -513,6 +497,8 @@ int CVideoProcess::creat()
 
 	MAIN_threadCreate();
 	OSA_mutexCreate(&m_mutex);
+	OSA_mutexCreate(&m_algboxLock);
+	OSA_mutexCreate(&m_trackboxLock);
 	OnCreate();
 
 	
@@ -535,14 +521,18 @@ int CVideoProcess::creat()
 	detectornew->dynamicsetparam(Detector::DETECTFREQUENCY,1);
 	detectornew->dynamicsetparam(Detector::DETECTNOTRACK,0);
 	detectornew->getversion();
+	detectornew->setasyncdetect(detectcall,trackcall);
 
 	return 0;
 }
+
 
 int CVideoProcess::destroy()
 {
 	stop();
 	OSA_mutexDelete(&m_mutex);
+	OSA_mutexDelete(&m_algboxLock);
+	OSA_mutexDelete(&m_trackboxLock);
 	MAIN_threadDestroy();
 
 	MultiCh.destroy();
@@ -1568,5 +1558,25 @@ void CVideoProcess::getImgRioDelta(unsigned char* pdata,int width ,int height,UT
 	Idelta = Idelta/(rio.width*rio.height);
 	*value = Idelta;
 }
+
+
+void CVideoProcess::detectcall(vector<BoundingBox>& algbox)
+{
+
+	pThis->m_algbox.clear();
+	OSA_mutexLock(&pThis->m_algboxLock);
+	pThis->m_algbox.insert(pThis->m_algbox.begin(),algbox.begin(),algbox.end());
+	OSA_mutexUnlock(&pThis->m_algboxLock);
+}
+
+void CVideoProcess::trackcall(vector<BoundingBox>& trackbox)
+{
+	pThis->m_trackbox.clear();
+	OSA_mutexLock(&pThis->m_trackboxLock);
+	pThis->m_trackbox.insert(pThis->m_trackbox.begin(),trackbox.begin(),trackbox.end());
+	OSA_mutexUnlock(&pThis->m_trackboxLock);
+}
+
+
 
 

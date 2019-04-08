@@ -172,6 +172,10 @@ public:
 
 	
 	unsigned int PatternDetect;
+
+	
+	static void detectcall(vector<BoundingBox>& algbox);
+	static void trackcall(vector<BoundingBox>& trackbox);
 	
 protected:
 	MultiChVideo MultiCh;
@@ -179,8 +183,8 @@ protected:
 	int adaptiveThred;
 	
 	Detector * detectornew;
-	std::vector<BoundingBox> trackbox;
-	std::vector<BoundingBox> algbox;
+	std::vector<BoundingBox> m_trackbox;
+	std::vector<BoundingBox> m_algbox;
 	std::vector<BoundingBox> algboxBK;
 	std::vector<std::string> model;
 	std::vector<cv::Size> modelsize;
@@ -259,6 +263,7 @@ protected:
 	
 private:
 	OSA_MutexHndl m_mutex;
+	OSA_MutexHndl m_algboxLock,m_trackboxLock;
 //	unsigned char *m_grayMem[2];
 	char m_strDisplay[128];
 	void main_proc_func();

@@ -2005,7 +2005,7 @@ unsigned int drawpolyRectId ;
 void CProcess::drawPatternRect()
 {
 	//algboxBK = trackbox;
-	algboxBK = algbox;
+	algboxBK = m_algbox;
 	for(int i=0; i<algboxBK.size(); i++)
 	{
 		//if( 1 == algboxBK[i].trackstatus )

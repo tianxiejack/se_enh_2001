@@ -32,12 +32,13 @@ struct BoundingBox : public cv::Rect {
 		  int overlaytarckid;
 		  int speed;
 		  /*strategy*/
+		  int classid;
 		};
+typedef void (* DetectboxCallback)(std::vector<BoundingBox> &boxs);
 class Detector{
 public:
 	typedef enum {
-			
-		MAXTRACKNUM,
+			MAXTRACKNUM,
 		}DetectParam;
 		typedef enum {
 					DETECTMOD,
@@ -66,6 +67,9 @@ public:
 	virtual void setparam(DetectParam id,std::string value)DETECTOR_PURE_VIRTUAL;
 	virtual void dynamicsetparam(DetectDyParam id,int value)DETECTOR_PURE_VIRTUAL;
 	virtual void getversion();
+	virtual void setasyncdetect(DetectboxCallback detectfun,DetectboxCallback trackfun){};
+	virtual void detectasync(cv::Mat src,cv::Rect roi=cv::Rect(0,0,0,0),bool useroi=false);
+	
 
 };
 
