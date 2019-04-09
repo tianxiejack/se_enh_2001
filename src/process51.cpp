@@ -1985,14 +1985,38 @@ unsigned int drawpolyRectId ;
 		}
 		pol_draw = 0;
 	}
-	
 
+	for(int i=0; i<algboxBK.size(); i++)
+	{
+		cv::Rect r = algboxBK[i];
+		rectangle(m_display.m_imgOsd[extInCtrl->SensorStat], r.tl(), r.br(), Scalar(0,0,0,0), 3);
+	}
+	if(m_bPatterDetect)
+		drawPatternRect();
+	
 	static unsigned int count = 0;
 	if((count & 1) == 1)
 		OSA_semSignal(&(sThis->m_display.tskdisSemmain));
 	count++;
 	return true;
 }
+
+
+void CProcess::drawPatternRect()
+{
+	//algboxBK = trackbox;
+	algboxBK = m_algbox;
+	for(int i=0; i<algboxBK.size(); i++)
+	{
+		//if( 1 == algboxBK[i].trackstatus )
+		{
+			cv::Rect r = algboxBK[i];
+			rectangle(m_display.m_imgOsd[extInCtrl->SensorStat], r.tl(), r.br(), Scalar(255,0,0,255), 3);
+		}
+	}
+	return ;
+}
+
 
 static inline void my_rotate(GLfloat result[16], float theta)
 {
@@ -2073,6 +2097,14 @@ void CProcess::OnKeyDwn(unsigned char key)
 		backflag = true;
 	}
 		
+	if (key == 'l' || key == 'L')
+	{
+		if(PatternDetect)
+			PatternDetect = eImgAlg_Disable;
+		else
+			PatternDetect = eImgAlg_Enable;
+		msgdriv_event(MSGID_EXT_PATTERNDETECT, NULL);
+	}
 
 	if (key == 'k' || key == 'K')
 	{
@@ -2107,6 +2139,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 			
 			msgdriv_event(MSGID_EXT_INPUT_ENFREZZ, NULL);
 		}
+	
 	if (key == 'p'|| key == 'P')
 		{
 			msgdriv_event(MSGID_EXT_INPUT_PICPCROP, NULL);
@@ -2837,6 +2870,14 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			dynamic_config(VP_CFG_SceneTrkEnable, 1);
 
 	}
+
+	if( msgId == MSGID_EXT_PATTERNDETECT )
+	{
+		if (PatternDetect == eTrk_mode_acq)
+			dynamic_config(VP_CFG_PatterDetectEnable, 0);
+		else if(PatternDetect == eTrk_mode_target)
+			dynamic_config(VP_CFG_PatterDetectEnable, 1);
+	}
 	
 	
 }
@@ -2875,7 +2916,8 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_CFGSAVE,            MSGAPI_SaveCfgcmd,              0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECT,             	MSGAPI_setMtdState,             0);
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTSELECT,           MSGAPI_setMtdSelect,            0);	
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_ALG,             	MSGAPI_update_alg,              0);	
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_PATTERNDETECT,            MSGAPI_setMtdState,             0);
+	MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_ALG,             	MSGAPI_update_alg,              0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_OSD,             	MSGAPI_update_osd,              0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_CAMERA,            MSGAPI_update_camera,           0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ALGOSDRECT,         MSGAPI_input_algosdrect,        0);	
@@ -2972,6 +3014,12 @@ void CProcess::MSGAPI_setMtdState(long lParam )
 {
 	sThis->msgdriv_event(MSGID_EXT_MVDETECT,NULL);
 }
+
+void CProcess::MSGAPI_setPatternDetect(long lParam )
+{
+	sThis->msgdriv_event(MSGID_EXT_PATTERNDETECT,NULL);
+}
+
 void CProcess::MSGAPI_setMtdSelect(long lParam )
 {
 

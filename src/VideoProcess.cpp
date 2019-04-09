@@ -24,6 +24,7 @@ bool CVideoProcess::m_bTrack = false;
 bool CVideoProcess::m_bMtd = false;
 bool CVideoProcess::m_bMoveDetect = false;
 bool CVideoProcess::m_bSceneTrack = false;
+bool CVideoProcess::m_bPatterDetect = false;
 int CVideoProcess::m_iTrackStat = 0;
 int CVideoProcess::m_iTrackLostCnt = 0;
 int CVideoProcess::m_iSceneTrackStat = 0;
@@ -142,7 +143,8 @@ void CVideoProcess::main_proc_func()
 	static int movey = 0;
 	static int sceneJudge;
 	cv::Rect getbound;
-	
+	unsigned int patternTime,pTime;
+
 #endif
 	while(mainProcThrObj.exitProcThread ==  false)
 	{
@@ -152,6 +154,7 @@ void CVideoProcess::main_proc_func()
 		bool bTrack = mainProcThrObj.cxt[mainProcThrObj.pp^1].bTrack;
 		bool bMtd = mainProcThrObj.cxt[mainProcThrObj.pp^1].bMtd;
 		bool bMoveDetect = mainProcThrObj.cxt[mainProcThrObj.pp^1].bMoveDetect;
+		bool bPatternDetect = mainProcThrObj.cxt[mainProcThrObj.pp^1].bPatternDetect;
 		int chId = mainProcThrObj.cxt[mainProcThrObj.pp^1].chId;
 		int iTrackStat = mainProcThrObj.cxt[mainProcThrObj.pp^1].iTrackStat;
 
@@ -167,7 +170,7 @@ void CVideoProcess::main_proc_func()
 		if(!OnPreProcess(chId, frame))
 			continue;
 
-		if(!m_bTrack && !m_bMtd &&!m_bMoveDetect&&!m_bSceneTrack){
+		if(!m_bTrack && !m_bMtd &&!m_bMoveDetect&&!m_bSceneTrack&&!m_bPatterDetect){
 			OnProcess(chId, frame);
 			continue;
 		}
@@ -386,11 +389,18 @@ void CVideoProcess::main_proc_func()
 			}
 			
 		}
+
+		if(bPatternDetect)
+		{
+			detectornew->detectasync(frame);
+		}
+
 		if(!bMoveDetect){
 			motionlessflag = false;
 			sceneJudge = 0;
 			sceDetectResult.clear();
 		}
+		
 		OnProcess(chId, frame);
 		framecount++;
 
@@ -464,6 +474,8 @@ CVideoProcess::CVideoProcess()
 	memset(polwarn_count, 0, sizeof(polwarn_count));
 	memset(polwarn_count_bak, 0, sizeof(polwarn_count_bak));
 	setrigon_polygon = 0;
+
+
 }
 
 CVideoProcess::~CVideoProcess()
@@ -485,6 +497,8 @@ int CVideoProcess::creat()
 
 	MAIN_threadCreate();
 	OSA_mutexCreate(&m_mutex);
+	OSA_mutexCreate(&m_algboxLock);
+	OSA_mutexCreate(&m_trackboxLock);
 	OnCreate();
 
 	
@@ -493,13 +507,32 @@ int CVideoProcess::creat()
 		m_pMovDetector = MvDetector_Create();
 	OSA_assert(m_pMovDetector != NULL);
 #endif
+
+
+	model.push_back(string("config/yolo_v3_tiny.yml"));
+	modelsize.push_back(Size(1920,1080));
+	
+	detectornew = DetectorFactory::getinstance()->createDetector(DetectorFactory::DEEPLEARNDETECTOR);
+
+	detectornew->setparam(Detector::MAXTRACKNUM,20);
+	detectornew->init(model,modelsize);
+	detectornew->dynamicsetparam(Detector::DETECTSCALE100x,100);
+	detectornew->dynamicsetparam(Detector::DETECTMOD,1);
+	detectornew->dynamicsetparam(Detector::DETECTFREQUENCY,1);
+	detectornew->dynamicsetparam(Detector::DETECTNOTRACK,0);
+	detectornew->getversion();
+	detectornew->setasyncdetect(detectcall,trackcall);
+
 	return 0;
 }
+
 
 int CVideoProcess::destroy()
 {
 	stop();
 	OSA_mutexDelete(&m_mutex);
+	OSA_mutexDelete(&m_algboxLock);
+	OSA_mutexDelete(&m_trackboxLock);
 	MAIN_threadDestroy();
 
 	MultiCh.destroy();
@@ -962,7 +995,9 @@ int CVideoProcess::dynamic_config(int type, int iPrm, void* pPrm)
 		mainProcThrObj.bFirst = true;	
 		msgextInCtrl->SceneAvtTrkStat = m_bSceneTrack;
 		break;
-		
+	case VP_CFG_PatterDetectEnable:
+		m_bPatterDetect = iPrm;
+		break;
 	default:
 		break;
 	}
@@ -1047,6 +1082,7 @@ int CVideoProcess::run()
 	
 	#if __TRACK__
 	m_track = CreateUtcTrk();
+	UtcSetAxisSech(m_track , false);
 	#endif
 	
 	for(int i=0; i<MAX_CHAN; i++){
@@ -1275,6 +1311,7 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 			mainProcThrObj.cxt[mainProcThrObj.pp].iTrackStat = m_iTrackStat;
 			mainProcThrObj.cxt[mainProcThrObj.pp].bSceneTrack= m_bSceneTrack;
 			mainProcThrObj.cxt[mainProcThrObj.pp].iSceneTrackStat = m_iSceneTrackStat;
+			mainProcThrObj.cxt[mainProcThrObj.pp].bPatternDetect = m_bPatterDetect;
 			mainProcThrObj.cxt[mainProcThrObj.pp].chId = chId;
 			if(mainProcThrObj.bFirst){
 				mainFrame[mainProcThrObj.pp^1] = frame;
@@ -1282,8 +1319,9 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 				mainProcThrObj.cxt[mainProcThrObj.pp^1].bMtd = m_bMtd;
 				mainProcThrObj.cxt[mainProcThrObj.pp^1].bMoveDetect = m_bMoveDetect;
 				mainProcThrObj.cxt[mainProcThrObj.pp^1].iTrackStat = m_iTrackStat;
-				mainProcThrObj.cxt[mainProcThrObj.pp].bSceneTrack= m_bSceneTrack;
-				mainProcThrObj.cxt[mainProcThrObj.pp].iSceneTrackStat = m_iSceneTrackStat;
+				mainProcThrObj.cxt[mainProcThrObj.pp^1].bSceneTrack= m_bSceneTrack;
+				mainProcThrObj.cxt[mainProcThrObj.pp^1].iSceneTrackStat = m_iSceneTrackStat;
+				mainProcThrObj.cxt[mainProcThrObj.pp^1].bPatternDetect = m_bPatterDetect;
 				mainProcThrObj.cxt[mainProcThrObj.pp^1].chId = chId;
 				mainProcThrObj.bFirst = false;
 			}
@@ -1520,5 +1558,25 @@ void CVideoProcess::getImgRioDelta(unsigned char* pdata,int width ,int height,UT
 	Idelta = Idelta/(rio.width*rio.height);
 	*value = Idelta;
 }
+
+
+void CVideoProcess::detectcall(vector<BoundingBox>& algbox)
+{
+
+	pThis->m_algbox.clear();
+	OSA_mutexLock(&pThis->m_algboxLock);
+	pThis->m_algbox.insert(pThis->m_algbox.begin(),algbox.begin(),algbox.end());
+	OSA_mutexUnlock(&pThis->m_algboxLock);
+}
+
+void CVideoProcess::trackcall(vector<BoundingBox>& trackbox)
+{
+	pThis->m_trackbox.clear();
+	OSA_mutexLock(&pThis->m_trackboxLock);
+	pThis->m_trackbox.insert(pThis->m_trackbox.begin(),trackbox.begin(),trackbox.end());
+	OSA_mutexUnlock(&pThis->m_trackboxLock);
+}
+
+
 
 

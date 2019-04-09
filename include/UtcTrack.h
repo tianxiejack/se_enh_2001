@@ -368,4 +368,28 @@ void UtcSetTrkAngleThred(UTCTRACK_OBJ *pUtcTrkObj, float trkAngleThred);
  * 搜索过程中使能高可信度判断
  */
 void UtcSetTrkHighOpt(UTCTRACK_OBJ *pUtcTrkObj, bool bHighOpt);
+/*
+ * default
+ * _bEnhScene = false
+ * 使能场景区域增强
+ */
+void UtcSetSceneEnh(UTCTRACK_OBJ *pUtcTrkObj, bool bEnhScene);
+/*
+ * default
+ * _nrxScene = 2;
+ * _nrxScene = 2;
+ * 设置场景区域增强宏块大小
+ */
+void UtcSetSceneEnhMacro(UTCTRACK_OBJ *pUtcTrkObj, unsigned int	 nrxScene, unsigned int nryScene);
+/*
+ *
+ * 向算法通知私服水平和俯仰方向的速度，单位是像素
+ */
+void UtcNotifyServoSpeed(UTCTRACK_OBJ *pUtcTrkObj, float speedx, float speedy);
+/*
+ * default
+ * _bAxisSech = true
+ * 是否使能靶心搜索
+ */
+void UtcSetAxisSech(UTCTRACK_OBJ *pUtcTrkObj, bool bAxisSech);
 #endif

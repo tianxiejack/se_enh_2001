@@ -60,6 +60,7 @@ public:
 	void OnMouseRightUp(int x, int y);
 	void OnKeyDwn(unsigned char key);
 	void OnSpecialKeyDwn(int key,int x, int y);
+	void drawPatternRect();
 
 	
 	CMD_EXT* extInCtrl;
@@ -137,6 +138,7 @@ protected:
 	static void MSGAPI_handle_mvUpdate(long lParam);
 	static void MSGAPI_INPUT_SCENETRK(long lParam);
 
+	static void MSGAPI_setPatternDetect(long lParam);
 
 private:
 	ACK_EXT extOutAck;

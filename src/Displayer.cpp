@@ -803,7 +803,7 @@ void extractUYVY2Gray1(Mat src, Mat dst)
 	}
 }
 
-#if 0
+#if 1
 void CDisplayer::display(Mat frame, int chId, int code)
 {
 	static int saveCount = 0;
@@ -1359,7 +1359,8 @@ static unsigned int firdupcount=800;
 
 static unsigned int tvclearbuffer=1;
 static unsigned int firclearbuffer=1;
-#if 0
+
+#if 1
 void CDisplayer::gl_textureLoad(void)
 {
 		
