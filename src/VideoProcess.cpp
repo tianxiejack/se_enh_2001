@@ -1484,7 +1484,7 @@ void	CVideoProcess::initMvDetect()
 		polyWarnRoi[3]	= cv::Point(recttmp.x,recttmp.y+recttmp.h);
 
 		m_pMovDetector->setWarnMode(WARN_WARN_MODE, i);
-		//m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
+		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
 	}
 
 		recttmp.x = Mtd_Frame.detectArea_X - Mtd_Frame.detectArea_wide/2;

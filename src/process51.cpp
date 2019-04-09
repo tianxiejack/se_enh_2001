@@ -1756,7 +1756,10 @@ osdindex++;	//acqRect
 			{	
 				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
-	
+				if((*plist).trkobj.trk_frames < 30 )
+				{		
+					printf("\n\n&&&&&&&&&&&&&&   trk_frames = %d    &&&&&&&&&&&&&&&\n\n",(*plist).trkobj.trk_frames);
+				}
 				sprintf(trkFPSDisplay, "%2d", (*plist).number);
 				putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
 					Point(tmp.x, tmp.y),
