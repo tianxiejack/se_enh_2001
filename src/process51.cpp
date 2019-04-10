@@ -3832,7 +3832,6 @@ void CProcess::MSGAPI_handle_mvAera(long lParam)
 	sThis->polWarnRect[sThis->extInCtrl->SensorStat][2].x = tmp.x ;
 	sThis->polWarnRect[sThis->extInCtrl->SensorStat][2].y = tmp.y ;
 
-
 	tmp.x = cx - w/2;
 	tmp.y = cy + h/2;
 	if(tmp.x < 0 )
@@ -3844,7 +3843,7 @@ void CProcess::MSGAPI_handle_mvAera(long lParam)
 	sThis->polWarnRect[sThis->extInCtrl->SensorStat][3].y = tmp.y ;
 
 	sThis->polwarn_count[sThis->extInCtrl->SensorStat] = 4 ; 
-	
+
 	pThis->m_pMovDetector->setWarningRoi( polyWarnRoi, sThis->extInCtrl->SensorStat );
 }
 

@@ -509,44 +509,18 @@ void app_ctrl_mtdParamHandle(CMD_Mtd_Frame * pInParam)
 		return ;
 
 	CMD_EXT *pIStuts = msgextInCtrl;
-		
-	if( pInParam->areaSetBox != Mtd_Frame.areaSetBox )
-	{
-		Mtd_Frame.areaSetBox = pInParam->areaSetBox;
-	}
 
-	if(pInParam->detectArea_high != Mtd_Frame.detectArea_high   
-		|| pInParam->detectArea_wide != Mtd_Frame.detectArea_wide
-		|| pInParam->detectArea_X != Mtd_Frame.detectArea_X
-		|| pInParam->detectArea_Y != Mtd_Frame.detectArea_Y)
-	{	
-		#if 0
-		if( (pInParam->detectArea_X + pInParam->detectArea_wide/2 < vdisWH[pIStuts->SensorStat][0])
-			&& (pInParam->detectArea_Y+ pInParam->detectArea_high/2 < vdisWH[pIStuts->SensorStat][1])
-			&& (pInParam->detectArea_X - pInParam->detectArea_wide/2 > 0)
-			&& (pInParam->detectArea_X - pInParam->detectArea_wide/2 > 0))
-		#endif
-		{
-			Mtd_Frame.detectArea_X = pInParam->detectArea_X;
-			Mtd_Frame.detectArea_Y= pInParam->detectArea_Y;
-			Mtd_Frame.detectArea_wide = pInParam->detectArea_wide;
-			Mtd_Frame.detectArea_high  = pInParam->detectArea_high;	
-			MSGDRIV_send(MSGID_EXT_MVDETECTAERA, 0);
-		}		
-	}	
+	Mtd_Frame.areaSetBox = pInParam->areaSetBox;
+	Mtd_Frame.detectArea_X = pInParam->detectArea_X;
+	Mtd_Frame.detectArea_Y= pInParam->detectArea_Y;
+	Mtd_Frame.detectArea_wide = pInParam->detectArea_wide;
+	Mtd_Frame.detectArea_high  = pInParam->detectArea_high;
+	MSGDRIV_send(MSGID_EXT_MVDETECTAERA, 0);
 
-	if(pInParam->detectNum != Mtd_Frame.detectNum)
-	{
-		if(pInParam->detectNum <= 10)
-			Mtd_Frame.detectNum = pInParam->detectNum;
-	}
+	if(pInParam->detectNum <= 10)
+		Mtd_Frame.detectNum = pInParam->detectNum;
 
-	if(pInParam->detectSpeed != Mtd_Frame.detectSpeed)	
-	{
-		Mtd_Frame.detectSpeed = pInParam->detectSpeed;
-	}
-
-	if(pInParam->priority != Mtd_Frame.priority)
+	Mtd_Frame.detectSpeed = pInParam->detectSpeed;
 	{
 		Mtd_Frame.priority = pInParam->priority;
 		/*
@@ -558,33 +532,16 @@ void app_ctrl_mtdParamHandle(CMD_Mtd_Frame * pInParam)
 			6. aera min
 		*/
 	}
+	if(!pInParam->sensitivityThreshold)
+		Mtd_Frame.sensitivityThreshold = 16;
+	else
+		Mtd_Frame.sensitivityThreshold = pInParam->sensitivityThreshold;
 
-	if(pInParam->sensitivityThreshold != Mtd_Frame.sensitivityThreshold)
-	{
-		if(!pInParam->sensitivityThreshold)
-			Mtd_Frame.sensitivityThreshold = 16;
-		else
-			Mtd_Frame.sensitivityThreshold = pInParam->sensitivityThreshold;
-	}
-
-	if(pInParam->tmpMaxPixel != Mtd_Frame.tmpMaxPixel)
-	{
 		Mtd_Frame.tmpMaxPixel = pInParam->tmpMaxPixel;
-		
-	}
-
-	if(pInParam->tmpMinPixel != Mtd_Frame.tmpMinPixel)
-	{
 		Mtd_Frame.tmpMinPixel = pInParam->tmpMinPixel;
-		
-	}
-
-	if(pInParam->tmpUpdateSpeed != Mtd_Frame.tmpUpdateSpeed)
-	{
 		Mtd_Frame.tmpUpdateSpeed = pInParam->tmpUpdateSpeed ;
 		MSGDRIV_send(MSGID_EXT_MVDETECTUPDATE, 0);
-	}
-	
+
 	return ;
 }
 
