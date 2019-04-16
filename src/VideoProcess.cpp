@@ -13,6 +13,8 @@
 #include "ipc_custom_head.hpp"
 #include "osd_cv.h"
 
+typedef Rect_<double> Rect2d;
+
 using namespace vmath;
 extern CMD_EXT *msgextInCtrl;
 extern CMD_Mtd_Frame Mtd_Frame;
@@ -124,6 +126,7 @@ void CVideoProcess::main_proc_func()
 	CMD_EXT tmpCmd={0};
 	double value;
 	int tmpVal;
+	bool retFlag;
 	
 	std::vector<cv::Point2f> sceDetectResult;
 	cv::Point2f tmpSceDetectResult;
@@ -143,8 +146,10 @@ void CVideoProcess::main_proc_func()
 	static int movey = 0;
 	static int sceneJudge;
 	cv::Rect getbound;
+	Rect2d getSceneRect,SceneRectInit;
+	static int channelId;
 	unsigned int patternTime,pTime;
-
+	unsigned int timePoint;
 #endif
 	while(mainProcThrObj.exitProcThread ==  false)
 	{
@@ -170,10 +175,24 @@ void CVideoProcess::main_proc_func()
 		if(!OnPreProcess(chId, frame))
 			continue;
 
+		if(!m_bMoveDetect){
+			motionlessflag = false;
+			sceneJudge = 0;
+			sceDetectResult.clear();
+		}
+
+		if(!m_bSceneTrack)
+		{
+			channelId = 0;
+			getSceneRectBK.width = 0;
+		}
+		
+
 		if(!m_bTrack && !m_bMtd &&!m_bMoveDetect&&!m_bSceneTrack&&!m_bPatterDetect){
 			OnProcess(chId, frame);
 			continue;
 		}
+		
 
 		if(chId != m_curChId)
 			continue;
@@ -360,34 +379,48 @@ void CVideoProcess::main_proc_func()
 			}
 		#endif
 		}
-		else if( bSceneTrack)
+		else if( bSceneTrack )
 		{	
-			#if 0
-				m_sceneObj.detect(frame_gray, chId);		
-				m_sceneObj.getResult(tmpPoint);
-			#else
-		
-				//drawcvrect(m_display.m_imgOsd[msgextInCtrl->SensorStat],getbound.x,getbound.y,getbound.width,getbound.height,0);
-				m_sceneObj.optFlowDetect(frame_gray, chId,getbound);
-				//m_sceneObj.optFlowGetResult(tmpPoint);
-				//drawcvrect(m_display.m_imgOsd[msgextInCtrl->SensorStat],getbound.x,getbound.y,getbound.width,getbound.height,2);
-				tmpPoint.x = (float)(getbound.x + getbound.width/2 - msgextInCtrl->opticAxisPosX[msgextInCtrl->SensorStat]); 
-				tmpPoint.y = (float)(getbound.y + getbound.height/2 - msgextInCtrl->opticAxisPosY[msgextInCtrl->SensorStat]);
-				
-			#endif
+			if(channelId < 10)
+				channelId++;
 
-			//send IPC
-			if( getbound.width && getbound.height && getbound.x && getbound.y )
-			{
-				SENDST scenetrk;
-				scenetrk.cmd_ID = sceneTrk;
-				tmpVal = msgextInCtrl->SceneAvtTrkStat;
-				memcpy(&scenetrk.param[0] ,&tmpVal, 4);
-				memcpy(&scenetrk.param[4] ,&tmpPoint.x , 4);
-				memcpy(&scenetrk.param[8] ,&tmpPoint.y , 4);
-				ipc_sendmsg(&scenetrk, IPC_FRIMG_MSG);
+			if( 1 == channelId )
+			{	
+				SceneRectInit.x = vcapWH[chId][0]/3;
+				SceneRectInit.y = vcapWH[chId][1]/3;
+				SceneRectInit.width = vcapWH[chId][0]*1/3;
+				SceneRectInit.height = vcapWH[chId][1]*1/3;
+				m_sceneObj.sceneLockInit( frame_gray , SceneRectInit);
 			}
-			
+			else
+			{
+				retFlag = m_sceneObj.sceneLockProcess( frame_gray, getSceneRect );
+
+				if(!retFlag)
+					printf(" warning : scene Lost !!!\n");
+					
+				if( retFlag )
+				{
+					getSceneRectBK = getSceneRect;
+				}
+	
+				tmpPoint.x = (float)(getSceneRectBK.x + getSceneRectBK.width/2 - msgextInCtrl->opticAxisPosX[msgextInCtrl->SensorStat]); 
+				tmpPoint.y = (float)(getSceneRectBK.y + getSceneRectBK.height/2 - msgextInCtrl->opticAxisPosY[msgextInCtrl->SensorStat]);	
+
+				
+				
+				//send IPC
+				if( getSceneRectBK.width && getSceneRectBK.height && getSceneRectBK.x && getSceneRectBK.y )
+				{
+					SENDST scenetrk;
+					scenetrk.cmd_ID = sceneTrk;
+					tmpVal = msgextInCtrl->SceneAvtTrkStat;
+					memcpy(&scenetrk.param[0] ,&tmpVal, 4);
+					memcpy(&scenetrk.param[4] ,&tmpPoint.x , 4);
+					memcpy(&scenetrk.param[8] ,&tmpPoint.y , 4);
+					//ipc_sendmsg(&scenetrk, IPC_FRIMG_MSG);
+				}	
+			}	
 		}
 
 		if(bPatternDetect)
@@ -395,11 +428,6 @@ void CVideoProcess::main_proc_func()
 			detectornew->detectasync(frame);
 		}
 
-		if(!bMoveDetect){
-			motionlessflag = false;
-			sceneJudge = 0;
-			sceDetectResult.clear();
-		}
 		
 		OnProcess(chId, frame);
 		framecount++;

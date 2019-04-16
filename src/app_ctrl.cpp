@@ -550,7 +550,7 @@ void app_ctrl_setSceneTrk(CMD_EXT * pInCmd)
 	if(msgextInCtrl==NULL)
 		return ;
 	CMD_EXT *pIStuts = msgextInCtrl;
-
+	
 	if (pInCmd->SceneAvtTrkStat != pIStuts->SceneAvtTrkStat)
 	{
 		pIStuts->SceneAvtTrkStat = pInCmd->SceneAvtTrkStat;

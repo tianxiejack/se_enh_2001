@@ -1344,7 +1344,8 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	int color = 0;
 	static unsigned char bdrawMvRect = 0;		
 	static int changesensorCnt = 0;
-
+	static cv::Rect sceneBak;
+	
 	if(extInCtrl->changeSensorFlag == 1)
 		++changesensorCnt;
 	if(changesensorCnt == 3){
@@ -1701,6 +1702,28 @@ osdindex++;	//acqRect
 			}
 		}
 	}
+
+	osdindex++;
+	{
+		if(Osdflag[osdindex])
+		{
+			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],sceneBak,0);
+			Osdflag[osdindex]=0;
+		}
+		if(m_bSceneTrack)
+		{
+			sceneBak.x = (int)getSceneRectBK.x;
+			sceneBak.y = (int)getSceneRectBK.y;
+			sceneBak.width = (int)getSceneRectBK.width;
+			sceneBak.height = (int)getSceneRectBK.height;
+	//printf("getSceneRectBK  x,y,w,h = (%f,%f,%f,%f)\n",
+	//	getSceneRectBK.x,getSceneRectBK.y,getSceneRectBK.width,getSceneRectBK.height);
+
+			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],sceneBak,3);
+			Osdflag[osdindex]=1;
+		}
+	}
+
 
 	osdindex++;
 	{
@@ -2092,7 +2115,13 @@ void CProcess::OnKeyDwn(unsigned char key)
 
 	if (key == 'e' || key == 'E')
 	{
-		forwardflag = true;
+		if(pIStuts->SceneAvtTrkStat == eTrk_mode_acq )
+			pIStuts->SceneAvtTrkStat = eTrk_mode_target;
+		else
+			pIStuts->SceneAvtTrkStat = eTrk_mode_acq;
+
+
+		MSGDRIV_send(MSGID_EXT_INPUT_SCENETRK, 0); 
 	}
 
 	if (key == 'f' || key == 'F')

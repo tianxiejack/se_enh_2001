@@ -318,6 +318,7 @@ public:
 #endif
 public:
 	CSceneProcess m_sceneObj;
+	Rect2d getSceneRectBK;
 
 };
 

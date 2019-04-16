@@ -10,11 +10,17 @@
 
 #include "sceneProc.hpp"
 #include "configable.h"
+#include "MedianFlowTrk.hpp"
+
+using namespace OptFlowTrk;
 
 class CSceneProcess
 {
 public :
-	SceneProc m_obj;
+	CSceneProcess();
+	virtual	~CSceneProcess();
+	
+	SceneProc m_sceneProcObj;
 	int m_curChId;
 	cv::Size m_imgSize[MAX_CHAN];
 	unsigned long m_cnt[MAX_CHAN];
@@ -25,10 +31,15 @@ public :
 
 	//void optFlowDetect(const Mat& frame, int chId);
 	void optFlowGetResult(cv::Point2f & result);
-	void optFlowDetect(const Mat& frame, int chId,cv::Rect &getBound);
+	
+	bool sceneLockInit(const Mat& frame,Rect2d &getBound);
+	bool sceneLockProcess(const Mat& frame , Rect2d &getBound);
 
+	cv::Ptr<MedianFlowTracker> m_mediaFlowObj;
 private:
 	cv::Point2f calcErr;
+	Rect2d InitRect,secInitRect;
+	bool m_lostHandleFlag;
 };
 
 
