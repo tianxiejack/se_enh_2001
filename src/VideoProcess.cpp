@@ -427,7 +427,10 @@ void CVideoProcess::main_proc_func()
 
 		if(bPatternDetect)
 		{
-			detectornew->detectasync(frame);
+			
+			#if __PATTERN_DETECT__
+				detectornew->detectasync(frame);
+			#endif
 		}
 
 		
@@ -541,7 +544,8 @@ int CVideoProcess::creat()
 
 	model.push_back(string("config/yolo_v3_tiny.yml"));
 	modelsize.push_back(Size(1920,1080));
-	
+
+#if __PATTERN_DETECT__
 	detectornew = DetectorFactory::getinstance()->createDetector(DetectorFactory::DEEPLEARNDETECTOR);
 
 	detectornew->setparam(Detector::MAXTRACKNUM,20);
@@ -552,7 +556,7 @@ int CVideoProcess::creat()
 	detectornew->dynamicsetparam(Detector::DETECTNOTRACK,0);
 	detectornew->getversion();
 	detectornew->setasyncdetect(detectcall,trackcall);
-
+#endif
 	return 0;
 }
 
