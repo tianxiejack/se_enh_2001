@@ -12,7 +12,7 @@ bool sceneLost;
 CSceneProcess::CSceneProcess():m_lostHandleFlag(false)
 {
 	MedianFlowTracker::Params parameters;
-	parameters.pointsInGrid = 25;
+	parameters.pointsInGrid = 20;
 	m_mediaFlowObj = MedianFlowTracker::CreateMedianFlowTrk();
 }
 
@@ -56,7 +56,7 @@ bool CSceneProcess::sceneLockProcess(const Mat& frame , Rect2d &getBound)
 	bool ret = false;
 	ret = m_mediaFlowObj->update( frame, getBound );
 
-	if(getBound.x < 0 || getBound.x + getBound.width > 1920 || getBound.y < 0 || getBound.y + getBound.height > 1080 )
+	if(getBound.x < 0 || getBound.x + getBound.width > frame.cols || getBound.y < 0 || getBound.y + getBound.height > frame.rows )
 			m_lostHandleFlag = true;
 
 	if(m_lostHandleFlag)
@@ -67,16 +67,16 @@ bool CSceneProcess::sceneLockProcess(const Mat& frame , Rect2d &getBound)
 			secInitRect.x = 0;
 			secInitRect.width = getBound.x + getBound.width;
 		}
-		else if(getBound.x + getBound.width > 1920)
-			secInitRect.width = 1920 - getBound.x;
+		else if(getBound.x + getBound.width > frame.cols)
+			secInitRect.width = frame.cols - getBound.x;
 		else{
 			if( getBound.width <= InitRect.width ){
 				if(getBound.x + getBound.width <= InitRect.width){
 					secInitRect.x = 0;
 					secInitRect.width = getBound.x + getBound.width;
 				}
-				else if(getBound.x  > 1920 - InitRect.width)
-					secInitRect.width = 1920 - secInitRect.x; 				
+				else if(getBound.x  > frame.cols - InitRect.width)
+					secInitRect.width = frame.cols - secInitRect.x;
 			}
 		}
 
@@ -85,23 +85,36 @@ bool CSceneProcess::sceneLockProcess(const Mat& frame , Rect2d &getBound)
 			secInitRect.y = 0;
 			secInitRect.height = getBound.y + getBound.height;
 		}
-		else if(getBound.y + getBound.height > 1080)
-			secInitRect.height = 1080 - getBound.x;
+		else if(getBound.y + getBound.height > frame.rows)
+			secInitRect.height = frame.rows - getBound.x;
 		else{
 			if( getBound.height <= InitRect.height ){
 				if(getBound.y + getBound.height <= InitRect.height){
 					secInitRect.y = 0;
 					secInitRect.height = getBound.y + getBound.height;
 				}
-				else if(getBound.y  > 1080 - InitRect.height)
-					secInitRect.height = 1080 - secInitRect.y; 
+				else if(getBound.y  > frame.rows - InitRect.height)
+					secInitRect.height = frame.rows - secInitRect.y;
 			}
 		}
 
 		if( secInitRect.width == InitRect.width && secInitRect.height == InitRect.height )
 			m_lostHandleFlag = false;
 		
-		m_mediaFlowObj->init( frame , secInitRect );			
+		m_mediaFlowObj->init( frame , secInitRect );	
+
+		if( secInitRect.width < InitRect.width ){
+			if( secInitRect.x < 0.001 )
+				getBound.x = secInitRect.width - InitRect.width;
+			else
+				getBound.width = InitRect.width;
+		}
+		if( secInitRect.height < InitRect.height ){
+			if( secInitRect.y < 0.001 )
+				getBound.y = secInitRect.height - InitRect.height;
+			else
+				getBound.height = InitRect.height;
+		}	
 	}
 	return ret;
 }

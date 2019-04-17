@@ -386,16 +386,18 @@ void CVideoProcess::main_proc_func()
 
 			if( 1 == channelId )
 			{	
-				SceneRectInit.x = vcapWH[chId][0]/3;
-				SceneRectInit.y = vcapWH[chId][1]/3;
-				SceneRectInit.width = vcapWH[chId][0]*1/3;
-				SceneRectInit.height = vcapWH[chId][1]*1/3;
+				SceneRectInit.x = vcapWH[chId][0]/4;
+				SceneRectInit.y = vcapWH[chId][1]/4;
+				SceneRectInit.width = vcapWH[chId][0]*1/2;
+				SceneRectInit.height = vcapWH[chId][1]*1/2;
 				m_sceneObj.sceneLockInit( frame_gray , SceneRectInit);
 			}
 			else
 			{
+				unsigned long int t1 = cv::getTickCount();
 				retFlag = m_sceneObj.sceneLockProcess( frame_gray, getSceneRect );
-
+				unsigned long int t2 = cv::getTickCount();
+				printf("  cost time = %d \n",(t2 - t1)/1000000);
 				if(!retFlag)
 					printf(" warning : scene Lost !!!\n");
 					
@@ -418,7 +420,7 @@ void CVideoProcess::main_proc_func()
 					memcpy(&scenetrk.param[0] ,&tmpVal, 4);
 					memcpy(&scenetrk.param[4] ,&tmpPoint.x , 4);
 					memcpy(&scenetrk.param[8] ,&tmpPoint.y , 4);
-					//ipc_sendmsg(&scenetrk, IPC_FRIMG_MSG);
+					ipc_sendmsg(&scenetrk, IPC_FRIMG_MSG);
 				}	
 			}	
 		}
