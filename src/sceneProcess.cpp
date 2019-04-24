@@ -13,7 +13,8 @@ CSceneProcess::CSceneProcess():m_lostHandleFlag(false)
 {
 	MedianFlowTracker::Params parameters;
 	parameters.pointsInGrid = 20;
-	m_mediaFlowObj = MedianFlowTracker::CreateMedianFlowTrk();
+	parameters.bZoomHalf = true;
+	m_mediaFlowObj = MedianFlowTracker::CreateMedianFlowTrk(parameters);
 }
 
 CSceneProcess::~CSceneProcess()

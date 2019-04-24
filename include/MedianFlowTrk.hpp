@@ -20,6 +20,7 @@ public:
 	{
 	    Params();
 	    int pointsInGrid;
+	    bool bZoomHalf;//shrink image
 	};
 
 	virtual ~MedianFlowTracker();

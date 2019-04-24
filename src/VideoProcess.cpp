@@ -397,7 +397,7 @@ void CVideoProcess::main_proc_func()
 				unsigned long int t1 = cv::getTickCount();
 				retFlag = m_sceneObj.sceneLockProcess( frame_gray, getSceneRect );
 				unsigned long int t2 = cv::getTickCount();
-				printf("  cost time = %d \n",(t2 - t1)/1000000);
+				printf("  cost time = %f \n",(t2 - t1)/getTickFrequency()*1000);
 				if(!retFlag)
 					printf(" warning : scene Lost !!!\n");
 					
