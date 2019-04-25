@@ -1775,20 +1775,10 @@ osdindex++;	//acqRect
 			cv::Rect tmp;
 			mouserect recttmp;
 		
-			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
+			for(std::vector<TRK_RECT_INFO>::iterator plist = detect_bak.begin(); plist != detect_bak.end(); ++plist)
 			{	
-				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
+				memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
-				//if((*plist).trkobj.trk_frames < 30 )
-				//{		
-				//	printf("\n\n&&&&&&&&&&&&&&   trk_frames = %d    &&&&&&&&&&&&&&&\n\n",(*plist).trkobj.trk_frames);
-				//}
-				sprintf(trkFPSDisplay, "%2d", (*plist).number);
-				putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
-					Point(tmp.x, tmp.y),
-					FONT_HERSHEY_TRIPLEX,1,
-					cvScalar(0,0,0,0), 1
-					);
 			}
 		
 			Osdflag[osdindex]=0;
@@ -1799,8 +1789,8 @@ osdindex++;	//acqRect
 			memcpy(&polwarn_count_bak, &polwarn_count, sizeof(polwarn_count));
 			memcpy(&polWarnRectBak, &polWarnRect, sizeof(polWarnRect));
 
-			if(motionlessflag && bdrawMvRect < 100 )
-				bdrawMvRect++;
+			//if(motionlessflag && bdrawMvRect < 100 )
+			//	bdrawMvRect++;
 
 			for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
 			{
@@ -1813,9 +1803,9 @@ osdindex++;	//acqRect
 			}
 			
 			detect_bak = detect_vect;
-
-			getTargetNearToCenter();
-			mvIndexHandle(mvList,detect_bak,Mtd_Frame.detectNum);
+#if 0
+			//getTargetNearToCenter();
+			//mvIndexHandle(mvList,detect_bak,Mtd_Frame.detectNum);
 
 			if(forwardflag)
 			{
@@ -1860,36 +1850,16 @@ osdindex++;	//acqRect
 					break;
 			}
 			#endif
-			
+			#endif	
 			cv::Rect tmp;
 			mouserect recttmp;
-			
-			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
+		
+			for(std::vector<TRK_RECT_INFO>::iterator plist = detect_bak.begin(); plist != detect_bak.end(); ++plist)
 			{	
-				if( chooseDetect == plist->number && bdrawMvRect >= HOLDING_NUM )
-					color = 6;
-				else
-					color = 3;
-				memcpy((void*)&tmp,(void *)&((*plist).trkobj.targetRect),sizeof(cv::Rect));
+				color = 6;
+
+				memcpy((void*)&tmp,(void *)&((*plist).targetRect),sizeof(cv::Rect));
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,color);
-
-				sprintf(trkFPSDisplay, "%2d", (*plist).number);
-				putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
-					Point(tmp.x, tmp.y),
-					FONT_HERSHEY_TRIPLEX,1,
-					cvScalar(255,255,0,255), 1
-					);
-			}
-
-			if( bdrawMvRect >= HOLDING_NUM )
-			{
-				SENDST test;
-				test.cmd_ID = mtdnum;
-				if(mvList.size())
-					test.param[0] = 1;
-				else
-					test.param[0] = 0;
-				ipc_sendmsg(&test, IPC_FRIMG_MSG);
 			}
 
 			Osdflag[osdindex]=1;	

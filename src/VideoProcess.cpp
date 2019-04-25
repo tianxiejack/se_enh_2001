@@ -214,6 +214,11 @@ void CVideoProcess::main_proc_func()
 		if(bTrack)
 		{
 		#if __TRACK__
+
+		static unsigned int t1,t2,t3;
+
+			t1 = OSA_getCurTimeInMsec();
+			
 			iTrackStat = ReAcqTarget();
 			if(Movedetect&&(iTrackStat==0))
 			{
@@ -221,22 +226,18 @@ void CVideoProcess::main_proc_func()
 			int64 trktime = 0;
 			if(algOsdRect == true)
 				trktime = getTickCount();//OSA_getCurTimeInMsec();
-			if(m_iTrackStat==2)
-			{
-				//m_searchmod=1;
-			}
-			else
-			{
-				m_searchmod=0;
-			}
+
 			m_iTrackStat = process_track(iTrackStat, frame_gray, frame_gray, m_rcTrack);
 
+			printf("track process_track cost time : %u \n",OSA_getCurTimeInMsec()-t1);
+
+#if 0
 			putText(m_display.m_imgOsd[msgextInCtrl->SensorStat],trkINFODisplay,
 				Point( 10, 25),
 				FONT_HERSHEY_TRIPLEX,0.8,
 				cvScalar(0,0,0,0), 1
 			);
-#if 0
+
 			sprintf(trkINFODisplay, "trkStatus:%u,trkErrorX=%f,trkErrorY=%f",
 				iTrackStat,m_rcTrack.x,m_rcTrack.y);
 			putText(m_display.m_imgOsd[msgextInCtrl->SensorStat],trkINFODisplay,
@@ -249,6 +250,9 @@ void CVideoProcess::main_proc_func()
 
 			UtcGetSceneMV(m_track, &speedx, &speedy);
 			UtcGetOptValue(m_track, &optValue);
+			t2 = OSA_getCurTimeInMsec();
+
+			printf("track cost time : %u \n",t2 -t1);
 			
 			if(m_iTrackStat == 2)
 				m_iTrackLostCnt++;
