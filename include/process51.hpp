@@ -44,6 +44,8 @@ public:
 public:
 	CProcess();
 	~CProcess();
+	int SaveTestConfig();
+	int ReadTestConfig();
 	void loadIPCParam();
 	void OnCreate();
 	void OnDestroy();
@@ -131,7 +133,6 @@ protected:
 	 static void MSGAPI_update_osd(long IParam);
 	 static void MSGAPI_update_alg(long IParam);
 	 static void MSGAPI_update_camera(long IParam);
-	 static void MSGAPI_input_algosdrect(long lParam);
 	 static void MSGAPI_setMtdSelect(long lParam );
 	 
 	static void MSGAPI_handle_mvAera(long lParam);
@@ -166,10 +167,6 @@ private:
 
 	void DrawRect(Mat frame,cv::Rect rec,int frcolor);
 	void DrawAcqRect(cv::Mat frame,cv::Rect rec,int frcolor,bool bshow);
-
-	void initAcqRect();
-	void initAimRect();
-	void set_trktype(CMD_EXT *p, unsigned int stat);
 
 	#if __MOVE_DETECT__
 	void mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_RECT_INFO> &detect,int detectNum);

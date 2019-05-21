@@ -11,12 +11,10 @@ RM := rm -rf
 -include subdir.mk
 -include src/subdir.mk
 -include src/OSD_CR/subdir.mk
--include src/OSD/subdir.mk
 -include src/OSA_CAP/src/subdir.mk
 -include src/MSGDRI/subdir.mk
+-include src/IPC/subdir.mk
 -include src/GST/compress/subdir.mk
--include src/DXUTC/subdir.mk
--include src/APP/subdir.mk
 
 OS_SUFFIX := $(subst Linux,linux,$(subst Darwin/x86_64,darwin,$(shell uname -s)/$(shell uname -m)))
 
@@ -59,19 +57,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: 322sub
+all: avt22_sub
 
 # Tool invocations
-322sub: $(OBJS) $(USER_OBJS)
+avt22_sub: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: NVCC Linker'
-	/usr/local/cuda-8.0/bin/nvcc --cudart static -L/usr/lib/aarch64-linux-gnu -L/usr/lib/aarch64-linux-gnu/tegra -L/usr/local/cuda-8.0/targets/aarch64-linux-gnu/lib -Xlinker -rpath=/usr/lib/aarch64-linux-gnu/tegra --relocatable-device-code=false -gencode arch=compute_20,code=compute_20 -gencode arch=compute_20,code=sm_20 -m64 -ccbin aarch64-linux-gnu-g++ -link -o  "322sub" $(OBJS) $(USER_OBJS) $(LIBS)
+	/usr/local/cuda-8.0/bin/nvcc --cudart static -L/usr/lib/aarch64-linux-gnu -L/usr/lib/aarch64-linux-gnu/tegra -L/usr/local/cuda-8.0/targets/aarch64-linux-gnu/lib -Xlinker -rpath=/usr/lib/aarch64-linux-gnu/tegra --relocatable-device-code=false -gencode arch=compute_20,code=compute_20 -gencode arch=compute_20,code=sm_20 -m64 -ccbin aarch64-linux-gnu-g++ -link -o  "avt22_sub" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(CU_DEPS)$(OBJS)$(C++_DEPS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) 322sub
+	-$(RM) $(CU_DEPS)$(OBJS)$(C++_DEPS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) avt22_sub
 	-@echo ' '
 
 .PHONY: all clean dependents

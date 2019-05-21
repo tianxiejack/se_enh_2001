@@ -6,7 +6,7 @@
 #include "app_ctrl.h"
 #include "osd_cv.h"
 #include "app_status.h"
-#include "configable.h"
+#include "configtable.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,20 +14,20 @@
 #include <limits.h>
 #include <algorithm>
 #include <iostream>
-#include "ipc_custom_head.hpp"
+#include "Ipc.hpp"
 
-OSDSTATUS gConfig_Osd_param = {0};
-UTCTRKSTATUS gConfig_Alg_param = {0};
 extern int ScalerLarge,ScalerMid,ScalerSmall;
 extern LinkagePos_t linkagePos; 
-extern CMD_Mtd_Frame Mtd_Frame;
+extern OSDSTATUS gSYS_Osd;
+ALG_CONFIG_Trk gCFG_Trk = {0};
+ALG_CONFIG_Mtd gCFG_Mtd = {0};
+ALG_CONFIG_Enh gCFG_Enh = {0};
+ALG_CONFIG_Mmt gCFG_Mmt = {0};
 CProcess * CProcess::sThis = NULL;
 CProcess* plat = NULL;
-int glosttime;
 
 OSA_SemHndl g_linkage_getPos;
 
-SENDST trkmsg={0};
 void inputtmp(unsigned char cmdid)
 {
 	plat->OnKeyDwn(cmdid);
@@ -61,7 +61,7 @@ void getMtdxy(int &x,int &y,int &w,int &h)
 
 CProcess::CProcess()
 {	
-	extInCtrl = (CMD_EXT*)ipc_getimgstatus_p();
+	extInCtrl = (CMD_EXT*)OSA_memAlloc(sizeof(CMD_EXT));
 	memset(extInCtrl,0,sizeof(CMD_EXT));
 	msgextInCtrl = extInCtrl;
 	sThis = this;
@@ -70,7 +70,92 @@ CProcess::CProcess()
 
 CProcess::~CProcess()
 {
+	if(extInCtrl != NULL)
+	{
+		OSA_memFree(extInCtrl);
+		extInCtrl = NULL;
+	}
+
 	sThis=NULL;
+}
+
+int CProcess::SaveTestConfig()
+{
+	float *testConfig = NULL;
+	testConfig = (float *)OSA_memAlloc( 4*CFGID_FEILD_MAX*CFGID_BLOCK_MAX );
+	cfg_dbg_setDefault(testConfig);
+
+	printf("-----------save config------\n");
+	string cfgAvtFile;
+	int configId_Max = CFGID_FEILD_MAX*CFGID_BLOCK_MAX;
+	char  cfg_avt[30] = "cfg_avt_";
+	cfgAvtFile = "/home/ubuntu/nsight_project/Profile_init.yml";
+
+	FileStorage fr(cfgAvtFile, FileStorage::WRITE);
+	if(fr.isOpened())
+	{
+		for(int i=0; i<configId_Max; i++)
+		{
+			sprintf(cfg_avt, "cfg_avt_%03d_%02d", (i/CFGID_FEILD_MAX), (i%CFGID_FEILD_MAX));
+			float value = testConfig[i];
+			fr<< cfg_avt << value;
+		}
+	}
+	else
+	{
+		printf("-----------save failed-----------\n");
+	}
+	OSA_memFree(testConfig);
+	return 0;
+}
+
+int CProcess::ReadTestConfig()
+{
+	float *testConfig = (float *)OSA_memAlloc( 4*CFGID_FEILD_MAX*CFGID_BLOCK_MAX );
+	unsigned char *testUser = (unsigned char *)OSA_memAlloc( USEROSD_LENGTH*CFGID_USEROSD_MAX );
+
+	string cfgAvtFile, str;
+	int configId_Max = CFGID_FEILD_MAX*CFGID_BLOCK_MAX;
+	char  cfg_avt[30] = "cfg_avt_";
+	cfgAvtFile = "/home/ubuntu/nsight_project/Profile_init.yml";
+
+	memset(testConfig, 0, 4*CFGID_FEILD_MAX*CFGID_BLOCK_MAX);
+	memset(testUser, 0, USEROSD_LENGTH*CFGID_USEROSD_MAX);
+	FileStorage fr(cfgAvtFile, FileStorage::READ);
+	if(fr.isOpened())
+	{
+		for(int i=0; i<configId_Max; i++)
+		{
+			int blkId = (i/CFGID_FEILD_MAX);
+			int feildId = (i%CFGID_FEILD_MAX);
+			int usrosdId = -1;
+			sprintf(cfg_avt, "cfg_avt_%03d_%02d", blkId, feildId);
+			if((blkId >= CFGID_OSD_BKID) && (blkId <= CFGID_OSD_BKID + 15))
+				usrosdId = blkId - CFGID_OSD_BKID;
+			else if((blkId >= CFGID_OSD2_BKID) && (blkId <= CFGID_OSD2_BKID + 15))
+				usrosdId = blkId - CFGID_OSD2_BKID + 16;
+			if((usrosdId >= 0) && (i == CFGID_OSD_CONTENT(usrosdId) || i == CFGID_OSD2_CONTENT(usrosdId)))
+			{
+				str = (string)fr[cfg_avt];
+				//cout<<"read i="<<i<<"!!str="<<str<<endl;
+				str.copy((char *)(testUser+usrosdId*USEROSD_LENGTH), str.length()<USEROSD_LENGTH?str.length():USEROSD_LENGTH, 0);
+			}
+			else
+			{
+				float value = fr[cfg_avt];
+				testConfig[i] = value;
+			}
+		}
+		fr.release();
+	}
+	else
+	{
+		printf("[get params]open YML failed\n");
+	}
+	cfg_dbg_getDefault(testConfig, testUser);
+	OSA_memFree(testConfig);
+	OSA_memFree(testUser);
+	return 0;
 }
 
 void CProcess::loadIPCParam()
@@ -115,7 +200,6 @@ void CProcess::loadIPCParam()
 	}
 	
 	pIStuts->PicpPosStat = 0;
-	pIStuts->validChId = MAIN_CHID;
 	pIStuts->FovStat=1;
 
 	pIStuts->FrCollimation=2;
@@ -148,13 +232,9 @@ void CProcess::loadIPCParam()
 	rendpos[3].w=vdisWH[0][0]/3;
 	rendpos[3].h=vdisWH[0][1]/3;
 
+	cfg_ctrl_acqReset(pIStuts);
 	update_param_osd();
 
-	pIStuts->DispGrp[0] = 1;
-	pIStuts->DispGrp[1] = 1;
-	pIStuts->DispColor[0]=2;
-	pIStuts->DispColor[1]=2;
-	
 	pIStuts->SceneAvtTrkStat = 0;
 
 	m_tempXbak = m_tempYbak = 0;
@@ -414,8 +494,7 @@ int onece=0;
 void CProcess::osd_mtd_show(TARGET tg[], bool bShow)
 {
 	int i;
-	
-	int frcolor=extInCtrl->DispColor[extInCtrl->SensorStat];
+	int frcolor= gSYS_Osd.osdDrawColor;
 	unsigned char Alpha = (bShow) ? frcolor : 0;
 	CvScalar colour=GetcvColour(Alpha);
 
@@ -548,7 +627,7 @@ void CProcess::erassdrawmmt(TARGET tg[],bool bShow)
 			int testid=0;
 			extInCtrl->Mmttargetnum=0;
 			char numbuf[3];
-			int frcolor=extInCtrl->DispColor[extInCtrl->SensorStat];
+			int frcolor= gSYS_Osd.osdDrawColor;
 			unsigned char Alpha = (bShow) ? frcolor : 0;
 			CvScalar colour=GetcvColour(Alpha);
 
@@ -629,7 +708,7 @@ void CProcess::drawmmt(TARGET tg[],bool bShow)
 	int testid=0;
 	extInCtrl->Mmttargetnum=0;
 	char numbuf[3];
-	int frcolor=extInCtrl->DispColor[extInCtrl->SensorStat];
+	int frcolor= gSYS_Osd.osdDrawColor;
 	unsigned char Alpha = (bShow) ? frcolor : 0;
 	CvScalar colour=GetcvColour(Alpha);
 	
@@ -677,7 +756,7 @@ void CProcess::drawmmt(TARGET tg[],bool bShow)
 		 	 endy=PiexltoWindowsy(result.y+result.height,extInCtrl->SensorStat);
 
 
-			if((((extInCtrl->AvtTrkStat == eTrk_mode_mtd)||(extInCtrl->AvtTrkStat == eTrk_mode_acq)))&&(extInCtrl->DispGrp[extInCtrl->SensorStat]<3))
+			if(((extInCtrl->AvtTrkStat == eTrk_mode_mtd)||(extInCtrl->AvtTrkStat == eTrk_mode_acq)))
 			{
 				rectangle( frame,
 					Point( startx, starty ),
@@ -701,7 +780,7 @@ void CProcess::drawmmt(TARGET tg[],bool bShow)
 
 			 startx=PiexltoWindowsx(result.x,extInCtrl->SensorStat);
 			 starty=PiexltoWindowsy(result.y,extInCtrl->SensorStat);
-			if((((extInCtrl->AvtTrkStat == eTrk_mode_mtd)||(extInCtrl->AvtTrkStat == eTrk_mode_acq)))&&(extInCtrl->DispGrp[extInCtrl->SensorStat]<3))
+			if(((extInCtrl->AvtTrkStat == eTrk_mode_mtd)||(extInCtrl->AvtTrkStat == eTrk_mode_acq)))
 			{
 				line(frame, cvPoint(startx-16,starty), cvPoint(startx+16,starty), colour, 1, 8, 0 ); 
 				line(frame, cvPoint(startx,starty-16), cvPoint(startx,starty+16), colour, 1, 8, 0 ); 
@@ -742,7 +821,7 @@ void CProcess::erassdrawmmtnew(TARGETDRAW tg[],bool bShow)
 	int testid=0;
 	extInCtrl->Mmttargetnum=0;
 	char numbuf[3];
-	int frcolor=extInCtrl->DispColor[extInCtrl->SensorStat];
+	int frcolor= gSYS_Osd.osdDrawColor;
 	unsigned char Alpha = (bShow) ? frcolor : 0;
 	CvScalar colour=GetcvColour(Alpha);
 
@@ -803,7 +882,7 @@ void CProcess::drawmmtnew(TARGET tg[],bool bShow)
 	int testid=0;
 	extInCtrl->Mmttargetnum=0;
 	char numbuf[3];
-	int frcolor=extInCtrl->DispColor[extInCtrl->SensorStat];
+	int frcolor= gSYS_Osd.osdDrawColor;
 	unsigned char Alpha = (bShow) ? frcolor : 0;
 	CvScalar colour=GetcvColour(Alpha);
 	
@@ -885,7 +964,7 @@ void CProcess::drawmmtnew(TARGET tg[],bool bShow)
 			 Mdrawbak[i].endy=endy;
 			 Mdrawbak[i].valid=1;
 
-			if((((extInCtrl->AvtTrkStat == eTrk_mode_mtd)||(extInCtrl->AvtTrkStat == eTrk_mode_acq)))&&(extInCtrl->DispGrp[extInCtrl->SensorStat]<=3))
+			if(((extInCtrl->AvtTrkStat == eTrk_mode_mtd)||(extInCtrl->AvtTrkStat == eTrk_mode_acq)))
 			{
 				rectangle( frame,
 				Point( startx, starty ),
@@ -955,7 +1034,7 @@ void CProcess::drawmmtnew(TARGET tg[],bool bShow)
 			Mdrawbak[i].endx=endx;
 			Mdrawbak[i].endy=endy;
 			Mdrawbak[i].valid=1;
-			if((((extInCtrl->AvtTrkStat == eTrk_mode_mtd)||(extInCtrl->AvtTrkStat == eTrk_mode_acq)))&&(extInCtrl->DispGrp[extInCtrl->SensorStat]<=3))
+			if(((extInCtrl->AvtTrkStat == eTrk_mode_mtd)||(extInCtrl->AvtTrkStat == eTrk_mode_acq)))
 			{
 				//DrawCross(result.x,result.y,frcolor,bShow);
 				//trkimgcross(frame,result.x,result.y,16);
@@ -1107,7 +1186,7 @@ void CProcess::DrawdashCross(int x,int y,int fcolour ,bool bShow /*= true*/)
 		drawdashlinepri(m_display.m_imgOsd[extInCtrl->SensorStat],startx,starty,endx,endy,dashlen,dashlen,colour);
 	}
 
-	else if(extInCtrl->DispGrp[extInCtrl->SensorStat]<3)
+	else
 	{
 		DrawcvDashcross(m_display.m_imgOsd[extInCtrl->SensorStat],&lineparm,dashlen,dashlen);
 		startx=PiexltoWindowsxzoom(extInCtrl->AvtPosX[extInCtrl->SensorStat ],extInCtrl->SensorStat);
@@ -1332,7 +1411,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 
 bool CProcess::OnProcess(int chId, Mat &frame)
 {				
-	int frcolor= extInCtrl->osdDrawColor;
+	int frcolor= gSYS_Osd.osdDrawColor;
 	int startx=0;
 	int starty=0;
 	int endx=0;
@@ -1422,7 +1501,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 			endx  =PiexltoWindowsxzoom_TrkRect(rcResult.x+rcResult.width/2+aimw/2,extInCtrl->SensorStat);
 		 	endy  =PiexltoWindowsyzoom_TrkRect(rcResult.y+rcResult.height/2+aimh/2 ,extInCtrl->SensorStat);
 
-			if(algOsdRect == true)
+			if(gSYS_Osd.algOsdRect == true)
 			{
 				rcResult_algRect.x = PiexltoWindowsx(rcResult_algRect.x,extInCtrl->SensorStat);
 				rcResult_algRect.y = PiexltoWindowsy(rcResult_algRect.y,extInCtrl->SensorStat);
@@ -1432,7 +1511,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 
 			if( m_iTrackStat == 1 && !changesensorCnt)
 			{		
-				if(algOsdRect == true)
+				if(gSYS_Osd.algOsdRect == true)
 				{
 					rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
 						Point( rcResult_algRect.x, rcResult_algRect.y ),
@@ -1441,7 +1520,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				}
 				else
 				{
-					if(m_display.m_boxOsd[extInCtrl->SensorStat])
+					if(m_display.m_boxOsd)
 					{
 						rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
 							Point( startx, starty ),
@@ -1459,7 +1538,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 
 				if(bDraw != 0 && !changesensorCnt)
 				{
-					if(algOsdRect == true)
+					if(gSYS_Osd.algOsdRect == true)
 						DrawdashRect(rcResult_algRect.x,rcResult_algRect.y,rcResult_algRect.x+rcResult_algRect.width,rcResult_algRect.y+rcResult_algRect.height,frcolor);
 					else
 						DrawdashRect(startx,starty,endx,endy,frcolor);	// track lost DashRect				
@@ -1472,7 +1551,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				rcTrackBak[extInCtrl->SensorStat].width=endx-startx;
 				rcTrackBak[extInCtrl->SensorStat].height=endy-starty;
 			}
-			if(algOsdRect == true)
+			if(gSYS_Osd.algOsdRect == true)
 			{
 				resultTrackBak.x = rcResult_algRect.x;
 				resultTrackBak.y = rcResult_algRect.y;
@@ -1488,7 +1567,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 		 
 		 if(m_bTrack && !changesensorCnt)
 		 {
-			set_trktype(extInCtrl,m_iTrackStat);
+			extInCtrl->TrkStat = m_iTrackStat;
 			if(m_iTrackStat == 1)
 			{
 				rememflag=false;
@@ -1501,13 +1580,13 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 					rememtime=OSA_getCurTimeInMsec();
 				}
 				
-				if((OSA_getCurTimeInMsec()-rememtime) > glosttime)
+				if((OSA_getCurTimeInMsec()-rememtime) > gCFG_Trk.losttime)
 				{		
-					set_trktype(extInCtrl,3);
+					extInCtrl->TrkStat = 3;
 				}
 				else
 				{
-					set_trktype(extInCtrl,2);
+					extInCtrl->TrkStat = 2;
 				}
 			}
 		 	 if((extInCtrl->TrkStat == 1)||(extInCtrl->TrkStat == 2))
@@ -1545,11 +1624,9 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 					extInCtrl->trkerrx = 0;
 					extInCtrl->trkerry = 0;
 				}
-				ipc_settrack(extInCtrl->TrkStat, extInCtrl->trkerrx, extInCtrl->trkerry);
-				trkmsg.cmd_ID = read_shm_trkpos;
-				//printf("ack the trackerr to mainThr\n");
-				ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
+				cfg_set_trkFeedback(extInCtrl->TrkStat, extInCtrl->trkerrx, extInCtrl->trkerry);
 
+				#if 0
 				if(m_display.disptimeEnable == 1){
 				//test zhou qi  time
 				int64 disptime = 0;
@@ -1573,8 +1650,8 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 							cvScalar(255,255,0,255), 1
 							);
 				}
-
 			}
+			#endif
 			#endif	
 				
 		 }
@@ -1615,7 +1692,7 @@ osdindex++; //sekCorssBak
 			sekCrossBak.x = recIn.x;
 			sekCrossBak.y = recIn.y;
 
-			if(m_display.m_crossOsd[extInCtrl->SensorStat])
+			if(m_display.m_crossOsd)
 			{
 				DrawCross(recIn,3,extInCtrl->SensorStat,true);
 				Osdflag[osdindex]=1;
@@ -1642,7 +1719,7 @@ osdindex++;	//cross aim
 			Osdflag[osdindex]=0;
  		}
 
-		if(extInCtrl->DispGrp[extInCtrl->SensorStat] <= 3  &&  !changesensorCnt)
+		if(!changesensorCnt)
 		{
 			recIn.x=PiexltoWindowsx(extInCtrl->opticAxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
 	 		recIn.y=PiexltoWindowsy(extInCtrl->opticAxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
@@ -1654,7 +1731,7 @@ osdindex++;	//cross aim
 			crossWHBak.y = recIn.height;
 			
 			{
-				if(m_display.m_crossOsd[extInCtrl->SensorStat])
+				if(m_display.m_crossOsd)
 				{
 					DrawCross(recIn,frcolor,extInCtrl->SensorStat,true);
 					Osdflag[osdindex]=1;
@@ -1685,7 +1762,7 @@ osdindex++;	//acqRect
 				recIn.x  = PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
 		 		recIn.y  = PiexltoWindowsy(extInCtrl->AxisPosY[extInCtrl->SensorStat],extInCtrl->SensorStat);
 
-		 		if(m_display.m_boxOsd[extInCtrl->SensorStat])
+		 		if(m_display.m_boxOsd)
 			 	{
 					recIn.width  = extInCtrl->AcqRectW[extInCtrl->SensorStat];
 					recIn.height = extInCtrl->AcqRectH[extInCtrl->SensorStat]; 
@@ -1710,7 +1787,7 @@ osdindex++;	//acqRect
 			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],sceneBak,0);
 			Osdflag[osdindex]=0;
 		}
-		if(m_bSceneTrack)
+		if(gSYS_Osd.m_sceneBoxOsd && m_bSceneTrack)
 		{
 			sceneBak.x = (int)getSceneRectBK.x;
 			sceneBak.y = (int)getSceneRectBK.y;
@@ -1719,7 +1796,7 @@ osdindex++;	//acqRect
 	//printf("getSceneRectBK  x,y,w,h = (%f,%f,%f,%f)\n",
 	//	getSceneRectBK.x,getSceneRectBK.y,getSceneRectBK.width,getSceneRectBK.height);
 
-			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],sceneBak,3);
+			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],sceneBak,frcolor);
 			Osdflag[osdindex]=1;
 		}
 	}
@@ -1739,12 +1816,12 @@ osdindex++;	//acqRect
 			Osdflag[osdindex]=0;
 		}		
 
-		if(Mtd_Frame.areaSetBox)
+		if(gCFG_Mtd.areaSetBox && m_bMoveDetect)
 		{
-			recIn.x = Mtd_Frame.detectArea_X - Mtd_Frame.detectArea_wide/2;
-			recIn.y = Mtd_Frame.detectArea_Y - Mtd_Frame.detectArea_high/2;
-			recIn.width = Mtd_Frame.detectArea_wide;
-			recIn.height = Mtd_Frame.detectArea_high;
+			recIn.x = gCFG_Mtd.detectArea_X - gCFG_Mtd.detectArea_wide/2;
+			recIn.y = gCFG_Mtd.detectArea_Y - gCFG_Mtd.detectArea_high/2;
+			recIn.width = gCFG_Mtd.detectArea_wide;
+			recIn.height = gCFG_Mtd.detectArea_high;
 
 			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor);
 			mtdFrameRectBak = recIn;
@@ -1775,22 +1852,29 @@ osdindex++;	//acqRect
 			cv::Rect tmp;
 			mouserect recttmp;
 		
-			for(std::vector<TRK_RECT_INFO>::iterator plist = detect_bak.begin(); plist != detect_bak.end(); ++plist)
+			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
-				memcpy(&tmp,&(*plist).targetRect,sizeof(cv::Rect));
+				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
+				sprintf(trkFPSDisplay, "%2d", (*plist).number);
+				putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
+					Point(tmp.x, tmp.y),
+					FONT_HERSHEY_TRIPLEX,1,
+					cvScalar(0,0,0,0), 1
+					);
 			}
 		
 			Osdflag[osdindex]=0;
 		}
 
+		unsigned int bMtdDetectStat = 0;
 		if(m_bMoveDetect)
 		{
 			memcpy(&polwarn_count_bak, &polwarn_count, sizeof(polwarn_count));
 			memcpy(&polWarnRectBak, &polWarnRect, sizeof(polWarnRect));
 
-			//if(motionlessflag && bdrawMvRect < 100 )
-			//	bdrawMvRect++;
+			if(motionlessflag && bdrawMvRect < 100 )
+				bdrawMvRect++;
 
 			for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
 			{
@@ -1803,9 +1887,11 @@ osdindex++;	//acqRect
 			}
 			
 			detect_bak = detect_vect;
-#if 0
-			//getTargetNearToCenter();
-			//mvIndexHandle(mvList,detect_bak,Mtd_Frame.detectNum);
+			if(!detect_bak.empty())
+				bMtdDetectStat = 1;
+
+			getTargetNearToCenter();
+			mvIndexHandle(mvList,detect_bak,gCFG_Mtd.detectNum);
 
 			if(forwardflag)
 			{
@@ -1818,9 +1904,8 @@ osdindex++;	//acqRect
 				backflag = 0;
 			}
 			
-		
 			#if 1
-			switch(Mtd_Frame.priority)
+			switch(gCFG_Mtd.priority)
 			{
 				case 1:
 					MvdetectObjHandle_FarToCenter();
@@ -1850,22 +1935,33 @@ osdindex++;	//acqRect
 					break;
 			}
 			#endif
-			#endif	
+		
 			cv::Rect tmp;
 			mouserect recttmp;
 		
-			for(std::vector<TRK_RECT_INFO>::iterator plist = detect_bak.begin(); plist != detect_bak.end(); ++plist)
+			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
-				color = 6;
-
-				memcpy((void*)&tmp,(void *)&((*plist).targetRect),sizeof(cv::Rect));
+				if( chooseDetect == plist->number && bdrawMvRect >= HOLDING_NUM )
+					color = 6;
+				else
+					color = 3;
+				memcpy((void*)&tmp,(void *)&((*plist).trkobj.targetRect),sizeof(cv::Rect));
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,color);
+
+				sprintf(trkFPSDisplay, "%2d", (*plist).number);
+				putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
+					Point(tmp.x, tmp.y),
+					FONT_HERSHEY_TRIPLEX,1,
+					cvScalar(255,255,0,255), 1
+					);
 			}
 
 			Osdflag[osdindex]=1;	
 		}
 		else
 			bdrawMvRect = 0;
+
+		cfg_set_mtdFeedback(m_bMoveDetect, bMtdDetectStat);
 	}
 #endif
 
@@ -2438,7 +2534,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 		if((m_curChId== video_gaoqing0)||(m_curChId== video_gaoqing)||(m_curChId== video_gaoqing2)||(m_curChId== video_gaoqing3))
 		{
 			rc.width= pIStuts->AimW[pIStuts->SensorStat];
-			rc.height=pIStuts->AimW[pIStuts->SensorStat];
+			rc.height=pIStuts->AimH[pIStuts->SensorStat];
 			pIStuts->unitAimX = pIStuts->AvtPosX[pIStuts->SensorStat];
 			pIStuts->unitAimY = pIStuts->AvtPosY[pIStuts->SensorStat];
 /*
@@ -2528,7 +2624,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			if(msgId == MSGID_EXT_INPUT_AIMSIZE)
 			{
 				pIStuts->unitAimW  =  pIStuts->AimW[pIStuts->SensorStat];
-				pIStuts->unitAimH	  =  pIStuts->AimW[pIStuts->SensorStat];
+				pIStuts->unitAimH	  =  pIStuts->AimH[pIStuts->SensorStat];
 
 				rc.x	=	pIStuts->unitAimX-pIStuts->unitAimW/2;
 				rc.y	=	pIStuts->unitAimY-pIStuts->unitAimH/2;
@@ -2840,24 +2936,20 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 	if(msgId == MSGID_EXT_MVDETECTSELECT)
 	{
 		int MtdSelect = (pIStuts->MtdSelect[pIStuts->SensorStat]);
-		if(ipc_eMTD_Next == MtdSelect)
+		if(eMTD_Next == MtdSelect)
 		{
 			forwardflag = true;
 		}
-		else if(ipc_eMTD_Prev == MtdSelect)
+		else if(eMTD_Prev == MtdSelect)
 		{
 			backflag = true;
 		}
-		else if(ipc_eMTD_Select == MtdSelect)
+		else if(eMTD_Select == MtdSelect)
 		{
 
 		}
 	}
 #endif
-	if(msgId == MSGID_EXT_INPUT_ALGOSDRECT)
-	{
-	 	algOsdRect=pIStuts->Imgalgosdrect;
-	}
 	
 	if(msgId == MSGID_EXT_INPUT_SCENETRK)
 	{
@@ -2922,7 +3014,6 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 	MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_ALG,             	MSGAPI_update_alg,              0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_OSD,             	MSGAPI_update_osd,              0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_CAMERA,            MSGAPI_update_camera,           0);	
-    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_ALGOSDRECT,         MSGAPI_input_algosdrect,        0);	
 
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTAERA,         MSGAPI_handle_mvAera,        0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTUPDATE,         MSGAPI_handle_mvUpdate,        0);	
@@ -3030,24 +3121,6 @@ void CProcess::MSGAPI_setMtdSelect(long lParam )
 	
 void CProcess::MSGAPI_setAimRefine(long lParam)
 {
-	CMD_EXT *pIStuts = sThis->extInCtrl;
-
-	if(pIStuts->aimRectMoveStepX==eTrk_ref_left)
-	{
-		pIStuts->aimRectMoveStepX=-1;
-	}
-	else if(pIStuts->aimRectMoveStepX==eTrk_ref_right)
-	{
-		pIStuts->aimRectMoveStepX=1;
-	}
-	if(pIStuts->aimRectMoveStepY==eTrk_ref_up)
-	{
-		pIStuts->aimRectMoveStepY=-1;
-	}
-	else if(pIStuts->aimRectMoveStepY==eTrk_ref_down)
-	{
-		pIStuts->aimRectMoveStepY=1;
-	}
 	sThis->msgdriv_event(MSGID_EXT_INPUT_AIMPOS,NULL);
 }
 
@@ -3242,29 +3315,6 @@ void CProcess::MSGAPI_SaveCfgcmd(long lParam )
 	sThis->msgdriv_event(MSGID_EXT_INPUT_CFGSAVE,NULL);
 }	
 
-void CProcess::initAcqRect()
-{	
-	CMD_EXT *pIStuts = extInCtrl;
-	pIStuts->AcqRectW[0] = gConfig_Osd_param.ch0_acqRect_width;
-	pIStuts->AcqRectW[1] = gConfig_Osd_param.ch1_acqRect_width;
-	pIStuts->AcqRectW[2] = gConfig_Osd_param.ch2_acqRect_width;
-	pIStuts->AcqRectW[3] = gConfig_Osd_param.ch3_acqRect_width;
-	pIStuts->AcqRectW[4] = gConfig_Osd_param.ch4_acqRect_width;
-	pIStuts->AcqRectH[0]  = gConfig_Osd_param.ch0_acqRect_height;
-	pIStuts->AcqRectH[1]  = gConfig_Osd_param.ch1_acqRect_height;
-	pIStuts->AcqRectH[2]  = gConfig_Osd_param.ch2_acqRect_height;
-	pIStuts->AcqRectH[3]  = gConfig_Osd_param.ch3_acqRect_height;
-	pIStuts->AcqRectH[4]  = gConfig_Osd_param.ch4_acqRect_height;
-	return ;
-}
-
-void CProcess::initAimRect()
-{
-	CMD_EXT *pIStuts = extInCtrl;
-	
-	
-	return ;
-}
 void CProcess::MSGAPI_update_osd(long lParam)
 {
 	plat->update_param_osd();
@@ -3273,63 +3323,14 @@ void CProcess::MSGAPI_update_osd(long lParam)
 void CProcess::update_param_osd()
 {
 	CMD_EXT *pIStuts = extInCtrl;
-	pIStuts->SensorStatBegin 		= gConfig_Osd_param.MAIN_Sensor;
-	pIStuts->osdTextShow 			= gConfig_Osd_param.OSD_text_show;
-	pIStuts->osdDrawShow 			= gConfig_Osd_param.OSD_draw_show;
-	for(int i = 0; i<MAX_CHAN; i++)
-	{
-		pIStuts->crossDrawShow[i] = gConfig_Osd_param.CROSS_draw_show[i];
-		pIStuts->osdBoxShow[i] = gConfig_Osd_param.osdBoxShow[i];
-		pIStuts->osdChidIDShow[i] = gConfig_Osd_param.osdChidIDShow[i];
-		pIStuts->osdChidNameShow[i] = gConfig_Osd_param.osdChidNmaeShow[i];
-		printf("pIStuts->osdChidIDShow[%d] = %d \n", i, pIStuts->osdChidIDShow[i]);
-	}
-	pIStuts->osdUserShow = gConfig_Osd_param.osdUserShow;
 
-	pIStuts->osdTextColor 			=  gConfig_Osd_param.OSD_text_color;
-	pIStuts->osdTextAlpha			=  gConfig_Osd_param.OSD_text_alpha;
-	pIStuts->osdTextFont			= gConfig_Osd_param.OSD_text_font;
-	pIStuts->osdTextSize			= gConfig_Osd_param.OSD_text_size;
-	pIStuts->osdDrawColor 		= gConfig_Osd_param.OSD_draw_color;
-	pIStuts->AcqRectW[0] 			= gConfig_Osd_param.ch0_acqRect_width;
-	pIStuts->AcqRectW[1] 			= gConfig_Osd_param.ch1_acqRect_width;
-	pIStuts->AcqRectW[2] 			= gConfig_Osd_param.ch2_acqRect_width;
-	pIStuts->AcqRectW[3] 			= gConfig_Osd_param.ch3_acqRect_width;
-	pIStuts->AcqRectW[4] 			= gConfig_Osd_param.ch4_acqRect_width;
-	pIStuts->AcqRectW[5] 			= gConfig_Osd_param.ch5_acqRect_width;
-	pIStuts->AcqRectH[0] 			= gConfig_Osd_param.ch0_acqRect_height;
-	pIStuts->AcqRectH[1] 			= gConfig_Osd_param.ch1_acqRect_height;
-	pIStuts->AcqRectH[2] 			= gConfig_Osd_param.ch2_acqRect_height;
-	pIStuts->AcqRectH[3] 			= gConfig_Osd_param.ch3_acqRect_height;
-	pIStuts->AcqRectH[4] 			= gConfig_Osd_param.ch4_acqRect_height;
-	pIStuts->AcqRectH[5] 			= gConfig_Osd_param.ch5_acqRect_height;
-printf("ch1_aim_width  = %d \n",gConfig_Osd_param.ch0_aim_width);
-	pIStuts->AimW[0] 				= gConfig_Osd_param.ch0_aim_width;
-	pIStuts->AimW[1] 				= gConfig_Osd_param.ch1_aim_width;
-	pIStuts->AimW[2] 				= gConfig_Osd_param.ch2_aim_width;
-	pIStuts->AimW[3] 				= gConfig_Osd_param.ch3_aim_width;
-	pIStuts->AimW[4] 				= gConfig_Osd_param.ch4_aim_width;
-	pIStuts->AimW[5] 				= gConfig_Osd_param.ch5_aim_width;
-	pIStuts->AimH[0] 				= gConfig_Osd_param.ch0_aim_height;
-	pIStuts->AimH[1] 				= gConfig_Osd_param.ch1_aim_height;
-	pIStuts->AimH[2] 				= gConfig_Osd_param.ch2_aim_height;
-	pIStuts->AimH[3] 				= gConfig_Osd_param.ch3_aim_height;
-	pIStuts->AimH[4] 				= gConfig_Osd_param.ch4_aim_height;
-	pIStuts->AimH[5] 				= gConfig_Osd_param.ch5_aim_height;
-
-	m_acqRectW 	= pIStuts->AimW[pIStuts->SensorStat];
-	m_acqRectH  = pIStuts->AimH[pIStuts->SensorStat];
-	
-	m_display.disptimeEnable = gConfig_Osd_param.Timedisp_9;
-	m_display.m_bOsd = pIStuts->osdDrawShow;
-	m_display.m_userOsd = pIStuts->osdUserShow;
-	for(int j = 0; j < MAX_CHAN ; j++)
-	{
-		m_display.m_crossOsd[j] = pIStuts->crossDrawShow[j];
-		m_display.m_boxOsd[j] = pIStuts->osdBoxShow[j];
-		m_display.m_chidIDOsd[j] = pIStuts->osdChidIDShow[j];
-		m_display.m_chidNameOsd[j] = pIStuts->osdChidNameShow[j];
-	}
+	m_display.disptimeEnable = (gSYS_Osd.osdDrawShow)?1:0;
+	m_display.m_bOsd = (gSYS_Osd.osdDrawShow)?true:false;
+	m_display.m_userOsd = (gSYS_Osd.osdUserShow)?true:false;
+	m_display.m_crossOsd = (gSYS_Osd.m_crossOsd)?true:false;
+	m_display.m_boxOsd = (gSYS_Osd.m_boxOsd)?true:false;
+	m_display.m_chidIDOsd = (gSYS_Osd.m_chidIDOsd)?true:false;
+	m_display.m_chidNameOsd = (gSYS_Osd.m_chidNameOsd)?true:false;
 
 	pIStuts->crossAxisWidth[video_pal] = 40;
 	pIStuts->crossAxisHeight[video_pal] = 40;
@@ -3355,250 +3356,240 @@ void CProcess::MSGAPI_update_alg(long lParam)
 void CProcess::update_param_alg()
 {
 	UTC_DYN_PARAM dynamicParam;
-	if(gConfig_Alg_param.occlusion_thred > 0.0001)
-		dynamicParam.occlusion_thred = gConfig_Alg_param.occlusion_thred;
+	if(gCFG_Trk.occlusion_thred > 0.0001)
+		dynamicParam.occlusion_thred = gCFG_Trk.occlusion_thred;
 	else
 		dynamicParam.occlusion_thred = 0.28;
 
 	//dynamicParam.occlusion_thred = 0.30;
 	
-	if(gConfig_Alg_param.retry_acq_thred> 0.0001)
-		dynamicParam.retry_acq_thred = gConfig_Alg_param.retry_acq_thred;
+	if(gCFG_Trk.retry_acq_thred> 0.0001)
+		dynamicParam.retry_acq_thred = gCFG_Trk.retry_acq_thred;
 	else
 		dynamicParam.retry_acq_thred = 0.38;
 
 	//dynamicParam.retry_acq_thred = 0.40;
 	
 	float up_factor;
-	if(gConfig_Alg_param.up_factor > 0.0001)
-		up_factor = gConfig_Alg_param.up_factor;
+	if(gCFG_Trk.up_factor > 0.0001)
+		up_factor = gCFG_Trk.up_factor;
 	else
 		up_factor = 0.0125;
 	//up_factor = 0.025;
 
 	TRK_SECH_RESTRAINT resTraint;
-	if(gConfig_Alg_param.res_distance > 0)
-		resTraint.res_distance = gConfig_Alg_param.res_distance;
+	if(gCFG_Trk.res_distance > 0)
+		resTraint.res_distance = gCFG_Trk.res_distance;
 	else
 		resTraint.res_distance = 80;
-	
-	if(gConfig_Alg_param.res_area> 0)
-		resTraint.res_area = gConfig_Alg_param.res_area;
+	if(gCFG_Trk.res_area> 0)
+		resTraint.res_area = gCFG_Trk.res_area;
 	else
 		resTraint.res_area = 5000;
 	//printf("UtcSetRestraint: distance=%d area=%d \n", resTraint.res_distance, resTraint.res_area);
 
 	int gapframe;
-	if(gConfig_Alg_param.gapframe> 0)
-		gapframe = gConfig_Alg_param.gapframe;
+	if(gCFG_Trk.gapframe> 0)
+		gapframe = gCFG_Trk.gapframe;
 	else
 		gapframe = 10;
 
    	bool enhEnable;
-	enhEnable = gConfig_Alg_param.enhEnable;	
+	enhEnable = gCFG_Trk.enhEnable;	
 
 	float cliplimit;
-	if(gConfig_Alg_param.cliplimit> 0)
-		cliplimit = gConfig_Alg_param.cliplimit;
+	if(gCFG_Trk.cliplimit> 0)
+		cliplimit = gCFG_Trk.cliplimit;
 	else
 		cliplimit = 4.0;
 
 	bool dictEnable;
-
-	dictEnable = gConfig_Alg_param.dictEnable;
+	dictEnable = gCFG_Trk.dictEnable;
 
 	int moveX,moveY;
-	if(gConfig_Alg_param.moveX > 0)
-		moveX = gConfig_Alg_param.moveX;
+	if(gCFG_Trk.moveX > 0)
+		moveX = gCFG_Trk.moveX;
 	else
 		moveX = 20;
 
-	if(gConfig_Alg_param.moveY>0)
-		moveY = gConfig_Alg_param.moveY;
+	if(gCFG_Trk.moveY>0)
+		moveY = gCFG_Trk.moveY;
 	else
 		moveY = 10;
 
 	int moveX2,moveY2;
-	if(gConfig_Alg_param.moveX2 > 0)
-		moveX2 = gConfig_Alg_param.moveX2;
+	if(gCFG_Trk.moveX2 > 0)
+		moveX2 = gCFG_Trk.moveX2;
 	else
 		moveX2 = 30;
 
-	if(gConfig_Alg_param.moveY2 > 0)
-		moveY2 = gConfig_Alg_param.moveY2;
+	if(gCFG_Trk.moveY2 > 0)
+		moveY2 = gCFG_Trk.moveY2;
 	else
 		moveY2 = 20;
 
 	int segPixelX,segPixelY;
 
-	if(gConfig_Alg_param.segPixelX > 0)
-		segPixelX = gConfig_Alg_param.segPixelX;
+	if(gCFG_Trk.segPixelX > 0)
+		segPixelX = gCFG_Trk.segPixelX;
 	else
 		segPixelX = 600;
-	if(gConfig_Alg_param.segPixelY > 0)
-		segPixelY = gConfig_Alg_param.segPixelY;
+	if(gCFG_Trk.segPixelY > 0)
+		segPixelY = gCFG_Trk.segPixelY;
 	else
 		segPixelY = 450;
 
-
-	if(gConfig_Alg_param.algOsdRect_Enable == 1)
-		algOsdRect = true;
-	else
-		algOsdRect = false;
-
-
-	if(gConfig_Alg_param.ScalerLarge > 0)
-		ScalerLarge = gConfig_Alg_param.ScalerLarge;
+	if(gCFG_Trk.ScalerLarge > 0)
+		ScalerLarge = gCFG_Trk.ScalerLarge;
 	else
 		ScalerLarge = 256;
-	if(gConfig_Alg_param.ScalerMid > 0)
-		ScalerMid = gConfig_Alg_param.ScalerMid;
+	if(gCFG_Trk.ScalerMid > 0)
+		ScalerMid = gCFG_Trk.ScalerMid;
 	else
 		ScalerMid = 128;
-	if(gConfig_Alg_param.ScalerSmall >0)
-		ScalerSmall = gConfig_Alg_param.ScalerSmall;
+	if(gCFG_Trk.ScalerSmall >0)
+		ScalerSmall = gCFG_Trk.ScalerSmall;
 	else
 		ScalerSmall = 64;
 
 	int Scatter;
-	if(gConfig_Alg_param.Scatter > 0)
-		Scatter = gConfig_Alg_param.Scatter;
+	if(gCFG_Trk.Scatter > 0)
+		Scatter = gCFG_Trk.Scatter;
 	else
 		Scatter = 10;
 
 	float ratio;
-	if(gConfig_Alg_param.ratio >0.1)
-		ratio = gConfig_Alg_param.ratio;
+	if(gCFG_Trk.ratio >0.1)
+		ratio = gCFG_Trk.ratio;
 	else
 		ratio = 1.0;
 
 	bool FilterEnable;
-
-	FilterEnable = gConfig_Alg_param.FilterEnable;
+	FilterEnable = gCFG_Trk.FilterEnable;
 
 	bool BigSecEnable;
-	BigSecEnable = gConfig_Alg_param.BigSecEnable;
+	BigSecEnable = gCFG_Trk.BigSecEnable;
 
 	int SalientThred;
-	if(gConfig_Alg_param.SalientThred > 0)
-		SalientThred = gConfig_Alg_param.SalientThred;
+	if(gCFG_Trk.SalientThred > 0)
+		SalientThred = gCFG_Trk.SalientThred;
 	else
 		SalientThred = 40;
 	bool ScalerEnable;
-	ScalerEnable = gConfig_Alg_param.ScalerEnable;
+	ScalerEnable = gCFG_Trk.ScalerEnable;
 
 	bool DynamicRatioEnable;
-	DynamicRatioEnable = ScalerEnable = gConfig_Alg_param.DynamicRatioEnable;
+	DynamicRatioEnable = ScalerEnable = gCFG_Trk.DynamicRatioEnable;
 
 	UTC_SIZE acqSize;
-	if(gConfig_Alg_param.acqSize_width > 0)	
-		acqSize.width = gConfig_Alg_param.acqSize_width;
+	if(gCFG_Trk.acqSize_width > 0)	
+		acqSize.width = gCFG_Trk.acqSize_width;
 	else
 		acqSize.width = 8;
-	if(gConfig_Alg_param.acqSize_height > 0)
-		acqSize.height = gConfig_Alg_param.acqSize_height;
+	if(gCFG_Trk.acqSize_height > 0)
+		acqSize.height = gCFG_Trk.acqSize_height;
 	else
 		acqSize.height = 8;
 	
-	if(gConfig_Alg_param.TrkAim43_Enable == 1)
+	if((int)gCFG_Trk.TrkAim43_Enable == 1)
 		TrkAim43 = true;
 	else
 		TrkAim43 = false;
 
 	bool SceneMVEnable;
-	SceneMVEnable = gConfig_Alg_param.SceneMVEnable;
+	SceneMVEnable = gCFG_Trk.SceneMVEnable;
 
 	bool BackTrackEnable;
-	BackTrackEnable = gConfig_Alg_param.BackTrackEnable;
+	BackTrackEnable = gCFG_Trk.BackTrackEnable;
 
 	bool  bAveTrkPos;
-	bAveTrkPos = gConfig_Alg_param.bAveTrkPos;
+	bAveTrkPos = gCFG_Trk.bAveTrkPos;
 
 	float fTau;
-	if(gConfig_Alg_param.fTau > 0.01)
-		fTau = gConfig_Alg_param.fTau;
+	if(gCFG_Trk.fTau > 0.01)
+		fTau = gCFG_Trk.fTau;
 	else
 		fTau = 0.5;
 
 	int  buildFrms;
-	if(gConfig_Alg_param.buildFrms > 0)
-		buildFrms = gConfig_Alg_param.buildFrms;
+	if(gCFG_Trk.buildFrms > 0)
+		buildFrms = gCFG_Trk.buildFrms;
 	else
 		buildFrms = 500;
 	
 	int  LostFrmThred;
-	if(gConfig_Alg_param.LostFrmThred > 0)
-		LostFrmThred = gConfig_Alg_param.LostFrmThred;
+	if(gCFG_Trk.LostFrmThred > 0)
+		LostFrmThred = gCFG_Trk.LostFrmThred;
 	else
 		LostFrmThred = 30;
 
 	float  histMvThred;
-	if(gConfig_Alg_param.histMvThred > 0.01)
-		histMvThred = gConfig_Alg_param.histMvThred;
+	if(gCFG_Trk.histMvThred > 0.01)
+		histMvThred = gCFG_Trk.histMvThred;
 	else
 		histMvThred = 1.0;
 
 	int  detectFrms;
-	if(gConfig_Alg_param.detectFrms > 0)
-		detectFrms = gConfig_Alg_param.detectFrms;
+	if(gCFG_Trk.detectFrms > 0)
+		detectFrms = gCFG_Trk.detectFrms;
 	else
 		detectFrms = 30;
 
 	int  stillFrms;
-	if(gConfig_Alg_param.stillFrms > 0)
-		stillFrms = gConfig_Alg_param.stillFrms;
+	if(gCFG_Trk.stillFrms > 0)
+		stillFrms = gCFG_Trk.stillFrms;
 	else
 		stillFrms = 50;
 
 	float  stillThred;
-	if(gConfig_Alg_param.stillThred> 0.01)
-		stillThred = gConfig_Alg_param.stillThred;
+	if(gCFG_Trk.stillThred> 0.01)
+		stillThred = gCFG_Trk.stillThred;
 	else
 		stillThred = 0.1;
 
 
 	bool  bKalmanFilter;
-	bKalmanFilter = gConfig_Alg_param.bKalmanFilter;
+	bKalmanFilter = gCFG_Trk.bKalmanFilter;
 
 	float xMVThred, yMVThred;
-	if(gConfig_Alg_param.xMVThred> 0.01)
-		xMVThred = gConfig_Alg_param.xMVThred;
+	if(gCFG_Trk.xMVThred> 0.01)
+		xMVThred = gCFG_Trk.xMVThred;
 	else
 		xMVThred = 3.0;
-	if(gConfig_Alg_param.yMVThred> 0.01)
-		yMVThred = gConfig_Alg_param.yMVThred;
+	if(gCFG_Trk.yMVThred> 0.01)
+		yMVThred = gCFG_Trk.yMVThred;
 	else
 		yMVThred = 2.0;
 
 	float xStillThred, yStillThred;
-	if(gConfig_Alg_param.xStillThred> 0.01)
-		xStillThred = gConfig_Alg_param.xStillThred;
+	if(gCFG_Trk.xStillThred> 0.01)
+		xStillThred = gCFG_Trk.xStillThred;
 	else
 		xStillThred = 0.5;
-	if(gConfig_Alg_param.yStillThred> 0.01)
-		yStillThred= gConfig_Alg_param.yStillThred;
+	if(gCFG_Trk.yStillThred> 0.01)
+		yStillThred= gCFG_Trk.yStillThred;
 	else
 		yStillThred = 0.3;
 
 	float slopeThred;
-	if(gConfig_Alg_param.slopeThred> 0.01)
-		slopeThred = gConfig_Alg_param.slopeThred;
+	if(gCFG_Trk.slopeThred> 0.01)
+		slopeThred = gCFG_Trk.slopeThred;
 	else
 		slopeThred = 0.08;
 
 	float kalmanHistThred;
-	if(gConfig_Alg_param.kalmanHistThred> 0.01)
-		kalmanHistThred = gConfig_Alg_param.kalmanHistThred;
+	if(gCFG_Trk.kalmanHistThred> 0.01)
+		kalmanHistThred = gCFG_Trk.kalmanHistThred;
 	else
 		kalmanHistThred = 2.5;
 
 	float kalmanCoefQ, kalmanCoefR;
-	if(gConfig_Alg_param.kalmanCoefQ> 0.000001)
-		kalmanCoefQ = gConfig_Alg_param.kalmanCoefQ;
+	if(gCFG_Trk.kalmanCoefQ> 0.000001)
+		kalmanCoefQ = gCFG_Trk.kalmanCoefQ;
 	else
 		kalmanCoefQ = 0.00001;
-	if(gConfig_Alg_param.kalmanCoefR> 0.000001)
-		kalmanCoefR = gConfig_Alg_param.kalmanCoefR;
+	if(gCFG_Trk.kalmanCoefR> 0.000001)
+		kalmanCoefR = gCFG_Trk.kalmanCoefR;
 	else
 		kalmanCoefR = 0.0025;
 
@@ -3608,25 +3599,24 @@ void CProcess::update_param_alg()
 	if(bSceneMVRecord == true)
 		wFileFlag = true;
 	
-	
 #if __TRACK__
 	UtcSetPLT_BS(m_track, tPLT_WRK, BoreSight_Mid);
 #endif
 
 
 	//enh
-	if(gConfig_Alg_param.Enhmod_0 > 4)
-		m_display.enhancemod = gConfig_Alg_param.Enhmod_0;
+	if(gCFG_Enh.Enhmod_0 > 4)
+		m_display.enhancemod = gCFG_Enh.Enhmod_0;
 	else
 		m_display.enhancemod = 1;
 	
-	if((gConfig_Alg_param.Enhparm_1>0.0)&&(gConfig_Alg_param.Enhparm_1<5.0))
-		m_display.enhanceparam=gConfig_Alg_param.Enhparm_1;
+	if((gCFG_Enh.Enhparm_1>0.0)&&(gCFG_Enh.Enhparm_1<5.0))
+		m_display.enhanceparam=gCFG_Enh.Enhparm_1;
 	else
 		m_display.enhanceparam=3.5;
 
 	//mmt
-	if((gConfig_Alg_param.Mmtdparm_2<0) || (gConfig_Alg_param.Mmtdparm_2>15))
+	if((gCFG_Mmt.Mmtdparm_2<0) || (gCFG_Mmt.Mmtdparm_2>15))
 		DetectGapparm = 10;
 	else
 		DetectGapparm = 3;
@@ -3635,12 +3625,12 @@ void CProcess::update_param_alg()
 	m_MMTDObj.SetSRDetectGap(DetectGapparm);
 #endif
 
-	if(gConfig_Alg_param.Mmtdparm_3 > 0)
-		MinArea = gConfig_Alg_param.Mmtdparm_3;
+	if(gCFG_Mmt.Mmtdparm_3 > 0)
+		MinArea = gCFG_Mmt.Mmtdparm_3;
 	else
 		MinArea = 80;
-	if(gConfig_Alg_param.Mmtdparm_4 > 0)
-		MaxArea = gConfig_Alg_param.Mmtdparm_4;
+	if(gCFG_Mmt.Mmtdparm_4 > 0)
+		MaxArea = gCFG_Mmt.Mmtdparm_4;
 	else
 		MaxArea = 3600;
 
@@ -3648,12 +3638,12 @@ void CProcess::update_param_alg()
 	m_MMTDObj.SetConRegMinMaxArea(MinArea, MaxArea);
 #endif
 
-	if(gConfig_Alg_param.Mmtdparm_5 > 0)
-		stillPixel = gConfig_Alg_param.Mmtdparm_5;
+	if(gCFG_Mmt.Mmtdparm_5 > 0)
+		stillPixel = gCFG_Mmt.Mmtdparm_5;
 	else
 		stillPixel = 6;
-	if(gConfig_Alg_param.Mmtdparm_6 > 0)
-		movePixel = gConfig_Alg_param.Mmtdparm_6;
+	if(gCFG_Mmt.Mmtdparm_6 > 0)
+		movePixel = gCFG_Mmt.Mmtdparm_6;
 	else
 		movePixel = 16;
 
@@ -3661,8 +3651,8 @@ void CProcess::update_param_alg()
 	m_MMTDObj.SetMoveThred(stillPixel, movePixel);
 #endif
 
-	if(gConfig_Alg_param.Mmtdparm_7 > 0.001)
-		lapScaler = gConfig_Alg_param.Mmtdparm_7;
+	if(gCFG_Mmt.Mmtdparm_7 > 0.001)
+		lapScaler = gCFG_Mmt.Mmtdparm_7;
 	else
 		lapScaler = 1.25;
 
@@ -3670,8 +3660,8 @@ void CProcess::update_param_alg()
 	m_MMTDObj.SetLapScaler(lapScaler);
 #endif
 
-	if(gConfig_Alg_param.Mmtdparm_8 > 0)
-		lumThred = gConfig_Alg_param.Mmtdparm_8;
+	if(gCFG_Mmt.Mmtdparm_8 > 0)
+		lumThred = gCFG_Mmt.Mmtdparm_8;
 	else
 		lumThred = 50;
 
@@ -3728,9 +3718,6 @@ void CProcess::update_param_alg()
 	UtcSetRoiMaxWidth(m_track, 400);
 
 #endif
-
-
-	
 	return ;
 }
 
@@ -3738,34 +3725,6 @@ void CProcess::MSGAPI_update_camera(long lParam)
 {
 }
 
-
-void CProcess::MSGAPI_input_algosdrect(long lParam)
-{
-	sThis->msgdriv_event(MSGID_EXT_INPUT_ALGOSDRECT,NULL);
-}
-#if __TRACK__
-void CProcess::set_trktype(CMD_EXT *p, unsigned int stat)
-{
-	
-	static int old_stat = -1;
-	int flag = 0;
-	SENDST test;
-	test.cmd_ID = trktype;
-
-	p->TrkStat = stat;
-
-	if(old_stat == eTrk_Lost && stat == eTrk_Assi)
-		return;
-		
-	if(old_stat != stat)
-	{
-		old_stat = stat;
-		flag = 1;
-	}
-	if(flag&&(extInCtrl->AvtTrkStat == eTrk_mode_target))
-		ipc_sendmsg(&test,IPC_FRIMG_MSG);
-}
-#endif
 
 float  CProcess::PiexltoWindowsyf(float y,int channel)
 {
@@ -3794,10 +3753,10 @@ void CProcess::MSGAPI_handle_mvAera(long lParam)
 	cv::Point tmp;
 	int cx,cy,w,h;
 
-	cx = Mtd_Frame.detectArea_X;
-	cy = Mtd_Frame.detectArea_Y;
-	w = Mtd_Frame.detectArea_wide;
-	h = Mtd_Frame.detectArea_high;
+	cx = gCFG_Mtd.detectArea_X;
+	cy = gCFG_Mtd.detectArea_Y;
+	w = gCFG_Mtd.detectArea_wide;
+	h = gCFG_Mtd.detectArea_high;
 
 	tmp.x = cx - w/2;
 	tmp.y = cy - h/2;
@@ -3848,7 +3807,7 @@ void CProcess::MSGAPI_handle_mvAera(long lParam)
 
 void CProcess::MSGAPI_handle_mvUpdate(long lParam)
 {
-	pThis->m_pMovDetector->setUpdateFactor( Mtd_Frame.tmpUpdateSpeed ,sThis->extInCtrl->SensorStat );
+	pThis->m_pMovDetector->setUpdateFactor( gCFG_Mtd.tmpUpdateSpeed ,sThis->extInCtrl->SensorStat );
 }
 
 

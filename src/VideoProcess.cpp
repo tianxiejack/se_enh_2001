@@ -10,14 +10,15 @@
 #include "opencv2/highgui/highgui.hpp"
 
 #include "app_ctrl.h"
-#include "ipc_custom_head.hpp"
+#include "Ipc.hpp"
 #include "osd_cv.h"
 
 typedef Rect_<double> Rect2d;
 
 using namespace vmath;
 extern CMD_EXT *msgextInCtrl;
-extern CMD_Mtd_Frame Mtd_Frame;
+extern ALG_CONFIG_Mtd gCFG_Mtd;
+extern OSDSTATUS gSYS_Osd;
 int CVideoProcess::m_mouseEvent = 0;
 int CVideoProcess::m_mousex = 0;
 int CVideoProcess::m_mousey = 0;
@@ -175,6 +176,8 @@ void CVideoProcess::main_proc_func()
 		if(!OnPreProcess(chId, frame))
 			continue;
 
+		cfg_set_trkMode((bTrack||bSceneTrack), bSceneTrack);
+
 		if(!m_bMoveDetect){
 			motionlessflag = false;
 			sceneJudge = 0;
@@ -214,30 +217,34 @@ void CVideoProcess::main_proc_func()
 		if(bTrack)
 		{
 		#if __TRACK__
-
-		static unsigned int t1,t2,t3;
-
-			t1 = OSA_getCurTimeInMsec();
 			
 			iTrackStat = ReAcqTarget();
 			if(Movedetect&&(iTrackStat==0))
 			{
 			}
 			int64 trktime = 0;
-			if(algOsdRect == true)
+			if(gSYS_Osd.algOsdRect == true)
 				trktime = getTickCount();//OSA_getCurTimeInMsec();
+
+			if(m_iTrackStat==2)
+			{
+				//m_searchmod=1;
+			}
+			else
+			{
+				m_searchmod=0;
+			}
+
 
 			m_iTrackStat = process_track(iTrackStat, frame_gray, frame_gray, m_rcTrack);
 
-			printf("track process_track cost time : %u \n",OSA_getCurTimeInMsec()-t1);
-
-#if 0
+		
 			putText(m_display.m_imgOsd[msgextInCtrl->SensorStat],trkINFODisplay,
 				Point( 10, 25),
 				FONT_HERSHEY_TRIPLEX,0.8,
 				cvScalar(0,0,0,0), 1
 			);
-
+#if 0
 			sprintf(trkINFODisplay, "trkStatus:%u,trkErrorX=%f,trkErrorY=%f",
 				iTrackStat,m_rcTrack.x,m_rcTrack.y);
 			putText(m_display.m_imgOsd[msgextInCtrl->SensorStat],trkINFODisplay,
@@ -250,9 +257,8 @@ void CVideoProcess::main_proc_func()
 
 			UtcGetSceneMV(m_track, &speedx, &speedy);
 			UtcGetOptValue(m_track, &optValue);
-			t2 = OSA_getCurTimeInMsec();
 
-			printf("track cost time : %u \n",t2 -t1);
+			//printf("track cost time : %u \n",t2 -t1);
 			
 			if(m_iTrackStat == 2)
 				m_iTrackLostCnt++;
@@ -270,6 +276,7 @@ void CVideoProcess::main_proc_func()
 				}
 			}
 
+			#if 0
 			if(m_display.disptimeEnable == 1)
 			{
 				putText(m_display.m_imgOsd[1],m_strDisplay,
@@ -285,10 +292,11 @@ void CVideoProcess::main_proc_func()
 						cvScalar(255,255,0,255), 1
 						);
 			}
+			#endif
 			
 			//printf("********m_iTrackStat=%d\n",m_iTrackStat);
 			//OSA_printf("ALL-Trk: time = %d ms \n", OSA_getCurTimeInMsec() - trktime);
-			if(algOsdRect == true){
+			if(gSYS_Osd.algOsdRect == true){
 				float time = ( (getTickCount() - trktime)/getTickFrequency())*1000;;//OSA_getCurTimeInMsec() - trktime;
 				static float totaltime = 0;
 				static int count11 = 1;
@@ -378,7 +386,7 @@ void CVideoProcess::main_proc_func()
 				}
 				 if(motionlessflag)
 				{
-					m_pMovDetector->setFrame(frame_gray,msgextInCtrl->SensorStat,Mtd_Frame.detectSpeed, Mtd_Frame.tmpMinPixel, Mtd_Frame.tmpMaxPixel, Mtd_Frame.sensitivityThreshold);
+					m_pMovDetector->setFrame(frame_gray,msgextInCtrl->SensorStat,gCFG_Mtd.detectSpeed, gCFG_Mtd.tmpMinPixel, gCFG_Mtd.tmpMaxPixel, gCFG_Mtd.sensitivityThreshold);
 				}
 			}
 		#endif
@@ -401,7 +409,7 @@ void CVideoProcess::main_proc_func()
 				unsigned long int t1 = cv::getTickCount();
 				retFlag = m_sceneObj.sceneLockProcess( frame_gray, getSceneRect );
 				unsigned long int t2 = cv::getTickCount();
-				printf("  cost time = %f \n",(t2 - t1)/getTickFrequency()*1000);
+				//printf("  cost time = %f \n",(t2 - t1)/getTickFrequency()*1000);
 				if(!retFlag)
 					printf(" warning : scene Lost !!!\n");
 					
@@ -418,13 +426,7 @@ void CVideoProcess::main_proc_func()
 				//send IPC
 				if( getSceneRectBK.width && getSceneRectBK.height && getSceneRectBK.x && getSceneRectBK.y )
 				{
-					SENDST scenetrk;
-					scenetrk.cmd_ID = sceneTrk;
-					tmpVal = msgextInCtrl->SceneAvtTrkStat;
-					memcpy(&scenetrk.param[0] ,&tmpVal, 4);
-					memcpy(&scenetrk.param[4] ,&tmpPoint.x , 4);
-					memcpy(&scenetrk.param[8] ,&tmpPoint.y , 4);
-					ipc_sendmsg(&scenetrk, IPC_FRIMG_MSG);
+					cfg_set_trkFeedback(msgextInCtrl->SceneAvtTrkStat, tmpPoint.x, tmpPoint.y);
 				}	
 			}	
 		}
@@ -485,7 +487,6 @@ CVideoProcess::CVideoProcess()
 	tvzoomStat		=0;
 	wFileFlag			=0;
 	preAcpSR	={0};
-	algOsdRect = false;
 
 	mptz_click = mptz_originX = mptz_originY = 0;
 	
@@ -588,16 +589,13 @@ int CVideoProcess::destroy()
 
 void CVideoProcess::mousemotion_event(GLint xMouse, GLint yMouse)
 {
-	SENDST test;
-	CMD_MOUSEPTZ mptz;
-
-	test.cmd_ID = mouseptz;
+	int mptzx;
+	int mptzy;
 	if(pThis->mptz_click == 1)
 	{
-		mptz.mptzx = xMouse - pThis->mptz_originX;
-		mptz.mptzy = pThis->mptz_originY - yMouse;
-		memcpy(test.param, &mptz, sizeof(mptz));
-		ipc_sendmsg(&test, IPC_FRIMG_MSG);
+		mptzx = xMouse - pThis->mptz_originX;
+		mptzy = pThis->mptz_originY - yMouse;
+		//ipc_setMouseEvent(mptzx, mptz);
 	}
 }
 
@@ -795,16 +793,8 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 	}
 	else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP)
 	{
-		SENDST test;
-		CMD_MOUSEPTZ mptz;
-		
 		pThis->mptz_click = 0;
-		test.cmd_ID = mouseptz;
-		mptz.mptzx = 0;
-		mptz.mptzy = 0;
-		memcpy(test.param, &mptz, sizeof(mptz));
-		ipc_sendmsg(&test, IPC_FRIMG_MSG);
-
+		//ipc_setMouseEvent(0, 0);
 	}
 }
 
@@ -866,25 +856,25 @@ void CVideoProcess::processrigionpolygonMenu(int value)
 void CVideoProcess::processmaxnumMenu(int value)
 {
 	if(0 == value)
-		Mtd_Frame.detectNum = 5;
+		gCFG_Mtd.detectNum = 5;
 	else if(1 == value)
-		Mtd_Frame.detectNum = 10;
+		gCFG_Mtd.detectNum = 10;
 }
 
 void CVideoProcess::processmaxtargetsizeMenu(int value)
 {
 	if(0 == value)
-		Mtd_Frame.tmpMaxPixel = 40000;
+		gCFG_Mtd.tmpMaxPixel = 40000;
 	else if(1 == value)
-		Mtd_Frame.tmpMaxPixel = 50000;
+		gCFG_Mtd.tmpMaxPixel = 50000;
 }
 
 void CVideoProcess::processmintargetsizeMenu(int value)
 {
 	if(0 == value)
-		Mtd_Frame.tmpMinPixel = 100;
+		gCFG_Mtd.tmpMinPixel = 100;
 	else if(1 == value)
-		Mtd_Frame.tmpMinPixel = 1000;
+		gCFG_Mtd.tmpMinPixel = 1000;
 }
 #endif
 void CVideoProcess::keyboard_event(unsigned char key, int x, int y)
@@ -1047,71 +1037,6 @@ int CVideoProcess::dynamic_config(int type, int iPrm, void* pPrm)
 
 	return iret;
 }
-
-#if 1
-int CVideoProcess::configEnhFromFile()
-{
-	string CalibFile;
-	CalibFile = "config.yml";
-
-	char calib_x[11] = "config_x";
-
-
-	FILE *fp = fopen(CalibFile.c_str(), "rt");
-	if(fp != NULL)
-	{
-		fseek(fp, 0, SEEK_END);
-		int len = ftell(fp);
-		fclose(fp);
-		
-		if(len < 10)
-			return -1;
-		else
-		{
-			
-			FileStorage fr(CalibFile, FileStorage::READ);
-			if(fr.isOpened())
-			{
-				
-					sprintf(calib_x, "enhmod_%d", 0);
-					Enhmod= (int)fr[calib_x];
-
-					sprintf(calib_x, "enhparm_%d", 1);
-					Enhparm= (float)fr[calib_x];
-
-					sprintf(calib_x, "mmtdparm_%d", 2);
-					DetectGapparm= (int)fr[calib_x];
-
-					sprintf(calib_x, "mmtdparm_%d", 3);
-					MinArea= (int)fr[calib_x];
-
-					sprintf(calib_x, "mmtdparm_%d", 4);
-					MaxArea= (int)fr[calib_x];
-
-					sprintf(calib_x, "mmtdparm_%d", 5);
-					stillPixel= (int)fr[calib_x];
-
-					sprintf(calib_x, "mmtdparm_%d", 6);
-					movePixel= (int)fr[calib_x];
-
-					sprintf(calib_x, "mmtdparm_%d", 7);
-					lapScaler= (float)fr[calib_x];
-				
-
-					sprintf(calib_x, "mmtdparm_%d", 8);
-					lumThred= (int)fr[calib_x];
-					
-					sprintf(calib_x, "timedisp_%d", 9);
-					m_display.disptimeEnable= (int)fr[calib_x];
-				return 0;
-			}else
-				return -1;
-		}
-	}else
-		return -1;
-}
-#endif
-
 
 int CVideoProcess::run()
 {
@@ -1525,10 +1450,10 @@ void	CVideoProcess::initMvDetect()
 		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
 	}
 
-		recttmp.x = Mtd_Frame.detectArea_X - Mtd_Frame.detectArea_wide/2;
-		recttmp.y = Mtd_Frame.detectArea_Y - Mtd_Frame.detectArea_high/2;
-		recttmp.w =Mtd_Frame.detectArea_wide;
-		recttmp.h = Mtd_Frame.detectArea_high;
+		recttmp.x = gCFG_Mtd.detectArea_X - gCFG_Mtd.detectArea_wide/2;
+		recttmp.y = gCFG_Mtd.detectArea_Y - gCFG_Mtd.detectArea_high/2;
+		recttmp.w =gCFG_Mtd.detectArea_wide;
+		recttmp.h = gCFG_Mtd.detectArea_high;
 
 		pThis->polWarnRect[msgextInCtrl->SensorStat][0].x = recttmp.x;
 		pThis->polWarnRect[msgextInCtrl->SensorStat][0].y = recttmp.y;

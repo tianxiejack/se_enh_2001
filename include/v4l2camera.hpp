@@ -23,7 +23,7 @@
 
 #include "osa_buf.h"
 
-#include "configable.h"
+#include "configtable.h"
 
 using namespace cv;
 

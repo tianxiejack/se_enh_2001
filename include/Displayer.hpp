@@ -20,7 +20,7 @@ const char chid = 5;
 #include "osa_buf.h"
 #include "osa_sem.h"
 #include "app_status.h"
-#include "configable.h"
+#include "configtable.h"
 
 using namespace std;
 using namespace cv;
@@ -153,10 +153,10 @@ public:
 	bool m_bFullScreen;
 	bool m_bOsd;
 	bool m_userOsd;
-	bool m_crossOsd[chid];
-	bool m_boxOsd[chid];
-	bool m_chidIDOsd[chid];
-	bool m_chidNameOsd[chid];
+	bool m_crossOsd;
+	bool m_boxOsd;
+	bool m_chidIDOsd;
+	bool m_chidNameOsd;
 
 	Mat m_disOsd[DS_DC_CNT];
 	Mat m_imgOsd[DS_DC_CNT];
@@ -307,7 +307,7 @@ public:
 	void IrisAndFocus();
 	int OSDFunc();
 	int OSDChid();
-	void drawtriangle(Mat frame, char direction, char alpha);
+	void drawtriangle(Mat frame, int direction, int alpha);
 	void OSDWorkMode();
 
 	

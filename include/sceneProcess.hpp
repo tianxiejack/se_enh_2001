@@ -9,7 +9,7 @@
 #define SCENEPROCESS_HPP_
 
 #include "sceneProc.hpp"
-#include "configable.h"
+#include "configtable.h"
 #include "MedianFlowTrk.hpp"
 
 using namespace OptFlowTrk;

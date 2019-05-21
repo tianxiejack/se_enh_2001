@@ -2,7 +2,7 @@
 #ifndef _GLOBAL_STATUS_H_
 #define _GLOBAL_STATUS_H_
 
-#include "ipc_custom_head.hpp"
+#include "configtable.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,21 +17,9 @@ typedef enum{
 	Disable = 0x00,
 	Enable_Iris,
 	Enable_Focus,
-	up,
-	down
+	up = 1,
+	down = -1
 }IrisAndFocus;
-
-typedef struct{
-	volatile unsigned int  DispColor;
-	volatile unsigned char DispFont;
-	volatile unsigned char DispSize;
-	volatile unsigned char DispSwitch;
-	volatile unsigned char DispID;
-	volatile short DispPosX;
-	volatile short DispPosY;
-	volatile unsigned char DispAlpha;
-}OSD_param;
-
 
 typedef enum {
 	eSen_CH0	= 0x00,
@@ -80,6 +68,14 @@ typedef enum Dram_MMTSelect
     eMMT_Prev       = 0x02,
     eMMT_Select = 0x03,
 } eMMTSelect;
+
+typedef enum Dram_MTDSelect
+{
+    eMTD_No     = 0x00,
+    eMTD_Next       = 0x01,
+    eMTD_Prev       = 0x02,
+    eMTD_Select = 0x03,
+} eMTDSelect;
 
 typedef enum Dram_DispGradeStat
 {
@@ -202,7 +198,6 @@ typedef enum
     MSGID_EXT_INPUT_DISPGRADE = 0x00000030,  ///< external cmd, osd show or hide
     MSGID_EXT_INPUT_DISPCOLOR,              ///< external cmd, osd color
     MSGID_EXT_INPUT_COLOR,                 ///< external cmd, switch input video color.
-    MSGID_EXT_INPUT_ALGOSDRECT,
 
     // video control
     MSGID_EXT_INPUT_VIDEOCTRL,              ///< external cmd, video record or replay.

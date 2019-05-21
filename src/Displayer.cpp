@@ -24,7 +24,6 @@
 #include "string.h"
 #include "process51.hpp"
 #include "locale.h"
-#include "ipc_custom_head.hpp"
 #include "arm_neon.h"
 
 
@@ -33,9 +32,6 @@
 #define DARKEN 0
 
 static CDisplayer *gThis = NULL;
-extern OSD_ctrlParams osd_params;
-extern CMD_triangle cmd_triangle;
-extern OSD_param m_osd;
 extern CProcess* plat;
 extern bool sceneLost;
 
@@ -66,11 +62,8 @@ GLfloat _fontColor[4] = {1.0,1.0,1.0,1.0};
 static GLfloat m_glvVertsDefault[8] = {-1.0f, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f};
 static GLfloat m_glvTexCoordsDefault[8] = {0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f};
 
-osdbuffer_t disOsdBuf[32]={0};
-//char disOsdBuf[32][128] = {0};
-osdbuffer_t disOsdBufbak[32] = {0};
-wchar_t disOsd[32][33];
-
+OSD_CONFIG_USER gCFG_Osd = {0};
+OSDSTATUS gSYS_Osd = {0};
 
 CDisplayer::CDisplayer()
 :m_renderCount(0),m_bRun(false),m_bFullScreen(false),m_bOsd(false),
@@ -344,76 +337,27 @@ void CDisplayer::processdetectcondMenu(int value)
 
 void CDisplayer::processpolarMenu(int value)
 {
-	SENDST test = {0};
-	
-	test.cmd_ID = mtdpolar;
-	if(0 == value)
-		test.param[0] = 0;
-	else if(1 == value)
-		test.param[0] = 1;
-	
-	ipc_sendmsg(&test, IPC_FRIMG_MSG);
+
 }
 
 void CDisplayer::processdurationMenu(int value)
 {
-	SENDST test = {0};
-	CMD_MTDTRKTIME mtdtime;
-	
-	test.cmd_ID = mtdtrktime;
-	if(0 == value)
-		mtdtime.seconds = 1;
-	else if(1 == value)
-		mtdtime.seconds = 3;
-	else if(2 == value)
-		mtdtime.seconds = 5;
-	else if(3 == value)
-		mtdtime.seconds = 7;
-	else if(4 == value)
-		mtdtime.seconds = 9;
-	
-	memcpy(test.param, &mtdtime, sizeof(mtdtime));
-	ipc_sendmsg(&test, IPC_FRIMG_MSG);
 		
 }
 
 void CDisplayer::processmtdmodeMenu(int value)
 {
-	SENDST test = {0};
-	
-	test.cmd_ID = mtdmode;
-	if(0 == value)
-		test.param[0] = 0;
-	else if(1 == value)
-		test.param[0] = 1;
-	
-	ipc_sendmsg(&test, IPC_FRIMG_MSG);
+
 }
 
 void CDisplayer::processredetectMenu(int value)
 {
-	SENDST test = {0};
-	
-	test.cmd_ID = mtdredetect;
-	if(0 == value)
-		test.param[0] = 0;
-	else if(1 == value)
-		test.param[0] = 1;
-	
-	ipc_sendmsg(&test, IPC_FRIMG_MSG);
+
 }
 
 void CDisplayer::processalarmputMenu(int value)
 {
-	SENDST test = {0};
-	
-	test.cmd_ID = mtdoutput;
-	if(0 == value)
-		test.param[0] = 0;
-	else if(1 == value)
-		test.param[0] = 1;
-	
-	ipc_sendmsg(&test, IPC_FRIMG_MSG);
+
 }
 
 void CDisplayer::gl_resize()
@@ -823,6 +767,7 @@ void CDisplayer::display(Mat frame, int chId, int code)
 	unsigned int byteCount = frame.rows * frame.cols * nChannel * sizeof(unsigned char);
 	assert(chId>=0 && chId<DS_CHAN_MAX);
 
+	#if 0
 	if(disptimeEnable == 1){	
 		//test zhou qi  time
 		int64 captime = 0;
@@ -835,7 +780,7 @@ void CDisplayer::display(Mat frame, int chId, int code)
 		capTime = curtime - pretime;
 		pretime = curtime;
 	}
-
+	#endif
 /*
 	cv::Mat frame_gray;
 	frame_gray = Mat(frame.rows, frame.cols, CV_8UC1);
@@ -1504,7 +1449,7 @@ void CDisplayer::gl_textureLoad(void)
 					tv_pribuffid3=bufid;
 				}
 
-			
+			#if 0
 			if(disptimeEnable == 1){//0
 				//test zhou qi  time
 				int64 disptime = 0;
@@ -1543,7 +1488,7 @@ void CDisplayer::gl_textureLoad(void)
 						cvScalar(255,255,0,255), 1
 						);
 			}
-
+			#endif
 
 				if(m_renders[chId].videodect)
 				{
@@ -1856,19 +1801,23 @@ void CDisplayer::gl_display(void)
 
 void CDisplayer::IrisAndFocus()
 {
-	switch(osd_params.IrisAndFocusAndExit)
+	static int irisdir = 0;
+	static int focusdir = 0;
+	drawtriangle(plat->m_display.m_imgOsd[plat->extInCtrl->SensorStat], irisdir, 0);
+	drawtriangle(plat->m_display.m_imgOsd[plat->extInCtrl->SensorStat], focusdir, 0);
+	switch(gSYS_Osd.IrisAndFocusAndExit)
 	{
 	case Enable_Iris:
 		chinese_osd(905,1000,L"光圈调节",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		drawtriangle(plat->m_display.m_imgOsd[plat->extInCtrl->SensorStat], cmd_triangle.dir, cmd_triangle.alpha);
+		drawtriangle(plat->m_display.m_imgOsd[plat->extInCtrl->SensorStat], gSYS_Osd.cmd_triangle.dir, gSYS_Osd.cmd_triangle.alpha);
+		irisdir = gSYS_Osd.cmd_triangle.dir;
 		break;
-
 	case Enable_Focus:
 		chinese_osd(905,1000,L"聚焦调节",1,4,255,0,0,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		drawtriangle(plat->m_display.m_imgOsd[plat->extInCtrl->SensorStat], cmd_triangle.dir, cmd_triangle.alpha);
+		drawtriangle(plat->m_display.m_imgOsd[plat->extInCtrl->SensorStat], gSYS_Osd.cmd_triangle.dir, gSYS_Osd.cmd_triangle.alpha);
+		focusdir = gSYS_Osd.cmd_triangle.dir;
 		break;
 	case Disable:
-		drawtriangle(plat->m_display.m_imgOsd[plat->extInCtrl->SensorStat], cmd_triangle.dir, cmd_triangle.alpha);
 		break;
 	}
 }
@@ -1877,48 +1826,51 @@ void CDisplayer::OSDWorkMode()
 {
 	int x = 15, x1 = 240, y = 1040;
 	int R = 255, G = 255, B = 255;
-	switch(osd_params.OSD_workMode)
+	if(gSYS_Osd.m_workOsd)
 	{
-	case 2:
-		chinese_osd(x,y,L"工作模式:自动监视",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		break;
+		switch(gSYS_Osd.workMode)
+		{
+		case 2:
+			chinese_osd(x,y,L"工作模式:自动监视",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
 
-	case 3:
-		chinese_osd(x,y,L"工作模式:场景跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		chinese_osd(x1,y,L"状态:捕获",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		break;
+		case 3:
+			chinese_osd(x,y,L"工作模式:场景跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			chinese_osd(x1,y,L"状态:捕获",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
 
-	case 4:
-		chinese_osd(x,y,L"工作模式:常规跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		chinese_osd(x1,y,L"目标选择方式:移动转台",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		break;
+		case 4:
+			chinese_osd(x,y,L"工作模式:常规跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			chinese_osd(x1,y,L"目标选择方式:移动转台",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
 
-	case 5:
-		chinese_osd(x,y,L"工作模式:常规跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		chinese_osd(x1,y,L"目标选择方式:移动波门",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		break;
+		case 5:
+			chinese_osd(x,y,L"工作模式:常规跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			chinese_osd(x1,y,L"目标选择方式:移动波门",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
 
-	case 6:
-		chinese_osd(x,y,L"工作模式:常规跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		chinese_osd(x1,y,L"目标选择方式:移动检测",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		break;
+		case 6:
+			chinese_osd(x,y,L"工作模式:常规跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			chinese_osd(x1,y,L"目标选择方式:移动检测",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
 
-	case 7:
-		chinese_osd(x,y,L"工作模式:场景跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		if(sceneLost)
-			chinese_osd(x1,y,L"状态:丟失",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		else
-			chinese_osd(x1,y,L"状态:跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
-		break;
+		case 7:
+			chinese_osd(x,y,L"工作模式:场景跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			if(sceneLost)
+				chinese_osd(x1,y,L"状态:丟失",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			else
+				chinese_osd(x1,y,L"状态:跟踪",1,4,R,G,B,255,VIDEO_DIS_WIDTH,VIDEO_DIS_HEIGHT);
+			break;
 
-		default:
-		break;
+			default:
+			break;
+		}
 	}
 }
 
 int CDisplayer::OSDChid()
 {
-	if(m_chidIDOsd[plat->extInCtrl->SensorStat])
+	if(m_chidIDOsd)
 	{
 		switch(plat->extInCtrl->SensorStat)
 		{
@@ -1940,7 +1892,7 @@ int CDisplayer::OSDChid()
 		}
 	}
 
-	if(m_chidNameOsd[plat->extInCtrl->SensorStat])
+	if(m_chidNameOsd)
 	{
 		switch(plat->extInCtrl->SensorStat)
 		{
@@ -1966,22 +1918,19 @@ int CDisplayer::OSDChid()
 
 int CDisplayer::OSDFunc()
 {
-	//OSD_param* posd = NULL;
-	//posd = &m_osd;
-
 	unsigned char r, g, b, a, color, colorbak, Enable;
 	short x, y;
 	char font,fontsize;
 
 	for(int i = 0;i<32;i++){
-		Enable = disOsdBufbak[i].ctrl;
-		if(!Enable){
-			 x = disOsdBufbak[i].posx;
-			 y = disOsdBufbak[i].posy;
-		 	 a = disOsdBufbak[i].alpha;
-			 color = disOsdBufbak[i].color;
-			 font = plat->extInCtrl->osdTextFont;
-			 fontsize = plat->extInCtrl->osdTextSize;
+		Enable = gCFG_Osd.items[i].ctrl;
+		if(Enable){
+			 x = gCFG_Osd.items[i].posx;
+			 y = gCFG_Osd.items[i].posy;
+		 	 a = gCFG_Osd.items[i].alpha;
+			 color = gCFG_Osd.items[i].color;
+			 font = gCFG_Osd.items[i].font;
+			 fontsize = gCFG_Osd.items[i].fontsize;
 
 			switch(color)
 			{
@@ -2026,15 +1975,14 @@ int CDisplayer::OSDFunc()
 				a = 0;
 			else
 				a = 255 - a*16;
-			
-			chinese_osd(x, y, disOsd[i],font ,fontsize, r, g, b, a, VIDEO_DIS_WIDTH, VIDEO_DIS_HEIGHT);
+			chinese_osd(x, y, &(gCFG_Osd.disBuf[i][0]),font ,fontsize, r, g, b, a, VIDEO_DIS_WIDTH, VIDEO_DIS_HEIGHT);
 		}
 	}
 
 	return 0;
 }
 
-void CDisplayer::drawtriangle(Mat frame, char direction, char alpha)
+void CDisplayer::drawtriangle(Mat frame, int direction, int alpha)
 {
 	Point root_points[1][3];
 	int npt[] = {3};

@@ -7,8 +7,7 @@
 
 #include "CcCamCalibra.h"
 #include <sys/time.h>
-#include "configable.h"
-#include "ipc_custom_head.hpp"
+#include "configtable.h"
 
 CamParameters g_camParams;
 OSA_SemHndl m_linkage_getPos;
@@ -255,10 +254,6 @@ int CcCamCalibra::Run()
 					bool_Calibrate = false;
 					cout << "match points " << matches.size() << endl;
 //-----------------------------------------------------------------------------------------------------
-					SENDST trkmsg={0};
-					trkmsg.cmd_ID = querypos;
-					ipc_sendmsg(&trkmsg, IPC_FRIMG_MSG);
-
 					flag = OSA_semWait(&m_linkage_getPos, OSA_TIMEOUT_FOREVER/*200*/);
 					if( -1 == flag ) {
 						getCurrentPosFlag = false;

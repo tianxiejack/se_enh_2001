@@ -10,7 +10,7 @@
 
 #include "MMTD.h"
 #include "mvdectInterface.hpp"
-#include "configable.h"
+#include "configtable.h"
 
 #include "CcCamCalibra.h"
 #include "sceneProcess.hpp"
@@ -145,7 +145,6 @@ public :
 	int prichnalid;
 	//vector<Rect> Box;
 	bool moveStat;
-	bool algOsdRect;
 	
 	bool TrkAim43;
 	bool wFileFlag;
@@ -219,8 +218,6 @@ protected:
 	float lapScaler;
 	int lumThred;
 
-	int configEnhFromFile();
-	
 	void process_event(int type, int iPrm, void *pPrm);
 	int process_frame(int chId, int virchID, Mat frame);
 	int process_mtd(ALGMTD_HANDLE pChPrm, Mat frame_gray, Mat frame_dis);
