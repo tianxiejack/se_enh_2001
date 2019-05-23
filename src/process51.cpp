@@ -81,12 +81,11 @@ CProcess::~CProcess()
 
 int CProcess::SaveTestConfig()
 {
-	float *testConfig = NULL;
-	testConfig = (float *)OSA_memAlloc( 4*CFGID_FEILD_MAX*CFGID_BLOCK_MAX );
+	int *testConfig = (int *)OSA_memAlloc( 4*CFGID_FEILD_MAX*CFGID_BLOCK_MAX );
 	cfg_dbg_setDefault(testConfig);
 
 	printf("-----------save config------\n");
-	string cfgAvtFile;
+	string cfgAvtFile, str;
 	int configId_Max = CFGID_FEILD_MAX*CFGID_BLOCK_MAX;
 	char  cfg_avt[30] = "cfg_avt_";
 	cfgAvtFile = "/home/ubuntu/nsight_project/Profile_init.yml";
@@ -96,9 +95,22 @@ int CProcess::SaveTestConfig()
 	{
 		for(int i=0; i<configId_Max; i++)
 		{
-			sprintf(cfg_avt, "cfg_avt_%03d_%02d", (i/CFGID_FEILD_MAX), (i%CFGID_FEILD_MAX));
-			float value = testConfig[i];
-			fr<< cfg_avt << value;
+			int blkId = (i/CFGID_FEILD_MAX);
+			int feildId = (i%CFGID_FEILD_MAX);
+			int usrosdId = -1;
+			sprintf(cfg_avt, "cfg_avt_%03d_%02d", blkId, feildId);
+			if(blkId >= CFGID_TRK_BKID && blkId < (CFGID_TRK_BKID+3))
+			{
+				float value = (float)fr[cfg_avt];
+				memcpy(&value, &testConfig[i], 4);
+				fr<< cfg_avt << value;
+				//cout<<"read i="<<i<<"!!data="<<value<<endl;
+			}
+			else
+			{
+				int value = testConfig[i];
+				fr<< cfg_avt << value;
+			}
 		}
 	}
 	else
@@ -111,12 +123,12 @@ int CProcess::SaveTestConfig()
 
 int CProcess::ReadTestConfig()
 {
-	float *testConfig = (float *)OSA_memAlloc( 4*CFGID_FEILD_MAX*CFGID_BLOCK_MAX );
+	int *testConfig = (int *)OSA_memAlloc( 4*CFGID_FEILD_MAX*CFGID_BLOCK_MAX );
 	unsigned char *testUser = (unsigned char *)OSA_memAlloc( USEROSD_LENGTH*CFGID_USEROSD_MAX );
 
 	string cfgAvtFile, str;
 	int configId_Max = CFGID_FEILD_MAX*CFGID_BLOCK_MAX;
-	char  cfg_avt[30] = "cfg_avt_";
+	char cfg_avt[30] = "cfg_avt_";
 	cfgAvtFile = "/home/ubuntu/nsight_project/Profile_init.yml";
 
 	memset(testConfig, 0, 4*CFGID_FEILD_MAX*CFGID_BLOCK_MAX);
@@ -140,9 +152,19 @@ int CProcess::ReadTestConfig()
 				//cout<<"read i="<<i<<"!!str="<<str<<endl;
 				str.copy((char *)(testUser+usrosdId*USEROSD_LENGTH), str.length()<USEROSD_LENGTH?str.length():USEROSD_LENGTH, 0);
 			}
+			else if(blkId < CFGID_TRK_BKID || blkId >= CFGID_PID_BKID)
+			{
+				continue;	// no need read
+			}
+			else if(blkId >= CFGID_TRK_BKID && blkId < (CFGID_TRK_BKID+3))
+			{
+				float value = (float)fr[cfg_avt];
+				memcpy(&testConfig[i], &value, 4);
+				//cout<<"read i="<<i<<"!!data="<<value<<endl;
+			}
 			else
 			{
-				float value = fr[cfg_avt];
+				int value = (int)fr[cfg_avt];
 				testConfig[i] = value;
 			}
 		}

@@ -32,9 +32,10 @@ OSA_ThrHndl thrHandleDataIn_send;
 #define FXN_END }
 typedef Int32 ( *ConfigFxn )( Int32 blkId, Int32 feildId, void *inprm );
 static ConfigFxn *fxnsCfg = NULL;
-static float *sysConfig = NULL;
+static int *sysConfig = NULL;
 static unsigned char *userConfig = NULL;
 
+extern int IPCSendMsg(CMD_ID cmd, void* prm, int len);
 ///////////////////////////////////
 // cfg_ctrl_xxx() get data from sysconfig for init
 // cfg_update_xxx() get data from sysconfig by update and 
@@ -65,7 +66,7 @@ int cfg_get_input_senid(int blkId)
 		return 0;
 }
 
-void cfg_ctrl_sysInit(float * configTab)
+void cfg_ctrl_sysInit(int * configTab)
 {
 	int i, BKID;
 
@@ -118,15 +119,16 @@ void cfg_ctrl_sysInit(float * configTab)
 
 	///////////////////
 	memcpy(&gCFG_Trk, &(configTab[CFGID_TRK_BASE]),sizeof(ALG_CONFIG_Trk));
-	gCFG_Trk.losttime = (int)configTab[CFGID_TRK_assitime];
-	printf("trkPrm init occlusion_thred %f losttime %dms\n",
-			gCFG_Trk.occlusion_thred, gCFG_Trk.losttime);
+	float value;
+	memcpy(&value, &configTab[CFGID_TRK_assitime], 4);
+	gCFG_Trk.losttime = (int)value;
+	printf("trkPrm init occlusion_thred %f res_area %f losttime %dms\n",
+			gCFG_Trk.occlusion_thred, gCFG_Trk.res_area, gCFG_Trk.losttime);
 
 	///////////////////
-	//memcpy(&gCFG_Mtd, &(configTab[CFGID_MTD_BASE]),(4*2*CFGID_FEILD_MAX)/*sizeof(ALG_CONFIG_Mtd)*/);
-	IPC_PRM_INT *pPrm = (IPC_PRM_INT *)&gCFG_Mtd;
-	for(i=0;i<9;i++)
-		pPrm->intPrm[i] = (int)configTab[CFGID_MTD_BASE+i];
+	memcpy(&gCFG_Mtd, &(configTab[CFGID_MTD_BASE]),(4*2*CFGID_FEILD_MAX)/*sizeof(ALG_CONFIG_Mtd)*/);
+	printf("mtdPrm init areaSetBox %d detectNum %d\n",
+			gCFG_Mtd.areaSetBox, gCFG_Mtd.detectNum);
 	configTab[CFGID_RTS_mainch] = 0;// default use first sensor
 	BKID = cfg_get_input_bkid(0);
 	gCFG_Mtd.sensitivityThreshold = configTab[CFGID_INPUT_SENISIVITY(BKID)];
@@ -141,7 +143,7 @@ void cfg_ctrl_sysInit(float * configTab)
 
 }
 
-void cfg_ctrl_osdInit(float * configTab, unsigned char *configUser)
+void cfg_ctrl_osdInit(int * configTab, unsigned char *configUser)
 {
 	int id, i;
 	for(id=0; id<CFGID_USEROSD_MAX; id++)
@@ -171,7 +173,7 @@ void cfg_ctrl_osdInit(float * configTab, unsigned char *configUser)
 void cfg_ctrl_acqReset(void *inprm)
 {
 	int i, BKID;
-	float * configTab = sysConfig;
+	int * configTab = sysConfig;
 	CMD_EXT * pIStuts = (CMD_EXT *)inprm;
 	///////////////////
 	int type;
@@ -199,7 +201,7 @@ void cfg_ctrl_acqReset(void *inprm)
 
 }
 
-void cfg_ctrl_setSensor(float * configTab)
+void cfg_ctrl_setSensor(int * configTab)
 {
 	int ich, BKID;
 	ich = configTab[CFGID_RTS_mainch];
@@ -217,15 +219,21 @@ void cfg_ctrl_setSensor(float * configTab)
 
 Int32 cfg_update_trk( Int32 blkId, Int32 feildId, void *inprm )
 {
-	float * configTab = sysConfig;
+	int * configTab = sysConfig;
 	/////////////////////////
 	if(feildId == 0xFF)
 	{
 		memcpy(&gCFG_Trk, &(configTab[CFGID_TRK_BASE]),sizeof(ALG_CONFIG_Trk));
-		gCFG_Trk.losttime = (int)configTab[CFGID_TRK_assitime];
+		float value;
+		memcpy(&value, &configTab[CFGID_TRK_assitime], 4);
+		gCFG_Trk.losttime = (int)value;
 	}
 	if(CFGID_BUILD(blkId, feildId) == CFGID_TRK_assitime)
-		gCFG_Trk.losttime = (int)configTab[CFGID_TRK_assitime];
+	{
+		float value;
+		memcpy(&value, &configTab[CFGID_TRK_assitime], 4);
+		gCFG_Trk.losttime = (int)value;
+	}
 	return 0;
 }
 
@@ -242,19 +250,16 @@ Int32 cfg_update_sys( Int32 blkId, Int32 feildId, void *inprm )
 Int32 cfg_update_mtd( Int32 blkId, Int32 feildId, void *inprm )
 {
 	int i;
-	float * configTab = sysConfig;
+	int * configTab = sysConfig;
 	/////////////////////////
 	if(feildId == 0xFF)
 	{
-		//memcpy(&gCFG_Mtd, &(configTab[CFGID_MTD_BASE]),(4*2*CFGID_FEILD_MAX)/*sizeof(ALG_CONFIG_Mtd)*/);
-		IPC_PRM_INT *pPrm = (IPC_PRM_INT *)&gCFG_Mtd;
-		for(i=0;i<9;i++)
-			pPrm->intPrm[i] = (int)configTab[CFGID_MTD_BASE+i];
+		memcpy(&gCFG_Mtd, &(configTab[CFGID_MTD_BASE]),(4*2*CFGID_FEILD_MAX)/*sizeof(ALG_CONFIG_Mtd)*/);
 		MSGDRIV_send(MSGID_EXT_MVDETECTUPDATE, 0);
 	}
 	if(CFGID_BUILD(blkId, feildId) == CFGID_MTD_upspd)
 	{
-		gCFG_Mtd.tmpUpdateSpeed = (int)configTab[CFGID_MTD_upspd];
+		gCFG_Mtd.tmpUpdateSpeed = configTab[CFGID_MTD_upspd];
 		MSGDRIV_send(MSGID_EXT_MVDETECTUPDATE, 0);
 	}
 	return 0;
@@ -262,7 +267,7 @@ Int32 cfg_update_mtd( Int32 blkId, Int32 feildId, void *inprm )
 
 Int32 cfg_update_usrosd( Int32 blkId, Int32 feildId, void *inprm )
 {
-	float * configTab = sysConfig;
+	int * configTab = sysConfig;
 	unsigned char *configUser = userConfig;
 	/////////////////////////
 	int id, i, addrbase;
@@ -298,7 +303,7 @@ Int32 cfg_update_input( Int32 blkId, Int32 feildId, void *inprm )
 	int ich, BKID, configId;
 	int cfgIdtype, cfgIdswlv;
 	int type, swlv;
-	float * configTab = sysConfig;
+	int * configTab = sysConfig;
 	CMD_EXT * pInCmd = (CMD_EXT *)inprm;
 
 	ich = cfg_get_input_senid(blkId);
@@ -346,7 +351,7 @@ Int32 cfg_update_input( Int32 blkId, Int32 feildId, void *inprm )
 
 void cfg_init(void)
 {
-	sysConfig = (float *)ipc_getSharedMem(IPC_IMG_SHA);
+	sysConfig = (int *)ipc_getSharedMem(IPC_IMG_SHA);
 	userConfig = (unsigned char *)ipc_getSharedMem(IPC_USER_SHA);
 	if(sysConfig == NULL || userConfig == NULL)
 	{
@@ -386,6 +391,87 @@ void cfg_uninit(void)
 {
 	if(fxnsCfg != NULL)
 		OSA_memFree(fxnsCfg);
+}
+
+int cfg_set_outSensor(unsigned int outsen, unsigned int outsen2)
+{
+	static unsigned int outsenprev = 0, outsen2prev = 0;
+	sysConfig[CFGID_RTS_mainch] = outsen;
+	sysConfig[CFGID_RTS_mainch2] = outsen2;
+	if(outsenprev != outsen)	// report
+	{
+		int configId = CFGID_RTS_mainch;
+		IPCSendMsg(read_shm_single, &configId, 4);
+		outsenprev = outsen;
+	}
+	return 0;
+}
+
+int cfg_set_trkMode(unsigned int bTrack, unsigned int bScene)
+{
+	static unsigned int bTrkModePrev = 0;
+	sysConfig[CFGID_RTS_trken] = bTrack;
+	sysConfig[CFGID_RTS_trkmode] = bScene;
+
+	if(!bTrack)	// clean
+	{
+		sysConfig[CFGID_RTS_trkstat] = 0;
+		sysConfig[CFGID_RTS_trkerrx] = 0;
+		sysConfig[CFGID_RTS_trkerry] = 0;
+	}
+	if(bTrkModePrev != bTrack)	// report
+	{
+		int configId = CFGID_RTS_trkmode;
+		IPCSendMsg(read_shm_single, &configId, 4);
+		bTrkModePrev = bTrack;
+	}
+	return 0;
+}
+
+int cfg_set_trkSecStat(unsigned int bSecTrk)
+{
+	static unsigned int bSecTrkPrev = 0;
+	sysConfig[CFGID_RTS_sectrkstat] = bSecTrk;
+	if(bSecTrkPrev != bSecTrk)	// report
+	{
+		int configId = CFGID_RTS_sectrkstat;
+		IPCSendMsg(read_shm_single, &configId, 4);
+		bSecTrkPrev = bSecTrk;
+	}
+	return 0;
+}
+
+int cfg_set_trkFeedback(unsigned int trackstatus, float trackposx, float trackposy)
+{
+	static unsigned int bTrkStatPrev = 0;
+	sysConfig[CFGID_RTS_trkstat] = trackstatus;
+	//sysConfig[CFGID_RTS_trkerrx] = trackposx;
+	//sysConfig[CFGID_RTS_trkerry] = trackposy;
+	memcpy(&sysConfig[CFGID_RTS_trkerrx], &trackposx, 4);
+	memcpy(&sysConfig[CFGID_RTS_trkerry], &trackposy, 4);
+	// report
+	int configId = CFGID_RTS_trkstat;
+	IPCSendMsg(read_shm_single, &configId, 4);
+	if(bTrkStatPrev != trackstatus)
+	{
+		OSA_printf("ALL-TRK: stat from %d to %d\n", bTrkStatPrev, trackstatus);
+		bTrkStatPrev = trackstatus;
+	}
+	return 0;
+}
+
+int cfg_set_mtdFeedback(unsigned int bMtd, unsigned int bMtdDetect)
+{
+	static unsigned int bMtdDetectPrev = 0;
+	sysConfig[CFGID_RTS_mtden] = bMtd;
+	sysConfig[CFGID_RTS_mtddet] = bMtdDetect;
+	if(bMtdDetectPrev != bMtdDetect)	// report
+	{
+		int configId = CFGID_RTS_mtddet;
+		IPCSendMsg(read_shm_single, &configId, 4);
+		bMtdDetectPrev = bMtdDetect;
+	}
+	return 0;
 }
 /////////////////////////////////////////////////////
 
@@ -513,7 +599,7 @@ void* recv_msgpth(SENDST *pInData)
 			{
 				pMsg->SensorStat = pIn->intPrm[0];
 				app_ctrl_setSensor(pMsg);
-				sysConfig[CFGID_RTS_mainch] = (float)pMsg->SensorStat;
+				cfg_set_outSensor(pMsg->SensorStat, pMsg->SensorStat);
 				cfg_ctrl_setSensor(sysConfig);
 			}
 			break;
@@ -615,6 +701,7 @@ void* recv_msgpth(SENDST *pInData)
 				}
 
 				app_ctrl_setTrkStat(pMsg); 
+				cfg_set_trkSecStat(0);	// set sectrk close when exit trk 
 			}
 			break;
 	
@@ -647,7 +734,6 @@ void* recv_msgpth(SENDST *pInData)
 						pMsg->AvtTrkStat =eTrk_mode_search;
 						app_ctrl_setTrkStat(pMsg);
 						app_ctrl_setAxisPos(pMsg);
-						sysConfig[CFGID_RTS_sectrkstat] = 1;
 					}
 					else if(2 == SecAcqStat){
 						pMsg->AvtTrkStat = eTrk_mode_sectrk;
@@ -657,14 +743,13 @@ void* recv_msgpth(SENDST *pInData)
 						pMsg->AxisPosX[pMsg->SensorStat] = pMsg->opticAxisPosX[pMsg->SensorStat];
 						pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
 						app_ctrl_setAxisPos(pMsg);
-						sysConfig[CFGID_RTS_sectrkstat] = 2;
 					}
 					else
 					{
 						pMsg->AvtTrkStat = eTrk_mode_target;
 						app_ctrl_setTrkStat(pMsg);
-						sysConfig[CFGID_RTS_sectrkstat] = 3;
 					}
+					cfg_set_trkSecStat(SecAcqStat);	// set sectrk open/entertrk/cancel
 				}
 			}
 			break;
@@ -850,55 +935,10 @@ void Ipc_pthread_stop(void)
 
 }
 
-int cfg_set_trkMode(unsigned int bTrack, unsigned int bScene)
-{
-	sysConfig[CFGID_RTS_trken] = (float)bTrack;
-	sysConfig[CFGID_RTS_trkmode] = (float)bScene;
-
-	if(!bTrack)	// clean
-	{
-		sysConfig[CFGID_RTS_trkstat] = 0;
-		sysConfig[CFGID_RTS_trkerrx] = 0;
-		sysConfig[CFGID_RTS_trkerry] = 0;
-		sysConfig[CFGID_RTS_sectrkstat] = 0;
-	}
-	return 0;
-}
-
-int cfg_set_trkFeedback(unsigned int trackstatus, float trackposx, float trackposy)
-{
-	static unsigned int bTrkStatPrev = 0;
-	sysConfig[CFGID_RTS_trkstat] = (float)trackstatus;
-	sysConfig[CFGID_RTS_trkerrx] = trackposx;
-	sysConfig[CFGID_RTS_trkerry] = trackposy;
-	int configId = CFGID_RTS_trkstat;
-	IPCSendMsg(read_shm_single, &configId, 4);
-	if(bTrkStatPrev != trackstatus)
-	{
-		OSA_printf("ALL-TRK: stat from %d to %d\n", bTrkStatPrev, trackstatus);
-		bTrkStatPrev = trackstatus;
-	}
-	return 0;
-}
-
-int cfg_set_mtdFeedback(unsigned int bMtd, unsigned int bMtdDetect)
-{
-	static unsigned int bMtdDetectPrev = 0;
-	sysConfig[CFGID_RTS_mtden] = (float)bMtd;
-	sysConfig[CFGID_RTS_mtddet] = (float)bMtdDetect;
-	if(bMtdDetectPrev != bMtdDetect)
-	{
-		int configId = CFGID_RTS_mtddet;
-		IPCSendMsg(read_shm_single, &configId, 4);
-		bMtdDetectPrev = bMtdDetect;
-	}
-	return 0;
-}
-
 //////////////////////////////////////////////
 // self debug part
 /////////////////////////////////////////////
-void cfg_dbg_setDefault(float * configTab)
+void cfg_dbg_setDefault(int * configTab)
 {
 	int i, BKID;
 	memset(configTab, 0, CFGID_BKID_MAX*CFGID_FEILD_MAX*4);
@@ -907,6 +947,7 @@ void cfg_dbg_setDefault(float * configTab)
 	//CFGID_PTZ_BKID
 	//CFGID_TRK_BKID
 	{
+		#if 0
 		ALG_CONFIG_Trk *pCFG_Trk = (ALG_CONFIG_Trk *)&configTab[CFGID_TRK_BASE];
 		pCFG_Trk->occlusion_thred = 0.28;
 		pCFG_Trk->retry_acq_thred = 0.38;
@@ -956,6 +997,13 @@ void cfg_dbg_setDefault(float * configTab)
 		pCFG_Trk->kalmanHistThred = 2.5;
 		pCFG_Trk->kalmanCoefQ = 0.00001;
 		pCFG_Trk->kalmanCoefR = 0.0025;
+		#else
+		IPC_PRM_INT *pPrm;
+		pPrm = (IPC_PRM_INT *)&configTab[CFGID_TRK_BASE];
+		pPrm = (IPC_PRM_INT *)&configTab[CFGID_TRK_BASE+1];
+		pPrm = (IPC_PRM_INT *)&configTab[CFGID_TRK_BASE+2];
+		//memcpy();
+		#endif
 	}
 	//CFGID_OSD_BKID
 	for(i=0; i<16; i++)
@@ -1012,7 +1060,18 @@ void cfg_dbg_setDefault(float * configTab)
 	}
 	//CFGID_MTD_BKID
 	{
-		//ALG_CONFIG_Mtd *pCFG_Mtd = (ALG_CONFIG_Mtd *)&configTab[CFGID_MTD_BASE];
+		#if 1
+		ALG_CONFIG_Mtd *pCFG_Mtd = (ALG_CONFIG_Mtd *)&configTab[CFGID_MTD_BASE];
+		pCFG_Mtd->areaSetBox = 1;
+		pCFG_Mtd->detectNum = 5;
+		pCFG_Mtd->tmpUpdateSpeed = 30;
+		pCFG_Mtd->tmpMaxPixel = 40000;
+		pCFG_Mtd->tmpMinPixel = 100;
+		pCFG_Mtd->detectSpeed = 80;
+		pCFG_Mtd->TrkMaxTime = 10;
+		pCFG_Mtd->priority = 1;
+		pCFG_Mtd->alarm_delay = 10;
+		#else
 		IPC_PRM_INT *pPrm = (IPC_PRM_INT *)&configTab[CFGID_MTD_BASE];
 		pPrm->intPrm[0] = 1;	//pCFG_Mtd->areaSetBox = 1;
 		pPrm->intPrm[1] = 5;	//pCFG_Mtd->detectNum = 5;
@@ -1023,11 +1082,12 @@ void cfg_dbg_setDefault(float * configTab)
 		pPrm->intPrm[8] = 10;	//pCFG_Mtd->TrkMaxTime = 10;
 		pPrm->intPrm[9] = 1;	//pCFG_Mtd->priority = 1;
 		pPrm->intPrm[23] = 10;	//pCFG_Mtd->alarm_delay = 10;
+		#endif
 	}
 
 }
 
-void cfg_dbg_getDefault(float * configTab, unsigned char *configUser)
+void cfg_dbg_getDefault(int * configTab, unsigned char *configUser)
 {
 	if(configTab != NULL)
 		memcpy(sysConfig, configTab, CFGID_BKID_MAX*CFGID_FEILD_MAX*4);

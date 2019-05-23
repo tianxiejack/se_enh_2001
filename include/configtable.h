@@ -190,7 +190,7 @@ typedef enum
 	6. aera min
 */
 typedef struct{
-	// float configBlock[CFGID_MTD_BASE][16];
+	// int configBlock[CFGID_MTD_BASE][16];
 	int areaSetBox;
 	int detectNum;
 	int tmpUpdateSpeed;
@@ -202,7 +202,7 @@ typedef struct{
 	int priority;
 	int reserved2[7];
 
-	// float configBlock[CFGID_MTD_BASE+0x10][16];
+	// int configBlock[CFGID_MTD_BASE+0x10][16];
 	int reserved3[4];
 	int output;
 	int outputPolarity;
@@ -218,7 +218,7 @@ typedef struct{
 }ALG_CONFIG_Mtd;
 
 typedef struct{
-	// float configBlock[CFGID_TRK_BASE][16];
+	// int configBlock[CFGID_TRK_BASE][16];
 	float occlusion_thred;//9--0
 	float retry_acq_thred;
 	float up_factor;
@@ -236,7 +236,7 @@ typedef struct{
 	float segPixelY;
 	int losttime;	// ms
 
-	// float configBlock[CFGID_TRK_BASE+0x10][16];
+	// int configBlock[CFGID_TRK_BASE+0x10][16];
 	float	ScalerLarge;//10--0
 	float	ScalerMid;
 	float	ScalerSmall;
@@ -254,7 +254,7 @@ typedef struct{
 	float	BackTrackEnable;
 	float	bAveTrkPos; //10--15
 
-	// float configBlock[CFGID_TRK_BASE+0x20][16];
+	// int configBlock[CFGID_TRK_BASE+0x20][16];
 	float	fTau; //11--0
 	float	buildFrms;
 	float	LostFrmThred;

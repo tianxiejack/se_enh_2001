@@ -104,7 +104,7 @@ static void Ipc_init()
 	return;
 }
 
-//static float *sysConfig = NULL;
+//static int *sysConfig = NULL;
 //static unsigned char *userConfig = NULL;
 static void *ipc_getSharedMem(IPC_MTYPE itype)
 {
