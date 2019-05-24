@@ -513,8 +513,8 @@ int cfg_set_mtdFeedback(unsigned int bMtd, unsigned int bMtdDetect)
 	sysConfig[CFGID_RTS_mtddet] = bMtdDetect;
 	if(bMtdPrev != bMtd)	// report
 	{
-		//int configId = CFGID_RTS_mtden;
-		//IPCSendMsg(read_shm_single, &configId, 4);
+		int configId = CFGID_RTS_mtden;
+		IPCSendMsg(read_shm_single, &configId, 4);
 		OSA_printf("ALG-MTD: enable from %d to %d\n", bMtdPrev, bMtd);
 		bMtdPrev = bMtd;
 	}
