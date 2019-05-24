@@ -71,7 +71,7 @@ void cfg_ctrl_sysInit(int * configTab)
 	int i, BKID;
 
 	///////////////////
-	int resolution;
+	int resolution, usrosdId;
 	for(i = 0; i < CAMERACHMAX; i++)
 	{
 		BKID = cfg_get_input_bkid(i);
@@ -97,12 +97,13 @@ void cfg_ctrl_sysInit(int * configTab)
 			vdisWH[i][0] = 720;
 			vdisWH[i][1] = 576;
 		}
-		printf("input init [%d] resolution (%d x %d)\n", i, vcapWH[i][0], vcapWH[i][1]);
+		usrosdId = configTab[CFGID_INPUT_CHNAME(BKID)];
+		printf("input init [%d] resolution (%d x %d) usrosdid %d\n", i, vcapWH[i][0], vcapWH[i][1], usrosdId);
 	}
 
 	///////////////////
-	gSYS_Osd.osdDrawShow = 0x0F;	//configTab[CFGID_SYSOSD_biten];
-	gSYS_Osd.osdUserShow = 1;	//configTab[CFGID_USROSD_biten];
+	gSYS_Osd.osdDrawShow = configTab[CFGID_SYSOSD_biten];
+	gSYS_Osd.osdUserShow = configTab[CFGID_USROSD_showen];
 	gSYS_Osd.osdDrawColor = 3;	// red color
 	gSYS_Osd.algOsdRect = 0;		// auto aimsize
 	if(gSYS_Osd.osdDrawShow & 0x01)
@@ -111,17 +112,15 @@ void cfg_ctrl_sysInit(int * configTab)
 		gSYS_Osd.m_boxOsd = 1;
 	if(gSYS_Osd.osdDrawShow & 0x04)
 		gSYS_Osd.m_workOsd = 1;
-	gSYS_Osd.m_chidIDOsd = 1;
-	gSYS_Osd.m_chidNameOsd = 1;
+	gSYS_Osd.m_chidIDOsd = 0;
+	gSYS_Osd.m_chidNameOsd = 0;
 	gSYS_Osd.m_sceneBoxOsd = 0;
 	printf("osd init sysenable %x syscolor %d usrenable %x\n",
 			gSYS_Osd.osdDrawShow, gSYS_Osd.osdDrawColor, gSYS_Osd.osdUserShow);
 
 	///////////////////
-	memcpy(&gCFG_Trk, &(configTab[CFGID_TRK_BASE]),sizeof(ALG_CONFIG_Trk));
-	float value;
-	memcpy(&value, &configTab[CFGID_TRK_assitime], 4);
-	gCFG_Trk.losttime = (int)value;
+	memcpy(&gCFG_Trk, &(configTab[CFGID_TRK_BASE]),(4*3*CFGID_FEILD_MAX)/*sizeof(ALG_CONFIG_Trk)*/);
+	gCFG_Trk.losttime = (int)gCFG_Trk.flosttime;
 	printf("trkPrm init occlusion_thred %f res_area %f losttime %dms\n",
 			gCFG_Trk.occlusion_thred, gCFG_Trk.res_area, gCFG_Trk.losttime);
 
@@ -145,21 +144,16 @@ void cfg_ctrl_sysInit(int * configTab)
 
 void cfg_ctrl_osdInit(int * configTab, unsigned char *configUser)
 {
-	int id, i;
+	int id;
 	for(id=0; id<CFGID_USEROSD_MAX; id++)
 	{
-		IPC_PRM_INT *pPrm = (IPC_PRM_INT *)&gCFG_Osd.items[id];
 		if(id<16)
 		{
-			//memcpy(&gCFG_Osd.items[i], &(configTab[CFGID_OSD_BASE(i)]), sizeof(OSD_CONFIG_ITEM));
-			for(i=0;i<9;i++)
-				pPrm->intPrm[i] = (int)configTab[CFGID_OSD_BASE(id)+i];
+			memcpy(&gCFG_Osd.items[id], &(configTab[CFGID_OSD_BASE(id)]), (4*1*CFGID_FEILD_MAX)/*sizeof(OSD_CONFIG_ITEM)*/);
 		}
 		else
 		{
-			//memcpy(&gCFG_Osd.items[i], &(configTab[CFGID_OSD2_BASE(i)]), sizeof(OSD_CONFIG_ITEM));
-			for(i=0;i<9;i++)
-				pPrm->intPrm[i] = (int)configTab[CFGID_OSD2_BASE(id)+i];
+			memcpy(&gCFG_Osd.items[id], &(configTab[CFGID_OSD2_BASE(id)]), (4*1*CFGID_FEILD_MAX)/*sizeof(OSD_CONFIG_ITEM)*/);
 		}
 		setlocale(LC_ALL, "zh_CN.UTF-8");
 		swprintf(gCFG_Osd.disBuf[id], 33, L"%s", (char *)&(configUser[id*USEROSD_LENGTH]));
@@ -223,16 +217,14 @@ Int32 cfg_update_trk( Int32 blkId, Int32 feildId, void *inprm )
 	/////////////////////////
 	if(feildId == 0xFF)
 	{
-		memcpy(&gCFG_Trk, &(configTab[CFGID_TRK_BASE]),sizeof(ALG_CONFIG_Trk));
-		float value;
-		memcpy(&value, &configTab[CFGID_TRK_assitime], 4);
-		gCFG_Trk.losttime = (int)value;
+		memcpy(&gCFG_Trk, &(configTab[CFGID_TRK_BASE]),(4*3*CFGID_FEILD_MAX)/*sizeof(ALG_CONFIG_Trk)*/);
+		gCFG_Trk.losttime = (int)gCFG_Trk.flosttime;
 	}
 	if(CFGID_BUILD(blkId, feildId) == CFGID_TRK_assitime)
 	{
-		float value;
-		memcpy(&value, &configTab[CFGID_TRK_assitime], 4);
-		gCFG_Trk.losttime = (int)value;
+		memcpy(&gCFG_Trk.flosttime, &configTab[CFGID_TRK_assitime], 4);
+		gCFG_Trk.losttime = (int)gCFG_Trk.flosttime;
+		printf("trkPrm update losttime %dms\n", gCFG_Trk.losttime);
 	}
 	return 0;
 }
@@ -244,6 +236,25 @@ Int32 cfg_update_output( Int32 blkId, Int32 feildId, void *inprm )
 
 Int32 cfg_update_sys( Int32 blkId, Int32 feildId, void *inprm )
 {
+	int i;
+	int * configTab = sysConfig;
+	/////////////////////////
+	if(feildId == 0xFF || CFGID_BUILD(blkId, feildId) == CFGID_SYSOSD_biten)
+	{
+		gSYS_Osd.osdDrawShow = configTab[CFGID_SYSOSD_biten];
+		if(gSYS_Osd.osdDrawShow & 0x01)
+			gSYS_Osd.m_crossOsd = 1;
+		if(gSYS_Osd.osdDrawShow & 0x02)
+			gSYS_Osd.m_boxOsd = 1;
+		if(gSYS_Osd.osdDrawShow & 0x04)
+			gSYS_Osd.m_workOsd = 1;
+		MSGDRIV_send(MSGID_EXT_UPDATE_OSD, 0);		// sys ctrl part
+	}
+	if(feildId == 0xFF || CFGID_BUILD(blkId, feildId) == CFGID_USROSD_showen)
+	{
+		gSYS_Osd.osdUserShow = configTab[CFGID_USROSD_showen];
+		MSGDRIV_send(MSGID_EXT_UPDATE_OSD, 0);		// sys ctrl part
+	}
 	return 0;
 }
 
@@ -274,12 +285,12 @@ Int32 cfg_update_usrosd( Int32 blkId, Int32 feildId, void *inprm )
 	if(blkId >= CFGID_OSD2_BKID)
 	{
 		id = blkId - CFGID_OSD2_BKID + 16;
-		addrbase = CFGID_OSD_BASE(id);
+		addrbase = CFGID_OSD2_BASE(id);
 	}
 	else
 	{
 		id = blkId - CFGID_OSD_BKID;
-		addrbase = CFGID_OSD2_BASE(id);
+		addrbase = CFGID_OSD_BASE(id);
 	}
 
 	IPC_PRM_INT *pPrm = (IPC_PRM_INT *)&gCFG_Osd.items[id];
@@ -300,7 +311,7 @@ Int32 cfg_update_usrosd( Int32 blkId, Int32 feildId, void *inprm )
 
 Int32 cfg_update_input( Int32 blkId, Int32 feildId, void *inprm )
 {
-	int ich, BKID, configId;
+	int ich, BKID, configId, usrosdId;
 	int cfgIdtype, cfgIdswlv;
 	int type, swlv;
 	int * configTab = sysConfig;
@@ -344,6 +355,9 @@ Int32 cfg_update_input( Int32 blkId, Int32 feildId, void *inprm )
 	{
 		if(ich == configTab[CFGID_RTS_mainch])
 			cfg_ctrl_setSensor(configTab);
+	}
+	if(feildId == 0xFF || configId == CFGID_INPUT_CHNAME(BKID))
+	{
 	}
 
 	return 0;
@@ -395,21 +409,29 @@ void cfg_uninit(void)
 
 int cfg_set_outSensor(unsigned int outsen, unsigned int outsen2)
 {
-	static unsigned int outsenprev = 0, outsen2prev = 0;
+	static unsigned int outsenPrev = 0, outsen2Prev = 0;
 	sysConfig[CFGID_RTS_mainch] = outsen;
 	sysConfig[CFGID_RTS_mainch2] = outsen2;
-	if(outsenprev != outsen)	// report
+	if(outsenPrev != outsen)	// report
 	{
 		int configId = CFGID_RTS_mainch;
 		IPCSendMsg(read_shm_single, &configId, 4);
-		outsenprev = outsen;
+		OSA_printf("OUT-SEN: mainch from %d to %d\n", outsenPrev, outsen);
+		outsenPrev = outsen;
+	}
+	if(outsen2Prev != outsen2)	// report
+	{
+		int configId = CFGID_RTS_mainch2;
+		IPCSendMsg(read_shm_single, &configId, 4);
+		OSA_printf("OUT-SEN: mainch2 from %d to %d\n", outsen2Prev, outsen2);
+		outsen2Prev = outsen2;
 	}
 	return 0;
 }
 
 int cfg_set_trkMode(unsigned int bTrack, unsigned int bScene)
 {
-	static unsigned int bTrkModePrev = 0;
+	static unsigned int bTrackPrev = 0, bScenePrev = 0;
 	sysConfig[CFGID_RTS_trken] = bTrack;
 	sysConfig[CFGID_RTS_trkmode] = bScene;
 
@@ -419,11 +441,19 @@ int cfg_set_trkMode(unsigned int bTrack, unsigned int bScene)
 		sysConfig[CFGID_RTS_trkerrx] = 0;
 		sysConfig[CFGID_RTS_trkerry] = 0;
 	}
-	if(bTrkModePrev != bTrack)	// report
+	if(bTrackPrev != bTrack)	// report
 	{
-		int configId = CFGID_RTS_trkmode;
+		int configId = CFGID_RTS_trken;
 		IPCSendMsg(read_shm_single, &configId, 4);
-		bTrkModePrev = bTrack;
+		OSA_printf("ALG-TRK: enable from %d to %d\n", bTrackPrev, bTrack);
+		bTrackPrev = bTrack;
+	}
+	if(bScenePrev != bScene)	// report
+	{
+		//int configId = CFGID_RTS_trkmode;
+		//IPCSendMsg(read_shm_single, &configId, 4);
+		OSA_printf("ALG-TRK: scene from %d to %d\n", bScenePrev, bScene);
+		bScenePrev = bScene;
 	}
 	return 0;
 }
@@ -436,6 +466,7 @@ int cfg_set_trkSecStat(unsigned int bSecTrk)
 	{
 		int configId = CFGID_RTS_sectrkstat;
 		IPCSendMsg(read_shm_single, &configId, 4);
+		OSA_printf("ALG-TRK: sectrk from %d to %d\n", bSecTrkPrev, bSecTrk);
 		bSecTrkPrev = bSecTrk;
 	}
 	return 0;
@@ -449,12 +480,12 @@ int cfg_set_trkFeedback(unsigned int trackstatus, float trackposx, float trackpo
 	//sysConfig[CFGID_RTS_trkerry] = trackposy;
 	memcpy(&sysConfig[CFGID_RTS_trkerrx], &trackposx, 4);
 	memcpy(&sysConfig[CFGID_RTS_trkerry], &trackposy, 4);
-	// report
+	// report always
 	int configId = CFGID_RTS_trkstat;
 	IPCSendMsg(read_shm_single, &configId, 4);
 	if(bTrkStatPrev != trackstatus)
 	{
-		OSA_printf("ALL-TRK: stat from %d to %d\n", bTrkStatPrev, trackstatus);
+		OSA_printf("ALG-TRK: stat from %d to %d\n", bTrkStatPrev, trackstatus);
 		bTrkStatPrev = trackstatus;
 	}
 	return 0;
@@ -462,13 +493,21 @@ int cfg_set_trkFeedback(unsigned int trackstatus, float trackposx, float trackpo
 
 int cfg_set_mtdFeedback(unsigned int bMtd, unsigned int bMtdDetect)
 {
-	static unsigned int bMtdDetectPrev = 0;
+	static unsigned int bMtdPrev = 0, bMtdDetectPrev = 0;
 	sysConfig[CFGID_RTS_mtden] = bMtd;
 	sysConfig[CFGID_RTS_mtddet] = bMtdDetect;
+	if(bMtdPrev != bMtd)	// report
+	{
+		//int configId = CFGID_RTS_mtden;
+		//IPCSendMsg(read_shm_single, &configId, 4);
+		OSA_printf("ALG-MTD: enable from %d to %d\n", bMtdPrev, bMtd);
+		bMtdPrev = bMtd;
+	}
 	if(bMtdDetectPrev != bMtdDetect)	// report
 	{
 		int configId = CFGID_RTS_mtddet;
 		IPCSendMsg(read_shm_single, &configId, 4);
+		OSA_printf("ALG-MTD: stat from %d to %d\n", bMtdDetectPrev, bMtdDetect);
 		bMtdDetectPrev = bMtdDetect;
 	}
 	return 0;
@@ -599,7 +638,7 @@ void* recv_msgpth(SENDST *pInData)
 			{
 				pMsg->SensorStat = pIn->intPrm[0];
 				app_ctrl_setSensor(pMsg);
-				cfg_set_outSensor(pMsg->SensorStat, pMsg->SensorStat);
+				cfg_set_outSensor(pMsg->SensorStat, 0/*pMsg->SensorStat2*/);
 				cfg_ctrl_setSensor(sysConfig);
 			}
 			break;
@@ -1003,6 +1042,8 @@ void cfg_dbg_setDefault(int * configTab)
 		pPrm = (IPC_PRM_INT *)&configTab[CFGID_TRK_BASE+1];
 		pPrm = (IPC_PRM_INT *)&configTab[CFGID_TRK_BASE+2];
 		//memcpy();
+		//memcpy();
+		//memcpy();
 		#endif
 	}
 	//CFGID_OSD_BKID
@@ -1060,7 +1101,6 @@ void cfg_dbg_setDefault(int * configTab)
 	}
 	//CFGID_MTD_BKID
 	{
-		#if 1
 		ALG_CONFIG_Mtd *pCFG_Mtd = (ALG_CONFIG_Mtd *)&configTab[CFGID_MTD_BASE];
 		pCFG_Mtd->areaSetBox = 1;
 		pCFG_Mtd->detectNum = 5;
@@ -1071,18 +1111,6 @@ void cfg_dbg_setDefault(int * configTab)
 		pCFG_Mtd->TrkMaxTime = 10;
 		pCFG_Mtd->priority = 1;
 		pCFG_Mtd->alarm_delay = 10;
-		#else
-		IPC_PRM_INT *pPrm = (IPC_PRM_INT *)&configTab[CFGID_MTD_BASE];
-		pPrm->intPrm[0] = 1;	//pCFG_Mtd->areaSetBox = 1;
-		pPrm->intPrm[1] = 5;	//pCFG_Mtd->detectNum = 5;
-		pPrm->intPrm[2] = 30;	//pCFG_Mtd->tmpUpdateSpeed = 30;
-		pPrm->intPrm[3] = 40000;	//pCFG_Mtd->tmpMaxPixel = 40000;
-		pPrm->intPrm[4] = 100;	//pCFG_Mtd->tmpMinPixel = 100;
-		pPrm->intPrm[7] = 80;	//pCFG_Mtd->detectSpeed = 80;
-		pPrm->intPrm[8] = 10;	//pCFG_Mtd->TrkMaxTime = 10;
-		pPrm->intPrm[9] = 1;	//pCFG_Mtd->priority = 1;
-		pPrm->intPrm[23] = 10;	//pCFG_Mtd->alarm_delay = 10;
-		#endif
 	}
 
 }

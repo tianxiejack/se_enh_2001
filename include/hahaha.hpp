@@ -9,7 +9,7 @@
 #define HAHAHA_HPP_
 
 #include "ipc_custom_head.hpp"
-extern void cfg_dbg_setCmd(int cmd);
+extern void cfg_dbg_setCmd(int cmd, int prm);
 
 void testhahahaha()
 {
@@ -68,17 +68,15 @@ static void keyboard_event(unsigned char key, int x, int y)
 		mtdsw = (mtdsw+1)%2;
 		if(mtdsw)
 		{
-			cfg_dbg_setCmd(mtdSelect, 1);
+			//cfg_dbg_setCmd(mtdSelect, 1);
 			cfg_dbg_setCmd(mtdSelect, 3);
 			trkstat = 1;
-			mtdstat = 0;
 		}
 		else
 		{
-			cfg_dbg_setCmd(mtdSelect, 2);
+			//cfg_dbg_setCmd(mtdSelect, 2);
 			cfg_dbg_setCmd(mtdSelect, 3);
 			trkstat = 1;
-			mtdstat = 0;
 		}
 		break;
 	case '7':

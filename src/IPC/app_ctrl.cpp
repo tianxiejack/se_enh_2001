@@ -214,7 +214,8 @@ void app_ctrl_setMtdStat(CMD_EXT * pInCmd)
 	if(msgextInCtrl==NULL)
 		return ;
 	CMD_EXT *pIStuts = msgextInCtrl;
-	if(pIStuts->MtdState[pIStuts->SensorStat] != pInCmd->MtdState[pIStuts->SensorStat])
+	if((pIStuts->MtdState[pIStuts->SensorStat] != pInCmd->MtdState[pIStuts->SensorStat]) ||
+		(pIStuts->MtdDetectStat != pIStuts->MtdState[pIStuts->SensorStat]))
 	{
 		pIStuts->MtdState[pIStuts->SensorStat] = pInCmd->MtdState[pIStuts->SensorStat];
 		MSGDRIV_send(MSGID_EXT_MVDETECT, 0);
@@ -243,7 +244,7 @@ void app_ctrl_setMtdSelect(CMD_EXT * pInCmd)
 	{
 		int curx,cury,curw,curh;
 		getMtdxy(curx, cury, curw, curh);
-		if( -1 == curw && -1 == curh )	
+		if( -1 == curw || -1 == curh )	
 		{
 			//do nothing
 			printf(" mtd target get failed do nothing \n");
@@ -257,8 +258,8 @@ void app_ctrl_setMtdSelect(CMD_EXT * pInCmd)
 			pMsg.AimH[pIStuts->SensorStat]  = curh;
 			app_ctrl_setTrkStat(&pMsg);//track
 
-			pMsg.MtdState[pMsg.SensorStat] = eImgAlg_Disable;
-			app_ctrl_setMtdStat(&pMsg);//close
+			//pMsg.MtdState[pMsg.SensorStat] = eImgAlg_Disable;
+			//app_ctrl_setMtdStat(&pMsg);//close
 		}	
 	}
 	return ;

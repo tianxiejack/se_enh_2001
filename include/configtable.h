@@ -111,7 +111,7 @@ typedef enum
 {
 	CFGID_SYS_BASE = CFGID_BUILD( CFGID_SYS_BKID, 0 ),
 	CFGID_SYSOSD_biten = CFGID_BUILD( CFGID_SYS_BKID, 1 ),		// bit enable
-	//CFGID_USROSD_biten = CFGID_BUILD( CFGID_SYS_BKID, 2 ),		// bit enable
+	CFGID_USROSD_showen = CFGID_BUILD( CFGID_SYS_BKID, 2 ),		// all enbale or all hide
 	//CFGID_SYSOSD_color = CFGID_BUILD( CFGID_SYS_BKID, 3 ),
 }CFGID_SYS;
 
@@ -234,7 +234,7 @@ typedef struct{
 	float moveY2;
 	float segPixelX;
 	float segPixelY;
-	int losttime;	// ms
+	float flosttime;
 
 	// int configBlock[CFGID_TRK_BASE+0x10][16];
 	float	ScalerLarge;//10--0
@@ -271,6 +271,9 @@ typedef struct{
 	float	kalmanHistThred;
 	float	kalmanCoefQ;
 	float	kalmanCoefR; //11--15
+
+	// not in configBlock part
+	int losttime;	// ms
 }ALG_CONFIG_Trk;
 
 typedef struct{
@@ -298,7 +301,8 @@ typedef struct{
 	int alpha;
 	int font;
 	int fontsize;
-	int reserved2[7];
+	int reserved[7];
+
 }OSD_CONFIG_ITEM;
 
 /*************** universal osdconfig part ***************/
@@ -394,7 +398,7 @@ typedef struct
 	volatile unsigned char  MtdState[CAMERACHMAX];	//record moving obj detect state of each channel
 	volatile unsigned int  MtdSelect[CAMERACHMAX];
 	//volatile unsigned int  MtdSetRigion;
-	volatile unsigned int  MtdDetectStat;
+	volatile unsigned int  MtdDetectStat;	// use for alg open stat
 
 	/***** cmd osd part *****/
 	//don't know the usage

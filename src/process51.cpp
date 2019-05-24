@@ -43,6 +43,11 @@ void getMmtTg(unsigned char index,int *x,int *y)
 void getMtdxy(int &x,int &y,int &w,int &h)
 {
 	x = y = w = h = -1;
+	if(plat->chooseDetect >= 10)
+	{
+		//printf(" getMtdxy error chooseDetect %d\n", plat->chooseDetect);
+		return ;
+	}
 	if(plat->validMtdRecord[plat->chooseDetect])
 	{
 		for(int i = 0 ;i<plat->mvList.size();i++)
@@ -1322,10 +1327,7 @@ void CProcess::switchMvTargetBack()
 	if(getMvListValidNum())
 	{
 		do{
-			if(chooseDetect == 0)
-				chooseDetect = 9;
-			else
-				chooseDetect--;
+			chooseDetect = (chooseDetect+10-1)%10;
 		}while(!validMtdRecord[chooseDetect]);
 	}	
 	return ;
@@ -1475,7 +1477,6 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	Point center;
 	Point start,end;
 	Osd_cvPoint start1,end1;
-	
 
 #if __TRACK__
 	osdindex++;
@@ -1497,7 +1498,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				Point( rcTrackBak[extInCtrl->SensorStatpri].x, rcTrackBak[extInCtrl->SensorStatpri].y ),
 				Point( rcTrackBak[extInCtrl->SensorStatpri].x+rcTrackBak[extInCtrl->SensorStatpri].width, 
 					rcTrackBak[extInCtrl->SensorStatpri].y+rcTrackBak[extInCtrl->SensorStatpri].height),
-				cvScalar(0,0,0, 0), 1, 8 );
+				cvScalar(0,0,0,0), 1, 8 );
 		}
 
 		if(Osdflag[osdindex])
@@ -1685,7 +1686,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	}
 #endif
 
-osdindex++; //sekCorssBak
+	osdindex++; //sekCorssBak
 	{
 		if(changesensorCnt)
 		{
@@ -1762,7 +1763,6 @@ osdindex++;	//cross aim
 		}
 	}
 
-
 osdindex++;	//acqRect
 	{
 		if(changesensorCnt){
@@ -1824,19 +1824,20 @@ osdindex++;	//acqRect
 	}
 
 
-	osdindex++;
+#if __MOVE_DETECT__
+	osdindex++;	// mtd areabox
 	{
 		if(changesensorCnt){
 			recIn = mtdFrameRectBak;
-			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,0);
+			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStatpri],recIn,0);
 		}
-				
+
 		if(Osdflag[osdindex])
 		{
 			recIn = mtdFrameRectBak;
 			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,0);
 			Osdflag[osdindex]=0;
-		}		
+		}
 
 		if(gCFG_Mtd.areaSetBox && m_bMoveDetect)
 		{
@@ -1845,23 +1846,41 @@ osdindex++;	//acqRect
 			recIn.width = gCFG_Mtd.detectArea_wide;
 			recIn.height = gCFG_Mtd.detectArea_high;
 
-			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor);
-			mtdFrameRectBak = recIn;
-			Osdflag[osdindex]=1;
+			if(!m_bTrack && !m_bSceneTrack)
+			{
+				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor);
+				mtdFrameRectBak = recIn;
+				Osdflag[osdindex]=1;
+			}
 		}
 	}
-
 	
-#if __MOVE_DETECT__
-	osdindex++;
+	osdindex++;	// mtd targets
 	{
 		unsigned int mtd_warningbox_Id;
 		Osd_cvPoint startwarnpoly,endwarnpoly;
 		int polwarn_flag = 0;
 		mtd_warningbox_Id = extInCtrl->SensorStat;
+
+		if(changesensorCnt){
+			cv::Rect tmp;
+			mouserect recttmp;
+		
+			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
+			{	
+				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
+				sprintf(trkFPSDisplay, "%2d", (*plist).number);
+				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
+				putText(m_display.m_imgOsd[extInCtrl->SensorStatpri],trkFPSDisplay,
+					Point(tmp.x, tmp.y),
+					FONT_HERSHEY_TRIPLEX,1,
+					cvScalar(0,0,0,0), 1
+					);
+			}
+		}
 		if(Osdflag[osdindex])
 		{
-			for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
+			/*for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
 			{
 				polwarn_flag = (i+1)%polwarn_count_bak[mtd_warningbox_Id];
 				startwarnpoly.x = polWarnRectBak[mtd_warningbox_Id][i].x;
@@ -1869,7 +1888,7 @@ osdindex++;	//acqRect
 				endwarnpoly.x = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].x;
 				endwarnpoly.y = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].y;
 				DrawcvLine(m_display.m_imgOsd[mtd_warningbox_Id],&startwarnpoly,&endwarnpoly,0,1);
-			}
+			}*/
 			
 			cv::Rect tmp;
 			mouserect recttmp;
@@ -1877,8 +1896,8 @@ osdindex++;	//acqRect
 			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
 				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
-				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
 				sprintf(trkFPSDisplay, "%2d", (*plist).number);
+				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
 				putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
 					Point(tmp.x, tmp.y),
 					FONT_HERSHEY_TRIPLEX,1,
@@ -1898,7 +1917,7 @@ osdindex++;	//acqRect
 			if(motionlessflag && bdrawMvRect < 100 )
 				bdrawMvRect++;
 
-			for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
+			/*for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
 			{
 				polwarn_flag = (i+1)%polwarn_count_bak[mtd_warningbox_Id];
 				startwarnpoly.x = polWarnRectBak[mtd_warningbox_Id][i].x;
@@ -1906,7 +1925,7 @@ osdindex++;	//acqRect
 				endwarnpoly.x = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].x;
 				endwarnpoly.y = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].y;
 				DrawcvLine(m_display.m_imgOsd[mtd_warningbox_Id],&startwarnpoly,&endwarnpoly,3,1);
-			}
+			}*/
 			
 			detect_bak = detect_vect;
 			if(!detect_bak.empty())
@@ -1957,28 +1976,29 @@ osdindex++;	//acqRect
 					break;
 			}
 			#endif
-		
+
 			cv::Rect tmp;
 			mouserect recttmp;
-		
-			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
-			{	
-				if( chooseDetect == plist->number && bdrawMvRect >= HOLDING_NUM )
-					color = 6;
-				else
-					color = 3;
-				memcpy((void*)&tmp,(void *)&((*plist).trkobj.targetRect),sizeof(cv::Rect));
-				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,color);
 
-				sprintf(trkFPSDisplay, "%2d", (*plist).number);
-				putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
-					Point(tmp.x, tmp.y),
-					FONT_HERSHEY_TRIPLEX,1,
-					cvScalar(255,255,0,255), 1
-					);
+			if(!m_bTrack && !m_bSceneTrack)
+			{
+				for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
+				{	
+					if( chooseDetect == plist->number && bdrawMvRect >= HOLDING_NUM )
+						color = 6;
+					else
+						color = 3;
+					memcpy((void*)&tmp,(void *)&((*plist).trkobj.targetRect),sizeof(cv::Rect));
+					sprintf(trkFPSDisplay, "%2d", (*plist).number);
+					DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,color);
+					putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
+						Point(tmp.x, tmp.y),
+						FONT_HERSHEY_TRIPLEX,1,
+						cvScalar(255,255,0,255), 1
+						);
+				}
+				Osdflag[osdindex]=1;
 			}
-
-			Osdflag[osdindex]=1;	
 		}
 		else
 			bdrawMvRect = 0;
@@ -2031,6 +2051,7 @@ osdindex++;	//acqRect
 		}
 		m_draw = 0;
 	}
+
 //polygon mtd area
 unsigned int drawpolyRectId ;   
 	drawpolyRectId = extInCtrl->SensorStat;
@@ -2107,6 +2128,7 @@ unsigned int drawpolyRectId ;
 	}
 	if(m_bPatterDetect)
 		drawPatternRect();
+/////////////////////////////////////////////
 	
 	static unsigned int count = 0;
 	if((count & 1) == 1)
@@ -2929,6 +2951,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
         int Mtdstatus = (pIStuts->MtdState[pIStuts->SensorStat]&0x01) ;
         if(Mtdstatus)
         {
+#if 0
             struct timeval tv;
             while(!m_pMovDetector->isWait(pIStuts->SensorStat))
             {
@@ -2939,21 +2962,34 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 	 		m_pMovDetector->stoppingReset(pIStuts->SensorStat);
 		   recordNum++;
             }
+#endif
+
             if(m_pMovDetector->isWait(pIStuts->SensorStat))
             {
-                m_pMovDetector->mvOpen(pIStuts->SensorStat);
-                dynamic_config(VP_CFG_MvDetect, 1,NULL);
-		   chooseDetect = 10;
+				m_pMovDetector->mvOpen(pIStuts->SensorStat);
+				dynamic_config(VP_CFG_MvDetect, 1,NULL);
+				chooseDetect = 10;
+				pIStuts->MtdDetectStat = m_bMoveDetect;
             }
+			else
+			{
+				OSA_printf(" m_pMovDetector not wait stat cancel open \n");
+			}
         }
         else
         {
             if(m_pMovDetector->isRun(pIStuts->SensorStat))
             {
-                dynamic_config(VP_CFG_MvDetect, 0,NULL);
-		   m_pMovDetector->mvClose(pIStuts->SensorStat);
+				dynamic_config(VP_CFG_MvDetect, 0,NULL);
+				m_pMovDetector->mvClose(pIStuts->SensorStat);
+				pIStuts->MtdDetectStat = m_bMoveDetect;
             }
+			else
+			{
+				OSA_printf(" m_pMovDetector not run stat cancel close \n");
+			}
         }
+        OSA_printf("====== MTD cmdstat %d algstat %d \n", pIStuts->MtdState[pIStuts->SensorStat], pIStuts->MtdDetectStat);
     }
 	if(msgId == MSGID_EXT_MVDETECTSELECT)
 	{
