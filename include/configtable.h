@@ -295,7 +295,7 @@ typedef struct{
 	int ctrl;	// show or hide
 	int posx;
 	int posy;
-	int type;
+	int type;	// draw type text or line 
 	int bufID;
 	int color;
 	int alpha;
@@ -303,6 +303,9 @@ typedef struct{
 	int fontsize;
 	int reserved[7];
 
+	// not in configBlock part
+	int senbind;	// 1 bind use for show input channel name 
+	int senID;	// 0-4
 }OSD_CONFIG_ITEM;
 
 /*************** universal osdconfig part ***************/

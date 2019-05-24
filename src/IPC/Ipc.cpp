@@ -98,6 +98,8 @@ void cfg_ctrl_sysInit(int * configTab)
 			vdisWH[i][1] = 576;
 		}
 		usrosdId = configTab[CFGID_INPUT_CHNAME(BKID)];
+		gCFG_Osd.items[usrosdId].senbind = 1;
+		gCFG_Osd.items[usrosdId].senID = i;
 		printf("input init [%d] resolution (%d x %d) usrosdid %d\n", i, vcapWH[i][0], vcapWH[i][1], usrosdId);
 	}
 
@@ -358,6 +360,19 @@ Int32 cfg_update_input( Int32 blkId, Int32 feildId, void *inprm )
 	}
 	if(feildId == 0xFF || configId == CFGID_INPUT_CHNAME(BKID))
 	{
+		// clear old
+		for(usrosdId=0;usrosdId<CFGID_USEROSD_MAX;usrosdId++)
+		{
+			if(gCFG_Osd.items[usrosdId].senbind && gCFG_Osd.items[usrosdId].senID == ich)
+			{
+				gCFG_Osd.items[usrosdId].senbind = 0;
+				break;
+			}
+		}
+		// set new
+		usrosdId = configTab[CFGID_INPUT_CHNAME(BKID)];
+		gCFG_Osd.items[usrosdId].senID = ich;
+		gCFG_Osd.items[usrosdId].senbind = 1;
 	}
 
 	return 0;

@@ -1923,7 +1923,10 @@ int CDisplayer::OSDFunc()
 	char font,fontsize;
 
 	for(int i = 0;i<32;i++){
-		Enable = gCFG_Osd.items[i].ctrl;
+		if(gCFG_Osd.items[i].senbind)
+			Enable = (gCFG_Osd.items[i].senID == plat->extInCtrl->SensorStat)?gCFG_Osd.items[i].ctrl:0;	// only userosd of current sensor need show
+		else
+			Enable = gCFG_Osd.items[i].ctrl;
 		if(Enable){
 			 x = gCFG_Osd.items[i].posx;
 			 y = gCFG_Osd.items[i].posy;
