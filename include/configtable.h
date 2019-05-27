@@ -176,6 +176,8 @@ typedef enum
 #define CFGID_INPUT_FIXAIMH(BKID)	CFGID_BUILD( BKID+6, 3 )
 #define CFGID_INPUT_SWAIMW(BKID, SWLV)	CFGID_BUILD( BKID+6, 2+(SWLV*2) )	// SWLV 1-3
 #define CFGID_INPUT_SWAIMH(BKID, SWLV)	CFGID_BUILD( BKID+6, 3+(SWLV*2) )	// SWLV 1-3
+#define CFGID_INPUT_CURAIMW(BKID)	CFGID_BUILD( BKID+6, 14 )
+#define CFGID_INPUT_CURAIMH(BKID)	CFGID_BUILD( BKID+6, 15 )
 
 // sys config table part end
 ////////////////////////////////////////////////////
