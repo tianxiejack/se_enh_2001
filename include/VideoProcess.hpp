@@ -142,7 +142,6 @@ public :
 	int trackStart ;
 	bool nextDetect;
 	int lastFrameBox ;
-	int prichnalid;
 	//vector<Rect> Box;
 	bool moveStat;
 	

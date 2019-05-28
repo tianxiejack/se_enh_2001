@@ -946,8 +946,6 @@ int CVideoProcess::init()
 	m_display.m_bOsd = true;
 
 	OnInit();
-	prichnalid=1;//fir
-
 
 #if __MOVE_DETECT__
 	initMvDetect();

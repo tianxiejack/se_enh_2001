@@ -7,6 +7,7 @@
 void Ipc_pthread_start(void);
 void Ipc_pthread_stop(void);
 
+void cfg_ctrl_mainchReset(void *inprm);	// reset main channel by configtable
 void cfg_ctrl_acqReset(void * pIn);	// reset all channel acqrect by configtable
 
 int cfg_set_outSensor(unsigned int outsen, unsigned int outsen2);

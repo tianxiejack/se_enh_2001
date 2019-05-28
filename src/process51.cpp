@@ -210,7 +210,8 @@ void CProcess::loadIPCParam()
 	pIStuts->unitAimX		=	vdisWH[video_pal][0]/2;
 	pIStuts->unitAimY		=	vdisWH[video_pal][1]/2;
 
-	pIStuts->SensorStat 	=   MAIN_CHID;
+	//pIStuts->SensorStat 	=   MAIN_CHID;
+	cfg_ctrl_mainchReset(pIStuts);
 	pIStuts->SensorStatpri  =   pIStuts->SensorStat;
 	pIStuts->PicpSensorStatpri	=	pIStuts->PicpSensorStat = 0xFF;
 	
@@ -492,6 +493,7 @@ void CProcess::OnConfig(){};
 void CProcess::OnRun()
 {
 	update_param_alg();
+	msgdriv_event(MSGID_EXT_INPUT_SENSOR, NULL);
 };
 void CProcess::OnStop(){};
 void CProcess::Ontimer(){

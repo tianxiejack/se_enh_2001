@@ -26,6 +26,7 @@ OSA_BufHndl msgSendBuf;
 OSA_ThrHndl thrHandleDataIn_recv;
 OSA_ThrHndl thrHandleDataIn_send;
 
+#define clip(rslt, a, b)  (rslt>b)?(b):((rslt<a)?a:rslt)
 #define FXN_BIGEN if( fxnsCfg != NULL ){
 //#define FXN_REG( blkId, feildId, fxn ) ( fxnsCfg[CFGID_BUILD( blkId, feildId )] = fxn )
 #define FXN_REG( blkId, fxn ) ( fxnsCfg[blkId] = fxn )
@@ -41,6 +42,7 @@ extern int IPCSendMsg(CMD_ID cmd, void* prm, int len);
 // cfg_update_xxx() get data from sysconfig by update and 
 int cfg_get_input_bkid(int ich)
 {
+	ich = clip(ich, 0, video_pal);
 	if(ich == 0)
 		return CFGID_INPUT1_BKID;
 	else if(ich == 1)
@@ -98,14 +100,17 @@ void cfg_ctrl_sysInit(int * configTab)
 			vdisWH[i][1] = 576;
 		}
 		usrosdId = configTab[CFGID_INPUT_CHNAME(BKID)];
-		gCFG_Osd.items[usrosdId].senbind = 1;
-		gCFG_Osd.items[usrosdId].senID = i;
+		if(usrosdId >= 0 && usrosdId < CFGID_USEROSD_MAX)
+		{
+			gCFG_Osd.items[usrosdId].senbind = 1;
+			gCFG_Osd.items[usrosdId].senID = i;
+		}
 		printf("input init [%d] resolution (%d x %d) usrosdid %d\n", i, vcapWH[i][0], vcapWH[i][1], usrosdId);
 	}
 
 	///////////////////
-	configTab[CFGID_RTS_mainch] = configTab[CFGID_OUTPUT_dftch];
-	configTab[CFGID_RTS_mainch2] = configTab[CFGID_OUTPUT_dftch];
+	configTab[CFGID_OUTPUT_dftch] = clip(configTab[CFGID_OUTPUT_dftch], 0, video_pal);
+	configTab[CFGID_RTS_mainch] = configTab[CFGID_RTS_mainch2] = configTab[CFGID_OUTPUT_dftch];
 	printf("output init default select channel %d\n", configTab[CFGID_OUTPUT_dftch]);
 
 	///////////////////
@@ -142,7 +147,7 @@ void cfg_ctrl_sysInit(int * configTab)
 	memcpy(&gCFG_Mtd, &(configTab[CFGID_MTD_BASE]),(4*2*CFGID_FEILD_MAX)/*sizeof(ALG_CONFIG_Mtd)*/);
 	printf("mtdPrm init areaSetBox %d detectNum %d\n",
 			gCFG_Mtd.areaSetBox, gCFG_Mtd.detectNum);
-	BKID = cfg_get_input_bkid(configTab[CFGID_OUTPUT_dftch]);
+	BKID = cfg_get_input_bkid(configTab[CFGID_RTS_mainch]);
 	gCFG_Mtd.sensitivityThreshold = configTab[CFGID_INPUT_SENISIVITY(BKID)];
 	gCFG_Mtd.detectArea_X = configTab[CFGID_INPUT_DETX(BKID)];
 	gCFG_Mtd.detectArea_Y = configTab[CFGID_INPUT_DETY(BKID)];
@@ -161,13 +166,9 @@ void cfg_ctrl_osdInit(int * configTab, unsigned char *configUser)
 	for(id=0; id<CFGID_USEROSD_MAX; id++)
 	{
 		if(id<16)
-		{
 			memcpy(&gCFG_Osd.items[id], &(configTab[CFGID_OSD_BASE(id)]), (4*1*CFGID_FEILD_MAX)/*sizeof(OSD_CONFIG_ITEM)*/);
-		}
 		else
-		{
 			memcpy(&gCFG_Osd.items[id], &(configTab[CFGID_OSD2_BASE(id)]), (4*1*CFGID_FEILD_MAX)/*sizeof(OSD_CONFIG_ITEM)*/);
-		}
 		setlocale(LC_ALL, "zh_CN.UTF-8");
 		swprintf(gCFG_Osd.disBuf[id], 33, L"%s", (char *)&(configUser[id*USEROSD_LENGTH]));
 		//printf("usrosd[%d] init show %d pos %d,%d font %d size %d\n",
@@ -175,6 +176,15 @@ void cfg_ctrl_osdInit(int * configTab, unsigned char *configUser)
 		//	gCFG_Osd.items[id].posx, gCFG_Osd.items[id].posy,
 		//	gCFG_Osd.items[id].font, gCFG_Osd.items[id].fontsize);
 	}
+}
+
+void cfg_ctrl_mainchReset(void *inprm)
+{
+	int * configTab = sysConfig;
+	CMD_EXT * pIStuts = (CMD_EXT *)inprm;
+	///////////////////
+	pIStuts->SensorStat = configTab[CFGID_RTS_mainch];
+
 }
 
 void cfg_ctrl_acqReset(void *inprm)
@@ -392,8 +402,11 @@ Int32 cfg_update_input( Int32 blkId, Int32 feildId, void *inprm )
 		}
 		// set new
 		usrosdId = configTab[CFGID_INPUT_CHNAME(BKID)];
-		gCFG_Osd.items[usrosdId].senID = ich;
-		gCFG_Osd.items[usrosdId].senbind = 1;
+		if(usrosdId >=0 && usrosdId < CFGID_USEROSD_MAX)
+		{
+			gCFG_Osd.items[usrosdId].senID = ich;
+			gCFG_Osd.items[usrosdId].senbind = 1;
+		}
 	}
 
 	return 0;
@@ -672,9 +685,9 @@ void* recv_msgpth(SENDST *pInData)
 		case sensor:
 			if(!pMsg->AvtTrkStat)
 			{
-				pMsg->SensorStat = pIn->intPrm[0];
+				pMsg->SensorStat = clip(pIn->intPrm[0], 0, video_pal);
 				app_ctrl_setSensor(pMsg);
-				cfg_set_outSensor(pMsg->SensorStat, 0/*pMsg->SensorStat2*/);
+				cfg_set_outSensor(pMsg->SensorStat, pMsg->SensorStat);
 				cfg_ctrl_setSensor(sysConfig);
 			}
 			break;
