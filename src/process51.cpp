@@ -212,6 +212,7 @@ void CProcess::loadIPCParam()
 
 	//pIStuts->SensorStat 	=   MAIN_CHID;
 	cfg_ctrl_mainchReset(pIStuts);
+	m_curChId = pIStuts->SensorStat;
 	pIStuts->SensorStatpri  =   pIStuts->SensorStat;
 	pIStuts->PicpSensorStatpri	=	pIStuts->PicpSensorStat = 0xFF;
 	
@@ -485,10 +486,7 @@ void CProcess::OnCreate()
 
 	
 void CProcess::OnDestroy(){};
-void CProcess::OnInit()
-{
-	extInCtrl->SysMode = 1;
-}
+void CProcess::OnInit(){};
 void CProcess::OnConfig(){};
 void CProcess::OnRun()
 {

@@ -73,7 +73,8 @@ typedef struct _ds_init_param{
 	int winHeight;
 	bool bScript;
 	char szScriptFile[256];
-	int initloyerId;
+	int initMainchId;	// add by aloysa
+	//int initloyerId;
 	//void (*displayfunc)(void);
 
 	int disFPS;      // Add 20181224

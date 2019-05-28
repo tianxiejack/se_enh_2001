@@ -63,26 +63,6 @@ void app_ctrl_setTrkStat(CMD_EXT * pInCmd)
 	return ;
 }
 
-
-
-void app_ctrl_setSysmode(CMD_EXT * pInCmd)
-{
-	if(msgextInCtrl==NULL)
-		return ;
-	CMD_EXT *pIStuts = msgextInCtrl;
-	if(pInCmd->SysMode != pIStuts->SysMode)
-		pIStuts->SysMode = pInCmd->SysMode;
-	return ;
-}
-
-unsigned char app_ctrl_getSysmode()
-{
-	if(msgextInCtrl==NULL)
-		return 255;
-	return  msgextInCtrl->SysMode;
-}
-
-
 void app_ctrl_setAimPos(CMD_EXT * pInCmd)
 {
 	if(msgextInCtrl==NULL)

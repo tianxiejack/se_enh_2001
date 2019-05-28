@@ -213,7 +213,7 @@ void cfg_ctrl_acqReset(void *inprm)
 		pIStuts->AimH[i] = pIStuts->AcqRectH[i];
 		configTab[CFGID_INPUT_CURAIMW(BKID)] = pIStuts->AcqRectW[i];
 		configTab[CFGID_INPUT_CURAIMH(BKID)] = pIStuts->AcqRectH[i];
-		printf("input[%d] acqtype %d rect(%d x %d)\n", i, type, pIStuts->AcqRectW[i], pIStuts->AcqRectH[i]);
+		printf("input[%d] init acqtype %d rect(%d x %d)\n", i, type, pIStuts->AcqRectW[i], pIStuts->AcqRectH[i]);
 		if(i == configTab[CFGID_RTS_mainch])
 			gSYS_Osd.algOsdRect = (type)?0:1;
 	}
@@ -374,6 +374,7 @@ Int32 cfg_update_input( Int32 blkId, Int32 feildId, void *inprm )
 		pInCmd->AimH[ich] = pInCmd->AcqRectH[ich];
 		configTab[CFGID_INPUT_CURAIMW(BKID)] = pInCmd->AcqRectW[ich];
 		configTab[CFGID_INPUT_CURAIMH(BKID)] = pInCmd->AcqRectH[ich];
+		//printf("input[%d] update acqtype %d rect(%d x %d)\n", ich, type, pInCmd->AcqRectW[ich], pInCmd->AcqRectH[ich]);
 
 		if(ich == configTab[CFGID_RTS_mainch])
 		{

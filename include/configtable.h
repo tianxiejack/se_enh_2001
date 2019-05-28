@@ -349,7 +349,6 @@ typedef struct
 	volatile unsigned int  unitVerNum;      	// 1.23=>0x0123
 	volatile unsigned int  unitFaultStat;   		// bit0:tv input bit1:fr input bit2:avt21
 	volatile unsigned int  unitFaultStatpri;   	// bit0:tv input bit1:fr input bit2:avt21
-	volatile unsigned char  SysMode; 		// 0 --- init ; 1 ---normal  2---settiing
 	volatile unsigned char  FovCtrl; 
 	volatile unsigned char  FovStat;       /* 1 byte ext-input fov:0 Large fov ,1 midle fov,2 small fov,3 electric x2 fov */
 	volatile float  unitFovAngle[CAMERACHMAX];

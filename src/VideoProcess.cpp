@@ -464,7 +464,7 @@ int CVideoProcess::MAIN_threadDestroy(void)
 }
 
 CVideoProcess::CVideoProcess()
-	:m_track(NULL),m_curChId(MAIN_CHID),m_curSubChId(-1),adaptiveThred(40)		
+	:m_track(NULL),m_curChId(0),m_curSubChId(-1),adaptiveThred(40)		
 {
 	pThis = this;
 	memset(m_mtd, 0, sizeof(m_mtd));
@@ -922,7 +922,7 @@ int CVideoProcess::init()
 #endif
 	dsInit.disFPS = 30;
 	dsInit.disSched = 33;   //  3.5;
-	
+	dsInit.initMainchId = m_curChId;
 
 //#if (!__IPC__)
 	dsInit.keyboardfunc = keyboard_event; 
