@@ -103,6 +103,7 @@ typedef enum
 typedef enum 
 {
 	CFGID_OUTPUT_BASE = CFGID_BUILD( CFGID_OUTPUT_BKID, 0 ),
+	CFGID_OUTPUT_dftch = CFGID_BUILD( CFGID_OUTPUT_BKID, 2 ),	// default mainch when poweron
 	CFGID_OUTPUT1_res = CFGID_BUILD( CFGID_OUTPUT_BKID, 4 ),	// HDMI resolution
 	CFGID_OUTPUT2_res = CFGID_BUILD( CFGID_OUTPUT_BKID, 5 ),	// SDI resolution
 }CFGID_OUTPUT;

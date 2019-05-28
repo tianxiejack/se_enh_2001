@@ -104,6 +104,12 @@ void cfg_ctrl_sysInit(int * configTab)
 	}
 
 	///////////////////
+	configTab[CFGID_RTS_mainch] = configTab[CFGID_OUTPUT_dftch];
+	configTab[CFGID_RTS_mainch2] = configTab[CFGID_OUTPUT_dftch];
+	printf("output init default select channel %d\n", configTab[CFGID_OUTPUT_dftch]);
+
+	///////////////////
+	gSYS_Osd.workMode = 4;	// default stat
 	gSYS_Osd.osdDrawShow = configTab[CFGID_SYSOSD_biten];
 	gSYS_Osd.osdUserShow = configTab[CFGID_USROSD_showen];
 	gSYS_Osd.osdDrawColor = 3;	// red color
@@ -136,8 +142,7 @@ void cfg_ctrl_sysInit(int * configTab)
 	memcpy(&gCFG_Mtd, &(configTab[CFGID_MTD_BASE]),(4*2*CFGID_FEILD_MAX)/*sizeof(ALG_CONFIG_Mtd)*/);
 	printf("mtdPrm init areaSetBox %d detectNum %d\n",
 			gCFG_Mtd.areaSetBox, gCFG_Mtd.detectNum);
-	configTab[CFGID_RTS_mainch] = 0;// default use first sensor
-	BKID = cfg_get_input_bkid(0);
+	BKID = cfg_get_input_bkid(configTab[CFGID_OUTPUT_dftch]);
 	gCFG_Mtd.sensitivityThreshold = configTab[CFGID_INPUT_SENISIVITY(BKID)];
 	gCFG_Mtd.detectArea_X = configTab[CFGID_INPUT_DETX(BKID)];
 	gCFG_Mtd.detectArea_Y = configTab[CFGID_INPUT_DETY(BKID)];
