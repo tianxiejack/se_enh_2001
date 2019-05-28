@@ -110,10 +110,16 @@ void cfg_ctrl_sysInit(int * configTab)
 	gSYS_Osd.algOsdRect = 0;		// auto aimsize
 	if(gSYS_Osd.osdDrawShow & 0x01)
 		gSYS_Osd.m_crossOsd = 1;
+	else
+		gSYS_Osd.m_crossOsd = 0;
 	if(gSYS_Osd.osdDrawShow & 0x02)
 		gSYS_Osd.m_boxOsd = 1;
+	else
+		gSYS_Osd.m_boxOsd = 0;
 	if(gSYS_Osd.osdDrawShow & 0x04)
 		gSYS_Osd.m_workOsd = 1;
+	else
+		gSYS_Osd.m_workOsd = 0;
 	gSYS_Osd.m_chidIDOsd = 0;
 	gSYS_Osd.m_chidNameOsd = 0;
 	gSYS_Osd.m_sceneBoxOsd = 0;
@@ -248,10 +254,16 @@ Int32 cfg_update_sys( Int32 blkId, Int32 feildId, void *inprm )
 		gSYS_Osd.osdDrawShow = configTab[CFGID_SYSOSD_biten];
 		if(gSYS_Osd.osdDrawShow & 0x01)
 			gSYS_Osd.m_crossOsd = 1;
+		else
+			gSYS_Osd.m_crossOsd = 0;
 		if(gSYS_Osd.osdDrawShow & 0x02)
 			gSYS_Osd.m_boxOsd = 1;
+		else
+			gSYS_Osd.m_boxOsd = 0;
 		if(gSYS_Osd.osdDrawShow & 0x04)
 			gSYS_Osd.m_workOsd = 1;
+		else
+			gSYS_Osd.m_workOsd = 0;
 		MSGDRIV_send(MSGID_EXT_UPDATE_OSD, 0);		// sys ctrl part
 	}
 	if(feildId == 0xFF || CFGID_BUILD(blkId, feildId) == CFGID_USROSD_showen)
