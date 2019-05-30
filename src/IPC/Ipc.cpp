@@ -427,6 +427,8 @@ void cfg_init(void)
 	int i;
 	fxnsCfg = (ConfigFxn*)OSA_memAlloc( sizeof( ConfigFxn ) * CFGID_BKID_MAX );
 	FXN_BIGEN
+	for(i=0; i<CFGID_BKID_MAX; i++)
+		fxnsCfg[i] = NULL;
 	for(i=0; i<3; i++)
 		FXN_REG(CFGID_TRK_BKID+i, cfg_update_trk);
 	FXN_REG(CFGID_OUTPUT_BKID, cfg_update_output);
@@ -661,8 +663,11 @@ void* recv_msgpth(SENDST *pInData)
 			{
 				configId = pIn->intPrm[0];
 				blkId = CFGID_blkId(configId);
-				if(fxnsCfg[blkId] != NULL)
-					fxnsCfg[blkId](blkId, 0xFF, (void *)pMsg);
+				if(blkId >= 0 && blkId < CFGID_BKID_MAX)
+				{
+					if(fxnsCfg[blkId] != NULL)
+						fxnsCfg[blkId](blkId, 0xFF, (void *)pMsg);
+				}
 			}
 			break;
 		case read_shm_single:
@@ -670,8 +675,11 @@ void* recv_msgpth(SENDST *pInData)
 				configId = pIn->intPrm[0];
 				blkId = CFGID_blkId(configId);
 				feildId = CFGID_feildId(configId);
-				if(fxnsCfg[blkId] != NULL)
-					fxnsCfg[blkId](blkId, feildId, (void *)pMsg);
+				if(blkId >= 0 && blkId < CFGID_BKID_MAX)
+				{
+					if(fxnsCfg[blkId] != NULL)
+						fxnsCfg[blkId](blkId, feildId, (void *)pMsg);
+				}
 			}
 			break;
 		case read_shm_usrosd:
