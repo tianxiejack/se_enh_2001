@@ -140,8 +140,10 @@ void cfg_ctrl_sysInit(int * configTab)
 	///////////////////
 	memcpy(&gCFG_Trk, &(configTab[CFGID_TRK_BASE]),(4*3*CFGID_FEILD_MAX)/*sizeof(ALG_CONFIG_Trk)*/);
 	gCFG_Trk.losttime = (int)gCFG_Trk.flosttime;
-	printf("trkPrm init occlusion_thred %f res_area %f losttime %dms\n",
-			gCFG_Trk.occlusion_thred, gCFG_Trk.res_area, gCFG_Trk.losttime);
+	printf("trkPrm init occlusion_thred %f up_factor %f FilterEnable %f BigSecEnable %f losttime %dms\n",
+			gCFG_Trk.occlusion_thred, gCFG_Trk.up_factor, 
+			gCFG_Trk.FilterEnable, gCFG_Trk.BigSecEnable, 
+			gCFG_Trk.losttime);
 
 	///////////////////
 	memcpy(&gCFG_Mtd, &(configTab[CFGID_MTD_BASE]),(4*2*CFGID_FEILD_MAX)/*sizeof(ALG_CONFIG_Mtd)*/);
@@ -220,22 +222,6 @@ void cfg_ctrl_acqReset(void *inprm)
 
 }
 
-void cfg_ctrl_setSensor(int * configTab)
-{
-	int ich, BKID;
-	ich = configTab[CFGID_RTS_mainch];
-	BKID = cfg_get_input_bkid(ich);
-
-	// mtd
-	gCFG_Mtd.sensitivityThreshold = configTab[CFGID_INPUT_SENISIVITY(BKID)];
-	gCFG_Mtd.detectArea_X = configTab[CFGID_INPUT_DETX(BKID)];
-	gCFG_Mtd.detectArea_Y = configTab[CFGID_INPUT_DETY(BKID)];
-	gCFG_Mtd.detectArea_wide = configTab[CFGID_INPUT_DETW(BKID)];
-	gCFG_Mtd.detectArea_high = configTab[CFGID_INPUT_DETH(BKID)];
-	MSGDRIV_send(MSGID_EXT_MVDETECTAERA, 0);
-
-}
-
 Int32 cfg_update_trk( Int32 blkId, Int32 feildId, void *inprm )
 {
 	int * configTab = sysConfig;
@@ -244,12 +230,33 @@ Int32 cfg_update_trk( Int32 blkId, Int32 feildId, void *inprm )
 	{
 		memcpy(&gCFG_Trk, &(configTab[CFGID_TRK_BASE]),(4*3*CFGID_FEILD_MAX)/*sizeof(ALG_CONFIG_Trk)*/);
 		gCFG_Trk.losttime = (int)gCFG_Trk.flosttime;
+		MSGDRIV_send(MSGID_EXT_UPDATE_ALG, 0);
+	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_TRK_occlusion)
+	{
+		memcpy(&gCFG_Trk.occlusion_thred, &configTab[CFGID_TRK_occlusion], 4);
+		MSGDRIV_send(MSGID_EXT_UPDATE_ALG, 0);
+	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_TRK_upfactor)
+	{
+		memcpy(&gCFG_Trk.up_factor, &configTab[CFGID_TRK_upfactor], 4);
+		MSGDRIV_send(MSGID_EXT_UPDATE_ALG, 0);
 	}
 	if(CFGID_BUILD(blkId, feildId) == CFGID_TRK_assitime)
 	{
 		memcpy(&gCFG_Trk.flosttime, &configTab[CFGID_TRK_assitime], 4);
 		gCFG_Trk.losttime = (int)gCFG_Trk.flosttime;
 		printf("trkPrm update losttime %dms\n", gCFG_Trk.losttime);
+	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_TRK_filterenable)
+	{
+		memcpy(&gCFG_Trk.FilterEnable, &configTab[CFGID_TRK_filterenable], 4);
+		MSGDRIV_send(MSGID_EXT_UPDATE_ALG, 0);
+	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_TRK_bigsecenable)
+	{
+		memcpy(&gCFG_Trk.BigSecEnable, &configTab[CFGID_TRK_bigsecenable], 4);
+		MSGDRIV_send(MSGID_EXT_UPDATE_ALG, 0);
 	}
 	return 0;
 }
@@ -261,7 +268,6 @@ Int32 cfg_update_output( Int32 blkId, Int32 feildId, void *inprm )
 
 Int32 cfg_update_sys( Int32 blkId, Int32 feildId, void *inprm )
 {
-	int i;
 	int * configTab = sysConfig;
 	/////////////////////////
 	if(feildId == 0xFF || CFGID_BUILD(blkId, feildId) == CFGID_SYSOSD_biten)
@@ -291,7 +297,6 @@ Int32 cfg_update_sys( Int32 blkId, Int32 feildId, void *inprm )
 
 Int32 cfg_update_mtd( Int32 blkId, Int32 feildId, void *inprm )
 {
-	int i;
 	int * configTab = sysConfig;
 	/////////////////////////
 	if(feildId == 0xFF)
@@ -299,11 +304,67 @@ Int32 cfg_update_mtd( Int32 blkId, Int32 feildId, void *inprm )
 		memcpy(&gCFG_Mtd, &(configTab[CFGID_MTD_BASE]),(4*2*CFGID_FEILD_MAX)/*sizeof(ALG_CONFIG_Mtd)*/);
 		MSGDRIV_send(MSGID_EXT_MVDETECTUPDATE, 0);
 	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_MTD_areabox)
+	{
+		gCFG_Mtd.areaSetBox = configTab[CFGID_MTD_areabox];
+	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_MTD_detnum)
+	{
+		gCFG_Mtd.detectNum = clip(configTab[CFGID_MTD_detnum], 0, 10);
+	}
 	if(CFGID_BUILD(blkId, feildId) == CFGID_MTD_upspd)
 	{
-		gCFG_Mtd.tmpUpdateSpeed = configTab[CFGID_MTD_upspd];
+		gCFG_Mtd.tmpUpdateSpeed = clip(configTab[CFGID_MTD_upspd], 0, 65535);
 		MSGDRIV_send(MSGID_EXT_MVDETECTUPDATE, 0);
 	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_MTD_maxpixel)
+	{
+		gCFG_Mtd.tmpMaxPixel = configTab[CFGID_MTD_maxpixel];
+	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_MTD_minpixel)
+	{
+		gCFG_Mtd.tmpMinPixel = configTab[CFGID_MTD_minpixel];
+	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_MTD_detspd)
+	{
+		gCFG_Mtd.detectSpeed = configTab[CFGID_MTD_detspd];
+	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_MTD_maxtrk)
+	{
+		gCFG_Mtd.TrkMaxTime = clip(configTab[CFGID_MTD_maxtrk], 0, 65536);
+	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_MTD_priority)
+	{
+		gCFG_Mtd.priority = clip(configTab[CFGID_MTD_priority], 1, 6);
+	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_MTD_output)
+	{
+		gCFG_Mtd.output = clip(configTab[CFGID_MTD_output], 1, 2);
+	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_MTD_outpolarity)
+	{
+		gCFG_Mtd.outputPolarity = clip(configTab[CFGID_MTD_outpolarity], 1, 2);
+	}
+	if(CFGID_BUILD(blkId, feildId) == CFGID_MTD_alarmdelay)
+	{
+		gCFG_Mtd.alarm_delay = clip(configTab[CFGID_MTD_alarmdelay], 0, 65535);
+	}
+	return 0;
+}
+
+Int32 cfg_update_mtdBySensor(int * configTab)
+{
+	int ich, BKID;
+	ich = configTab[CFGID_RTS_mainch];
+	BKID = cfg_get_input_bkid(ich);
+
+	// mtd
+	gCFG_Mtd.sensitivityThreshold = configTab[CFGID_INPUT_SENISIVITY(BKID)];
+	gCFG_Mtd.detectArea_X = configTab[CFGID_INPUT_DETX(BKID)];
+	gCFG_Mtd.detectArea_Y = configTab[CFGID_INPUT_DETY(BKID)];
+	gCFG_Mtd.detectArea_wide = configTab[CFGID_INPUT_DETW(BKID)];
+	gCFG_Mtd.detectArea_high = configTab[CFGID_INPUT_DETH(BKID)];
+	MSGDRIV_send(MSGID_EXT_MVDETECTAERA, 0);
 	return 0;
 }
 
@@ -388,7 +449,7 @@ Int32 cfg_update_input( Int32 blkId, Int32 feildId, void *inprm )
 		configId == CFGID_INPUT_DETW(BKID) || configId == CFGID_INPUT_DETH(BKID))
 	{
 		if(ich == configTab[CFGID_RTS_mainch])
-			cfg_ctrl_setSensor(configTab);
+			cfg_update_mtdBySensor(configTab);
 	}
 	if(feildId == 0xFF || configId == CFGID_INPUT_CHNAME(BKID))
 	{
@@ -697,7 +758,7 @@ void* recv_msgpth(SENDST *pInData)
 				pMsg->SensorStat = clip(pIn->intPrm[0], 0, video_pal);
 				app_ctrl_setSensor(pMsg);
 				cfg_set_outSensor(pMsg->SensorStat, pMsg->SensorStat);
-				cfg_ctrl_setSensor(sysConfig);
+				cfg_update_mtdBySensor(sysConfig);
 			}
 			break;
 

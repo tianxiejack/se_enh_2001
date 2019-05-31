@@ -3730,7 +3730,6 @@ void CProcess::update_param_alg()
 #if __TRACK__
 	UtcSetDynParam(m_track, dynamicParam);
 	UtcSetUpFactor(m_track, up_factor);
-	UtcSetUpFactor(m_track, up_factor);
 	UtcSetBlurFilter(m_track,FilterEnable);
 	UtcSetBigSearch(m_track, BigSecEnable);
 #endif

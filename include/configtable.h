@@ -97,7 +97,11 @@ typedef enum
 typedef enum 
 {
 	CFGID_TRK_BASE = CFGID_BUILD( CFGID_TRK_BKID, 0 ),
+	CFGID_TRK_occlusion = CFGID_BUILD( CFGID_TRK_BKID, 0 ),
+	CFGID_TRK_upfactor = CFGID_BUILD( CFGID_TRK_BKID, 2 ),
 	CFGID_TRK_assitime = CFGID_BUILD( CFGID_TRK_BKID, 15 ),
+	CFGID_TRK_filterenable = CFGID_BUILD( CFGID_TRK_BKID+1, 5 ),
+	CFGID_TRK_bigsecenable = CFGID_BUILD( CFGID_TRK_BKID+1, 6 ),
 }CFGID_TRK;
 
 typedef enum 
@@ -125,7 +129,11 @@ typedef enum
 	CFGID_MTD_maxpixel = CFGID_BUILD( CFGID_MTD_BKID, 3 ),
 	CFGID_MTD_minpixel = CFGID_BUILD( CFGID_MTD_BKID, 4 ),
 	CFGID_MTD_detspd = CFGID_BUILD( CFGID_MTD_BKID, 6 ),		// detectSpeed
+	CFGID_MTD_maxtrk = CFGID_BUILD( CFGID_MTD_BKID, 7 ),		// TrkMaxTime
 	CFGID_MTD_priority = CFGID_BUILD( CFGID_MTD_BKID, 8 ),
+	CFGID_MTD_output = CFGID_BUILD( CFGID_MTD_BKID+1, 4 ),
+	CFGID_MTD_outpolarity = CFGID_BUILD( CFGID_MTD_BKID+1, 5 ),
+	CFGID_MTD_alarmdelay = CFGID_BUILD( CFGID_MTD_BKID+1, 6 ),
 }CFGID_MTD;
 
 typedef enum 
