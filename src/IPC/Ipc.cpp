@@ -4,7 +4,7 @@
 #include "osa_buf.h"
 #include "locale.h"
 #include "wchar.h"
-#include "ipc_custom_head.hpp"
+#include "ipc_custom_head.h"
 #include "configtable.h"
 #include "msgDriv.h"	// use MSGDRIV_send
 #include "app_ctrl.h"		// use app_ctrl_setXXX
@@ -1045,7 +1045,7 @@ static void * ipc_dataRecv(Void * prm)
 	SENDST test;
 	while(ipc_loop)
 	{
-		ipc_recvmsg(&test,IPC_TOIMG_MSG);
+		ipc_recvmsg(IPC_TOIMG_MSG, &test);
 		recv_msgpth(&test);
 	}
 }
@@ -1056,14 +1056,14 @@ static void * ipc_dataSend(Void * prm)
 	while(ipc_loop)
 	{	
 		send_msgpth(&test);
-		ipc_sendmsg(&test,IPC_FRIMG_MSG);
+		ipc_sendmsg(IPC_FRIMG_MSG, &test);
 	}
 }
 
 void Ipc_pthread_start(void)
 {
 	Ipc_init();
-	int ret = Ipc_create();
+	int ret = Ipc_create(tmpIpc);
 	if(-1 == ret)
 	{
 		printf("error : give error param \n");
@@ -1244,7 +1244,7 @@ void cfg_dbg_getDefault(int * configTab, unsigned char *configUser)
 	SENDST test;
 	memset(&test, 0, sizeof(test));
 	test.cmd_ID = read_shm_config;
-	ipc_sendmsg(&test,IPC_TOIMG_MSG);
+	ipc_sendmsg(IPC_TOIMG_MSG, &test);
 
 }
 
@@ -1334,7 +1334,7 @@ void cfg_dbg_setCmd(int cmd, int prm)
 	else
 		return ;
 
-	ipc_sendmsg(&test, IPC_TOIMG_MSG);
+	ipc_sendmsg(IPC_TOIMG_MSG, &test);
 	return ;
 }
 

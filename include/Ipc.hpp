@@ -2,7 +2,7 @@
 #ifndef IPC_HPP_
 #define IPC_HPP_
 
-//#include "ipc_custom_head.hpp"
+//#include "ipc_custom_head.h"
 
 void Ipc_pthread_start(void);
 void Ipc_pthread_stop(void);

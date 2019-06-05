@@ -8,7 +8,7 @@
 #ifndef HAHAHA_HPP_
 #define HAHAHA_HPP_
 
-#include "ipc_custom_head.hpp"
+#include "ipc_custom_head.h"
 extern void cfg_dbg_setCmd(int cmd, int prm);
 
 void testhahahaha()
