@@ -2950,44 +2950,17 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
     {
         int Mtdstatus = (pIStuts->MtdState[pIStuts->SensorStat]&0x01) ;
         if(Mtdstatus)
-        {
-#if 0
-            struct timeval tv;
-            while(!m_pMovDetector->isWait(pIStuts->SensorStat))
-            {
-                tv.tv_sec = 0;
-                tv.tv_usec = (20%1000)*1000;
-                select(0, NULL, NULL, NULL, &tv);
-   	         if( m_pMovDetector->isStopping(pIStuts->SensorStat) )
-	 		m_pMovDetector->stoppingReset(pIStuts->SensorStat);
-		   recordNum++;
-            }
-#endif
-
-            if(m_pMovDetector->isWait(pIStuts->SensorStat))
-            {
-				m_pMovDetector->mvOpen(pIStuts->SensorStat);
-				dynamic_config(VP_CFG_MvDetect, 1,NULL);
-				chooseDetect = 10;
-				pIStuts->MtdDetectStat = m_bMoveDetect;
-            }
-			else
-			{
-				OSA_printf(" m_pMovDetector not wait stat cancel open \n");
-			}
+        {  
+		m_pMovDetector->mvOpen(pIStuts->SensorStat);
+		dynamic_config(VP_CFG_MvDetect, 1,NULL);
+		chooseDetect = 10;
+		pIStuts->MtdDetectStat = m_bMoveDetect;  
         }
         else
         {
-            if(m_pMovDetector->isRun(pIStuts->SensorStat))
-            {
-				dynamic_config(VP_CFG_MvDetect, 0,NULL);
-				m_pMovDetector->mvClose(pIStuts->SensorStat);
-				pIStuts->MtdDetectStat = m_bMoveDetect;
-            }
-			else
-			{
-				OSA_printf(" m_pMovDetector not run stat cancel close \n");
-			}
+		dynamic_config(VP_CFG_MvDetect, 0,NULL);
+		m_pMovDetector->mvClose(pIStuts->SensorStat);
+		pIStuts->MtdDetectStat = m_bMoveDetect;
         }
         OSA_printf("====== MTD cmdstat %d algstat %d \n", pIStuts->MtdState[pIStuts->SensorStat], pIStuts->MtdDetectStat);
     }
