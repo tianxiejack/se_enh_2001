@@ -26,7 +26,9 @@ static void keyboard_event(unsigned char key, int x, int y)
 			"----------------------------------------\n"
 			"|---Main Menu -------------------------|\n"
 			"----------------------------------------\n"
-			" [0-9 a-c] test ipc cmd   \n"
+			" [0-9 a-c] test cmd   \n"
+			" [B] test config block   \n"
+			" [C] test config field   \n"
 			"--> "
 	};
 
@@ -124,12 +126,20 @@ static void keyboard_event(unsigned char key, int x, int y)
 		cfg_dbg_setCmd(Iris, irisdir);
 		break;
 	case 'b':
-		focusdir = (focusdir)%3;
+		focusdir = (focusdir+1)%3;
 		cfg_dbg_setCmd(focus, focusdir);
 		break;
 	case 'c':
 		cfg_dbg_setCmd(exit_IrisAndFocus, 0);
 		break;
+
+	case 'B':
+		cfg_dbg_setCmd(read_shm_block, 0);
+		break;
+	case 'C':
+		cfg_dbg_setCmd(read_shm_single, 0);
+		break;
+
 	case 'q':
 	case 27:
 		//glutLeaveMainLoop();

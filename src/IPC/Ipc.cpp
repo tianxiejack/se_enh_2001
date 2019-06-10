@@ -222,6 +222,17 @@ void cfg_ctrl_acqReset(void *inprm)
 
 }
 
+Int32 cfg_update_acqBySensor(int * configTab)
+{
+	int ich, BKID;
+	ich = configTab[CFGID_RTS_mainch];
+	BKID = cfg_get_input_bkid(ich);
+
+	// trk acq
+	gSYS_Osd.algOsdRect = (configTab[CFGID_INPUT_AIMTYPE(BKID)])?0:1;
+	return 0;
+}
+
 Int32 cfg_update_trk( Int32 blkId, Int32 feildId, void *inprm )
 {
 	int * configTab = sysConfig;
@@ -439,7 +450,7 @@ Int32 cfg_update_input( Int32 blkId, Int32 feildId, void *inprm )
 
 		if(ich == configTab[CFGID_RTS_mainch])
 		{
-			gSYS_Osd.algOsdRect = (type)?0:1;
+			cfg_update_acqBySensor(configTab);
 		}
 		app_ctrl_setAcqRect(pInCmd);
 		app_ctrl_setAimSize(pInCmd);
@@ -758,6 +769,7 @@ void* recv_msgpth(SENDST *pInData)
 				pMsg->SensorStat = clip(pIn->intPrm[0], 0, video_pal);
 				app_ctrl_setSensor(pMsg);
 				cfg_set_outSensor(pMsg->SensorStat, pMsg->SensorStat);
+				cfg_update_acqBySensor(sysConfig);
 				cfg_update_mtdBySensor(sysConfig);
 			}
 			break;
@@ -1252,6 +1264,7 @@ void cfg_dbg_setCmd(int cmd, int prm)
 {
 	SENDST test;
 	IPC_PRM_INT *pInt = (IPC_PRM_INT *)test.param;
+	//int configId;
 	/////////////////////
 	memset(&test, 0, sizeof(test));
 	test.cmd_ID = cmd;
@@ -1330,6 +1343,16 @@ void cfg_dbg_setCmd(int cmd, int prm)
 				pInt->intPrm[1] = 0;	// CMD_triangle.alpha
 			}
 		}
+	}
+	else if(read_shm_block)
+	{
+		//configId = CFGID_BUILD();
+		//pInt->intPrm[0] = (unsigned int)configId;
+	}
+	else if(read_shm_single)
+	{
+		//configId = CFGID_BUILD();
+		//pInt->intPrm[0] = (unsigned int)configId;
 	}
 	else
 		return ;

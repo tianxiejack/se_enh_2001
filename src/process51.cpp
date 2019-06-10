@@ -3781,8 +3781,9 @@ void CProcess::MSGAPI_handle_mvAera(long lParam)
 	std::vector<cv::Point> polyWarnRoi ;
 	polyWarnRoi.resize(4);
 	cv::Point tmp;
-	int cx,cy,w,h;
+	int cx,cy,w,h,ich;
 
+	ich = sThis->extInCtrl->SensorStat;
 	cx = gCFG_Mtd.detectArea_X;
 	cy = gCFG_Mtd.detectArea_Y;
 	w = gCFG_Mtd.detectArea_wide;
@@ -3795,44 +3796,49 @@ void CProcess::MSGAPI_handle_mvAera(long lParam)
 	if(tmp.y < 0)
 		tmp.y = 0;
 	polyWarnRoi[0]= cv::Point(tmp.x,tmp.y);
-	sThis->polWarnRect[sThis->extInCtrl->SensorStat][0].x = tmp.x ;
-	sThis->polWarnRect[sThis->extInCtrl->SensorStat][0].y = tmp.y ;
-
+	sThis->polWarnRect[ich][0].x = tmp.x ;
+	sThis->polWarnRect[ich][0].y = tmp.y ;
 
 	tmp.x = cx + w/2;
 	tmp.y = cy - h/2;
-	if(tmp.x > vdisWH[sThis->extInCtrl->SensorStat][0])
-		tmp.x = vdisWH[sThis->extInCtrl->SensorStat][0];
+	if(tmp.x > vcapWH[ich][0])
+		tmp.x = vcapWH[ich][0];
 	if(tmp.y < 0)
 		tmp.y = 0;
 	polyWarnRoi[1]= cv::Point(tmp.x,tmp.y);
-	sThis->polWarnRect[sThis->extInCtrl->SensorStat][1].x = tmp.x ;
-	sThis->polWarnRect[sThis->extInCtrl->SensorStat][1].y = tmp.y ;
+	sThis->polWarnRect[ich][1].x = tmp.x ;
+	sThis->polWarnRect[ich][1].y = tmp.y ;
 
 
 	tmp.x = cx + w/2;
 	tmp.y = cy + h/2;
-	if(tmp.x > vcapWH[sThis->extInCtrl->SensorStat][0])
-		tmp.x = vcapWH[sThis->extInCtrl->SensorStat][0];
-	if(tmp.y > vcapWH[sThis->extInCtrl->SensorStat][1])
-		tmp.y = vcapWH[sThis->extInCtrl->SensorStat][1];
+	if(tmp.x > vcapWH[ich][0])
+		tmp.x = vcapWH[ich][0];
+	if(tmp.y > vcapWH[ich][1])
+		tmp.y = vcapWH[ich][1];
 	polyWarnRoi[2]= cv::Point(tmp.x,tmp.y);
-	sThis->polWarnRect[sThis->extInCtrl->SensorStat][2].x = tmp.x ;
-	sThis->polWarnRect[sThis->extInCtrl->SensorStat][2].y = tmp.y ;
+	sThis->polWarnRect[ich][2].x = tmp.x ;
+	sThis->polWarnRect[ich][2].y = tmp.y ;
 
 	tmp.x = cx - w/2;
 	tmp.y = cy + h/2;
 	if(tmp.x < 0 )
 		tmp.x = 0;
-	if(tmp.y > vcapWH[sThis->extInCtrl->SensorStat][1])
-		tmp.y = vcapWH[sThis->extInCtrl->SensorStat][1];	
+	if(tmp.y > vcapWH[ich][1])
+		tmp.y = vcapWH[ich][1];	
 	polyWarnRoi[3]= cv::Point(tmp.x,tmp.y);
-	sThis->polWarnRect[sThis->extInCtrl->SensorStat][3].x = tmp.x ;
-	sThis->polWarnRect[sThis->extInCtrl->SensorStat][3].y = tmp.y ;
+	sThis->polWarnRect[ich][3].x = tmp.x ;
+	sThis->polWarnRect[ich][3].y = tmp.y ;
 
-	sThis->polwarn_count[sThis->extInCtrl->SensorStat] = 4 ; 
+	sThis->polwarn_count[ich] = 4 ; 
+	/*OSA_printf(" [%d] MSGAPI_handle_mvAera update ich%d (%d, %d)-(%d, %d)-(%d, %d)-(%d, %d) \n",
+		OSA_getCurTimeInMsec(), ich, 
+		sThis->polWarnRect[ich][0].x, sThis->polWarnRect[ich][0].y,
+		sThis->polWarnRect[ich][1].x, sThis->polWarnRect[ich][1].y,
+		sThis->polWarnRect[ich][2].x, sThis->polWarnRect[ich][2].y,
+		sThis->polWarnRect[ich][3].x, sThis->polWarnRect[ich][3].y);*/
 
-	pThis->m_pMovDetector->setWarningRoi( polyWarnRoi, sThis->extInCtrl->SensorStat );
+	pThis->m_pMovDetector->setWarningRoi( polyWarnRoi, ich );
 }
 
 void CProcess::MSGAPI_handle_mvUpdate(long lParam)

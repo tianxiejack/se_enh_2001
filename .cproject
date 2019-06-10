@@ -56,7 +56,6 @@
 									<listOptionValue builtIn="false" value="opencv_highgui"/>
 									<listOptionValue builtIn="false" value="opencv_objdetect"/>
 									<listOptionValue builtIn="false" value="opencv_ml"/>
-									<listOptionValue builtIn="false" value="detector"/>
 									<listOptionValue builtIn="false" value="opencv_calib3d"/>
 									<listOptionValue builtIn="false" value="Mvdetect"/>
 									<listOptionValue builtIn="false" value="freetype"/>

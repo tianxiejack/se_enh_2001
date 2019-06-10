@@ -5,3 +5,4 @@ Shader.fsh
 Shader.vsh
 SIMLI.TTF
 simsun.ttc
+config
