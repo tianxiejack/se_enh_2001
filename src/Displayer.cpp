@@ -26,7 +26,6 @@
 #include "locale.h"
 #include "arm_neon.h"
 
-
 #define HISTEN 0
 #define CLAHEH 1
 #define DARKEN 0

@@ -27,8 +27,7 @@ C_UPPER_DEPS :=
 SUBDIRS := \
 src \
 src/OSD_CR \
-src/OSA_CAP/src \
 src/MSGDRI \
 src/IPC \
-src/GST/compress \
+src/GST \
 

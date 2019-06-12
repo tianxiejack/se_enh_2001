@@ -10,6 +10,8 @@
 #include "app_ctrl.h"		// use app_ctrl_setXXX
 #include "app_status.h"		// use MSG_PROC_ID
 
+using namespace cr_osa;
+
 #define DATAIN_TSK_PRI              (2)
 #define DATAIN_TSK_STACK_SIZE       (0)
 #define SDK_MEM_MALLOC(size)                                            OSA_memAlloc(size)
@@ -18,6 +20,7 @@ extern ALG_CONFIG_Trk gCFG_Trk;
 extern ALG_CONFIG_Mtd gCFG_Mtd;
 extern OSD_CONFIG_USER gCFG_Osd;
 extern OSDSTATUS gSYS_Osd;
+extern ENCOUTSTATUS gSYS_Enc;
 
 int ipc_loop = 1;
 int startEnable=0, ipcDbgOn = 0;
@@ -112,6 +115,11 @@ void cfg_ctrl_sysInit(int * configTab)
 	configTab[CFGID_OUTPUT_dftch] = clip(configTab[CFGID_OUTPUT_dftch], 0, video_pal);
 	configTab[CFGID_RTS_mainch] = configTab[CFGID_RTS_mainch2] = configTab[CFGID_OUTPUT_dftch];
 	printf("output init default select channel %d\n", configTab[CFGID_OUTPUT_dftch]);
+	gSYS_Enc.encOutRtp = configTab[CFGID_ENCOUT_rtp];
+	gSYS_Enc.rtpIpaddr = configTab[CFGID_ENCOUT_rmip];
+	gSYS_Enc.rtpPort = configTab[CFGID_ENCOUT_rmport];
+	printf("output init default encrtp %d remote %08x:%d\n", configTab[CFGID_ENCOUT_rtp],
+		configTab[CFGID_ENCOUT_rmip], configTab[CFGID_ENCOUT_rmport]);
 
 	///////////////////
 	gSYS_Osd.workMode = 4;	// default stat
@@ -274,6 +282,18 @@ Int32 cfg_update_trk( Int32 blkId, Int32 feildId, void *inprm )
 
 Int32 cfg_update_output( Int32 blkId, Int32 feildId, void *inprm )
 {
+	int configId;
+	int * configTab = sysConfig;
+	/////////////////////////
+	configId = CFGID_BUILD(blkId, feildId);
+	if(configId == CFGID_ENCOUT_rtp || configId == CFGID_ENCOUT_rmip || configId == CFGID_ENCOUT_rmport)
+	{
+		gSYS_Enc.encOutRtp = configTab[CFGID_ENCOUT_rtp];
+		gSYS_Enc.rtpIpaddr = configTab[CFGID_ENCOUT_rmip];
+		gSYS_Enc.rtpPort = configTab[CFGID_ENCOUT_rmport];
+		MSGDRIV_send(MSGID_EXT_INPUT_GSTCTRL, 0);
+	}
+
 	return 0;
 }
 
@@ -1264,7 +1284,7 @@ void cfg_dbg_setCmd(int cmd, int prm)
 {
 	SENDST test;
 	IPC_PRM_INT *pInt = (IPC_PRM_INT *)test.param;
-	//int configId;
+	int configId;
 	/////////////////////
 	memset(&test, 0, sizeof(test));
 	test.cmd_ID = cmd;
@@ -1344,15 +1364,17 @@ void cfg_dbg_setCmd(int cmd, int prm)
 			}
 		}
 	}
-	else if(read_shm_block)
+	else if(cmd == read_shm_block)
 	{
 		//configId = CFGID_BUILD();
 		//pInt->intPrm[0] = (unsigned int)configId;
+		configId = CFGID_INPUT_DETW(CFGID_INPUT2_BKID);
+		pInt->intPrm[0] = (unsigned int)configId;
 	}
-	else if(read_shm_single)
+	else if(cmd == read_shm_single)
 	{
-		//configId = CFGID_BUILD();
-		//pInt->intPrm[0] = (unsigned int)configId;
+		configId = CFGID_BUILD(CFGID_OUTPUT_BKID, 6);
+		pInt->intPrm[0] = (unsigned int)configId;
 	}
 	else
 		return ;

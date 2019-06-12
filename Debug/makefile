@@ -11,10 +11,9 @@ RM := rm -rf
 -include subdir.mk
 -include src/subdir.mk
 -include src/OSD_CR/subdir.mk
--include src/OSA_CAP/src/subdir.mk
 -include src/MSGDRI/subdir.mk
 -include src/IPC/subdir.mk
--include src/GST/compress/subdir.mk
+-include src/GST/subdir.mk
 
 OS_SUFFIX := $(subst Linux,linux,$(subst Darwin/x86_64,darwin,$(shell uname -s)/$(shell uname -m)))
 

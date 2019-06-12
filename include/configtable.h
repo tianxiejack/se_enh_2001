@@ -110,6 +110,10 @@ typedef enum
 	CFGID_OUTPUT_dftch = CFGID_BUILD( CFGID_OUTPUT_BKID, 2 ),	// default mainch when poweron
 	CFGID_OUTPUT1_res = CFGID_BUILD( CFGID_OUTPUT_BKID, 4 ),	// HDMI resolution
 	CFGID_OUTPUT2_res = CFGID_BUILD( CFGID_OUTPUT_BKID, 5 ),	// SDI resolution
+	CFGID_ENCOUT_rtp = CFGID_BUILD( CFGID_OUTPUT_BKID, 6 ),
+	CFGID_ENCOUT_mode = CFGID_BUILD( CFGID_OUTPUT_BKID, 7 ),
+	CFGID_ENCOUT_rmip = CFGID_BUILD( CFGID_OUTPUT_BKID, 8 ),
+	CFGID_ENCOUT_rmport = CFGID_BUILD( CFGID_OUTPUT_BKID, 9 ),
 }CFGID_OUTPUT;
 
 typedef enum 
@@ -396,7 +400,7 @@ typedef struct
 	volatile unsigned int  ImgEnhStat[CAMERACHMAX];    	
 	volatile unsigned int  ImgBlobDetect[CAMERACHMAX];    
 	volatile unsigned int  ImgFrezzStat[CAMERACHMAX];
-	volatile unsigned int  ImgVideoTrans[CAMERACHMAX]; 
+	//volatile unsigned int  ImgVideoTrans[CAMERACHMAX]; 
 	volatile unsigned int  ImgPicp[CAMERACHMAX];   	
 
 	volatile unsigned int  MmtValid;    			
@@ -449,6 +453,14 @@ typedef struct {
 	int m_chidNameOsd;
 	int m_sceneBoxOsd;
 }OSDSTATUS;
+
+typedef struct
+{
+	volatile int encOutRtp;
+	volatile int rtpIpaddr;
+	volatile int rtpPort;
+}ENCOUTSTATUS;
+
 /*************** universal status end ***************/
 
 #endif

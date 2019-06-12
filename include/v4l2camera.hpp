@@ -26,6 +26,7 @@
 #include "configtable.h"
 
 using namespace cv;
+using namespace cr_osa;
 
 //#define SHOW_TIMES
 

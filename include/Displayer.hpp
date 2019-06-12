@@ -24,6 +24,7 @@ const char chid = 5;
 
 using namespace std;
 using namespace cv;
+using namespace cr_osa;
 
 typedef struct _ds_size{
 	int w;

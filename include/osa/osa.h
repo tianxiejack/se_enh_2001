@@ -38,7 +38,6 @@ typedef double            Double;
 typedef long double       LDouble;
 typedef void              Void;
 
-
 typedef unsigned short    Bool;
 typedef void            * ptr;       /* data pointer */
 typedef char            * String;    /* null terminated string */

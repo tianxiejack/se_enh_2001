@@ -84,7 +84,7 @@ v4l2_camera::v4l2_camera(int devId):io(IO_METHOD_USERPTR),buffers(NULL),force_fo
 			*BUFFER_ID(m_bufferCreate.bufVirtAddr[k]) = k;
 			m_bufferHndl->bufInfo[k].width = m_bufferCreate.width;
 			m_bufferHndl->bufInfo[k].height = m_bufferCreate.height;
-			m_bufferHndl->bufInfo[k].strid = m_bufferCreate.stride;
+			//m_bufferHndl->bufInfo[k].strid = m_bufferCreate.stride;
 		}
 		OSA_bufCreate(m_bufferHndl, &m_bufferCreate);
 
@@ -191,7 +191,7 @@ int v4l2_camera::putFullBuffer(unsigned char* data)
 	m_bufferHndl->bufInfo[bufId].timestamp = (Uint32)OSA_getCurTimeInMsec();
 	m_bufferHndl->bufInfo[bufId].width = m_bufferCreate.width;
 	m_bufferHndl->bufInfo[bufId].height = m_bufferCreate.height;
-	m_bufferHndl->bufInfo[bufId].strid = m_bufferCreate.stride;
+	//m_bufferHndl->bufInfo[bufId].strid = m_bufferCreate.stride;
 
 	status = OSA_bufPutFull(m_bufferHndl, bufId);
 

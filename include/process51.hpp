@@ -141,6 +141,8 @@ protected:
 
 	static void MSGAPI_setPatternDetect(long lParam);
 
+	static void MSGAPI_input_gstctrl(long lParam);
+
 private:
 	ACK_EXT extOutAck;
 	bool    m_bCast;
@@ -190,6 +192,9 @@ public:
 	void MvdetectObjHandle_BrightnessMin();
 	void MvdetectObjHandle_AreaMax();
 	void MvdetectObjHandle_AreaMin();
+
+	unsigned int stringip2int(string str);
+	vector<string> csplit(const string& str, const string& delim);
 
 };
 

@@ -15,10 +15,12 @@
 #include <algorithm>
 #include <iostream>
 #include "Ipc.hpp"
+#include "GstEncTrans.hpp"
 
 extern int ScalerLarge,ScalerMid,ScalerSmall;
 extern LinkagePos_t linkagePos; 
 extern OSDSTATUS gSYS_Osd;
+ENCOUTSTATUS gSYS_Enc = {0};
 ALG_CONFIG_Trk gCFG_Trk = {0};
 ALG_CONFIG_Mtd gCFG_Mtd = {0};
 ALG_CONFIG_Enh gCFG_Enh = {0};
@@ -166,6 +168,12 @@ int CProcess::ReadTestConfig()
 				float value = (float)fr[cfg_avt];
 				memcpy(&testConfig[i], &value, 4);
 				//cout<<"read i="<<i<<"!!data="<<value<<endl;
+			}
+			else if(i == CFGID_ENCOUT_rmip)
+			{
+				str = (string)fr[cfg_avt];
+				unsigned int intip = stringip2int(str);
+				memcpy(&testConfig[i], &intip, 4);
 			}
 			else
 			{
@@ -492,8 +500,12 @@ void CProcess::OnRun()
 {
 	update_param_alg();
 	msgdriv_event(MSGID_EXT_INPUT_SENSOR, NULL);
+	msgdriv_event(MSGID_EXT_INPUT_GSTCTRL, 0);
 };
-void CProcess::OnStop(){};
+void CProcess::OnStop()
+{
+	GstEncTransDestroy();
+};
 void CProcess::Ontimer(){
 
 	//msgdriv_event(MSGID_EXT_INPUT_VIDEOEN,NULL);
@@ -2266,11 +2278,6 @@ void CProcess::OnKeyDwn(unsigned char key)
 
 	if (key == 't' || key == 'T')
 		{
-			if(pIStuts->ImgVideoTrans[pIStuts->SensorStat])
-				pIStuts->ImgVideoTrans[pIStuts->SensorStat] = eImgAlg_Disable;
-			else
-				pIStuts->ImgVideoTrans[pIStuts->SensorStat] = eImgAlg_Enable;
-			msgdriv_event(MSGID_EXT_INPUT_RST_THETA, NULL);
 		}
 	if (key == 'f' || key == 'F')
 		{
@@ -3003,8 +3010,13 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 		else if(PatternDetect == eTrk_mode_target)
 			dynamic_config(VP_CFG_PatterDetectEnable, 1);
 	}
-	
-	
+
+	if( msgId == MSGID_EXT_INPUT_GSTCTRL )
+	{
+		GstEncTransDestroy();
+		if(gSYS_Enc.encOutRtp)
+			GstEncTransCreate(gSYS_Enc.encOutRtp, gSYS_Enc.rtpIpaddr, gSYS_Enc.rtpPort);
+	}
 }
 
 
@@ -3042,13 +3054,15 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECT,             	MSGAPI_setMtdState,             0);
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTSELECT,           MSGAPI_setMtdSelect,            0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_PATTERNDETECT,            MSGAPI_setMtdState,             0);
-	MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_ALG,             	MSGAPI_update_alg,              0);	
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_ALG,             	MSGAPI_update_alg,              0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_OSD,             	MSGAPI_update_osd,              0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_UPDATE_CAMERA,            MSGAPI_update_camera,           0);	
 
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTAERA,         MSGAPI_handle_mvAera,        0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_MVDETECTUPDATE,         MSGAPI_handle_mvUpdate,        0);	
     MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_SCENETRK,         MSGAPI_INPUT_SCENETRK,        0);	
+
+    MSGDRIV_attachMsgFun(handle,    MSGID_EXT_INPUT_GSTCTRL,         MSGAPI_input_gstctrl,        0);	
     return 0;
 }
 
@@ -3846,6 +3860,10 @@ void CProcess::MSGAPI_handle_mvUpdate(long lParam)
 	pThis->m_pMovDetector->setUpdateFactor( gCFG_Mtd.tmpUpdateSpeed ,sThis->extInCtrl->SensorStat );
 }
 
+void CProcess::MSGAPI_input_gstctrl(long lParam)
+{
+	sThis->msgdriv_event(MSGID_EXT_INPUT_GSTCTRL, NULL);
+}
 
 void CProcess::MvdetectObjHandle_FarToCenter()
 {
@@ -3942,3 +3960,41 @@ void CProcess::MSGAPI_INPUT_SCENETRK(long lParam)
 {
 	sThis->msgdriv_event(MSGID_EXT_INPUT_SCENETRK,NULL);
 }
+
+unsigned int CProcess::stringip2int(string str)
+{
+	unsigned int intip = 0;
+	int value;
+	vector<string> AllStr = csplit(str, ".");
+	for(int i = 0; i < AllStr.size(); i++)
+	{
+		if(i > 3)
+			break;
+
+		value = atoi(AllStr[i].c_str());
+		int offset = (3 - i) * 8;
+		intip |= ((value & 0xff) << offset);
+	}
+	return intip;
+}
+
+vector<string> CProcess::csplit(const string& str, const string& delim)
+{
+	vector<string> res;
+	if("" == str) return res;
+
+	char strs[str.length() + 1] ;
+	strcpy(strs, str.c_str());
+
+	char d[delim.length() + 1];
+	strcpy(d, delim.c_str());
+
+	char *p = strtok(strs, d);
+	while(p) {
+		string s = p;
+		res.push_back(s);
+		p = strtok(NULL, d);
+	}
+	return res;
+}
+

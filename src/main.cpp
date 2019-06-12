@@ -7,7 +7,6 @@
 #include "process51.hpp"
 #include "Ipc.hpp"
 #include "msgDriv.h"
-#include "Gststreamercontrl.hpp"
 #include "hahaha.hpp"
 
 using namespace std;

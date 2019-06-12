@@ -3,6 +3,7 @@
 #ifndef _OSA_BUF_H_
 #define _OSA_BUF_H_
 
+#include <stdint.h>
 #include <osa.h>
 #include <osa_que.h>
 #include <osa_mutex.h>
@@ -11,19 +12,25 @@
 
 #define OSA_BUF_ID_INVALID    (-1)
 
+namespace cr_osa
+{
+
 typedef struct {
-  int 		size;
-  int 		count;
-  int 		flags;
-  Uint32	timestamp;
+  int       chId;
+  int 		bufferId;
+  int 		memtype;
+  uint64_t	timestampCap;//ns
+  uint64_t	timestamp;//ns
+  uint32_t  pbo;
+  void      *resource;
   int 		width;
   int 		height;
-  Uint32 	isKeyFrame;
-  Uint16 	codecType;
-  int           strid;
+  int       channels;
+  int       format;
+  int 		size;
+  int       flags;
   void 		*physAddr;
   void 		*virtAddr;
-
 } OSA_BufInfo;
 
 typedef struct {
@@ -34,6 +41,7 @@ typedef struct {
   OSA_QueHndl fullQue;
       
   int numBuf;
+  bool bMap;
 
 } OSA_BufHndl;
 
@@ -62,7 +70,13 @@ int  OSA_bufSwitchFull (OSA_BufHndl *hndl, int *bufId);
 int  OSA_bufSwitchEmpty(OSA_BufHndl *hndl, int *bufId);
 
 OSA_BufInfo *OSA_bufGetBufInfo(OSA_BufHndl *hndl, int bufId);
+
+int OSA_bufGetEmptyCount(OSA_BufHndl *hndl);
+int OSA_bufGetFullCount(OSA_BufHndl *hndl);
 int OSA_bufGetBufcount(OSA_BufHndl *hndl,int mod);
+
+};
+
 #endif /* _OSA_BUF_H_ */
 
 
