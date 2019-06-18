@@ -81,11 +81,14 @@ int gstCaptureUninit(RecordHandle *handle);
 
 int gstCapturePushData(RecordHandle *handle, char *pbuffer , int datasize);
 
-int gstCaptureEnable(RecordHandle *handle, unsigned short bEnable);
+int gstCaptureEnable(RecordHandle *handle, unsigned short bEnable);	// current ver is invalid
 
 int ChangeBitRate(RecordHandle *handle,unsigned int bitrate);
 
 int ChangeQP_range(RecordHandle *recordHandle,int minQP, int maxQP, int minQI, int maxQI, int minQB, int maxQB);
+
+int ChangeUDP_remote(RecordHandle *recordHandle, char *ip_addr, int port);
+
 /*
 #ifdef __cplusplus
 extern "C"

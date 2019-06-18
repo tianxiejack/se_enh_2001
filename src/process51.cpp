@@ -15,12 +15,12 @@
 #include <algorithm>
 #include <iostream>
 #include "Ipc.hpp"
-#include "GstEncTrans.hpp"
+#include "encTrans.hpp"
 
 extern int ScalerLarge,ScalerMid,ScalerSmall;
 extern LinkagePos_t linkagePos; 
 extern OSDSTATUS gSYS_Osd;
-ENCOUTSTATUS gSYS_Enc = {0};
+ENCSTATUS gSYS_Enc = {0};
 ALG_CONFIG_Trk gCFG_Trk = {0};
 ALG_CONFIG_Mtd gCFG_Mtd = {0};
 ALG_CONFIG_Enh gCFG_Enh = {0};
@@ -500,11 +500,40 @@ void CProcess::OnRun()
 {
 	update_param_alg();
 	msgdriv_event(MSGID_EXT_INPUT_SENSOR, NULL);
-	msgdriv_event(MSGID_EXT_INPUT_GSTCTRL, 0);
+
+#ifdef ENCTRANS_ON
+	if(gSYS_Enc.srcType == 0)// ENCTRANS_SCREEN
+	{
+		cv::Size imgSize[1];
+		imgSize[0] = cv::Size(1920, 1080);
+		EncTrans_create(1, imgSize);
+		msgdriv_event(MSGID_EXT_INPUT_GSTCTRL, 0);
+	}
+	else if(gSYS_Enc.srcType == 1)	// ENCTRANS_APPCAP
+	{
+		int encId=0;
+		cv::Size imgSize[ENT_CHN_MAX];
+		for(int i=0; i<MAX_CHAN; i++)
+		{
+			if(gSYS_Enc.vinChMask & (1<<i))
+			{
+				gSYS_Enc.vinEncId[i] = encId;
+				imgSize[encId] = cv::Size(vcapWH[i][0], vcapWH[i][1]);
+				encId++;
+				if(encId >= ENT_CHN_MAX)
+					break;
+			}
+		}
+		EncTrans_create(encId, imgSize);
+		msgdriv_event(MSGID_EXT_INPUT_GSTCTRL, 0);
+	}
+#endif
 };
 void CProcess::OnStop()
 {
-	GstEncTransDestroy();
+#ifdef ENCTRANS_ON
+	EncTrans_destroy();
+#endif
 };
 void CProcess::Ontimer(){
 
@@ -3013,9 +3042,20 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 
 	if( msgId == MSGID_EXT_INPUT_GSTCTRL )
 	{
-		GstEncTransDestroy();
-		if(gSYS_Enc.encOutRtp)
-			GstEncTransCreate(gSYS_Enc.encOutRtp, gSYS_Enc.rtpIpaddr, gSYS_Enc.rtpPort);
+#ifdef ENCTRANS_ON
+		if(gSYS_Enc.srcType == 0)// ENCTRANS_SCREEN
+		{
+			EncTrans_screen_rtpout(gSYS_Enc.rtpEn, gSYS_Enc.rtpIpaddr, gSYS_Enc.rtpPort);
+		}
+		else if(gSYS_Enc.srcType == 1)	// ENCTRANS_APPCAP
+		{
+			for(int i=0; i<MAX_CHAN; i++)
+			{
+				if(gSYS_Enc.vinEncId[i] >= 0)
+					EncTrans_appcap_rtpout(gSYS_Enc.vinEncId[i], gSYS_Enc.rtpEn, gSYS_Enc.rtpIpaddr, gSYS_Enc.rtpPort+i);
+			}
+		}
+#endif
 	}
 }
 

@@ -12,6 +12,8 @@
 #include "app_ctrl.h"
 #include "Ipc.hpp"
 #include "osd_cv.h"
+#include "encTrans.hpp"
+#include "cuda_convert.cuh"
 
 typedef Rect_<double> Rect2d;
 
@@ -19,6 +21,7 @@ using namespace vmath;
 extern CMD_EXT *msgextInCtrl;
 extern ALG_CONFIG_Mtd gCFG_Mtd;
 extern OSDSTATUS gSYS_Osd;
+extern ENCSTATUS gSYS_Enc;
 int CVideoProcess::m_mouseEvent = 0;
 int CVideoProcess::m_mousex = 0;
 int CVideoProcess::m_mousey = 0;
@@ -36,6 +39,57 @@ bool CVideoProcess::motionlessflag = false;
 int64 CVideoProcess::tstart = 0;
 static int count=0;
 int ScalerLarge,ScalerMid,ScalerSmall;
+
+#ifdef ENCTRANS_ON
+#define ZeroCpy	(0)
+static OSA_MutexHndl *cumutex = NULL;
+static unsigned char *memsI420[MAX_CHAN] = {NULL, };
+static void encTranFrame(int chId, const Mat& img, /*const struct v4l2_buffer& bufInfo, */bool bEnc, int encId)
+{
+	Mat i420;
+	OSA_BufInfo* info = NULL;
+	unsigned char *mem = NULL;
+
+	#if 0
+	if(bEnc){
+		if(ZeroCpy){
+			if(imgQEnc[chId] != NULL)
+				info = image_queue_getEmpty(imgQEnc[chId]);
+		}
+		if(info != NULL){
+			info->chId = chId;
+			info->timestampCap = (uint64)bufInfo.timestamp.tv_sec*1000000000ul
+					+ (uint64)bufInfo.timestamp.tv_usec*1000ul;
+			info->timestamp = (uint64_t)getTickCount();
+			mem = (unsigned char *)info->virtAddr;
+		}
+	}
+	#endif
+
+	if(mem == NULL)
+		mem = memsI420[chId];
+	i420 = Mat((int)(img.rows+img.rows/2), img.cols, CV_8UC1, mem);
+	cuConvert_async(chId, img, i420, 1);
+
+	#if 0
+	if(bEnc){
+		if(!ZeroCpy)
+			enctran->pushData(i420, chId, V4L2_PIX_FMT_YUV420M);
+		if(info != NULL){
+			info->channels = i420.channels();
+			info->width = i420.cols;
+			info->height = i420.rows;
+			info->format = V4L2_PIX_FMT_YUV420M;
+			image_queue_putFull(imgQEnc[chId], info);
+			OSA_semSignal(imgQEncSem[chId]);
+		}
+	}
+	#endif
+	if(bEnc){
+		EncTrans_appcap_frame(encId, (char *)i420.data, i420.cols*i420.rows*i420.channels());
+	}
+}
+#endif
 
 int CVideoProcess::MAIN_threadCreate(void)
 {
@@ -950,6 +1004,18 @@ int CVideoProcess::init()
 #if __MOVE_DETECT__
 	initMvDetect();
 #endif
+
+#ifdef ENCTRANS_ON
+	cumutex = new OSA_MutexHndl;
+	OSA_mutexCreate(cumutex);
+	cuConvertInit(MAX_CHAN, cumutex);
+	for(int chId=0; chId<MAX_CHAN; chId++)
+	{
+		int width = vcapWH[chId][0];
+		int height = vcapWH[chId][1];
+		cudaHostAlloc((void**)&memsI420[chId], width*height*3/2, cudaHostAllocDefault);
+	}
+#endif
 	
 	return 0;
 }
@@ -1074,6 +1140,21 @@ int CVideoProcess::stop()
 	MultiCh.stop();
 
 	OnStop();
+
+#ifdef ENCTRANS_ON
+	for(int chId=0; chId<MAX_CHAN; chId++){
+		cudaFreeHost(memsI420[chId]);
+	}
+	cuConvertUinit();
+	if(cumutex != NULL){
+		OSA_mutexUnlock(cumutex);
+		OSA_mutexLock(cumutex);
+		OSA_mutexDelete(cumutex);
+		delete cumutex;
+		cumutex = NULL;
+	}
+#endif
+
 	return 0;
 }
 
@@ -1289,11 +1370,14 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 			OSA_semSignal(&mainProcThrObj.procNotifySem);
 		}
 	}
-
-	
-		
 	//OSA_printf("chid =%d  m_curChId=%d m_curSubChId=%d\n", chId,m_curChId,m_curSubChId);
 
+#ifdef ENCTRANS_ON
+	if(gSYS_Enc.rtpEn && gSYS_Enc.vinEncId[chId] >= 0)
+	{
+		encTranFrame(chId, frame, gSYS_Enc.rtpEn, gSYS_Enc.vinEncId[chId]);
+	}
+#endif
 
 	if(chId == m_curChId || chId == m_curSubChId)
 	{
@@ -1537,7 +1621,4 @@ void CVideoProcess::trackcall(vector<BoundingBox>& trackbox)
 	pThis->m_trackbox.insert(pThis->m_trackbox.begin(),trackbox.begin(),trackbox.end());
 	OSA_mutexUnlock(&pThis->m_trackboxLock);
 }
-
-
-
 

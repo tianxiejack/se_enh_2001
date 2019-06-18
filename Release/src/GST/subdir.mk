@@ -4,13 +4,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/GST/GstEncTrans.cpp 
+../src/GST/encTrans.cpp 
 
 OBJS += \
-./src/GST/GstEncTrans.o 
+./src/GST/encTrans.o 
 
 CPP_DEPS += \
-./src/GST/GstEncTrans.d 
+./src/GST/encTrans.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

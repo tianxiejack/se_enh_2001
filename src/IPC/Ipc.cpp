@@ -20,7 +20,7 @@ extern ALG_CONFIG_Trk gCFG_Trk;
 extern ALG_CONFIG_Mtd gCFG_Mtd;
 extern OSD_CONFIG_USER gCFG_Osd;
 extern OSDSTATUS gSYS_Osd;
-extern ENCOUTSTATUS gSYS_Enc;
+extern ENCSTATUS gSYS_Enc;
 
 int ipc_loop = 1;
 int startEnable=0, ipcDbgOn = 0;
@@ -115,11 +115,13 @@ void cfg_ctrl_sysInit(int * configTab)
 	configTab[CFGID_OUTPUT_dftch] = clip(configTab[CFGID_OUTPUT_dftch], 0, video_pal);
 	configTab[CFGID_RTS_mainch] = configTab[CFGID_RTS_mainch2] = configTab[CFGID_OUTPUT_dftch];
 	printf("output init default select channel %d\n", configTab[CFGID_OUTPUT_dftch]);
-	gSYS_Enc.encOutRtp = configTab[CFGID_ENCOUT_rtp];
+	gSYS_Enc.rtpEn = (bool)configTab[CFGID_ENCOUT_rtp];
 	gSYS_Enc.rtpIpaddr = configTab[CFGID_ENCOUT_rmip];
 	gSYS_Enc.rtpPort = configTab[CFGID_ENCOUT_rmport];
-	printf("output init default encrtp %d remote %08x:%d\n", configTab[CFGID_ENCOUT_rtp],
-		configTab[CFGID_ENCOUT_rmip], configTab[CFGID_ENCOUT_rmport]);
+	gSYS_Enc.srcType = configTab[CFGID_ENCOUT_srctype];
+	gSYS_Enc.vinChMask = configTab[CFGID_ENCOUT_biten];
+	gSYS_Enc.vinEncId[0] = gSYS_Enc.vinEncId[1] = gSYS_Enc.vinEncId[2] = gSYS_Enc.vinEncId[3] = gSYS_Enc.vinEncId[4] = -1;
+	printf("output init default enc src %d chmask %x\n", configTab[CFGID_ENCOUT_srctype], configTab[CFGID_ENCOUT_biten]);
 
 	///////////////////
 	gSYS_Osd.workMode = 4;	// default stat
@@ -288,7 +290,7 @@ Int32 cfg_update_output( Int32 blkId, Int32 feildId, void *inprm )
 	configId = CFGID_BUILD(blkId, feildId);
 	if(configId == CFGID_ENCOUT_rtp || configId == CFGID_ENCOUT_rmip || configId == CFGID_ENCOUT_rmport)
 	{
-		gSYS_Enc.encOutRtp = configTab[CFGID_ENCOUT_rtp];
+		gSYS_Enc.rtpEn = (bool)configTab[CFGID_ENCOUT_rtp];
 		gSYS_Enc.rtpIpaddr = configTab[CFGID_ENCOUT_rmip];
 		gSYS_Enc.rtpPort = configTab[CFGID_ENCOUT_rmport];
 		MSGDRIV_send(MSGID_EXT_INPUT_GSTCTRL, 0);

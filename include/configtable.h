@@ -114,6 +114,8 @@ typedef enum
 	CFGID_ENCOUT_mode = CFGID_BUILD( CFGID_OUTPUT_BKID, 7 ),
 	CFGID_ENCOUT_rmip = CFGID_BUILD( CFGID_OUTPUT_BKID, 8 ),
 	CFGID_ENCOUT_rmport = CFGID_BUILD( CFGID_OUTPUT_BKID, 9 ),
+	CFGID_ENCOUT_srctype = CFGID_BUILD( CFGID_OUTPUT_BKID, 10 ),
+	CFGID_ENCOUT_biten = CFGID_BUILD( CFGID_OUTPUT_BKID, 11 ),		// bit enable
 }CFGID_OUTPUT;
 
 typedef enum 
@@ -456,10 +458,13 @@ typedef struct {
 
 typedef struct
 {
-	volatile int encOutRtp;
+	volatile bool rtpEn;
 	volatile int rtpIpaddr;
-	volatile int rtpPort;
-}ENCOUTSTATUS;
+	volatile int rtpPort;	// start port
+	volatile int srcType;	// 0-screen 1-appcap
+	volatile int vinChMask;
+	volatile int vinEncId[CAMERACHMAX];
+}ENCSTATUS;
 
 /*************** universal status end ***************/
 

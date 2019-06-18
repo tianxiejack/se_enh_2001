@@ -16,10 +16,12 @@ CPP_SRCS += \
 ../src/v4l2camera.cpp 
 
 CU_SRCS += \
-../src/cuda.cu 
+../src/cuda.cu \
+../src/cuda_convert.cu 
 
 CU_DEPS += \
-./src/cuda.d 
+./src/cuda.d \
+./src/cuda_convert.d 
 
 OBJS += \
 ./src/CcCamCalibra.o \
@@ -28,6 +30,7 @@ OBJS += \
 ./src/VideoProcess.o \
 ./src/WorkThread.o \
 ./src/cuda.o \
+./src/cuda_convert.o \
 ./src/cuda_mem.o \
 ./src/main.o \
 ./src/process51.o \
