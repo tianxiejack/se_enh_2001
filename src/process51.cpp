@@ -3052,7 +3052,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 			for(int i=0; i<MAX_CHAN; i++)
 			{
 				if(gSYS_Enc.vinEncId[i] >= 0)
-					EncTrans_appcap_rtpout(gSYS_Enc.vinEncId[i], gSYS_Enc.rtpEn, gSYS_Enc.rtpIpaddr, gSYS_Enc.rtpPort+i);
+					EncTrans_appcap_rtpout(gSYS_Enc.vinEncId[i], gSYS_Enc.rtpEn, gSYS_Enc.rtpIpaddr, gSYS_Enc.rtpPort+gSYS_Enc.vinEncId[i]);
 			}
 		}
 #endif

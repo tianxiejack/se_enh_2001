@@ -286,13 +286,10 @@ int EncTrans_appcap_rtpout(int chId, bool bRtp, int rmIpaddr, int rmPort)
 
 int EncTrans_appcap_frame(int chId, char *pbuffer, int datasize)
 {
-	if(enctran == NULL)
-		return -1;
-	if(chId >= enctran->m_nChannels || chId < 0)
+	if(pbuffer == NULL || datasize  <= 0)
 		return -1;
 
-	if(enctran->m_transPrm[chId].srcType == APPSRC)
-		EncTrans_pushData(chId, pbuffer, datasize);
+	EncTrans_pushData(chId, pbuffer, datasize);
 	return 0;
 }
 
