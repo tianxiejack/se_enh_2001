@@ -241,6 +241,8 @@ protected:
 	int m_nSwapTimeOut;
 	int64 tStamp[10];
 
+	unsigned long rCount;
+
 protected:
 	static void _display(void);
 	static void _timeFunc(int value);
@@ -311,6 +313,7 @@ public:
 	int OSDChid();
 	void drawtriangle(Mat frame, int direction, int alpha);
 	void OSDWorkMode();
+	int64  tend;
 
 	
 };

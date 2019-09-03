@@ -67,7 +67,7 @@ OSDSTATUS gSYS_Osd = {0};
 CDisplayer::CDisplayer()
 :m_renderCount(0),m_bRun(false),m_bFullScreen(false),m_bOsd(false),
  m_glProgram(0), m_bUpdateVertex(false),m_tmRender(0ul),m_waitSync(false),
- m_telapse(5.0), m_nSwapTimeOut(0)
+ m_telapse(5.0), m_nSwapTimeOut(0),tend(0ul)
 {
 	int i;
 	gThis = this;
@@ -432,9 +432,21 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	if(m_initPrm.disFPS<=0)
 		m_initPrm.disFPS = 25;
 
-	pthread_mutex_init(&render_lock, NULL);
-	pthread_cond_init(&render_cond, NULL);
+	//pthread_mutex_init(&render_lock, NULL);
+	//pthread_cond_init(&render_cond, NULL);
 
+	pthread_mutexattr_t mutex_attr;
+	pthread_condattr_t cond_attr;
+	int status=0;
+	status |= pthread_mutexattr_init(&mutex_attr);
+	status |= pthread_condattr_init(&cond_attr);
+	status |= pthread_condattr_setclock(&cond_attr, CLOCK_MONOTONIC);
+	status |= pthread_mutex_init(&render_lock, &mutex_attr);
+	status |= pthread_cond_init(&render_cond, &cond_attr);
+	pthread_condattr_destroy(&cond_attr);
+	pthread_mutexattr_destroy(&mutex_attr);
+
+	
 	setFPS(m_initPrm.disFPS);
 
     //glutInitWindowPosition(m_initPrm.winPosX, m_initPrm.winPosY);
@@ -746,7 +758,7 @@ void extractUYVY2Gray1(Mat src, Mat dst)
 	}
 }
 
-#if 1
+#if 0
 void CDisplayer::display(Mat frame, int chId, int code)
 {
 	static int saveCount = 0;
@@ -1304,7 +1316,7 @@ static unsigned int firdupcount=800;
 static unsigned int tvclearbuffer=1;
 static unsigned int firclearbuffer=1;
 
-#if 1
+#if 0
 void CDisplayer::gl_textureLoad(void)
 {
 		
@@ -1553,7 +1565,6 @@ void CDisplayer::gl_textureLoad(void)
 	float telapse = ( (getTickCount() - tstart)/getTickFrequency());
 }
 #else
-static int64  tend = 0ul;
 void CDisplayer::gl_textureLoad(void)
 {
 	int winId, chId;
@@ -1566,16 +1577,27 @@ void CDisplayer::gl_textureLoad(void)
 		tend = tstart;
 	if(1)
 	{
-		double wms = m_interval*0.000001 - m_telapse;
-		double wmsl = (m_tmRender == 0ul) ? 0.f : ((tStamp[0] - m_tmRender)*0.000001f);
-		wms -= wmsl;
-		if(m_waitSync && wms>2.0){
-			struct timeval timeout;
-			timeout.tv_sec = 0;
-			timeout.tv_usec = wms*1000.0;
-			select( 0, NULL, NULL, NULL, &timeout );
-		}else{
-			wms = 0.0;
+		uint64_t telapse_ns = (uint64_t)(m_telapse*1000000.f);
+		uint64_t sleep_ns = render_time_nsec - telapse_ns;
+		if (last_render_time.tv_sec != 0 && last_render_time.tv_nsec != 0 && render_time_nsec>telapse_ns)
+		{
+			pthread_mutex_lock(&render_lock);
+			struct timespec now;
+			clock_gettime(CLOCK_MONOTONIC, &now);
+			struct timespec waittime = last_render_time;
+			waittime.tv_nsec += sleep_ns;
+			waittime.tv_sec += waittime.tv_nsec / 1000000000UL;
+			waittime.tv_nsec %= 1000000000UL;
+	        __suseconds_t cur_us, to_us;
+	        cur_us = (now.tv_sec * 1000000.0 + now.tv_nsec/1000.0);
+	        to_us = (waittime.tv_sec * 1000000.0 + waittime.tv_nsec / 1000.0);
+	        if(to_us > cur_us)
+	        	pthread_cond_timedwait(&render_cond, &render_lock,&waittime);
+			pthread_mutex_unlock(&render_lock);
+		}
+		else{
+			//OSA_printf("%s %d: last_render_time.tv_sec=%ld render_time_nsec=%ld telapse_ns=%ld sleep_ns=%ld",
+			//		__func__, __LINE__, last_render_time.tv_sec, render_time_nsec, telapse_ns, sleep_ns);
 		}
 	}
 	tStamp[1] = getTickCount();
@@ -1616,18 +1638,7 @@ void CDisplayer::gl_textureLoad(void)
 				{
 					OSA_printf("%s: WARNING!!! %d - %d \n", __func__, (unsigned int)tmpSize, byteCount);
 				}
-/*
-				if( (chId == 0 )&& (plat->m_camCalibra->Set_Handler_Calibra == true || g_sysParam->isEnable_Undistortion())) {
-					if(m_renders[chId].videodect)
-						cudaMemcpy(x11disbuffer, dism_img[chId].data,byteCount, cudaMemcpyDeviceToHost);
-					else
-						cudaMemcpy(x11disbuffer, m_img_novideo.data,byteCount, cudaMemcpyDeviceToHost);
-
-					cv::Mat undistorMat = cv::Mat(dism_img[chId].rows, dism_img[chId].cols, CV_8UC3, x11disbuffer);
-					remap(undistorMat, undistorMat, g_camParams.map1, g_camParams.map2, INTER_LINEAR);
-
-				}else{
-*/				
+			
 				if(m_renders[chId].videodect)
 						cudaMemcpy(dev_pbo, dism_img[chId].data, byteCount, cudaMemcpyDeviceToDevice);
 					else
@@ -1636,16 +1647,7 @@ void CDisplayer::gl_textureLoad(void)
 				cudaResource_unmapBuffer(chId);
 				cudaResource_UnregisterBuffer(chId);
 			}
-/*
-			if( (chId == 0 )&& (plat->m_camCalibra->Set_Handler_Calibra == true || g_sysParam->isEnable_Undistortion())) {
-				if(dism_img[chId].channels() == 1){
-//					glTexImage2D(GL_TEXTURE_2D, 0, m_videoSize[chId].c, m_videoSize[chId].w, m_videoSize[chId].h, 0, GL_RED, GL_UNSIGNED_BYTE, x11disbuffer);
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_videoSize[chId].w, m_videoSize[chId].h, GL_RED, GL_UNSIGNED_BYTE, x11disbuffer);
-				}else{
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_videoSize[chId].w, m_videoSize[chId].h, GL_BGR_EXT, GL_UNSIGNED_BYTE, x11disbuffer);
-				}
-			}else{
-*/			
+			
 				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffId_input[chId]);
 				glBindTexture(GL_TEXTURE_2D, textureId_input[chId]);
 				if(dism_img[chId].channels() == 1){
@@ -1793,9 +1795,84 @@ void CDisplayer::gl_display(void)
 	}
 	
 	glUseProgram(0);
+
+	tStamp[5] = getTickCount();
+	int64 tcur = tStamp[5];
+	m_telapse = (tStamp[5] - tStamp[1])*0.000001f + m_initPrm.disSched;
+
+	if (last_render_time.tv_sec != 0 && last_render_time.tv_nsec != 0)
+	{
+		pthread_mutex_lock(&render_lock);
+		struct timespec waittime = last_render_time;
+		last_render_time.tv_sec += render_time_sec;
+		last_render_time.tv_nsec += render_time_nsec;
+		last_render_time.tv_sec += last_render_time.tv_nsec / 1000000000UL;
+		last_render_time.tv_nsec %= 1000000000UL;
+		struct timespec now;
+		clock_gettime(CLOCK_MONOTONIC, &now);
+		__suseconds_t cur_us, rd_us;
+		cur_us = (now.tv_sec * 1000000.0 + now.tv_nsec/1000.0);
+		rd_us = (last_render_time.tv_sec * 1000000.0 + last_render_time.tv_nsec / 1000.0);
+		if (rd_us>cur_us)
+		{
+			waittime.tv_sec += render_time_sec;
+			waittime.tv_nsec += render_time_nsec-500000UL;
+			waittime.tv_sec += waittime.tv_nsec / 1000000000UL;
+			waittime.tv_nsec %= 1000000000UL;
+			pthread_cond_timedwait(&render_cond, &render_lock,&waittime);
+		}
+		else if(rd_us+10000UL<cur_us)
+		{
+			//OSA_printf("%s %d: win%d frame_is_late(%ld us)", __func__, __LINE__, glutGetWindow(), cur_us - rd_us);
+			memset(&last_render_time, 0, sizeof(last_render_time));
+		}
+		pthread_mutex_unlock(&render_lock);
+	}
+
+	int64 tSwap = getTickCount();
+
+
 	glutSwapBuffers();
 	glutPostRedisplay();
 	GetFPS();
+
+	tStamp[6] = getTickCount();
+
+	if(tStamp[6]-tSwap>5000000UL)
+		m_nSwapTimeOut++;
+	else
+		m_nSwapTimeOut = 0;
+	if ((last_render_time.tv_sec == 0 && last_render_time.tv_nsec == 0) || m_nSwapTimeOut>=3)
+	{
+    	struct timespec now;
+    	clock_gettime(CLOCK_MONOTONIC, &now);
+		last_render_time.tv_sec = now.tv_sec;
+		last_render_time.tv_nsec = now.tv_nsec;
+		//printf("\r\nReset render timer. fps(%d) swp(%ld ns)", m_initPrm.disFPS, tStamp[6]-tSwap);
+		//fflush(stdout);
+	}
+
+	tend = tStamp[6];
+	float renderIntv = (tend - m_tmRender)/getTickFrequency();
+
+#if 1
+	if(rCount%(m_initPrm.disFPS*100) == 0)
+	{
+		printf("\r\n[%d] %.4f (ws%.4f,cu%.4f,tv%.4f,to%.4f,rd%.4f,wp%.4f) %.4f(%.4f)",
+			OSA_getCurTimeInMsec(),renderIntv,
+			(tStamp[1]-tStamp[0])/getTickFrequency(),
+			(tStamp[2]-tStamp[1])/getTickFrequency(),
+			(tStamp[3]-tStamp[2])/getTickFrequency(),
+			(tStamp[4]-tStamp[3])/getTickFrequency(),
+			(tStamp[5]-tStamp[4])/getTickFrequency(),
+			(tStamp[6]-tStamp[5])/getTickFrequency(),
+			m_telapse, m_initPrm.disSched
+			);
+		fflush(stdout);
+	}
+	rCount ++;
+#endif
+	m_tmRender = tend;
 }
 
 void CDisplayer::IrisAndFocus()
