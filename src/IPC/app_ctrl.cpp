@@ -14,6 +14,8 @@ LinkagePos_t linkagePos;
 void getMmtTg(unsigned char index,int *x,int *y);
 #if __MOVE_DETECT__
 void getMtdxy(int &x,int &y,int &w,int &h);
+void getMtdIdxy(int mtdId,int &x,int &y,int &w,int &h);
+
 #endif
 
 
@@ -202,6 +204,36 @@ void app_ctrl_setMtdStat(CMD_EXT * pInCmd)
 	}
 	return ;
 }
+
+
+void app_ctrl_trkMtdId(int mtdId)
+{
+	CMD_EXT pMsg;
+	memset(&pMsg,0,sizeof(CMD_EXT));
+	
+	if(msgextInCtrl==NULL)
+		return ;
+	CMD_EXT *pIStuts = msgextInCtrl;
+
+	int curx,cury,curw,curh;
+	getMtdIdxy(mtdId,curx,cury,curw,curh);
+	if( -1 == curw || -1 == curh )	
+	{
+		//do nothing
+		printf(" mtd target get failed do nothing \n");
+	}
+	else
+	{
+		pMsg.AvtTrkStat =eTrk_mode_sectrk;
+		pMsg.AvtPosX[pIStuts->SensorStat]  = curx;
+		pMsg.AvtPosY[pIStuts->SensorStat]  = cury;
+		pMsg.AimW[pIStuts->SensorStat]  = curw;
+		pMsg.AimH[pIStuts->SensorStat]  = curh;
+		app_ctrl_setTrkStat(&pMsg);//track
+	}	
+	return ;	
+}
+
 
 void app_ctrl_setMtdSelect(CMD_EXT * pInCmd)
 {

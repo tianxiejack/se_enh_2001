@@ -16,6 +16,7 @@ using namespace cr_osa;
 #define DATAIN_TSK_STACK_SIZE       (0)
 #define SDK_MEM_MALLOC(size)                                            OSA_memAlloc(size)
 
+extern unsigned int gTrktime;
 extern ALG_CONFIG_Trk gCFG_Trk;
 extern ALG_CONFIG_Mtd gCFG_Mtd;
 extern OSD_CONFIG_USER gCFG_Osd;
@@ -667,9 +668,9 @@ void createSendBuf()
     msgSendBufCreate.numBuf = OSA_BUF_NUM_MAX;
     for (i = 0; i < msgSendBufCreate.numBuf; i++)
     {
-        msgSendBufCreate.bufVirtAddr[i] = SDK_MEM_MALLOC(64);
+        msgSendBufCreate.bufVirtAddr[i] = SDK_MEM_MALLOC(sizeof(SENDST));
         OSA_assert(msgSendBufCreate.bufVirtAddr[i] != NULL);
-        memset(msgSendBufCreate.bufVirtAddr[i], 0, 64);
+        memset(msgSendBufCreate.bufVirtAddr[i], 0, sizeof(SENDST));
     }
     OSA_bufCreate(&msgSendBuf, &msgSendBufCreate);
 }
@@ -724,7 +725,7 @@ void* recv_msgpth(SENDST *pInData)
 	{
 		return NULL ;
 	}
-
+	CMD_EXT tmpCmd = {0};
 	CMD_EXT inCtrl, *pMsg = NULL;
 	pMsg = &inCtrl;
 	memset(pMsg,0,sizeof(CMD_EXT));
@@ -1067,6 +1068,30 @@ void* recv_msgpth(SENDST *pInData)
 
 		case exit_img:
 			ipc_loop = 0;			
+			break;
+			
+		case changeSensor:
+			if(pIn->intPrm[0] == 1)
+			{
+				tmpCmd.SensorStat = video_pal;
+				app_ctrl_setSensor(&tmpCmd);	
+				cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);			
+			}
+			else if(pIn->intPrm[0] == 2)
+			{
+				tmpCmd.SensorStat = video_gaoqing0;
+				app_ctrl_setSensor(&tmpCmd);	
+				cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);			
+			}				
+			break;
+
+		case trkMtdId:	
+			if(pIn->intPrm[0] >= 0x1 && pIn->intPrm[0] <= 0x5)
+				app_ctrl_trkMtdId(pIn->intPrm[0]);
+			break;
+
+		case settrktime:
+			gTrktime = pIn->intPrm[0];
 			break;
 
 		default:

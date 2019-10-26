@@ -40,6 +40,10 @@ typedef enum
 	exit_IrisAndFocus,
 	exit_img,
 
+	changeSensor,
+	trkMtdId,
+	settrktime,
+	
 	read_shm_config,
 	read_shm_block,
 	read_shm_single,

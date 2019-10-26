@@ -25,4 +25,7 @@ void app_ctrl_setAcqRect(CMD_EXT * pInCmd);
 void app_ctrl_setBoresightPos(CMD_EXT * pInCmd);
 void app_ctrl_setSceneTrk(CMD_EXT *sceneFlag);
 
+void app_ctrl_trkMtdId(int mtdId);
+
+
 #endif /* APP_CTRL_H_ */

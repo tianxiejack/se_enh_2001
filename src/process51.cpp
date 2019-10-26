@@ -25,6 +25,7 @@ ALG_CONFIG_Trk gCFG_Trk = {0};
 ALG_CONFIG_Mtd gCFG_Mtd = {0};
 ALG_CONFIG_Enh gCFG_Enh = {0};
 ALG_CONFIG_Mmt gCFG_Mmt = {0};
+unsigned int gTrktime = 3;
 CProcess * CProcess::sThis = NULL;
 CProcess* plat = NULL;
 
@@ -64,6 +65,30 @@ void getMtdxy(int &x,int &y,int &w,int &h)
 		}	
 	}
 }
+
+
+void getMtdIdxy(int mtdId,int &x,int &y,int &w,int &h)
+{
+	x = y = w = h = -1;
+
+	if(mtdId >= gCFG_Mtd.detectNum)
+		return;
+
+	if(plat->validMtdRecord[mtdId])
+	{
+		for(int i = 0 ;i<plat->mvList.size();i++)
+		{
+			if(mtdId == plat->mvList[i].number)
+			{
+				x = plat->mvList[i].trkobj.targetRect.x + plat->mvList[i].trkobj.targetRect.width/2;
+				y = plat->mvList[i].trkobj.targetRect.y + plat->mvList[i].trkobj.targetRect.height/2;
+				w = plat->mvList[i].trkobj.targetRect.width;
+				h  = plat->mvList[i].trkobj.targetRect.height;
+			}
+		}
+	}
+}
+
 #endif
 
 CProcess::CProcess()
@@ -506,7 +531,7 @@ void CProcess::OnRun()
 	{
 		cv::Size imgSize[1];
 		imgSize[0] = cv::Size(1920, 1080);
-		EncTrans_create(1, imgSize);
+		//EncTrans_create(1, imgSize);
 		msgdriv_event(MSGID_EXT_INPUT_GSTCTRL, 0);
 	}
 	else if(gSYS_Enc.srcType == 1)	// ENCTRANS_APPCAP
@@ -524,7 +549,7 @@ void CProcess::OnRun()
 					break;
 			}
 		}
-		EncTrans_create(encId, imgSize);
+		//EncTrans_create(encId, imgSize);
 		msgdriv_event(MSGID_EXT_INPUT_GSTCTRL, 0);
 	}
 #endif
@@ -532,7 +557,7 @@ void CProcess::OnRun()
 void CProcess::OnStop()
 {
 #ifdef ENCTRANS_ON
-	EncTrans_destroy();
+	//EncTrans_destroy();
 #endif
 };
 void CProcess::Ontimer(){
@@ -1444,7 +1469,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 			if(mvList.size() >= detectNum)
 				break ;
 			pTmpMv.number = getMvListFirstUnusedNum();
-			if(pTmpMv.number < 10)
+			if(pTmpMv.number < detectNum)
 			{
 				addMvListValidNum(pTmpMv.number);
 				memcpy((void*)&(pTmpMv.trkobj),(void *)&(detect[i++].targetRect),sizeof(TRK_RECT_INFO));
@@ -1460,7 +1485,7 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 		for(i =0 ; i < tmpnum ; i++)
 		{
 			pTmpMv.number = getMvListFirstUnusedNum();
-			if(pTmpMv.number < 10)
+			if(pTmpMv.number < detectNum)
 			{
 				addMvListValidNum(pTmpMv.number);
 				memcpy((void*)&(pTmpMv.trkobj),(void *)&(detect[i++].targetRect),sizeof(TRK_RECT_INFO));
@@ -1644,7 +1669,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 					rememtime=OSA_getCurTimeInMsec();
 				}
 				
-				if((OSA_getCurTimeInMsec()-rememtime) > gCFG_Trk.losttime)
+				if((OSA_getCurTimeInMsec()-rememtime) > gTrktime /*gCFG_Trk.losttime*/)
 				{		
 					extInCtrl->TrkStat = 3;
 				}
@@ -1957,16 +1982,6 @@ osdindex++;	//acqRect
 
 			if(motionlessflag && bdrawMvRect < 100 )
 				bdrawMvRect++;
-
-			/*for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
-			{
-				polwarn_flag = (i+1)%polwarn_count_bak[mtd_warningbox_Id];
-				startwarnpoly.x = polWarnRectBak[mtd_warningbox_Id][i].x;
-				startwarnpoly.y = polWarnRectBak[mtd_warningbox_Id][i].y;
-				endwarnpoly.x = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].x;
-				endwarnpoly.y = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].y;
-				DrawcvLine(m_display.m_imgOsd[mtd_warningbox_Id],&startwarnpoly,&endwarnpoly,3,1);
-			}*/
 			
 			detect_bak = detect_vect;
 			if(!detect_bak.empty())
@@ -2228,6 +2243,54 @@ void CProcess::OnKeyDwn(unsigned char key)
 	CMD_EXT *pIStuts = extInCtrl;
 	CMD_EXT tmpCmd = {0};
 
+	static bool bTrack = false;	
+	static bool bdismode = true;
+	static bool bstb = false;
+	static bool bmtd = false;
+
+	if(key == 48) // 0
+	{
+		bdismode = !bdismode;
+		if(bdismode)
+		{
+			tmpCmd.SensorStat = video_pal;
+			app_ctrl_setSensor(&tmpCmd);	
+			cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);			
+		}
+		else
+		{
+			tmpCmd.SensorStat = video_gaoqing0;
+			app_ctrl_setSensor(&tmpCmd);	
+			cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);			
+		}	
+	}
+	else if(key == 49) // 1
+	{
+		bTrack =! bTrack;
+
+		if(pIStuts->AvtTrkStat)
+			pIStuts->AvtTrkStat = eTrk_mode_acq;
+		else
+			pIStuts->AvtTrkStat = eTrk_mode_target;
+		msgdriv_event(MSGID_EXT_INPUT_TRACK, NULL);
+	}
+	else if(key == 50) // 2
+	{
+		bmtd = false;
+		if(tmpCmd.MtdState[tmpCmd.SensorStat])
+			tmpCmd.MtdState[tmpCmd.SensorStat] = eImgAlg_Disable;
+		app_ctrl_setMtdStat(&tmpCmd);
+	}
+	else if(key == 51) // 3	
+	{
+		unsigned int mtdId = 1;
+		app_ctrl_trkMtdId(mtdId);
+	}
+	
+
+/*************************************/
+	
+	
 	if(key == 'a' || key == 'A')
 	{
 		tmpCmd.SensorStat = (pIStuts->SensorStat + 1)%MAX_CHAN;
@@ -3045,14 +3108,14 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 #ifdef ENCTRANS_ON
 		if(gSYS_Enc.srcType == 0)// ENCTRANS_SCREEN
 		{
-			EncTrans_screen_rtpout(gSYS_Enc.rtpEn, gSYS_Enc.rtpIpaddr, gSYS_Enc.rtpPort);
+			//EncTrans_screen_rtpout(gSYS_Enc.rtpEn, gSYS_Enc.rtpIpaddr, gSYS_Enc.rtpPort);
 		}
 		else if(gSYS_Enc.srcType == 1)	// ENCTRANS_APPCAP
 		{
 			for(int i=0; i<MAX_CHAN; i++)
 			{
 				if(gSYS_Enc.vinEncId[i] >= 0)
-					EncTrans_appcap_rtpout(gSYS_Enc.vinEncId[i], gSYS_Enc.rtpEn, gSYS_Enc.rtpIpaddr, gSYS_Enc.rtpPort+gSYS_Enc.vinEncId[i]);
+					;//EncTrans_appcap_rtpout(gSYS_Enc.vinEncId[i], gSYS_Enc.rtpEn, gSYS_Enc.rtpIpaddr, gSYS_Enc.rtpPort+gSYS_Enc.vinEncId[i]);
 			}
 		}
 #endif

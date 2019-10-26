@@ -86,7 +86,7 @@ static void encTranFrame(int chId, const Mat& img, /*const struct v4l2_buffer& b
 	}
 	#endif
 	if(bEnc){
-		EncTrans_appcap_frame(encId, (char *)i420.data, i420.cols*i420.rows*i420.channels());
+		//EncTrans_appcap_frame(encId, (char *)i420.data, i420.cols*i420.rows*i420.channels());
 	}
 }
 #endif
