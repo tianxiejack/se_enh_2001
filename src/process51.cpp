@@ -1825,6 +1825,7 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	}
 
 osdindex++;	//cross aim
+#if 0
 	{
 		if(changesensorCnt){
 			recIn.x=crossBak[extInCtrl->SensorStatpri].x;
@@ -1863,7 +1864,7 @@ osdindex++;	//cross aim
 			}
 		}
 	}
-
+#endif
 osdindex++;	//acqRect
 	{
 		if(changesensorCnt){

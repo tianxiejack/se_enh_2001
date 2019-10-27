@@ -1077,13 +1077,11 @@ void* recv_msgpth(SENDST *pInData)
 				tmpCmd.SensorStat = video_pal;
 			else if(pIn->intPrm[0] == 2)
 				tmpCmd.SensorStat = video_gaoqing0;
-			
-			printf("tmpCmd.SensorStat = %d \n" , tmpCmd.SensorStat);
 		
 			app_ctrl_setSensor(&tmpCmd);	
 			cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);
 
-			if(pMsg->MtdState[pMsg->SensorStat] == 1)
+			if(pMsg->MtdState[pMsg->SensorStat])
 			{	
 				tmpCmd.MtdState[pMsg->SensorStat] = eImgAlg_Disable;
 				app_ctrl_setMtdStat(&tmpCmd);
