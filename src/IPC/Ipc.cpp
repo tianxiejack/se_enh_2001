@@ -873,6 +873,7 @@ void* recv_msgpth(SENDST *pInData)
 			break;
 
 		case trk:	
+			printf("ipc trk : %d \n ",pIn->intPrm[0]);
 			{
 				unsigned int AvtTrkStat = pIn->intPrm[0];
 				if(AvtTrkStat == 0x1)
@@ -1027,21 +1028,22 @@ void* recv_msgpth(SENDST *pInData)
 #if __MOVE_DETECT__
 		case mtd:
 			{
+				printf("ipc rcv mtd = %d \n ",pIn->intPrm[0]);
 				unsigned int ImgMtdStat = pIn->intPrm[0];
 				if(ImgMtdStat == 1){
-					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Enable;
+					tmpCmd.MtdState[pMsg->SensorStat] = eImgAlg_Enable;
 				}
 				else if(ImgMtdStat == 0){
-					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
+					tmpCmd.MtdState[pMsg->SensorStat] = eImgAlg_Disable;
 				}
-				app_ctrl_setMtdStat(pMsg);
+				app_ctrl_setMtdStat(&tmpCmd);
 			}
 			break;
 
 		case mtdSelect:
 			{
 				unsigned int ImgMmtSelect = pIn->intPrm[0];
-				pMsg->MtdSelect[pMsg->SensorStat] = ImgMmtSelect;
+				tmpCmd.MtdSelect[pMsg->SensorStat] = ImgMmtSelect;
 				app_ctrl_setMtdSelect(pMsg);
 			}
 			break;
@@ -1072,22 +1074,30 @@ void* recv_msgpth(SENDST *pInData)
 			
 		case changeSensor:
 			if(pIn->intPrm[0] == 1)
-			{
 				tmpCmd.SensorStat = video_pal;
-				app_ctrl_setSensor(&tmpCmd);	
-				cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);			
-			}
 			else if(pIn->intPrm[0] == 2)
-			{
 				tmpCmd.SensorStat = video_gaoqing0;
-				app_ctrl_setSensor(&tmpCmd);	
-				cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);			
-			}				
+			
+			printf("tmpCmd.SensorStat = %d \n" , tmpCmd.SensorStat);
+		
+			app_ctrl_setSensor(&tmpCmd);	
+			cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);
+
+			if(pMsg->MtdState[pMsg->SensorStat] == 1)
+			{	
+				tmpCmd.MtdState[pMsg->SensorStat] = eImgAlg_Disable;
+				app_ctrl_setMtdStat(&tmpCmd);
+			}
+						
 			break;
 
 		case trkMtdId:	
 			if(pIn->intPrm[0] >= 0x1 && pIn->intPrm[0] <= 0x5)
-				app_ctrl_trkMtdId(pIn->intPrm[0]);
+			{
+				app_ctrl_trkMtdId(pIn->intPrm[0]-1);
+				tmpCmd.MtdState[pMsg->SensorStat] = eImgAlg_Disable;
+				app_ctrl_setMtdStat(&tmpCmd);
+			}
 			break;
 
 		case settrktime:

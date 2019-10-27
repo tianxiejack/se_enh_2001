@@ -1298,13 +1298,18 @@ void CProcess::DrawdashCross(int x,int y,int fcolour ,bool bShow /*= true*/)
 }
 
 
-void CProcess::DrawdashRect(int startx,int starty,int endx,int endy,int colour)
+void CProcess::DrawdashRect(int startx,int starty,int endx,int endy,int colour,int ispri)
 {
 	int dashlen=3;
-	drawdashlinepri(m_display.m_imgOsd[extInCtrl->SensorStat],startx,starty,endx,starty,dashlen,dashlen,colour);
-	drawdashlinepri(m_display.m_imgOsd[extInCtrl->SensorStat],startx,endy,endx,endy,dashlen,dashlen,colour);
-	drawdashlinepri(m_display.m_imgOsd[extInCtrl->SensorStat],endx,starty,endx,endy,dashlen,dashlen,colour);
-	drawdashlinepri(m_display.m_imgOsd[extInCtrl->SensorStat],startx,starty,startx,endy,dashlen,dashlen,colour);
+	int matid = extInCtrl->SensorStat;
+	if(ispri)
+		matid = extInCtrl->SensorStatpri;
+
+	drawdashlinepri(m_display.m_imgOsd[matid],startx,starty,endx,starty,dashlen,dashlen,colour);
+	drawdashlinepri(m_display.m_imgOsd[matid],startx,endy,endx,endy,dashlen,dashlen,colour);
+	drawdashlinepri(m_display.m_imgOsd[matid],endx,starty,endx,endy,dashlen,dashlen,colour);
+	drawdashlinepri(m_display.m_imgOsd[matid],startx,starty,startx,endy,dashlen,dashlen,colour);
+	
 }
 
 #if __MOVE_DETECT__
@@ -1560,26 +1565,53 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 		 int aimh = extInCtrl->AimH[extInCtrl->SensorStat];
 
 		if(changesensorCnt){
-			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-				Point( rcTrackBak[extInCtrl->SensorStatpri].x, rcTrackBak[extInCtrl->SensorStatpri].y ),
-				Point( rcTrackBak[extInCtrl->SensorStatpri].x+rcTrackBak[extInCtrl->SensorStatpri].width, 
-					rcTrackBak[extInCtrl->SensorStatpri].y+rcTrackBak[extInCtrl->SensorStatpri].height),
-				cvScalar(0,0,0,0), 1, 8 );
+			if(rcTrackBak[extInCtrl->SensorStatpri].width)
+				rectangle( m_display.m_imgOsd[extInCtrl->SensorStatpri],
+					Point( rcTrackBak[extInCtrl->SensorStatpri].x, rcTrackBak[extInCtrl->SensorStatpri].y ),
+					Point( rcTrackBak[extInCtrl->SensorStatpri].x+rcTrackBak[extInCtrl->SensorStatpri].width, 
+						rcTrackBak[extInCtrl->SensorStatpri].y+rcTrackBak[extInCtrl->SensorStatpri].height),
+					cvScalar(0,0,0,0), 1, 8 );
+
+			if(resultTrackBak[extInCtrl->SensorStatpri].width)
+				rectangle( m_display.m_imgOsd[extInCtrl->SensorStatpri],
+					Point( resultTrackBak[extInCtrl->SensorStatpri].x, resultTrackBak[extInCtrl->SensorStatpri].y ),
+					Point( resultTrackBak[extInCtrl->SensorStatpri].x+resultTrackBak[extInCtrl->SensorStatpri].width, resultTrackBak[extInCtrl->SensorStatpri].y+resultTrackBak[extInCtrl->SensorStatpri].height),
+					cvScalar(0,0,0,0), 1, 8 );
+
+			if(gSYS_Osd.algOsdRect == true)
+			{
+				if(resultTrackBak[extInCtrl->SensorStatpri].width)
+					DrawdashRect(resultTrackBak[extInCtrl->SensorStatpri].x,resultTrackBak[extInCtrl->SensorStatpri].y,resultTrackBak[extInCtrl->SensorStatpri].x+resultTrackBak[extInCtrl->SensorStatpri].width,resultTrackBak[extInCtrl->SensorStatpri].y+resultTrackBak[extInCtrl->SensorStat].height,0,1);
+			}
+			else
+			{
+				if(rcTrackBak[extInCtrl->SensorStatpri].width)
+					DrawdashRect(rcTrackBak[extInCtrl->SensorStatpri].x,rcTrackBak[extInCtrl->SensorStatpri].y,rcTrackBak[extInCtrl->SensorStatpri].x + rcTrackBak[extInCtrl->SensorStatpri].width ,rcTrackBak[extInCtrl->SensorStatpri].y+rcTrackBak[extInCtrl->SensorStatpri].height,0,1);	// track lost DashRect
+			}
+			rcTrackBak[extInCtrl->SensorStatpri].width = 0 ;
+			resultTrackBak[extInCtrl->SensorStatpri].width = 0;
 		}
 
 		if(Osdflag[osdindex])
  		{			
-			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-				Point( resultTrackBak.x, resultTrackBak.y ),
-				Point( resultTrackBak.x+resultTrackBak.width, resultTrackBak.y+resultTrackBak.height),
-				cvScalar(0,0,0,0), 1, 8 );
-			rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-				Point( rcTrackBak[extInCtrl->SensorStat].x, rcTrackBak[extInCtrl->SensorStat].y ),
-				Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
-					rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
-				cvScalar(0,0,0, 0), 1, 8 );
+			if(resultTrackBak[extInCtrl->SensorStat].width)
+				rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
+					Point( resultTrackBak[extInCtrl->SensorStat].x, resultTrackBak[extInCtrl->SensorStat].y ),
+					Point( resultTrackBak[extInCtrl->SensorStat].x+resultTrackBak[extInCtrl->SensorStat].width, resultTrackBak[extInCtrl->SensorStat].y+resultTrackBak[extInCtrl->SensorStat].height),
+					cvScalar(0,0,0,0), 1, 8 );
+			
+			if(rcTrackBak[extInCtrl->SensorStat].width)
+				rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
+					Point( rcTrackBak[extInCtrl->SensorStat].x, rcTrackBak[extInCtrl->SensorStat].y ),
+					Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
+						rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
+					cvScalar(0,0,0, 0), 1, 8 );
 			Osdflag[osdindex]=0;
 		}
+
+	//	printf("m_track = %d , sensor = %d , prisensor = %d \n" , m_bTrack  ,extInCtrl->SensorStat, extInCtrl->SensorStatpri);
+
+
 		 if(m_bTrack)
 		 {	 
 			extInCtrl->TrkXtmp = rcResult.x + rcResult.width/2;
@@ -1598,14 +1630,35 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				rcResult_algRect.height = PiexltoWindowsy(rcResult_algRect.height,extInCtrl->SensorStat);
 			}
 
+			if(!changesensorCnt){
+				Osdflag[osdindex]=1;
+				rcTrackBak[extInCtrl->SensorStat].x=startx;
+				rcTrackBak[extInCtrl->SensorStat].y=starty;
+				rcTrackBak[extInCtrl->SensorStat].width=endx-startx;
+				rcTrackBak[extInCtrl->SensorStat].height=endy-starty;
+			}
+			if(gSYS_Osd.algOsdRect == true)
+			{
+				resultTrackBak[extInCtrl->SensorStat].x = rcResult_algRect.x;
+				resultTrackBak[extInCtrl->SensorStat].y = rcResult_algRect.y;
+				resultTrackBak[extInCtrl->SensorStat].width = rcResult_algRect.width;
+				resultTrackBak[extInCtrl->SensorStat].height = rcResult_algRect.height;
+			}
+			
+			extInCtrl->unitAimX=rcResult.x+rcResult.width/2;
+			extInCtrl->unitAimY=rcResult.y+rcResult.height/2;
+			extInCtrl->unitAimW=rcResult.width;
+			extInCtrl->unitAimH=rcResult.height;
+
 			if( m_iTrackStat == 1 && !changesensorCnt)
 			{		
 				if(gSYS_Osd.algOsdRect == true)
 				{
-					rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-						Point( rcResult_algRect.x, rcResult_algRect.y ),
-						Point( rcResult_algRect.x+rcResult_algRect.width, rcResult_algRect.y+rcResult_algRect.height),
-						cvScalar(0,255,0,255), 1, 8 );
+					if(resultTrackBak[extInCtrl->SensorStat].width)
+						rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
+							Point( resultTrackBak[extInCtrl->SensorStat].x, resultTrackBak[extInCtrl->SensorStat].y ),
+							Point( resultTrackBak[extInCtrl->SensorStat].x+resultTrackBak[extInCtrl->SensorStat].width, resultTrackBak[extInCtrl->SensorStat].y+resultTrackBak[extInCtrl->SensorStat].height),
+							cvScalar(0,255,0,255), 1, 8 );
 				}
 				else
 				{
@@ -1628,30 +1681,12 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				if(bDraw != 0 && !changesensorCnt)
 				{
 					if(gSYS_Osd.algOsdRect == true)
-						DrawdashRect(rcResult_algRect.x,rcResult_algRect.y,rcResult_algRect.x+rcResult_algRect.width,rcResult_algRect.y+rcResult_algRect.height,frcolor);
+						DrawdashRect(resultTrackBak[extInCtrl->SensorStat].x,resultTrackBak[extInCtrl->SensorStat].y,resultTrackBak[extInCtrl->SensorStat].x+resultTrackBak[extInCtrl->SensorStat].width,resultTrackBak[extInCtrl->SensorStat].y+resultTrackBak[extInCtrl->SensorStat].height,frcolor);
 					else
 						DrawdashRect(startx,starty,endx,endy,frcolor);	// track lost DashRect				
 				}
 			}
-			if(!changesensorCnt){
-				Osdflag[osdindex]=1;
-				rcTrackBak[extInCtrl->SensorStat].x=startx;
-				rcTrackBak[extInCtrl->SensorStat].y=starty;
-				rcTrackBak[extInCtrl->SensorStat].width=endx-startx;
-				rcTrackBak[extInCtrl->SensorStat].height=endy-starty;
-			}
-			if(gSYS_Osd.algOsdRect == true)
-			{
-				resultTrackBak.x = rcResult_algRect.x;
-				resultTrackBak.y = rcResult_algRect.y;
-				resultTrackBak.width = rcResult_algRect.width;
-				resultTrackBak.height = rcResult_algRect.height;
-			}
 			
-			extInCtrl->unitAimX=rcResult.x+rcResult.width/2;
-			extInCtrl->unitAimY=rcResult.y+rcResult.height/2;
-			extInCtrl->unitAimW=rcResult.width;
-			extInCtrl->unitAimH=rcResult.height;
 		 }
 		 
 		 if(m_bTrack && !changesensorCnt)
@@ -1895,13 +1930,13 @@ osdindex++;	//acqRect
 	{
 		if(changesensorCnt){
 			recIn = mtdFrameRectBak;
-			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStatpri],recIn,0);
+			//DrawRect(m_display.m_imgOsd[extInCtrl->SensorStatpri],recIn,0);
 		}
 
 		if(Osdflag[osdindex])
 		{
 			recIn = mtdFrameRectBak;
-			DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,0);
+			//DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,0);
 			Osdflag[osdindex]=0;
 		}
 
@@ -1914,7 +1949,7 @@ osdindex++;	//acqRect
 
 			if(!m_bTrack && !m_bSceneTrack)
 			{
-				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor);
+				//DrawRect(m_display.m_imgOsd[extInCtrl->SensorStat],recIn,frcolor);
 				mtdFrameRectBak = recIn;
 				Osdflag[osdindex]=1;
 			}
@@ -1962,7 +1997,7 @@ osdindex++;	//acqRect
 			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
 				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
-				sprintf(trkFPSDisplay, "%2d", (*plist).number);
+				sprintf(trkFPSDisplay, "%2d", (*plist).number+1);
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
 				putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
 					Point(tmp.x, tmp.y),
@@ -2041,11 +2076,11 @@ osdindex++;	//acqRect
 				for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 				{	
 					if( chooseDetect == plist->number && bdrawMvRect >= HOLDING_NUM )
-						color = 6;
+						color = 3;
 					else
 						color = 3;
 					memcpy((void*)&tmp,(void *)&((*plist).trkobj.targetRect),sizeof(cv::Rect));
-					sprintf(trkFPSDisplay, "%2d", (*plist).number);
+					sprintf(trkFPSDisplay, "%2d", (*plist).number+1);
 					DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,color);
 					putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
 						Point(tmp.x, tmp.y),
@@ -2123,7 +2158,7 @@ unsigned int drawpolyRectId ;
 			start.y = polyRectbak[drawpolyRectId][0].y;
 			end.x = polytempXbak;
 			end.y = polytempYbak;
-			DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,0,0);
+			//DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,0,0);
 		}
 		else if(polyrectnbak[drawpolyRectId] > 1)
 		{
@@ -2134,14 +2169,14 @@ unsigned int drawpolyRectId ;
 				start.y = polyRectbak[drawpolyRectId][i].y;
 				end.x = polyRectbak[drawpolyRectId][i+1].x;
 				end.y = polyRectbak[drawpolyRectId][i+1].y;
-				DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,0,1);
+				//DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,0,1);
 		
 			}
 			start.x = polyRectbak[drawpolyRectId][i].x;
 			start.y = polyRectbak[drawpolyRectId][i].y;
 			end.x = polytempXbak;
 			end.y = polytempYbak;
-			DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,0,1);
+			//DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,0,1);
 		}
 
 		memcpy(polyRectbak, polRect, sizeof(polRect));
@@ -2154,7 +2189,7 @@ unsigned int drawpolyRectId ;
 			start.y = polyRectbak[drawpolyRectId][0].y;
 			end.x = polytempXbak;
 			end.y = polytempYbak;
-			DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,polycolor,1);
+			//DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,polycolor,1);
 		}
 		else if(polyrectnbak[drawpolyRectId] > 1)
 		{
@@ -2165,14 +2200,14 @@ unsigned int drawpolyRectId ;
 				start.y = polyRectbak[drawpolyRectId][i].y;
 				end.x = polyRectbak[drawpolyRectId][i+1].x;
 				end.y = polyRectbak[drawpolyRectId][i+1].y;
-				DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,polycolor,1);
+				//DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,polycolor,1);
 		
 			}
 			start.x = polyRectbak[drawpolyRectId][i].x;
 			start.y = polyRectbak[drawpolyRectId][i].y;
 			end.x = polytempXbak;
 			end.y = polytempYbak;
-			DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,polycolor,1);
+			//DrawcvLine(m_display.m_imgOsd[drawpolyRectId],&start,&end,polycolor,1);
 		}
 		pol_draw = 0;
 	}
@@ -2244,7 +2279,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 	CMD_EXT tmpCmd = {0};
 
 	static bool bTrack = false;	
-	static bool bdismode = true;
+	static bool bdismode = false;
 	static bool bstb = false;
 	static bool bmtd = false;
 
@@ -2254,12 +2289,14 @@ void CProcess::OnKeyDwn(unsigned char key)
 		if(bdismode)
 		{
 			tmpCmd.SensorStat = video_pal;
+			memset(&m_rcTrack,0,sizeof(m_rcTrack));
 			app_ctrl_setSensor(&tmpCmd);	
 			cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);			
 		}
 		else
 		{
 			tmpCmd.SensorStat = video_gaoqing0;
+			memset(&m_rcTrack,0,sizeof(m_rcTrack));
 			app_ctrl_setSensor(&tmpCmd);	
 			cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);			
 		}	
@@ -2276,9 +2313,12 @@ void CProcess::OnKeyDwn(unsigned char key)
 	}
 	else if(key == 50) // 2
 	{
-		bmtd = false;
-		if(tmpCmd.MtdState[tmpCmd.SensorStat])
-			tmpCmd.MtdState[tmpCmd.SensorStat] = eImgAlg_Disable;
+		bmtd = !bmtd;
+
+		if(bmtd)
+			tmpCmd.MtdState[pIStuts->SensorStat] = eImgAlg_Enable;
+		else
+			tmpCmd.MtdState[pIStuts->SensorStat] = eImgAlg_Disable;
 		app_ctrl_setMtdStat(&tmpCmd);
 	}
 	else if(key == 51) // 3	
@@ -3955,7 +3995,7 @@ void CProcess::MSGAPI_handle_mvAera(long lParam)
 		sThis->polWarnRect[ich][2].x, sThis->polWarnRect[ich][2].y,
 		sThis->polWarnRect[ich][3].x, sThis->polWarnRect[ich][3].y);*/
 
-	pThis->m_pMovDetector->setWarningRoi( polyWarnRoi, ich );
+	//pThis->m_pMovDetector->setWarningRoi( polyWarnRoi, ich );
 }
 
 void CProcess::MSGAPI_handle_mvUpdate(long lParam)

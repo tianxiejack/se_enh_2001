@@ -13,7 +13,7 @@ using namespace cv;
 
 class CProcess : public CVideoProcess
 {
-	UTC_RECT_float rcTrackBak[2],resultTrackBak;
+	UTC_RECT_float rcTrackBak[2],resultTrackBak[2];
 	TARGET tgBak[MAX_TARGET_NUMBER];
 	TARGETDRAW Mdrawbak[MAX_TARGET_NUMBER];
 	Osd_cvPoint crossBak[eSen_Max],sekCrossBak;
@@ -89,7 +89,7 @@ protected:
 	void erassdrawmmt(TARGET tg[], bool bShow = true);
 	void erassdrawmmtnew(TARGETDRAW tg[], bool bShow = true);
 	void DrawdashCross(int x,int y,int fcolour , bool bShow = true);
-	void DrawdashRect(int startx,int starty,int endx,int endy,int colour);
+	void DrawdashRect(int startx,int starty,int endx,int endy,int colour,int ispri = 0);
 	void DrawMeanuCross(int x,int y,int fcolour , bool bShow,int centerx,int centery);
 	float  PiexltoWindowsx(int x,int channel);
 	float  PiexltoWindowsy(int y,int channel);

@@ -778,7 +778,7 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 					polyWarnRoi[2] = cv::Point(rectsrcf.x+rectsrcf.w, rectsrcf.y+rectsrcf.h);
 					polyWarnRoi[3] = cv::Point(rectsrcf.x, rectsrcf.y+rectsrcf.h);
 
-					pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	curId);		
+					//pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	curId);		
 					pThis->m_rectn[curId]++;
 					if(pThis->m_rectn[curId]>=sizeof(pThis->mRect[0]))
 					{
@@ -832,7 +832,7 @@ void CVideoProcess::mouse_event(int button, int state, int x, int y)
 				sety = pThis->polRect[curId][i].y;
 				polyWarnRoi[i] = cv::Point(setx, sety);
 			}		
-			pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	curId);
+			//pThis->m_pMovDetector->setWarningRoi( polyWarnRoi,	curId);
 			pThis->setrigon_polygon = 0;
 			pThis->pol_rectn[curId] = 0;
 			pThis->pol_draw = 1;
@@ -1529,7 +1529,7 @@ void	CVideoProcess::initMvDetect()
 		polyWarnRoi[3]	= cv::Point(recttmp.x,recttmp.y+recttmp.h);
 
 		m_pMovDetector->setWarnMode(WARN_WARN_MODE, i);
-		m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
+		//m_pMovDetector->setWarningRoi(polyWarnRoi,	i);
 	}
 
 		recttmp.x = gCFG_Mtd.detectArea_X - gCFG_Mtd.detectArea_wide/2;
@@ -1552,7 +1552,7 @@ void	CVideoProcess::initMvDetect()
 		polyWarnRoi[2]	= cv::Point(recttmp.x+recttmp.w,recttmp.y+recttmp.h);
 		polyWarnRoi[3]	= cv::Point(recttmp.x,recttmp.y+recttmp.h);
 		
-		m_pMovDetector->setWarningRoi(polyWarnRoi, msgextInCtrl->SensorStat);
+		//m_pMovDetector->setWarningRoi(polyWarnRoi, msgextInCtrl->SensorStat);
 
 }
 

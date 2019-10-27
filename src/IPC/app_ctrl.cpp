@@ -196,8 +196,7 @@ void app_ctrl_setMtdStat(CMD_EXT * pInCmd)
 	if(msgextInCtrl==NULL)
 		return ;
 	CMD_EXT *pIStuts = msgextInCtrl;
-	if((pIStuts->MtdState[pIStuts->SensorStat] != pInCmd->MtdState[pIStuts->SensorStat]) ||
-		(pIStuts->MtdDetectStat != pIStuts->MtdState[pIStuts->SensorStat]))
+	if((pIStuts->MtdState[pIStuts->SensorStat] != pInCmd->MtdState[pIStuts->SensorStat]))
 	{
 		pIStuts->MtdState[pIStuts->SensorStat] = pInCmd->MtdState[pIStuts->SensorStat];
 		MSGDRIV_send(MSGID_EXT_MVDETECT, 0);
@@ -368,7 +367,10 @@ void app_ctrl_setAimSize(CMD_EXT * pInCmd)
 		return ;
 	CMD_EXT *pIStuts = msgextInCtrl;
 	int i, enable = 0;
-	for(i=0; i<CAMERACHMAX; i++)	// sync all aimsize
+
+	//for(i=0; i<CAMERACHMAX; i++)	// sync all aimsize
+
+	i = pIStuts->SensorStat;
 	{
 		if (pIStuts->AimH[i] != pInCmd->AimH[i])
 		{

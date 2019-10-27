@@ -1787,11 +1787,11 @@ void CDisplayer::gl_display(void)
 		glDisable(GL_BLEND);
 
 		
-		IrisAndFocus();
-		OSDChid();
-		OSDWorkMode();
-		if(m_userOsd)
-			OSDFunc();
+		//IrisAndFocus();
+		//OSDChid();
+		//OSDWorkMode();
+		//if(m_userOsd)
+			//OSDFunc();
 	}
 	
 	glUseProgram(0);
