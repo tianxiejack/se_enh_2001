@@ -473,7 +473,7 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	if(m_initPrm.motionfunc != NULL)
 		glutMotionFunc(m_initPrm.motionfunc);
 	
-	if(m_initPrm.menufunc != NULL)
+	if(0)//(m_initPrm.menufunc != NULL)
 	{
 		int t_sub_menu2 = glutCreateMenu(processmtdmodeMenu);
 		glutAddMenuEntry("Prohibit",0);

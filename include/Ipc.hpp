@@ -19,6 +19,7 @@ int cfg_set_mtdFeedback(unsigned int bMtd, unsigned int bMtdDetect);
 void cfg_dbg_setDefault(int * configTab);
 void cfg_dbg_getDefault(int * configTab, unsigned char *configUser);
 void cfg_dbg_setCmd(int cmd, int prm);
+int ipc_send_mtdprm(void * ptr);
 
 #endif /* IPC_HPP_ */
 

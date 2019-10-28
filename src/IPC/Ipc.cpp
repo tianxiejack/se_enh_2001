@@ -659,6 +659,14 @@ int cfg_set_mtdFeedback(unsigned int bMtd, unsigned int bMtdDetect)
 	}
 	return 0;
 }
+
+int ipc_send_mtdprm(void * ptr)
+{
+	IPC_MTD_COORD_T* pIn = (IPC_MTD_COORD_T*)ptr;
+	IPCSendMsg(sendMtdcoord , &pIn , sizeof(IPC_MTD_COORD_T));
+	return 0;	
+}
+
 /////////////////////////////////////////////////////
 
 void createSendBuf()

@@ -16,6 +16,7 @@
 #include <iostream>
 #include "Ipc.hpp"
 #include "encTrans.hpp"
+#include "ipc_custom_head.h"
 
 extern int ScalerLarge,ScalerMid,ScalerSmall;
 extern LinkagePos_t linkagePos; 
@@ -2209,7 +2210,25 @@ osdindex++;	//acqRect
 						FONT_HERSHEY_TRIPLEX,1,
 						cvScalar(255,255,0,255), 1
 						);
+				}	
+				IPC_MTD_COORD_T tmp = {0};
+				tmp.chid = extInCtrl->SensorStat;
+				int index ;
+				for(int i=0 ;i <5 ;i++)
+				{
+					tmp.target[i].x |= 0x80;
+					tmp.target[i].y |= 0x80;		
 				}
+				for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
+				{
+					index = plist->number ;
+					tmp.target[index].x = plist->trkobj.targetRect.x + plist->trkobj.targetRect.width/2;
+					tmp.target[index].y = plist->trkobj.targetRect.y + plist->trkobj.targetRect.height/2;
+					tmp.target[index].x &= 0x7f;
+					tmp.target[index].y &= 0x7f;
+				}
+				ipc_send_mtdprm((void*)&tmp);	
+			
 				Osdflag[osdindex]=1;
 			}
 		}
