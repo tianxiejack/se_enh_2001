@@ -19,6 +19,7 @@ class CProcess : public CVideoProcess
 	Osd_cvPoint crossBak[eSen_Max],sekCrossBak;
 	Osd_cvPoint crossWHBak;
 	cv::Rect acqRectBak[eSen_Max];
+	cv::Rect trkRectBak[eSen_Max];
 	cv::Rect mtdFrameRectBak;
 	Osd_cvPoint freezecrossBak;
 	Osd_cvPoint crosspicpBak;
@@ -195,6 +196,9 @@ public:
 
 	unsigned int stringip2int(string str);
 	vector<string> csplit(const string& str, const string& delim);
+
+	void DrawjianxiRect(cv::Mat frame,cv::Rect rec,int frcolor,bool bshow);
+
 
 };
 

@@ -625,6 +625,100 @@ void CProcess::DrawCross(cv::Rect rec,int fcolour ,int sensor,bool bShow /*= tru
 	Drawcvcrossaim(m_display.m_imgOsd[sensor],&lineparm);
 }
 
+
+void CProcess::DrawjianxiRect(cv::Mat frame,cv::Rect rec,int frcolor,bool bshow)
+{
+	int color = (bshow)?frcolor:0;
+	int leftTopx 		= rec.x;
+	int leftTopy 		= rec.y;
+	int leftBottomx 	= rec.x;
+	int leftBottomy 	= rec.y + rec.height;
+
+	int rightTopx 	= rec.x + rec.width;
+	int rightTopy 		= rec.y;
+	int rightBottomx 	= rec.x + rec.width;
+	int rightBottomy 	= leftBottomy;
+
+	int cornorx = rec.width/4;
+	int cornory = rec.height/4;
+	
+	Osd_cvPoint start;
+	Osd_cvPoint end;
+
+	//lefttop -
+	start.x 	= leftTopx;
+	start.y 	= leftTopy;
+	end.x	= leftTopx + cornorx;
+	end.y 	= leftTopy;
+	DrawcvLine(frame,&start,&end,color,1);
+
+	//lefttop |
+	start.x 	= leftTopx;
+	start.y 	= leftTopy;
+	end.x	= leftTopx;
+	end.y 	= leftTopy + cornory;
+	DrawcvLine(frame,&start,&end,color,1);
+
+	//leftbottom |
+	start.x 	= leftBottomx;
+	start.y 	= leftBottomy;
+	end.x	= leftBottomx;
+	end.y 	= leftBottomy - cornory;
+	DrawcvLine(frame,&start,&end,color,1);
+
+	//leftbottom -
+	start.x 	= leftBottomx;
+	start.y 	= leftBottomy;
+	end.x	= leftBottomx + cornorx;
+	end.y 	= leftBottomy;
+	DrawcvLine(frame,&start,&end,color,1);
+
+	//righttop -
+	start.x 	= rightTopx;
+	start.y 	= rightTopy;
+	end.x	= rightTopx - cornorx;
+	end.y 	= rightTopy;
+	DrawcvLine(frame,&start,&end,color,1);
+
+	//righttop |
+	start.x 	= rightTopx;
+	start.y 	= rightTopy;
+	end.x	= rightTopx;
+	end.y 	= rightTopy + cornory;
+	DrawcvLine(frame,&start,&end,color,1);
+
+
+	//rightbottom |
+	start.x 	= rightBottomx;
+	start.y 	= rightBottomy;
+	end.x	= rightBottomx;
+	end.y 	= rightBottomy - cornory;
+	DrawcvLine(frame,&start,&end,color,1);
+
+	//rightbottom -
+	start.x 	= rightBottomx;
+	start.y 	= rightBottomy;
+	end.x	= rightBottomx - cornorx;
+	end.y 	= rightBottomy;
+	DrawcvLine(frame,&start,&end,color,1);
+
+	//center -
+	start.x 	= leftTopx + cornorx;
+	start.y 	= leftTopy + 2*cornory;
+	end.x	= leftTopx + 3*cornorx;
+	end.y 	= leftTopy + 2*cornory;
+	DrawcvLine(frame,&start,&end,color,1);
+
+	//center |
+	start.x 	= leftTopx + 2*cornorx;
+	start.y 	= leftTopy + cornory;
+	end.x	= leftTopx + 2*cornorx;
+	end.y 	= leftTopy + 3*cornory;
+	DrawcvLine(frame,&start,&end,color,1);
+
+	return ;
+}
+
 void CProcess::DrawAcqRect(cv::Mat frame,cv::Rect rec,int frcolor,bool bshow)
 {
 	int color = (bshow)?frcolor:0;
@@ -1566,18 +1660,25 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 
 		if(changesensorCnt){
 			if(rcTrackBak[extInCtrl->SensorStatpri].width)
-				rectangle( m_display.m_imgOsd[extInCtrl->SensorStatpri],
+			{
+				DrawjianxiRect( m_display.m_imgOsd[extInCtrl->SensorStatpri], trkRectBak[extInCtrl->SensorStatpri], frcolor, false);		
+				DrawdashRect(resultTrackBak[extInCtrl->SensorStatpri].x,resultTrackBak[extInCtrl->SensorStatpri].y,resultTrackBak[extInCtrl->SensorStatpri].x+resultTrackBak[extInCtrl->SensorStatpri].width,resultTrackBak[extInCtrl->SensorStatpri].y+resultTrackBak[extInCtrl->SensorStatpri].height,0);
+			}
+			#if 0
+				 rectangle( m_display.m_imgOsd[extInCtrl->SensorStatpri],
 					Point( rcTrackBak[extInCtrl->SensorStatpri].x, rcTrackBak[extInCtrl->SensorStatpri].y ),
 					Point( rcTrackBak[extInCtrl->SensorStatpri].x+rcTrackBak[extInCtrl->SensorStatpri].width, 
 						rcTrackBak[extInCtrl->SensorStatpri].y+rcTrackBak[extInCtrl->SensorStatpri].height),
 					cvScalar(0,0,0,0), 1, 8 );
-
+			
+			
 			if(resultTrackBak[extInCtrl->SensorStatpri].width)
 				rectangle( m_display.m_imgOsd[extInCtrl->SensorStatpri],
 					Point( resultTrackBak[extInCtrl->SensorStatpri].x, resultTrackBak[extInCtrl->SensorStatpri].y ),
 					Point( resultTrackBak[extInCtrl->SensorStatpri].x+resultTrackBak[extInCtrl->SensorStatpri].width, resultTrackBak[extInCtrl->SensorStatpri].y+resultTrackBak[extInCtrl->SensorStatpri].height),
 					cvScalar(0,0,0,0), 1, 8 );
-
+			#endif
+			
 			if(gSYS_Osd.algOsdRect == true)
 			{
 				if(resultTrackBak[extInCtrl->SensorStatpri].width)
@@ -1595,10 +1696,18 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 		if(Osdflag[osdindex])
  		{			
 			if(resultTrackBak[extInCtrl->SensorStat].width)
+			{
+				DrawjianxiRect( m_display.m_imgOsd[extInCtrl->SensorStat], trkRectBak[extInCtrl->SensorStat], frcolor, false);
+				DrawdashRect(resultTrackBak[extInCtrl->SensorStat].x,resultTrackBak[extInCtrl->SensorStat].y,resultTrackBak[extInCtrl->SensorStat].x+resultTrackBak[extInCtrl->SensorStat].width,resultTrackBak[extInCtrl->SensorStat].y+resultTrackBak[extInCtrl->SensorStat].height,0);
+			}
+
+			
+			#if 0
 				rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
 					Point( resultTrackBak[extInCtrl->SensorStat].x, resultTrackBak[extInCtrl->SensorStat].y ),
 					Point( resultTrackBak[extInCtrl->SensorStat].x+resultTrackBak[extInCtrl->SensorStat].width, resultTrackBak[extInCtrl->SensorStat].y+resultTrackBak[extInCtrl->SensorStat].height),
 					cvScalar(0,0,0,0), 1, 8 );
+			
 			
 			if(rcTrackBak[extInCtrl->SensorStat].width)
 				rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
@@ -1606,6 +1715,8 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 					Point( rcTrackBak[extInCtrl->SensorStat].x+rcTrackBak[extInCtrl->SensorStat].width, 
 						rcTrackBak[extInCtrl->SensorStat].y+rcTrackBak[extInCtrl->SensorStat].height),
 					cvScalar(0,0,0, 0), 1, 8 );
+			#endif
+		
 			Osdflag[osdindex]=0;
 		}
 
@@ -1655,10 +1766,20 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 				if(gSYS_Osd.algOsdRect == true)
 				{
 					if(resultTrackBak[extInCtrl->SensorStat].width)
-						rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
-							Point( resultTrackBak[extInCtrl->SensorStat].x, resultTrackBak[extInCtrl->SensorStat].y ),
-							Point( resultTrackBak[extInCtrl->SensorStat].x+resultTrackBak[extInCtrl->SensorStat].width, resultTrackBak[extInCtrl->SensorStat].y+resultTrackBak[extInCtrl->SensorStat].height),
-							cvScalar(0,255,0,255), 1, 8 );
+					{
+						recIn.x = resultTrackBak[extInCtrl->SensorStat].x;
+						recIn.y = resultTrackBak[extInCtrl->SensorStat].y;
+						recIn.width = resultTrackBak[extInCtrl->SensorStat].width;
+						recIn.height = resultTrackBak[extInCtrl->SensorStat].height;
+						trkRectBak[extInCtrl->SensorStat] = recIn;
+						DrawjianxiRect( m_display.m_imgOsd[extInCtrl->SensorStat], trkRectBak[extInCtrl->SensorStat], frcolor, true);
+					}
+					#if 0
+					rectangle( m_display.m_imgOsd[extInCtrl->SensorStat],
+						Point( resultTrackBak[extInCtrl->SensorStat].x, resultTrackBak[extInCtrl->SensorStat].y ),
+						Point( resultTrackBak[extInCtrl->SensorStat].x+resultTrackBak[extInCtrl->SensorStat].width, resultTrackBak[extInCtrl->SensorStat].y+resultTrackBak[extInCtrl->SensorStat].height),
+						cvScalar(0,255,0,255), 1, 8 );
+					#endif
 				}
 				else
 				{
