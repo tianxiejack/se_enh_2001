@@ -936,8 +936,8 @@ void CVideoProcess::keyboard_event(unsigned char key, int x, int y)
 	pThis->OnKeyDwn(key);
 
 	if(key == 27){
-		pThis->destroy();
-		exit(0);
+		//pThis->destroy();
+		//exit(0);
 	}
 }
 
