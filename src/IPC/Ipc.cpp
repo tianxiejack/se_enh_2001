@@ -662,8 +662,8 @@ int cfg_set_mtdFeedback(unsigned int bMtd, unsigned int bMtdDetect)
 
 int ipc_send_mtdprm(void * ptr)
 {
-	IPC_MTD_COORD_T* pIn = (IPC_MTD_COORD_T*)ptr;
-	IPCSendMsg(sendMtdcoord , &pIn , sizeof(IPC_MTD_COORD_T));
+	IPC_MTD_COORD_T* pIn = (IPC_MTD_COORD_T*)ptr;				
+	IPCSendMsg(sendMtdcoord , pIn , sizeof(IPC_MTD_COORD_T));
 	return 0;	
 }
 
@@ -695,9 +695,9 @@ int IPCSendMsg(CMD_ID cmd, void* prm, int len)
 	{
 		pSendData=(SENDST *)msgSendBuf.bufInfo[bufId].virtAddr;
 		memset(pSendData->param, 0, PARAMLEN);
-		pSendData->cmd_ID = cmd & 0xFF;
+		pSendData->cmd_ID = cmd & 0xFF;	
 		if(len > 0)
-			memcpy(pSendData->param, prm, len);
+			memcpy(pSendData->param, prm, len);	
 		OSA_bufPutFull(&(msgSendBuf), bufId);
 	}
 	return 0;
@@ -1081,6 +1081,8 @@ void* recv_msgpth(SENDST *pInData)
 			break;
 			
 		case changeSensor:
+			//printf("rcv IPC changeSensor\n");
+			//break;
 			if(pIn->intPrm[0] == 1)
 				tmpCmd.SensorStat = video_pal;
 			else if(pIn->intPrm[0] == 2)

@@ -2225,8 +2225,9 @@ osdindex++;	//acqRect
 					tmp.target[index].x = plist->trkobj.targetRect.x + plist->trkobj.targetRect.width/2;
 					tmp.target[index].y = plist->trkobj.targetRect.y + plist->trkobj.targetRect.height/2;
 					tmp.target[index].x &= 0x7f;
-					tmp.target[index].y &= 0x7f;
+					tmp.target[index].y &= 0x7f;					
 				}
+								
 				ipc_send_mtdprm((void*)&tmp);	
 			
 				Osdflag[osdindex]=1;
