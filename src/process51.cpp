@@ -2093,7 +2093,7 @@ osdindex++;	//acqRect
 			for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 			{	
 				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
-				sprintf(trkFPSDisplay, "%2d", (*plist).number);
+				sprintf(trkFPSDisplay, "%2d", (*plist).number+1);
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
 				putText(m_display.m_imgOsd[extInCtrl->SensorStatpri],trkFPSDisplay,
 					Point(tmp.x, tmp.y),
@@ -2224,8 +2224,8 @@ osdindex++;	//acqRect
 					index = plist->number ;
 					tmp.target[index].x = plist->trkobj.targetRect.x + plist->trkobj.targetRect.width/2;
 					tmp.target[index].y = plist->trkobj.targetRect.y + plist->trkobj.targetRect.height/2;
-					tmp.target[index].x &= 0x7f;
-					tmp.target[index].y &= 0x7f;					
+					tmp.target[index].x &= 0x7fff;
+					tmp.target[index].y &= 0x7fff;		
 				}
 								
 				ipc_send_mtdprm((void*)&tmp);	
