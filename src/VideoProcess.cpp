@@ -1475,7 +1475,8 @@ int CVideoProcess::process_track(int trackStatus, Mat frame_gray, Mat frame_dis,
 
 		{
 			//printf("=========movestat = %d\n",moveStat);
-			rcResult = UtcTrkAcq(m_track, image, acq);
+			//rcResult = UtcTrkAcq(m_track, image, acq);
+			rcResult = UtcTrkAcqSR(m_track, image, acq,true);
 			moveStat = false;
 		}
 		

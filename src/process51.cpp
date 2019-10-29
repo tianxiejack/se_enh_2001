@@ -3809,7 +3809,7 @@ void CProcess::update_param_alg()
 	ScalerEnable = gCFG_Trk.ScalerEnable;
 
 	bool DynamicRatioEnable;
-	DynamicRatioEnable = ScalerEnable = gCFG_Trk.DynamicRatioEnable;
+	DynamicRatioEnable = gCFG_Trk.DynamicRatioEnable;
 
 	UTC_SIZE acqSize;
 	if(gCFG_Trk.acqSize_width > 0)	
