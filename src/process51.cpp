@@ -2047,6 +2047,22 @@ osdindex++;	//acqRect
 		}
 	}
 
+	
+	//mtd
+osdindex++;
+	{
+		if(Osdflag[osdindex]==1)
+		{
+			erassdrawmmtnew(Mdrawbak, false);
+			Osdflag[osdindex]=0;
+		}
+		if(m_bMtd)
+		{
+			drawmmtnew(m_mtd[chId]->tg, true);		
+		}
+	}
+	
+
 
 #if __MOVE_DETECT__
 	osdindex++;	// mtd areabox
@@ -2501,12 +2517,16 @@ void CProcess::OnKeyDwn(unsigned char key)
 
 	if(key == 'd'|| key == 'D')
 	{
-	
-		if(pIStuts->MmtStat[pIStuts->SensorStat])
-			pIStuts->MmtStat[pIStuts->SensorStat] = eImgAlg_Disable;
-		else
-			pIStuts->MmtStat[pIStuts->SensorStat] = eImgAlg_Enable;
-		msgdriv_event(MSGID_EXT_INPUT_ENMTD, NULL);
+		unsigned int ImgMtdStat = pIStuts->MmtStat[pIStuts->SensorStat];
+		if(ImgMtdStat == 0x01)
+		{
+			tmpCmd->MmtStat[pIStuts->SensorStat] = eImgAlg_Enable;	
+		}
+		else if(ImgMtdStat == 0x00)
+		{
+			tmpCmd->MmtStat[pIStuts->SensorStat] = eImgAlg_Disable;
+		}
+		app_ctrl_setMMT(&tmpCmd);	
 	}
 
 	if (key == 'e' || key == 'E')
@@ -2522,7 +2542,13 @@ void CProcess::OnKeyDwn(unsigned char key)
 
 	if (key == 'f' || key == 'F')
 	{
-		backflag = true;
+		unsigned int ImgMmtSelect = 2;
+		ImgMmtSelect--;
+		if(ImgMmtSelect > 5)
+			ImgMmtSelect = 5;
+		app_ctrl_setMmtSelect(pIStuts,ImgMmtSelect);	
+		tmpCmd->MmtStat[pIStuts->SensorStat] = eImgAlg_Disable;
+		app_ctrl_setMMT(&tmpCmd);
 	}
 		
 	if (key == 'l' || key == 'L')

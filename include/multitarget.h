@@ -77,8 +77,8 @@ typedef struct{
 typedef struct
 {
 	int state;		//0: nothing to do, 1: detect targets, 2: track targets
-    int i_width;	//ͼ��?��λΪ���أ�
-    int i_height;	//ͼ��ߣ���λΪ���أ�
+    	int i_width;	//ͼ��?��λΪ���أ�
+    	int i_height;	//ͼ��ߣ���λΪ���أ�
 	unsigned char *Img[6];	//ԭ�ߴ��С��ͼ��
 	unsigned char *FtImg[5];//����ͼ��ԭ�ߴ��С��ͼ��
 	unsigned char *sobel;
