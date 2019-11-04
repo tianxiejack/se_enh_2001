@@ -1061,21 +1061,6 @@ void* recv_msgpth(SENDST *pInData)
 			gSYS_Osd.workMode = pIn->intPrm[0];
 			break;
 
-		case Iris:
-			gSYS_Osd.IrisAndFocusAndExit = Enable_Iris;
-			memcpy(&gSYS_Osd.cmd_triangle, (void *)pIn->intPrm, sizeof(CMD_triangle));
-			break;
-
-		case focus:
-			gSYS_Osd.IrisAndFocusAndExit = Enable_Focus;
-			memcpy(&gSYS_Osd.cmd_triangle, (void *)pIn->intPrm, sizeof(CMD_triangle));
-			break;
-
-		case exit_IrisAndFocus:
-			gSYS_Osd.IrisAndFocusAndExit = Disable;
-			memcpy(&gSYS_Osd.cmd_triangle, (void *)pIn->intPrm, sizeof(CMD_triangle));
-			break;
-
 		case exit_img:
 			ipc_loop = 0;			
 			break;
@@ -1381,32 +1366,6 @@ void cfg_dbg_setCmd(int cmd, int prm)
 		{
 			pInt->intPrm[0] = -20;	// 2
 			pInt->intPrm[1] = -20;
-		}
-	}
-	else if(cmd == Iris || cmd == focus || cmd == exit_IrisAndFocus)
-	{
-		if(cmd == exit_IrisAndFocus)
-		{
-			pInt->intPrm[0] = 0;	// CMD_triangle.dir
-			pInt->intPrm[1] = 0;	// CMD_triangle.alpha
-		}
-		else
-		{
-			if(prm == 0)
-			{
-				pInt->intPrm[0] = 1;	// CMD_triangle.dir
-				pInt->intPrm[1] = 255;	// CMD_triangle.alpha
-			}
-			else if(prm == 1)
-			{
-				pInt->intPrm[0] = -1;	// CMD_triangle.dir
-				pInt->intPrm[1] = 255;	// CMD_triangle.alpha
-			}
-			else
-			{
-				pInt->intPrm[0] = 1;	// CMD_triangle.dir
-				pInt->intPrm[1] = 0;	// CMD_triangle.alpha
-			}
 		}
 	}
 	else if(cmd == read_shm_block)

@@ -122,15 +122,10 @@ static void keyboard_event(unsigned char key, int x, int y)
 		cfg_dbg_setCmd(workmode, workmd);
 		break;
 	case 'a':
-		irisdir = (irisdir+1)%3;
-		cfg_dbg_setCmd(Iris, irisdir);
 		break;
 	case 'b':
-		focusdir = (focusdir+1)%3;
-		cfg_dbg_setCmd(focus, focusdir);
 		break;
 	case 'c':
-		cfg_dbg_setCmd(exit_IrisAndFocus, 0);
 		break;
 
 	case 'B':
