@@ -91,15 +91,19 @@ void app_ctrl_setMmtSelect(CMD_EXT * pIStuts,unsigned char index)
 {	
 	int curx,cury;
 	getMmtTg(index, &curx, &cury);
-	
-	pIStuts->AvtTrkStat = eTrk_mode_sectrk;
-	pIStuts->AvtPosX[pIStuts->SensorStat] = curx;
-	pIStuts->AvtPosY[pIStuts->SensorStat] = cury;
-	app_ctrl_setTrkStat(pIStuts);
 
-	pIStuts->AxisPosX[pIStuts->SensorStat] = pIStuts->opticAxisPosX[pIStuts->SensorStat];
-	pIStuts->AxisPosY[pIStuts->SensorStat] = pIStuts->opticAxisPosY[pIStuts->SensorStat];
-	app_ctrl_setAxisPos(pIStuts);
+	CMD_EXT tmp = {0};
+	tmp.AvtTrkStat = eTrk_mode_sectrk;
+	tmp.AvtPosX[pIStuts->SensorStat] = curx;
+	tmp.AvtPosY[pIStuts->SensorStat] = cury;
+
+	tmp.AimW[pIStuts->SensorStat]  = 32;
+	tmp.AimH[pIStuts->SensorStat]  = 32;
+	app_ctrl_setTrkStat(&tmp);//track
+
+	//pIStuts->AxisPosX[pIStuts->SensorStat] = pIStuts->opticAxisPosX[pIStuts->SensorStat];
+	//pIStuts->AxisPosY[pIStuts->SensorStat] = pIStuts->opticAxisPosY[pIStuts->SensorStat];
+	//app_ctrl_setAxisPos(pIStuts);
 	return ;
 }
 

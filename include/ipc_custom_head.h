@@ -49,6 +49,9 @@ typedef enum
 	mmtselect,
 
 	workmode,
+	Iris,
+	focus,
+	exit_IrisAndFocus,
 	exit_img,
 }CMD_ID;
 

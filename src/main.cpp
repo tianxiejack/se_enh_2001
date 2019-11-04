@@ -61,9 +61,8 @@ static void keyboard_event111(unsigned char key, int x, int y)
 	switch(key)
 	{
 	case 'c':
-		proc.OnKeyDwn(key);
-		break;
 	case 'd':
+	case 'f':
 		proc.OnKeyDwn(key);
 		break;
 	case 'q':
