@@ -366,8 +366,8 @@ void CVideoProcess::main_proc_func()
 		}
 		else if(bMtd)
 		{
-			tstart = getTickCount();
-
+			//tstart = getTickCount();
+			printf(" bMtd = %d \n" , bMtd);
 			Rect roi;
 
 			if(tvzoomStat)
@@ -393,7 +393,7 @@ void CVideoProcess::main_proc_func()
 				m_mtd[chId]->tg[i].cur_x=m_tgtBox[i].Box.x+m_tgtBox[i].Box.width/2;
 				m_mtd[chId]->tg[i].cur_y=m_tgtBox[i].Box.y+m_tgtBox[i].Box.height/2;
 				m_mtd[chId]->tg[i].valid=m_tgtBox[i].valid;
-				//OSA_printf("ALL-MTD: time  ID %d  valid=%d x=%d y=%d\n",i,m_tgtBox[i].valid,m_tgtBox[i].Box.x,m_tgtBox[i].Box.y);
+				OSA_printf("ALL-MTD: time  ID %d  valid=%d x=%d y=%d\n",i,m_tgtBox[i].valid,m_tgtBox[i].Box.x,m_tgtBox[i].Box.y);
 			}
 		#endif	
 		

@@ -600,7 +600,7 @@ int CDisplayer::dynamic_config(DS_CFG type, int iPrm, void* pPrm)
 			return -2;
 		bEnable = *(bool*)pPrm;
 		m_bEnh[iPrm] = bEnable;
-		OSA_printf("the video enhanceiPrm=%d =%d\n",iPrm,m_bEnh[iPrm]);
+		OSA_printf("the video enhanceiPrm[%d] =%d\n",iPrm,m_bEnh[iPrm]);
 	}
 
 	if(type == DS_CFG_MMTEnable){
@@ -610,7 +610,7 @@ int CDisplayer::dynamic_config(DS_CFG type, int iPrm, void* pPrm)
 			return -2;
 		bEnable = *(bool*)pPrm;
 		m_Mmt[iPrm] = bEnable;
-		OSA_printf("the video mmtEnableiPrm=%d =%d\n",iPrm,m_Mmt[iPrm]);
+		OSA_printf("the video mmtEnableiPrm[%d] =%d\n",iPrm,m_Mmt[iPrm]);
 	}
 
 	if(type == DS_CFG_CropEnable){

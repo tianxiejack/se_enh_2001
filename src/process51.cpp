@@ -1071,7 +1071,7 @@ void CProcess::drawmmtnew(TARGET tg[],bool bShow)
 	extInCtrl->Mmttargetnum=0;
 	char numbuf[3];
 	int frcolor= gSYS_Osd.osdDrawColor;
-	unsigned char Alpha = (bShow) ? frcolor : 0;
+	unsigned char Alpha = (bShow) ? 2 : 0;
 	CvScalar colour=GetcvColour(Alpha);
 	
 	//memset(extInCtrl->MmtOffsetXY,0,20);
@@ -1269,7 +1269,7 @@ void CProcess::drawmmtnew(TARGET tg[],bool bShow)
 		Mmtsendtime=0;
 	}
 	
-	msgdriv_event(MSGID_EXT_INPUT_MMTSHOWUPDATE, NULL);
+	//msgdriv_event(MSGID_EXT_INPUT_MMTSHOWUPDATE, NULL);
 
 }
 
@@ -2058,11 +2058,11 @@ osdindex++;
 		}
 		if(m_bMtd)
 		{
-			drawmmtnew(m_mtd[chId]->tg, true);		
+			drawmmtnew(m_mtd[chId]->tg, true);	
+			Osdflag[osdindex]=1;
 		}
 	}
 	
-
 
 #if __MOVE_DETECT__
 	osdindex++;	// mtd areabox
@@ -2518,13 +2518,14 @@ void CProcess::OnKeyDwn(unsigned char key)
 	if(key == 'd'|| key == 'D')
 	{
 		unsigned int ImgMtdStat = pIStuts->MmtStat[pIStuts->SensorStat];
+		//printf("%s : LINE :%d     ImgMtdStat = %d \n" , __func__, __LINE__, ImgMtdStat);
 		if(ImgMtdStat == 0x01)
 		{
-			tmpCmd->MmtStat[pIStuts->SensorStat] = eImgAlg_Enable;	
+			tmpCmd.MmtStat[pIStuts->SensorStat] = eImgAlg_Disable;	
 		}
 		else if(ImgMtdStat == 0x00)
 		{
-			tmpCmd->MmtStat[pIStuts->SensorStat] = eImgAlg_Disable;
+			tmpCmd.MmtStat[pIStuts->SensorStat] = eImgAlg_Enable;
 		}
 		app_ctrl_setMMT(&tmpCmd);	
 	}
@@ -2547,7 +2548,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 		if(ImgMmtSelect > 5)
 			ImgMmtSelect = 5;
 		app_ctrl_setMmtSelect(pIStuts,ImgMmtSelect);	
-		tmpCmd->MmtStat[pIStuts->SensorStat] = eImgAlg_Disable;
+		tmpCmd.MmtStat[pIStuts->SensorStat] = eImgAlg_Disable;
 		app_ctrl_setMMT(&tmpCmd);
 	}
 		

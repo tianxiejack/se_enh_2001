@@ -44,6 +44,9 @@ typedef enum
 	trkMtdId,
 	settrktime,
 	sendMtdcoord,
+
+	mmt,
+	mmtselect,
 	
 	read_shm_config,
 	read_shm_block,
