@@ -728,7 +728,8 @@ void* recv_msgpth(SENDST *pInData)
 {
 	IPC_PRM_INT *pIn=NULL;
 	int configId, blkId, feildId;
-
+	static unsigned int posestep = 1;
+	
 	if(pInData==NULL)
 	{
 		return NULL ;
@@ -881,13 +882,15 @@ void* recv_msgpth(SENDST *pInData)
 			break;
 
 		case trk:	
-			printf("ipc trk : %d \n ",pIn->intPrm[0]);
+			//printf("ipc trk : %d \n ",pIn->intPrm[0]);
 			{
 				unsigned int AvtTrkStat = pIn->intPrm[0];
 				if(AvtTrkStat == 0x1)
 					pMsg->AvtTrkStat =eTrk_mode_target;
-				else
+				else if(AvtTrkStat == 0x0)
 					pMsg->AvtTrkStat = eTrk_mode_acq;
+				else
+					break;
 
 				if(pMsg->AvtTrkStat == eTrk_mode_acq)
 				{
@@ -964,11 +967,11 @@ void* recv_msgpth(SENDST *pInData)
 				//pMsg->aimRectMoveStepY = AvtMoveY;
 				if(AvtMoveX==eTrk_ref_left)
 				{
-					pMsg->aimRectMoveStepX=-1;
+					pMsg->aimRectMoveStepX=-1*posestep;
 				}
 				else if(AvtMoveX==eTrk_ref_right)
 				{
-					pMsg->aimRectMoveStepX=1;
+					pMsg->aimRectMoveStepX=1*posestep;
 				}
 				else//for dbg
 				{
@@ -977,11 +980,11 @@ void* recv_msgpth(SENDST *pInData)
 				
 				if(AvtMoveY==eTrk_ref_up)
 				{
-					pMsg->aimRectMoveStepY=-1;
+					pMsg->aimRectMoveStepY=-1*posestep;
 				}
 				else if(AvtMoveY==eTrk_ref_down)
 				{
-					pMsg->aimRectMoveStepY=1;
+					pMsg->aimRectMoveStepY=1*posestep;
 				}
 				else//for dbg
 				{
@@ -1003,6 +1006,9 @@ void* recv_msgpth(SENDST *pInData)
 				{
 					pMsg->MmtStat[pMsg->SensorStat] = eImgAlg_Disable;
 				}
+				else
+					break;
+				
 				app_ctrl_setMMT(pMsg);
 			}
 			break;
@@ -1014,8 +1020,8 @@ void* recv_msgpth(SENDST *pInData)
 				if(ImgMmtSelect > 5)
 					ImgMmtSelect = 5;
 				app_ctrl_setMmtSelect(pMsg,ImgMmtSelect);	
-				pMsg->MmtStat[pMsg->SensorStat] = eImgAlg_Disable;
-				app_ctrl_setMMT(pMsg);
+				tmpCmd.MmtStat[pMsg->SensorStat] = eImgAlg_Disable;
+				app_ctrl_setMMT(&tmpCmd);
 			}
 			break;
 #endif
@@ -1036,7 +1042,7 @@ void* recv_msgpth(SENDST *pInData)
 #if __MOVE_DETECT__
 		case mtd:
 			{
-				printf("ipc rcv mtd = %d \n ",pIn->intPrm[0]);
+				//printf("ipc rcv mtd = %d \n ",pIn->intPrm[0]);
 				unsigned int ImgMtdStat = pIn->intPrm[0];
 				if(ImgMtdStat == 1){
 					tmpCmd.MtdState[pMsg->SensorStat] = eImgAlg_Enable;
@@ -1066,13 +1072,13 @@ void* recv_msgpth(SENDST *pInData)
 			break;
 			
 		case changeSensor:
-			//printf("rcv IPC changeSensor\n");
-			//break;
-			if(pIn->intPrm[0] == 1)
+			if(pIn->intPrm[0] == 0)
 				tmpCmd.SensorStat = video_pal;
-			else if(pIn->intPrm[0] == 2)
+			else if(pIn->intPrm[0] == 1)
 				tmpCmd.SensorStat = video_gaoqing0;
-		
+			else
+				break;
+				
 			app_ctrl_setSensor(&tmpCmd);	
 			cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);
 
@@ -1095,6 +1101,24 @@ void* recv_msgpth(SENDST *pInData)
 
 		case settrktime:
 			gTrktime = pIn->intPrm[0];
+			break;
+
+		case mmtcoord:
+			{
+				IPC_PIXEL_T* tmp = (IPC_PIXEL_T*)pIn->intPrm;
+				if(tmp->x > vdisWH[pMsg->SensorStat][0] || tmp->y >vdisWH[pMsg->SensorStat][1])
+					break;
+				
+				app_ctrl_setMmtCorrd(pMsg,tmp->x,tmp->y);	
+				pMsg->MmtStat[pMsg->SensorStat] = eImgAlg_Disable;
+				app_ctrl_setMMT(pMsg);
+			}
+			break;
+
+		case posemovestep:
+			posestep = pIn->intPrm[0];
+			if(posestep > 5)
+				posestep = 5;
 			break;
 
 		default:

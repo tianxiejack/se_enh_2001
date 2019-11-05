@@ -47,6 +47,8 @@ typedef enum
 
 	mmt,
 	mmtselect,
+	mmtcoord,
+	posemovestep,
 
 	workmode,
 	Iris,

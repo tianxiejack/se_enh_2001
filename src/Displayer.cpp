@@ -5,7 +5,7 @@
 #include <opencv2/opencv.hpp>
 
 //#include <gl.h>
-#include <glew.h>
+#include "glew.h"
 #include <glut.h>
 #include <freeglut_ext.h>
 #include <cuda.h>

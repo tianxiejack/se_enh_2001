@@ -4,6 +4,8 @@
 #include "msgDriv.h"
 #include "configtable.h"
 
+
+
 CMD_EXT *msgextInCtrl;
 #define Coll_Save 0 //   1:quit coll is to save  cross  or  0:using save funtion to cross axis
 #define FrColl_Change 1 //0:frcoll v1.00 1:frcoll v1.01     //ver1.01 is using 
@@ -11,7 +13,12 @@ CMD_EXT *msgextInCtrl;
 static int pristatus=0;
 LinkagePos_t linkagePos; 
 
+
+
 void getMmtTg(unsigned char index,int *x,int *y);
+int MmtCoord2mmtTarget(int chid ,unsigned int x,unsigned int y);
+
+
 #if __MOVE_DETECT__
 void getMtdxy(int &x,int &y,int &w,int &h);
 void getMtdIdxy(int mtdId,int &x,int &y,int &w,int &h);
@@ -104,6 +111,27 @@ void app_ctrl_setMmtSelect(CMD_EXT * pIStuts,unsigned char index)
 	//pIStuts->AxisPosX[pIStuts->SensorStat] = pIStuts->opticAxisPosX[pIStuts->SensorStat];
 	//pIStuts->AxisPosY[pIStuts->SensorStat] = pIStuts->opticAxisPosY[pIStuts->SensorStat];
 	//app_ctrl_setAxisPos(pIStuts);
+	return ;
+}
+
+
+void app_ctrl_setMmtCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y)
+{	
+	int curx,cury;
+
+	int index = MmtCoord2mmtTarget(pIStuts->SensorStat, x, y);
+
+	getMmtTg(index, &curx, &cury);
+
+	CMD_EXT tmp = {0};
+	tmp.AvtTrkStat = eTrk_mode_sectrk;
+	tmp.AvtPosX[pIStuts->SensorStat] = curx;
+	tmp.AvtPosY[pIStuts->SensorStat] = cury;
+
+	tmp.AimW[pIStuts->SensorStat]  = 32;
+	tmp.AimH[pIStuts->SensorStat]  = 32;
+	app_ctrl_setTrkStat(&tmp);//track
+
 	return ;
 }
 

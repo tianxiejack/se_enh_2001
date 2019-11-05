@@ -27,5 +27,7 @@ void app_ctrl_setSceneTrk(CMD_EXT *sceneFlag);
 
 void app_ctrl_trkMtdId(int mtdId);
 
+void app_ctrl_setMmtCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y);
+
 
 #endif /* APP_CTRL_H_ */
