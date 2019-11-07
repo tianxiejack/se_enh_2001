@@ -1028,8 +1028,8 @@ void* recv_msgpth(SENDST *pInData)
 				if(ImgMmtSelect > 5)
 					ImgMmtSelect = 5;
 				app_ctrl_setMmtSelect(pMsg,ImgMmtSelect);	
-				tmpCmd.MmtStat[pMsg->SensorStat] = eImgAlg_Disable;
-				app_ctrl_setMMT(&tmpCmd);
+				pMsg->MmtStat[pMsg->SensorStat] = eImgAlg_Disable;
+				app_ctrl_setMMT(pMsg);
 			}
 			break;
 #endif
@@ -1053,19 +1053,19 @@ void* recv_msgpth(SENDST *pInData)
 				//printf("ipc rcv mtd = %d \n ",pIn->intPrm[0]);
 				unsigned int ImgMtdStat = pIn->intPrm[0];
 				if(ImgMtdStat == 1){
-					tmpCmd.MtdState[pMsg->SensorStat] = eImgAlg_Enable;
+					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Enable;
 				}
 				else if(ImgMtdStat == 0){
-					tmpCmd.MtdState[pMsg->SensorStat] = eImgAlg_Disable;
+					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
 				}
-				app_ctrl_setMtdStat(&tmpCmd);
+				app_ctrl_setMtdStat(pMsg);
 			}
 			break;
 
 		case mtdSelect:
 			{
 				unsigned int ImgMmtSelect = pIn->intPrm[0];
-				tmpCmd.MtdSelect[pMsg->SensorStat] = ImgMmtSelect;
+				pMsg->MtdSelect[pMsg->SensorStat] = ImgMmtSelect;
 				app_ctrl_setMtdSelect(pMsg);
 			}
 			break;
@@ -1081,19 +1081,19 @@ void* recv_msgpth(SENDST *pInData)
 			
 		case changeSensor:
 			if(pIn->intPrm[0] == 0)
-				tmpCmd.SensorStat = video_pal;
+				pMsg->SensorStat = video_pal;
 			else if(pIn->intPrm[0] == 1)
-				tmpCmd.SensorStat = video_gaoqing0;
+				pMsg->SensorStat = video_gaoqing0;
 			else
 				break;
 				
-			app_ctrl_setSensor(&tmpCmd);	
-			cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);
+			app_ctrl_setSensor(pMsg);	
+			cfg_set_outSensor(pMsg->SensorStat, pMsg->SensorStat);
 
 			if(pMsg->MtdState[pMsg->SensorStat])
 			{	
-				tmpCmd.MtdState[pMsg->SensorStat] = eImgAlg_Disable;
-				app_ctrl_setMtdStat(&tmpCmd);
+				pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
+				app_ctrl_setMtdStat(pMsg);
 			}
 						
 			break;
@@ -1102,8 +1102,8 @@ void* recv_msgpth(SENDST *pInData)
 			if(pIn->intPrm[0] >= 0x1 && pIn->intPrm[0] <= 0x5)
 			{
 				app_ctrl_trkMtdId(pIn->intPrm[0]-1);
-				tmpCmd.MtdState[pMsg->SensorStat] = eImgAlg_Disable;
-				app_ctrl_setMtdStat(&tmpCmd);
+				pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
+				app_ctrl_setMtdStat(pMsg);
 			}
 			break;
 

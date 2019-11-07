@@ -1640,25 +1640,44 @@ void CDisplayer::gl_textureLoad(void)
 				}
 			
 				if(m_renders[chId].videodect)
-						cudaMemcpy(dev_pbo, dism_img[chId].data, byteCount, cudaMemcpyDeviceToDevice);
-					else
-						cudaMemcpy(dev_pbo, m_img_novideo.data, byteCount, cudaMemcpyDeviceToDevice);
-//		 		}
+					cudaMemcpy(dev_pbo, dism_img[chId].data, byteCount, cudaMemcpyDeviceToDevice);
+				else
+					cudaMemcpy(dev_pbo, m_img_novideo.data, byteCount, cudaMemcpyDeviceToDevice);
+
 				cudaResource_unmapBuffer(chId);
 				cudaResource_UnregisterBuffer(chId);
 			}
+
+			if(m_bEnh[chId])
+			{
+				cuClahe( dism_img[chId],dism_img[chId], 8,8,enhanceparam,1);
 			
-				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffId_input[chId]);
-				glBindTexture(GL_TEXTURE_2D, textureId_input[chId]);
-				if(dism_img[chId].channels() == 1){
-					//glTexImage2D(GL_TEXTURE_2D, 0, m_videoSize[chId].c, m_videoSize[chId].w, m_videoSize[chId].h, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_videoSize[chId].w, m_videoSize[chId].h, GL_RED, GL_UNSIGNED_BYTE, NULL);
-				}else{
-					//glTexImage2D(GL_TEXTURE_2D, 0, m_videoSize[chId].c, m_videoSize[chId].w, m_videoSize[chId].h, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, NULL);
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_videoSize[chId].w, m_videoSize[chId].h, GL_BGR_EXT, GL_UNSIGNED_BYTE, NULL);
-				}
-				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-			//}
+				#if 0
+				#if HISTEN
+				cuHistEnh( m_img[chId], dst);
+				#elif CLAHEH 
+				cuClahe( m_img[chId], dst,8,8,3.5,1);
+				#elif DARKEN
+				cuUnhazed( m_img[chId], dst);
+				#else
+				cuHistEnh( m_img[chId], dst);
+				#endif	
+
+				#endif
+				//m_initPrm.timerInterval=16;
+				//OSA_printf("chId = %d, enhance: time = %f sec \n", chId, ( (getTickCount() - enhancetime)/getTickFrequency()) );
+			}
+				
+			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffId_input[chId]);
+			glBindTexture(GL_TEXTURE_2D, textureId_input[chId]);
+			if(dism_img[chId].channels() == 1){
+				//glTexImage2D(GL_TEXTURE_2D, 0, m_videoSize[chId].c, m_videoSize[chId].w, m_videoSize[chId].h, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
+				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_videoSize[chId].w, m_videoSize[chId].h, GL_RED, GL_UNSIGNED_BYTE, NULL);
+			}else{
+				//glTexImage2D(GL_TEXTURE_2D, 0, m_videoSize[chId].c, m_videoSize[chId].w, m_videoSize[chId].h, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, NULL);
+				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_videoSize[chId].w, m_videoSize[chId].h, GL_BGR_EXT, GL_UNSIGNED_BYTE, NULL);
+			}
+			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
 			mask |= (1<<chId);
 		}

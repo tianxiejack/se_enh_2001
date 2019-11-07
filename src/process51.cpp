@@ -2604,13 +2604,20 @@ void CProcess::OnKeyDwn(unsigned char key)
 
 	if (key == 'e' || key == 'E')
 	{
+		if(pIStuts->ImgEnhStat[pIStuts->SensorStat])
+			pIStuts->ImgEnhStat[pIStuts->SensorStat] = eImgAlg_Disable;
+		else
+			pIStuts->ImgEnhStat[pIStuts->SensorStat] = eImgAlg_Enable;
+		msgdriv_event(MSGID_EXT_INPUT_ENENHAN, NULL);
+
+		/*
 		if(pIStuts->SceneAvtTrkStat == eTrk_mode_acq )
 			pIStuts->SceneAvtTrkStat = eTrk_mode_target;
 		else
 			pIStuts->SceneAvtTrkStat = eTrk_mode_acq;
 
-
 		MSGDRIV_send(MSGID_EXT_INPUT_SCENETRK, 0); 
+		*/
 	}
 
 	if (key == 'f' || key == 'F')

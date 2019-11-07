@@ -141,7 +141,9 @@ void app_ctrl_setEnhance(CMD_EXT * pInCmd)
 	if(msgextInCtrl==NULL)
 		return ;
 	CMD_EXT *pIStuts = msgextInCtrl;
-
+	if( pInCmd->AvtTrkStat == eTrk_mode_acq
+		&& !pInCmd->MmtStat[pInCmd->SensorStat] 
+		&& !pInCmd->MtdState[pInCmd->SensorStat] )
 	if(pInCmd->ImgEnhStat[pInCmd->SensorStat] != pIStuts->ImgEnhStat[pInCmd->SensorStat])
 	{
 		pIStuts->ImgEnhStat[pInCmd->SensorStat] = pInCmd->ImgEnhStat[pInCmd->SensorStat];
@@ -228,10 +230,14 @@ void app_ctrl_setMtdStat(CMD_EXT * pInCmd)
 	if(msgextInCtrl==NULL)
 		return ;
 	CMD_EXT *pIStuts = msgextInCtrl;
-	if((pIStuts->MtdState[pIStuts->SensorStat] != pInCmd->MtdState[pIStuts->SensorStat]))
+	
+	if( pInCmd->AvtTrkStat == eTrk_mode_acq  && !pIStuts->MmtStat[pIStuts->SensorStat] && !pInCmd->ImgEnhStat[pIStuts->SensorStat])
 	{
-		pIStuts->MtdState[pIStuts->SensorStat] = pInCmd->MtdState[pIStuts->SensorStat];
-		MSGDRIV_send(MSGID_EXT_MVDETECT, 0);
+		if((pIStuts->MtdState[pIStuts->SensorStat] != pInCmd->MtdState[pIStuts->SensorStat]))
+		{
+			pIStuts->MtdState[pIStuts->SensorStat] = pInCmd->MtdState[pIStuts->SensorStat];
+			MSGDRIV_send(MSGID_EXT_MVDETECT, 0);
+		}
 	}
 	return ;
 }
@@ -318,7 +324,7 @@ void app_ctrl_setMMT(CMD_EXT * pInCmd)
 	if(pInCmd->MMTTempStat != pIStuts->MMTTempStat)
 		pIStuts->MMTTempStat = pInCmd->MMTTempStat;
 
-	if(pInCmd->AvtTrkStat != eTrk_mode_target)
+	if(pInCmd->AvtTrkStat != eTrk_mode_target && !pInCmd->MtdState[pIStuts->SensorStat] && !pInCmd->ImgEnhStat[pIStuts->SensorStat])
 	{
 		if (pIStuts->MmtStat[pIStuts->SensorStat] != pInCmd->MmtStat[pIStuts->SensorStat])
 		{     
