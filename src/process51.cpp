@@ -1123,7 +1123,7 @@ void CProcess::drawmmtnew(TARGET tg[],bool bShow)
 			//valid mmt num;
 			extInCtrl->Mmttargetnum++;
 		}
-		Mdrawbak[i].valid=0;//reset
+		Mdrawbak[extInCtrl->SensorStat][i].valid=0;//reset
 
 	}
 	
@@ -1170,11 +1170,11 @@ void CProcess::drawmmtnew(TARGET tg[],bool bShow)
 			 endx=PiexltoWindowsxzoom(result.x+result.width,extInCtrl->SensorStat);
 		 	 endy=PiexltoWindowsyzoom(result.y+result.height,extInCtrl->SensorStat);
 			 //erase param
-			 Mdrawbak[i].startx=startx;
-			 Mdrawbak[i].starty=starty;
-			 Mdrawbak[i].endx=endx;
-			 Mdrawbak[i].endy=endy;
-			 Mdrawbak[i].valid=1;
+			 Mdrawbak[extInCtrl->SensorStat][i].startx=startx;
+			 Mdrawbak[extInCtrl->SensorStat][i].starty=starty;
+			 Mdrawbak[extInCtrl->SensorStat][i].endx=endx;
+			 Mdrawbak[extInCtrl->SensorStat][i].endy=endy;
+			 Mdrawbak[extInCtrl->SensorStat][i].valid=1;
 
 			if(((extInCtrl->AvtTrkStat == eTrk_mode_mtd)||(extInCtrl->AvtTrkStat == eTrk_mode_acq)))
 			{
@@ -1241,11 +1241,11 @@ void CProcess::drawmmtnew(TARGET tg[],bool bShow)
 			endx=PiexltoWindowsxzoom(result.x+result.width,extInCtrl->SensorStat);
 			endy=PiexltoWindowsyzoom(result.y+result.height,extInCtrl->SensorStat);
 
-			Mdrawbak[i].startx=startx;
-			Mdrawbak[i].starty=starty;
-			Mdrawbak[i].endx=endx;
-			Mdrawbak[i].endy=endy;
-			Mdrawbak[i].valid=1;
+			Mdrawbak[extInCtrl->SensorStat][i].startx=startx;
+			Mdrawbak[extInCtrl->SensorStat][i].starty=starty;
+			Mdrawbak[extInCtrl->SensorStat][i].endx=endx;
+			Mdrawbak[extInCtrl->SensorStat][i].endy=endy;
+			Mdrawbak[extInCtrl->SensorStat][i].valid=1;
 			if(((extInCtrl->AvtTrkStat == eTrk_mode_mtd)||(extInCtrl->AvtTrkStat == eTrk_mode_acq)))
 			{
 				//DrawCross(result.x,result.y,frcolor,bShow);
@@ -2075,12 +2075,16 @@ osdindex++;	//acqRect
 	//mtd
 osdindex++;
 	{
+		if(changesensorCnt)
+			erassdrawmmtnew(Mdrawbak[extInCtrl->SensorStatpri], false);
+
+
 		if(Osdflag[osdindex]==1)
 		{
-			erassdrawmmtnew(Mdrawbak, false);
+			erassdrawmmtnew(Mdrawbak[extInCtrl->SensorStat], false);
 			Osdflag[osdindex]=0;
 		}
-		if(m_bMtd)
+		if(m_bMtd && !changesensorCnt)
 		{
 			drawmmtnew(m_mtd[extInCtrl->SensorStat]->tg, true);	
 			Osdflag[osdindex]=1;
