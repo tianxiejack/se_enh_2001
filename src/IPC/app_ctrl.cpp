@@ -141,9 +141,7 @@ void app_ctrl_setEnhance(CMD_EXT * pInCmd)
 	if(msgextInCtrl==NULL)
 		return ;
 	CMD_EXT *pIStuts = msgextInCtrl;
-	if( pInCmd->AvtTrkStat == eTrk_mode_acq
-		&& !pInCmd->MmtStat[pInCmd->SensorStat] 
-		&& !pInCmd->MtdState[pInCmd->SensorStat] )
+	
 	if(pInCmd->ImgEnhStat[pInCmd->SensorStat] != pIStuts->ImgEnhStat[pInCmd->SensorStat])
 	{
 		pIStuts->ImgEnhStat[pInCmd->SensorStat] = pInCmd->ImgEnhStat[pInCmd->SensorStat];

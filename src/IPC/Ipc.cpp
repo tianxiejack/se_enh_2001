@@ -891,7 +891,12 @@ void* recv_msgpth(SENDST *pInData)
 
 		case trk:	
 			//printf("ipc trk : %d \n ",pIn->intPrm[0]);
-			{
+			{							
+				if( !pMsg->MmtStat[pMsg->SensorStat]
+					&& !pMsg->MtdState[pMsg->SensorStat] 
+					&& !pMsg->ImgEnhStat[pMsg->SensorStat] )
+					break;
+				
 				unsigned int AvtTrkStat = pIn->intPrm[0];
 				if(AvtTrkStat == 0x1)
 					pMsg->AvtTrkStat =eTrk_mode_target;
@@ -900,7 +905,10 @@ void* recv_msgpth(SENDST *pInData)
 				else
 					break;
 
-				if(pMsg->AvtTrkStat == eTrk_mode_acq)
+				if(pMsg->AvtTrkStat == eTrk_mode_acq 
+					&& !pMsg->MmtStat[pMsg->SensorStat]
+					&& !pMsg->MtdState[pMsg->SensorStat] 
+					&& !pMsg->ImgEnhStat[pMsg->SensorStat] )
 				{
 					pMsg->AxisPosX[pMsg->SensorStat] = pMsg->opticAxisPosX[pMsg->SensorStat];
 					pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
@@ -1005,6 +1013,11 @@ void* recv_msgpth(SENDST *pInData)
 #if __MMT__
 		case mmt:
 			{
+				if( pMsg->AvtTrkStat == eTrk_mode_acq 
+					&& !pMsg->MtdState[pMsg->SensorStat] 
+					&& !pMsg->ImgEnhStat[pMsg->SensorStat] )
+					break;
+				
 				unsigned int ImgMtdStat = pIn->intPrm[0];
 				if(ImgMtdStat == 0x01)
 				{
@@ -1022,7 +1035,10 @@ void* recv_msgpth(SENDST *pInData)
 			break;
 
 		case mmtselect:
-			{
+			{		
+				if(pMsg->MmtStat[pMsg->SensorStat])
+					break;
+							
 				unsigned int ImgMmtSelect = pIn->intPrm[0];
 				ImgMmtSelect--;
 				if(ImgMmtSelect > 5)
@@ -1036,6 +1052,11 @@ void* recv_msgpth(SENDST *pInData)
 #if __ENH__
 		case enh:
 			{
+				if( pMsg->AvtTrkStat == eTrk_mode_acq 
+					&& !pMsg->MmtStat[pMsg->SensorStat]
+					&& !pMsg->MtdState[pMsg->SensorStat] )
+					break;
+					
 				unsigned int ImgEnhStat = pIn->intPrm[0];
 				if(ImgEnhStat == 1){
 					pMsg->ImgEnhStat[pMsg->SensorStat] = eImgAlg_Enable;
@@ -1051,6 +1072,11 @@ void* recv_msgpth(SENDST *pInData)
 		case mtd:
 			{
 				//printf("ipc rcv mtd = %d \n ",pIn->intPrm[0]);
+				if( pMsg->AvtTrkStat == eTrk_mode_acq 
+					&& !pMsg->MmtStat[pMsg->SensorStat]
+					&& !pMsg->ImgEnhStat[pMsg->SensorStat] )
+					break;
+				
 				unsigned int ImgMtdStat = pIn->intPrm[0];
 				if(ImgMtdStat == 1){
 					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Enable;
@@ -1064,6 +1090,9 @@ void* recv_msgpth(SENDST *pInData)
 
 		case mtdSelect:
 			{
+				if(pMsg->MtdSelect[pMsg->SensorStat])
+					break;
+
 				unsigned int ImgMmtSelect = pIn->intPrm[0];
 				pMsg->MtdSelect[pMsg->SensorStat] = ImgMmtSelect;
 				app_ctrl_setMtdSelect(pMsg);
@@ -1086,19 +1115,32 @@ void* recv_msgpth(SENDST *pInData)
 				pMsg->SensorStat = video_gaoqing0;
 			else
 				break;
-				
-			app_ctrl_setSensor(pMsg);	
-			cfg_set_outSensor(pMsg->SensorStat, pMsg->SensorStat);
-
+			
 			if(pMsg->MtdState[pMsg->SensorStat])
 			{	
 				pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
 				app_ctrl_setMtdStat(pMsg);
 			}
-						
+			if(pMsg->MmtStat[pMsg->SensorStat])
+			{	
+				pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
+				app_ctrl_setMMT(pMsg);
+			}
+			if(pMsg->ImgEnhStat[pMsg->SensorStat])
+			{	
+				pMsg->ImgEnhStat[pMsg->SensorStat] = eImgAlg_Disable;
+				app_ctrl_setEnhance(pMsg);
+			}		
+				
+			app_ctrl_setSensor(pMsg);	
+			cfg_set_outSensor(pMsg->SensorStat, pMsg->SensorStat);
+
 			break;
 
 		case trkMtdId:	
+			if(pMsg->MtdState[pMsg->SensorStat])
+				break;
+					
 			if(pIn->intPrm[0] >= 0x1 && pIn->intPrm[0] <= 0x5)
 			{
 				app_ctrl_trkMtdId(pIn->intPrm[0]-1);
@@ -1113,6 +1155,9 @@ void* recv_msgpth(SENDST *pInData)
 
 		case mmtcoord:
 			{
+				if(pMsg->MmtStat[pMsg->SensorStat])
+					break;
+								
 				IPC_PIXEL_T* tmp = (IPC_PIXEL_T*)pIn->intPrm;
 				if(tmp->x > vdisWH[pMsg->SensorStat][0] || tmp->y >vdisWH[pMsg->SensorStat][1])
 					break;
