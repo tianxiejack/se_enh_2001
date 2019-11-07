@@ -20,6 +20,7 @@ void cfg_dbg_setDefault(int * configTab);
 void cfg_dbg_getDefault(int * configTab, unsigned char *configUser);
 void cfg_dbg_setCmd(int cmd, int prm);
 int ipc_send_mtdprm(void * ptr);
+int ipc_send_mmtprm(void * ptr);
 
 #endif /* IPC_HPP_ */
 

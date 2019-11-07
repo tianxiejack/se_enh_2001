@@ -2026,7 +2026,7 @@ osdindex++;	//acqRect
 			Osdflag[osdindex]=0;
  		}
 
-		if(!m_bMoveDetect && !m_bSceneTrack)
+		if(!m_bMoveDetect && !m_bSceneTrack && !m_bMtd)
 		{
 			if(extInCtrl->AvtTrkStat == eTrk_mode_acq  && !changesensorCnt){
 				recIn.x  = PiexltoWindowsx(extInCtrl->AxisPosX[extInCtrl->SensorStat],extInCtrl->SensorStat);
@@ -2082,8 +2082,30 @@ osdindex++;
 		}
 		if(m_bMtd)
 		{
-			drawmmtnew(m_mtd[chId]->tg, true);	
+			drawmmtnew(m_mtd[extInCtrl->SensorStat]->tg, true);	
 			Osdflag[osdindex]=1;
+
+			IPC_MTD_COORD_T tmp = {0};
+			tmp.chid = extInCtrl->SensorStat;
+			int index ;
+			for(int i=0 ;i <5 ;i++)
+			{
+				tmp.target[i].x |= 0x80;
+				tmp.target[i].y |= 0x80;				
+			}
+			
+			for(int i=0;i<5;i++)
+			{
+				if(m_mtd[extInCtrl->SensorStat]->tg[i].valid)
+				{
+					tmp.target[i].x = m_mtd[extInCtrl->SensorStat]->tg[i].cur_x;
+					tmp.target[i].x = m_mtd[extInCtrl->SensorStat]->tg[i].cur_x;
+					tmp.target[i].x &= 0x7fff;
+					tmp.target[i].y &= 0x7fff;		
+				}	
+			}
+			ipc_send_mmtprm((void*)&tmp);	
+			
 		}
 	}
 	

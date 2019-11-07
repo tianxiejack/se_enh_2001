@@ -667,6 +667,14 @@ int ipc_send_mtdprm(void * ptr)
 	return 0;	
 }
 
+
+int ipc_send_mmtprm(void * ptr)
+{
+	IPC_MTD_COORD_T* pIn = (IPC_MTD_COORD_T*)ptr;				
+	IPCSendMsg(mmtcoord , pIn , sizeof(IPC_MTD_COORD_T));
+	return 0;	
+}
+
 /////////////////////////////////////////////////////
 
 void createSendBuf()
