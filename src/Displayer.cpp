@@ -992,6 +992,23 @@ void CDisplayer::transfer()
 
 				m_img[chId] = cv::Mat(dism_img[chId].rows, dism_img[chId].cols, CV_8UC3, d_src_rgb);
 
+				if(m_bEnh[chId])
+				{
+					cuClahe( m_img[chId] ,m_img[chId], 8,8,3.5,1);
+				
+					#if 0
+					#if HISTEN
+					cuHistEnh( m_img[chId], dst);
+					#elif CLAHEH 
+					cuClahe( m_img[chId], dst,8,8,3.5,1);
+					#elif DARKEN
+					cuUnhazed( m_img[chId], dst);
+					#else
+					cuHistEnh( m_img[chId], dst);
+					#endif	
+					#endif
+				}
+
 				cudaFree_share(d_src, chId);
 				cudaFree_share(d_src_rgb, chId + DS_CHAN_MAX);
 			}
@@ -1647,27 +1664,7 @@ void CDisplayer::gl_textureLoad(void)
 				cudaResource_unmapBuffer(chId);
 				cudaResource_UnregisterBuffer(chId);
 			}
-
-			if(m_bEnh[chId])
-			{
-				cuClahe( dism_img[chId],dism_img[chId], 8,8,enhanceparam,1);
 			
-				#if 0
-				#if HISTEN
-				cuHistEnh( m_img[chId], dst);
-				#elif CLAHEH 
-				cuClahe( m_img[chId], dst,8,8,3.5,1);
-				#elif DARKEN
-				cuUnhazed( m_img[chId], dst);
-				#else
-				cuHistEnh( m_img[chId], dst);
-				#endif	
-
-				#endif
-				//m_initPrm.timerInterval=16;
-				//OSA_printf("chId = %d, enhance: time = %f sec \n", chId, ( (getTickCount() - enhancetime)/getTickFrequency()) );
-			}
-				
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffId_input[chId]);
 			glBindTexture(GL_TEXTURE_2D, textureId_input[chId]);
 			if(dism_img[chId].channels() == 1){
