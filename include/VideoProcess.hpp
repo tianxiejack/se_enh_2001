@@ -293,6 +293,7 @@ protected: //track
 	UTC_Rect MoveAcpSR;
 	UTC_Rect TRKMoveAcpSR;
 	int			    m_intervalFrame;
+	int 			  m_posemove;
 	int			  m_intervalFrame_change;
 	int 			    m_bakChId;
 	

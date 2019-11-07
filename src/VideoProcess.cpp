@@ -271,7 +271,6 @@ void CVideoProcess::main_proc_func()
 		if(bTrack)
 		{
 		#if __TRACK__
-			
 			iTrackStat = ReAcqTarget();
 			if(Movedetect&&(iTrackStat==0))
 			{
@@ -535,6 +534,7 @@ CVideoProcess::CVideoProcess()
 
 	m_intervalFrame 			= 0;
 	m_intervalFrame_change 	= 0;
+	m_posemove 				= 0;
 	m_bakChId = m_curChId;
 	trackchange		=0;
 	m_searchmod		=0;
@@ -1277,13 +1277,20 @@ void CVideoProcess::Track_reacq(UTC_RECT_float & rcTrack,int acqinterval)
 
 int CVideoProcess::ReAcqTarget()
 {
-	//printf("m_intervalFrame = %d \n\n",m_intervalFrame);
+	//printf("m_intervalFrame = %d \n",m_intervalFrame);
 	int iRet = m_iTrackStat;
 	if(m_bakChId != m_curChId){
 		iRet = 0;
 		m_rcTrack = m_rcAcq;
 		m_bakChId = m_curChId;
 		m_iTrackLostCnt = 0;	
+	}
+
+	if(m_posemove > 0)
+	{
+		iRet = 0;
+		m_rcTrack = m_rcAcq;
+		m_iTrackLostCnt = 0;
 	}
 	
 	if(m_intervalFrame > 0){
@@ -1475,8 +1482,13 @@ int CVideoProcess::process_track(int trackStatus, Mat frame_gray, Mat frame_dis,
 
 		{
 			//printf("=========movestat = %d\n",moveStat);
-			//rcResult = UtcTrkAcq(m_track, image, acq);
-			rcResult = UtcTrkAcqSR(m_track, image, acq,true);
+			if(m_posemove)
+			{
+				rcResult = UtcTrkAcq(m_track, image, acq);
+				m_posemove = 0;
+			}
+			else
+				rcResult = UtcTrkAcqSR(m_track, image, acq,true);
 			moveStat = false;
 		}
 		

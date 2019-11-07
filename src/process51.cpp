@@ -2485,12 +2485,14 @@ void CProcess::OnKeyDwn(unsigned char key)
 	char flag = 0;
 	CMD_EXT *pIStuts = extInCtrl;
 	CMD_EXT tmpCmd = {0};
-
+	memcpy((void*)&tmpCmd,(void*)pIStuts,sizeof(CMD_EXT));
+	
 	static bool bTrack = false;	
 	static bool bdismode = false;
 	static bool bstb = false;
 	static bool bmtd = false;
-
+	int posestep = 1;
+	
 	if(key == 48) // 0
 	{
 		bdismode = !bdismode;
@@ -2534,9 +2536,29 @@ void CProcess::OnKeyDwn(unsigned char key)
 		unsigned int mtdId = 1;
 		app_ctrl_trkMtdId(mtdId);
 	}
-	
 
+	
 /*************************************/
+	if(key == 'i')
+	{
+		tmpCmd.aimRectMoveStepY=-1*posestep;
+		app_ctrl_setAimPos(&tmpCmd);	
+	}
+	else if(key == 'k')
+	{
+		tmpCmd.aimRectMoveStepY=1*posestep;
+		app_ctrl_setAimPos(&tmpCmd);	
+	}
+	else if(key == 'j')
+	{
+		tmpCmd.aimRectMoveStepX=-1*posestep;
+		app_ctrl_setAimPos(&tmpCmd);	
+	}
+	else if(key == 'l')
+	{
+		tmpCmd.aimRectMoveStepX=1*posestep;
+		app_ctrl_setAimPos(&tmpCmd);	
+	}
 	
 	
 	if(key == 'a' || key == 'A')
@@ -2602,7 +2624,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 		app_ctrl_setMMT(&tmpCmd);
 	}
 		
-	if (key == 'l' || key == 'L')
+	if (0)//(key == 'l' || key == 'L')
 	{
 		if(PatternDetect)
 			PatternDetect = eImgAlg_Disable;
@@ -2611,7 +2633,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 		msgdriv_event(MSGID_EXT_PATTERNDETECT, NULL);
 	}
 
-	if (key == 'k' || key == 'K')
+	if(0)// (key == 'k' || key == 'K')
 	{
 		if(pIStuts->MtdState[pIStuts->SensorStat])
 			pIStuts->MtdState[pIStuts->SensorStat] = eImgAlg_Disable;
@@ -3052,7 +3074,7 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
 				pIStuts->aimRectMoveStepY = 0;
 				
 			}
-			m_intervalFrame=1;
+			m_posemove = 1;//m_intervalFrame=1;
 			m_rcAcq=rc;
 			OSA_printf(" %d:%s refine move (%d, %d), wh(%f, %f)  aim(%d,%d) rc(%f,%f)\n", OSA_getCurTimeInMsec(), __func__,
 						pIStuts->aimRectMoveStepX, pIStuts->aimRectMoveStepY, 
