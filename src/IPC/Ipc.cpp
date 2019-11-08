@@ -892,9 +892,9 @@ void* recv_msgpth(SENDST *pInData)
 		case trk:	
 			//printf("ipc trk : %d \n ",pIn->intPrm[0]);
 			{							
-				if( !pMsg->MmtStat[pMsg->SensorStat]
-					&& !pMsg->MtdState[pMsg->SensorStat] 
-					&& !pMsg->ImgEnhStat[pMsg->SensorStat] )
+				if( pMsg->MmtStat[pMsg->SensorStat]
+					|| pMsg->MtdState[pMsg->SensorStat] 
+					|| pMsg->ImgEnhStat[pMsg->SensorStat] )
 					break;
 				
 				unsigned int AvtTrkStat = pIn->intPrm[0];
@@ -905,10 +905,7 @@ void* recv_msgpth(SENDST *pInData)
 				else
 					break;
 
-				if(pMsg->AvtTrkStat == eTrk_mode_acq 
-					&& !pMsg->MmtStat[pMsg->SensorStat]
-					&& !pMsg->MtdState[pMsg->SensorStat] 
-					&& !pMsg->ImgEnhStat[pMsg->SensorStat] )
+				if(pMsg->AvtTrkStat == eTrk_mode_acq)
 				{
 					pMsg->AxisPosX[pMsg->SensorStat] = pMsg->opticAxisPosX[pMsg->SensorStat];
 					pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
@@ -977,35 +974,30 @@ void* recv_msgpth(SENDST *pInData)
 
 		case posmove:
 			{
-				unsigned int AvtMoveX = pIn->intPrm[0];
-				unsigned int AvtMoveY = pIn->intPrm[1];
-				//pMsg->aimRectMoveStepX = AvtMoveX;
-				//pMsg->aimRectMoveStepY = AvtMoveY;
-				if(AvtMoveX==eTrk_ref_left)
+				IPC_PIXEL_T* tmp = pIn;
+				
+				if(tmp->x ==eTrk_ref_left)
 				{
 					pMsg->aimRectMoveStepX=-1*posestep;
 				}
-				else if(AvtMoveX==eTrk_ref_right)
+				else if(tmp->x ==eTrk_ref_right)
 				{
 					pMsg->aimRectMoveStepX=1*posestep;
 				}
-				else//for dbg
-				{
-					pMsg->aimRectMoveStepX=AvtMoveX;
-				}
+				else 
+					pMsg->aimRectMoveStepX = 0;
 				
-				if(AvtMoveY==eTrk_ref_up)
+				if(tmp->y ==eTrk_ref_up)
 				{
 					pMsg->aimRectMoveStepY=-1*posestep;
 				}
-				else if(AvtMoveY==eTrk_ref_down)
+				else if(tmp->y ==eTrk_ref_down)
 				{
 					pMsg->aimRectMoveStepY=1*posestep;
 				}
-				else//for dbg
-				{
-					pMsg->aimRectMoveStepY=AvtMoveY;
-				}
+				else
+					pMsg->aimRectMoveStepY = 0;
+				
 				app_ctrl_setAimPos(pMsg);
 			}
 			break;	
@@ -1013,9 +1005,9 @@ void* recv_msgpth(SENDST *pInData)
 #if __MMT__
 		case mmt:
 			{
-				if( pMsg->AvtTrkStat == eTrk_mode_acq 
-					&& !pMsg->MtdState[pMsg->SensorStat] 
-					&& !pMsg->ImgEnhStat[pMsg->SensorStat] )
+				if( pMsg->AvtTrkStat != eTrk_mode_acq 
+					|| pMsg->MtdState[pMsg->SensorStat] 
+					|| pMsg->ImgEnhStat[pMsg->SensorStat] )
 					break;
 				
 				unsigned int ImgMtdStat = pIn->intPrm[0];
@@ -1036,7 +1028,7 @@ void* recv_msgpth(SENDST *pInData)
 
 		case mmtselect:
 			{		
-				if(pMsg->MmtStat[pMsg->SensorStat])
+				if(!pMsg->MmtStat[pMsg->SensorStat])
 					break;
 							
 				unsigned int ImgMmtSelect = pIn->intPrm[0];
@@ -1052,9 +1044,9 @@ void* recv_msgpth(SENDST *pInData)
 #if __ENH__
 		case enh:
 			{
-				if( pMsg->AvtTrkStat == eTrk_mode_acq 
-					&& !pMsg->MmtStat[pMsg->SensorStat]
-					&& !pMsg->MtdState[pMsg->SensorStat] )
+				if( pMsg->AvtTrkStat != eTrk_mode_acq 
+					|| pMsg->MmtStat[pMsg->SensorStat]
+					|| pMsg->MtdState[pMsg->SensorStat] )
 					break;
 					
 				unsigned int ImgEnhStat = pIn->intPrm[0];
@@ -1072,9 +1064,9 @@ void* recv_msgpth(SENDST *pInData)
 		case mtd:
 			{
 				//printf("ipc rcv mtd = %d \n ",pIn->intPrm[0]);
-				if( pMsg->AvtTrkStat == eTrk_mode_acq 
-					&& !pMsg->MmtStat[pMsg->SensorStat]
-					&& !pMsg->ImgEnhStat[pMsg->SensorStat] )
+				if( pMsg->AvtTrkStat != eTrk_mode_acq 
+					|| pMsg->MmtStat[pMsg->SensorStat]
+					|| pMsg->ImgEnhStat[pMsg->SensorStat] )
 					break;
 				
 				unsigned int ImgMtdStat = pIn->intPrm[0];
@@ -1090,7 +1082,7 @@ void* recv_msgpth(SENDST *pInData)
 
 		case mtdSelect:
 			{
-				if(pMsg->MtdSelect[pMsg->SensorStat])
+				if(!pMsg->MtdSelect[pMsg->SensorStat])
 					break;
 
 				unsigned int ImgMmtSelect = pIn->intPrm[0];
@@ -1138,7 +1130,7 @@ void* recv_msgpth(SENDST *pInData)
 			break;
 
 		case trkMtdId:	
-			if(pMsg->MtdState[pMsg->SensorStat])
+			if(!pMsg->MtdState[pMsg->SensorStat])
 				break;
 					
 			if(pIn->intPrm[0] >= 0x1 && pIn->intPrm[0] <= 0x5)
@@ -1155,7 +1147,7 @@ void* recv_msgpth(SENDST *pInData)
 
 		case mmtcoord:
 			{
-				if(pMsg->MmtStat[pMsg->SensorStat])
+				if(!pMsg->MmtStat[pMsg->SensorStat])
 					break;
 								
 				IPC_PIXEL_T* tmp = (IPC_PIXEL_T*)pIn->intPrm;

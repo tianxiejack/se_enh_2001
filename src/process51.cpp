@@ -2640,7 +2640,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 		msgdriv_event(MSGID_EXT_PATTERNDETECT, NULL);
 	}
 
-	if(0)// (key == 'k' || key == 'K')
+	if (key == 't' || key == 'T')
 	{
 		if(pIStuts->MtdState[pIStuts->SensorStat])
 			pIStuts->MtdState[pIStuts->SensorStat] = eImgAlg_Disable;
@@ -2656,9 +2656,6 @@ void CProcess::OnKeyDwn(unsigned char key)
 		//printf("pIStuts->MtdState[pIStuts->SensorStat]  = %d\n",pIStuts->MtdState[pIStuts->SensorStat] );
 	}
 
-	if (key == 't' || key == 'T')
-		{
-		}
 	if (key == 'f' || key == 'F')
 		{
 			if(pIStuts->ImgFrezzStat[pIStuts->SensorStat])
