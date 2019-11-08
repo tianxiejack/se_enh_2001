@@ -974,7 +974,7 @@ void* recv_msgpth(SENDST *pInData)
 
 		case posmove:
 			{
-				IPC_PIXEL_T* tmp = pIn;
+				IPC_PIXEL_T* tmp = (IPC_PIXEL_T*)pIn;
 				
 				if(tmp->x ==eTrk_ref_left)
 				{
@@ -1164,6 +1164,19 @@ void* recv_msgpth(SENDST *pInData)
 			posestep = pIn->intPrm[0];
 			if(posestep > 5)
 				posestep = 5;
+			break;
+
+		case sendMtdcoord:
+			{
+				if(!pMsg->MtdState[pMsg->SensorStat])
+					break;
+								
+				IPC_PIXEL_T* tmp = (IPC_PIXEL_T*)pIn->intPrm;
+				if(tmp->x > vdisWH[pMsg->SensorStat][0] || tmp->y >vdisWH[pMsg->SensorStat][1])
+					break;
+				
+				app_ctrl_setMtdCorrd(pMsg,tmp->x,tmp->y);	
+			}
 			break;
 
 		default:

@@ -43,6 +43,31 @@ void getMmtTg(unsigned char index,int *x,int *y)
 	*y = (int)plat->m_mtd[0]->tg[index].cur_y%vdisWH[plat->extInCtrl->SensorStat][1];
 }
 
+
+int MtdCoord2mtdTarget(int chid ,unsigned int x,unsigned int y)
+{
+	int index = -1;
+	unsigned int distance , tmp;
+	int deltax,deltay;
+	distance = 2000*2000 ;
+	for(int i=0 ; i< 5 ; i++)
+	{
+		if(plat->validMtdRecord[i])
+		{
+			deltax = abs(x - (plat->mvList[i].trkobj.targetRect.x - plat->mvList[i].trkobj.targetRect.width/2));
+			deltay = abs(y - (plat->mvList[i].trkobj.targetRect.y - plat->mvList[i].trkobj.targetRect.height/2));
+			tmp = deltax*deltax + deltay*deltay;
+			if(tmp < distance)
+			{
+				index = i;
+				distance = tmp;
+			}
+		}
+	}
+	return index;
+}
+
+
 int MmtCoord2mmtTarget(int chid ,unsigned int x,unsigned int y)
 {
 	int index = -1;
@@ -53,8 +78,8 @@ int MmtCoord2mmtTarget(int chid ,unsigned int x,unsigned int y)
 	{
 		if(plat->m_mtd[chid]->tg[i].valid)
 		{
-			deltax = x - plat->m_mtd[chid]->tg[i].cur_x;
-			deltay = y - plat->m_mtd[chid]->tg[i].cur_y;
+			deltax = abs(x - plat->m_mtd[chid]->tg[i].cur_x);
+			deltay = abs(y - plat->m_mtd[chid]->tg[i].cur_y);
 			tmp = deltax*deltax + deltay*deltay;
 			if(tmp < distance)
 			{
@@ -2072,7 +2097,7 @@ osdindex++;	//acqRect
 	}
 
 	
-	//mtd
+	//mmt
 osdindex++;
 	{
 		if(changesensorCnt)
@@ -2264,7 +2289,7 @@ osdindex++;
 			{
 				for(std::vector<TRK_INFO_APP>::iterator plist = mvList.begin(); plist != mvList.end(); ++plist)
 				{	
-					if( chooseDetect == plist->number && bdrawMvRect >= HOLDING_NUM )
+					if( chooseDetect == plist->number && bdrawMvRect >= 3 )//HOLDING_NUM
 						color = 3;
 					else
 						color = 3;

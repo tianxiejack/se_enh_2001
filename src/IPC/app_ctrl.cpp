@@ -115,23 +115,30 @@ void app_ctrl_setMmtSelect(CMD_EXT * pIStuts,unsigned char index)
 }
 
 
+void app_ctrl_setMtdCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y)
+{	
+	int curx,cury;
+	int index = MtdCoord2mtdTarget(pIStuts->SensorStat, x, y);
+	if(index == -1)
+		return ;
+
+	app_ctrl_trkMtdId(index);
+
+	return ;
+}
+
+
+
 void app_ctrl_setMmtCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y)
 {	
 	int curx,cury;
 
 	int index = MmtCoord2mmtTarget(pIStuts->SensorStat, x, y);
-
-	getMmtTg(index, &curx, &cury);
-
-	CMD_EXT tmp = {0};
-	tmp.AvtTrkStat = eTrk_mode_sectrk;
-	tmp.AvtPosX[pIStuts->SensorStat] = curx;
-	tmp.AvtPosY[pIStuts->SensorStat] = cury;
-
-	tmp.AimW[pIStuts->SensorStat]  = 32;
-	tmp.AimH[pIStuts->SensorStat]  = 32;
-	app_ctrl_setTrkStat(&tmp);//track
-
+	if(index == -1)
+		return ;
+	
+	app_ctrl_setMmtSelect(pIStuts,index);
+	
 	return ;
 }
 
