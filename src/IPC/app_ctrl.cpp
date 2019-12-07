@@ -114,6 +114,20 @@ void app_ctrl_setMmtSelect(CMD_EXT * pIStuts,unsigned char index)
 	return ;
 }
 
+void app_ctrl_setMtdSelfCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y)
+{	
+	CMD_EXT pMsg;
+	memset(&pMsg,0,sizeof(CMD_EXT));
+
+	pMsg.AvtTrkStat =eTrk_mode_sectrk;
+	pMsg.AvtPosX[pIStuts->SensorStat]  = vdisWH[pIStuts->SensorStat][0]/2;
+	pMsg.AvtPosY[pIStuts->SensorStat]  = vdisWH[pIStuts->SensorStat][1]/2;
+	pMsg.AimW[pIStuts->SensorStat]  = (int)(pIStuts->AcqRectW[pIStuts->SensorStat]*1.5);
+	pMsg.AimH[pIStuts->SensorStat]  = (int)(pIStuts->AcqRectH[pIStuts->SensorStat]*1.5);
+	app_ctrl_setTrkStat(&pMsg);//track
+	return ;
+}
+
 
 void app_ctrl_setMtdCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y)
 {	

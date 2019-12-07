@@ -30,7 +30,7 @@ void app_ctrl_trkMtdId(int mtdId);
 void app_ctrl_setMmtCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y);
 void app_ctrl_setMtdCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y);
 int MtdCoord2mtdTarget(int chid ,unsigned int x,unsigned int y);
-
+void app_ctrl_setMtdSelfCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y);
 
 
 #endif /* APP_CTRL_H_ */
