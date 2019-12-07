@@ -4202,19 +4202,50 @@ float  CProcess::PiexltoWindowsyf(float y,int channel)
 
 void CProcess::MSGAPI_handle_mvAera(long lParam)
 {
+	float minWidthRatio, minHeightRatio,maxWidthRatio,maxHeightRatio;
+	int mtdareaClass = *((int*)lParam);
+	
 	if(sThis->m_pMovDetector == NULL)
 		return ;
-	
+
 	std::vector<cv::Point> polyWarnRoi ;
 	polyWarnRoi.resize(4);
 	cv::Point tmp;
 	int cx,cy,w,h,ich;
-
+	
 	ich = sThis->extInCtrl->SensorStat;
-	cx = gCFG_Mtd.detectArea_X;
-	cy = gCFG_Mtd.detectArea_Y;
-	w = gCFG_Mtd.detectArea_wide;
-	h = gCFG_Mtd.detectArea_high;
+
+	switch(mtdareaClass)
+	{
+		case 0:
+			minWidthRatio = 0.0;
+			minHeightRatio = 0.0;
+			maxWidthRatio = 1.0;
+			maxHeightRatio = 1.0;
+			break;
+
+		case 1:
+			minWidthRatio = 0.25;
+			minHeightRatio = 0.25;
+			maxWidthRatio = 0.75;
+			maxHeightRatio = 0.75;
+			break;		
+
+		case 2:
+			minWidthRatio = 0.33;
+			minHeightRatio = 0.33;
+			maxWidthRatio = 0.66;
+			maxHeightRatio = 0.66;
+			break;	
+			
+		default:
+			break;
+	}
+
+	cx = vdisWH[ich][0]/2;
+	cy = vdisWH[ich][1]/2;
+	w = vdisWH[ich][0] * (maxWidthRatio - minWidthRatio);
+	h = vdisWH[ich][1] * (maxHeightRatio - minHeightRatio); 
 
 	tmp.x = cx - w/2;
 	tmp.y = cy - h/2;
@@ -4265,7 +4296,8 @@ void CProcess::MSGAPI_handle_mvAera(long lParam)
 		sThis->polWarnRect[ich][2].x, sThis->polWarnRect[ich][2].y,
 		sThis->polWarnRect[ich][3].x, sThis->polWarnRect[ich][3].y);*/
 
-	//pThis->m_pMovDetector->setWarningRoi( polyWarnRoi, ich );
+	pThis->m_pMovDetector->setWarningRoi( polyWarnRoi, ich );
+	return ;
 }
 
 void CProcess::MSGAPI_handle_mvUpdate(long lParam)

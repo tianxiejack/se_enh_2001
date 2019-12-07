@@ -141,8 +141,6 @@ void app_ctrl_setMtdCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y)
 	return ;
 }
 
-
-
 void app_ctrl_setMmtCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y)
 {	
 	int curx,cury;

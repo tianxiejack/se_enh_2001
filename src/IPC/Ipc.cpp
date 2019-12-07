@@ -29,7 +29,7 @@ OSA_BufCreate msgSendBufCreate;
 OSA_BufHndl msgSendBuf;
 OSA_ThrHndl thrHandleDataIn_recv;
 OSA_ThrHndl thrHandleDataIn_send;
-
+int gMtdAreaClass = 0;
 #define clip(rslt, a, b)  (rslt>b)?(b):((rslt<a)?a:rslt)
 #define FXN_BIGEN if( fxnsCfg != NULL ){
 //#define FXN_REG( blkId, feildId, fxn ) ( fxnsCfg[CFGID_BUILD( blkId, feildId )] = fxn )
@@ -1191,6 +1191,12 @@ void* recv_msgpth(SENDST *pInData)
 				
 				app_ctrl_setMtdSelfCorrd(pMsg,tmp->x,tmp->y);	
 			}
+			break;
+
+		case mtdAreaClass:
+			gMtdAreaClass = pIn->intPrm[0];
+			MSGDRIV_send(MSGID_EXT_MVDETECTAERA, &gMtdAreaClass); 
+						
 			break;
 
 		default:
