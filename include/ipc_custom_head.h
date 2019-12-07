@@ -85,7 +85,7 @@ typedef struct
 typedef struct
 {
 	int chid;
-	IPC_PIXEL_T target[5];
+	IPC_PIXEL_T target[10];
 }IPC_MTD_COORD_T;
 
 

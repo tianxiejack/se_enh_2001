@@ -44,6 +44,23 @@ extern int IPCSendMsg(CMD_ID cmd, void* prm, int len);
 ///////////////////////////////////
 // cfg_ctrl_xxx() get data from sysconfig for init
 // cfg_update_xxx() get data from sysconfig by update and 
+
+
+void change1080pTo720(IPC_PIXEL_T* in,IPC_PIXEL_T* out)
+{
+	out->x = (unsigned int)((((float)in->x)/1920)*720);
+	out->y = (unsigned int)((((float)in->y)/1080)*576);
+	return ;
+}
+
+void change720To1080(IPC_PIXEL_T* in,IPC_PIXEL_T* out)
+{
+	out->x = (unsigned int)((((float)in->x)/720)*1920);
+	out->y = (unsigned int)((((float)in->y)/576)*1080);
+	return;
+}
+
+
 int cfg_get_input_bkid(int ich)
 {
 	ich = clip(ich, 0, video_pal);
@@ -1151,10 +1168,17 @@ void* recv_msgpth(SENDST *pInData)
 					break;
 								
 				IPC_PIXEL_T* tmp = (IPC_PIXEL_T*)pIn->intPrm;
-				if(tmp->x > vdisWH[pMsg->SensorStat][0] || tmp->y >vdisWH[pMsg->SensorStat][1])
+				IPC_PIXEL_T inPixel;
+
+				if(pMsg->SensorStat == 4)
+					change1080pTo720(tmp,&inPixel);
+				else
+					memcpy(&inPixel,tmp,sizeof(IPC_PIXEL_T));
+				
+				if(inPixel.x > vdisWH[pMsg->SensorStat][0] || inPixel.y >vdisWH[pMsg->SensorStat][1])
 					break;
 				
-				app_ctrl_setMmtCorrd(pMsg,tmp->x,tmp->y);	
+				app_ctrl_setMmtCorrd(pMsg,inPixel.x,inPixel.y);	
 				pMsg->MmtStat[pMsg->SensorStat] = eImgAlg_Disable;
 				app_ctrl_setMMT(pMsg);
 			}
@@ -1172,10 +1196,17 @@ void* recv_msgpth(SENDST *pInData)
 					break;
 								
 				IPC_PIXEL_T* tmp = (IPC_PIXEL_T*)pIn->intPrm;
-				if(tmp->x > vdisWH[pMsg->SensorStat][0] || tmp->y >vdisWH[pMsg->SensorStat][1])
+				IPC_PIXEL_T inPixel;
+
+				if(pMsg->SensorStat == 4)
+					change1080pTo720(tmp,&inPixel);
+				else
+					memcpy(&inPixel,tmp,sizeof(IPC_PIXEL_T));
+				
+				if(inPixel.x > vdisWH[pMsg->SensorStat][0] || inPixel.y >vdisWH[pMsg->SensorStat][1])
 					break;
 				
-				app_ctrl_setMtdCorrd(pMsg,tmp->x,tmp->y);	
+				app_ctrl_setMtdCorrd(pMsg,inPixel.x,inPixel.y);	
 			}
 			break;
 
@@ -1185,8 +1216,14 @@ void* recv_msgpth(SENDST *pInData)
 					break;
 
 				IPC_PIXEL_T* tmp = (IPC_PIXEL_T*)pIn->intPrm;
+				IPC_PIXEL_T inPixel;
+
+				if(pMsg->SensorStat == 4)
+					change1080pTo720(tmp,&inPixel);
+				else
+					memcpy(&inPixel,tmp,sizeof(IPC_PIXEL_T));
 	
-				if(tmp->x > vdisWH[pMsg->SensorStat][0] || tmp->y >vdisWH[pMsg->SensorStat][1])
+				if(inPixel.x > vdisWH[pMsg->SensorStat][0] || inPixel.y >vdisWH[pMsg->SensorStat][1])
 					break;
 				
 				app_ctrl_setMtdSelfCorrd(pMsg,tmp->x,tmp->y);	

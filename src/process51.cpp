@@ -2117,13 +2117,13 @@ osdindex++;
 			IPC_MTD_COORD_T tmp = {0};
 			tmp.chid = extInCtrl->SensorStat;
 			int index ;
-			for(int i=0 ;i <5 ;i++)
+			for(int i=0 ;i <10 ;i++)
 			{
 				tmp.target[i].x |= 0x80;
 				tmp.target[i].y |= 0x80;				
 			}
 			
-			for(int i=0;i<5;i++)
+			for(int i=0;i<10;i++)
 			{
 				if(m_mtd[extInCtrl->SensorStat]->tg[i].valid)
 				{
@@ -2305,7 +2305,7 @@ osdindex++;
 				IPC_MTD_COORD_T tmp = {0};
 				tmp.chid = extInCtrl->SensorStat;
 				int index ;
-				for(int i=0 ;i <5 ;i++)
+				for(int i=0 ;i <10 ;i++)
 				{
 					tmp.target[i].x |= 0x80;
 					tmp.target[i].y |= 0x80;		
