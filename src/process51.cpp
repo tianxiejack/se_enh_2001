@@ -50,7 +50,7 @@ int MtdCoord2mtdTarget(int chid ,unsigned int x,unsigned int y)
 	unsigned int distance , tmp;
 	int deltax,deltay;
 	distance = 2000*2000 ;
-	for(int i=0 ; i< 5 ; i++)
+	for(int i=0 ; i< 10 ; i++)
 	{
 		if(plat->validMtdRecord[i])
 		{

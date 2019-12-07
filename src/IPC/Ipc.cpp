@@ -1366,7 +1366,7 @@ void cfg_dbg_setDefault(int * configTab)
 	{
 		ALG_CONFIG_Mtd *pCFG_Mtd = (ALG_CONFIG_Mtd *)&configTab[CFGID_MTD_BASE];
 		pCFG_Mtd->areaSetBox = 1;
-		pCFG_Mtd->detectNum = 5;
+		pCFG_Mtd->detectNum = 10;
 		pCFG_Mtd->tmpUpdateSpeed = 30;
 		pCFG_Mtd->tmpMaxPixel = 40000;
 		pCFG_Mtd->tmpMinPixel = 100;
