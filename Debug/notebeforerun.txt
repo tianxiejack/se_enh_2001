@@ -1,8 +1,0 @@
-运行前注意先将工程中lib目录以下文件拷贝到应用运行同级目录中
-fontShader.fp
-fontShader.vp
-Shader.fsh
-Shader.vsh
-SIMLI.TTF
-simsun.ttc
-config

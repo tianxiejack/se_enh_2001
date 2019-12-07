@@ -74,6 +74,7 @@
 									<listOptionValue builtIn="false" value="crosa"/>
 									<listOptionValue builtIn="false" value="crgst"/>
 									<listOptionValue builtIn="false" value="MMTD"/>
+									<listOptionValue builtIn="false" value="enh"/>
 								</option>
 								<option id="nvcc.linker.option.paths.1318707153" name="Library search path (-L)" superClass="nvcc.linker.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu"/>
@@ -98,7 +99,7 @@
 					<ptx major="5" minor="3"/>
 					<sass major="5" minor="3"/>
 				</executable>
-				<editor-arch major="3" minor="0"/>
+				<editor-arch major="5" minor="3"/>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
@@ -175,6 +176,7 @@
 									<listOptionValue builtIn="false" value="crosa"/>
 									<listOptionValue builtIn="false" value="crgst"/>
 									<listOptionValue builtIn="false" value="MMTD"/>
+									<listOptionValue builtIn="false" value="enh"/>
 								</option>
 								<option id="nvcc.linker.option.paths.811842468" name="Library search path (-L)" superClass="nvcc.linker.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu"/>
@@ -211,10 +213,10 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="Release">
+		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/026"/>
 		</configuration>
-		<configuration configurationName="Debug">
+		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/026"/>
 		</configuration>
 	</storageModule>
