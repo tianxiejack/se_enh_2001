@@ -198,8 +198,12 @@ public:
 	vector<string> csplit(const string& str, const string& delim);
 
 	void DrawjianxiRect(cv::Mat frame,cv::Rect rec,int frcolor,bool bshow);
+	void DrawWarnRect(cv::Mat frame,cv::Rect rec,int cornorx,int cornory,int frcolor,bool bshow);
 
+	void onlydrawRect(cv::Mat& frame , int chid, int inClass, int frcolor);
 
+	void drawMtdWarnRect(int chid , Mat &frame , int changesensorCnt);
+	
 };
 
 

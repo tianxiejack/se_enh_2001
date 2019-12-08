@@ -29,7 +29,7 @@ OSA_BufCreate msgSendBufCreate;
 OSA_BufHndl msgSendBuf;
 OSA_ThrHndl thrHandleDataIn_recv;
 OSA_ThrHndl thrHandleDataIn_send;
-int gMtdAreaClass = 0;
+
 #define clip(rslt, a, b)  (rslt>b)?(b):((rslt<a)?a:rslt)
 #define FXN_BIGEN if( fxnsCfg != NULL ){
 //#define FXN_REG( blkId, feildId, fxn ) ( fxnsCfg[CFGID_BUILD( blkId, feildId )] = fxn )
@@ -39,7 +39,7 @@ typedef Int32 ( *ConfigFxn )( Int32 blkId, Int32 feildId, void *inprm );
 static ConfigFxn *fxnsCfg = NULL;
 static int *sysConfig = NULL;
 static unsigned char *userConfig = NULL;
-
+extern unsigned int gmtdAreaClass;
 extern int IPCSendMsg(CMD_ID cmd, void* prm, int len);
 ///////////////////////////////////
 // cfg_ctrl_xxx() get data from sysconfig for init
@@ -1080,12 +1080,12 @@ void* recv_msgpth(SENDST *pInData)
 #if __MOVE_DETECT__
 		case mtd:
 			{
-				//printf("ipc rcv mtd = %d \n ",pIn->intPrm[0]);
+				printf("ipc rcv mtd = %d \n ",pIn->intPrm[0]);
 				if( pMsg->AvtTrkStat != eTrk_mode_acq 
 					|| pMsg->MmtStat[pMsg->SensorStat]
 					|| pMsg->ImgEnhStat[pMsg->SensorStat] )
 					break;
-				
+				printf("111 ipc rcv mtd = %d \n ",pIn->intPrm[0]);
 				unsigned int ImgMtdStat = pIn->intPrm[0];
 				if(ImgMtdStat == 1){
 					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Enable;
@@ -1222,18 +1222,19 @@ void* recv_msgpth(SENDST *pInData)
 					change1080pTo720(tmp,&inPixel);
 				else
 					memcpy(&inPixel,tmp,sizeof(IPC_PIXEL_T));
+
+				//printf("origin x,y = (%d,%d) ,    tran x,y = (%d,%d) \n" , tmp->x,tmp->y , inPixel.x,inPixel.y );
 	
 				if(inPixel.x > vdisWH[pMsg->SensorStat][0] || inPixel.y >vdisWH[pMsg->SensorStat][1])
 					break;
 				
-				app_ctrl_setMtdSelfCorrd(pMsg,tmp->x,tmp->y);	
+				app_ctrl_setMtdSelfCorrd(pMsg,inPixel.x,inPixel.y);	
 			}
 			break;
 
 		case mtdAreaClass:
-			gMtdAreaClass = pIn->intPrm[0];
-			MSGDRIV_send(MSGID_EXT_MVDETECTAERA, &gMtdAreaClass); 
-						
+			gmtdAreaClass = pIn->intPrm[0];
+			MSGDRIV_send(MSGID_EXT_MVDETECTAERA, &gmtdAreaClass); 	
 			break;
 
 		default:

@@ -29,7 +29,7 @@ ALG_CONFIG_Mmt gCFG_Mmt = {0};
 unsigned int gTrktime = 3;
 CProcess * CProcess::sThis = NULL;
 CProcess* plat = NULL;
-
+unsigned int gmtdAreaClass = 0;
 OSA_SemHndl g_linkage_getPos;
 
 void inputtmp(unsigned char cmdid)
@@ -834,6 +834,75 @@ void CProcess::DrawAcqRect(cv::Mat frame,cv::Rect rec,int frcolor,bool bshow)
 
 	return ;
 }
+
+
+void CProcess::DrawWarnRect(cv::Mat frame,cv::Rect rec,int cornorx,int cornory,int frcolor,bool bshow)
+{
+	int color = (bshow)?frcolor:0;
+
+	int leftTopx 		= rec.x;
+	int leftTopy 		= rec.y;
+	
+	int leftBottomx 	= leftTopx;
+	int leftBottomy 	= leftTopy + rec.height;
+
+	int rightTopx 		= leftTopx + rec.width;
+	int rightTopy 		= leftTopy;
+	
+	int rightBottomx 	= rightTopx;
+	int rightBottomy 	= leftBottomy;
+	
+	Osd_cvPoint start;
+	Osd_cvPoint end;
+
+	//leftBottom
+	start.x 	= leftBottomx;
+	start.y 	= leftBottomy;
+	end.x	= leftBottomx + cornorx;
+	end.y 	= leftBottomy;
+	DrawcvLine(frame,&start,&end,color,1);
+	start.x 	= leftBottomx;
+	start.y 	= leftBottomy;
+	end.x	= leftBottomx;
+	end.y 	= leftBottomy - cornory;
+	DrawcvLine(frame,&start,&end,color,1);	
+	//leftTop
+	start.x 	= leftTopx;
+	start.y 	= leftTopy;
+	end.x	= leftTopx + cornorx;
+	end.y 	= leftTopy;
+	DrawcvLine(frame,&start,&end,color,1);
+	start.x 	= leftTopx;
+	start.y 	= leftTopy;
+	end.x	= leftTopx;
+	end.y 	= leftTopy + cornory;
+	DrawcvLine(frame,&start,&end,color,1);	
+	//rightTop
+	start.x 	= rightTopx;
+	start.y 	= rightTopy;
+	end.x	= rightTopx - cornorx;
+	end.y 	= rightTopy;
+	DrawcvLine(frame,&start,&end,color,1);
+	start.x 	= rightTopx;
+	start.y 	= rightTopy;
+	end.x	= rightTopx;
+	end.y 	= rightTopy + cornory;
+	DrawcvLine(frame,&start,&end,color,1);
+	//rightBottom
+	start.x 	= rightBottomx;
+	start.y 	= rightBottomy;
+	end.x	= rightBottomx - cornorx;
+	end.y 	= rightBottomy;
+	DrawcvLine(frame,&start,&end,color,1);
+	start.x 	= rightBottomx;
+	start.y 	= rightBottomy;
+	end.x	= rightBottomx;
+	end.y 	= rightBottomy - cornory;
+	DrawcvLine(frame,&start,&end,color,1);	
+
+	return ;
+}
+
 
 void CProcess::DrawRect(Mat frame,cv::Rect rec,int frcolor)
 {
@@ -1648,6 +1717,86 @@ void CProcess::mvIndexHandle(std::vector<TRK_INFO_APP> &mvList,std::vector<TRK_R
 }
 #endif
 
+void CProcess::onlydrawRect(cv::Mat& frame , int chid, int inClass, int frcolor)
+{
+	cv::Rect inRect;		
+	int xwidth , xheight,xcorner,ycorner;	
+	if(chid == 4)	
+	{		
+		xwidth = 720;		
+		xheight = 576;		
+		xcorner = 20;		
+		ycorner = 20;	
+	}	
+	else	
+	{		
+		xwidth = 1920;		
+		xheight = 1080;		
+		xcorner = 50;		
+		ycorner = 50;	
+	}	
+
+	switch(inClass)	
+	{		
+		case 0:			
+			inRect.x = 6;			
+			inRect.y = 6;			
+			inRect.width = xwidth-inRect.x-6;			
+			inRect.height = xheight-inRect.y-6;			
+			break;					
+
+		case 1:			
+			inRect.x = xwidth*0.25;			
+			inRect.y = xheight*0.25;			
+			inRect.width = xwidth*0.5;			
+			inRect.height = xheight*0.5;			
+			break;		
+
+		case 2:			
+			inRect.x = xwidth*0.33;		
+			inRect.y = xheight*0.33;		
+			inRect.width = xwidth*0.33;			
+			inRect.height = xheight*0.33;		
+			break;		
+
+		default:		
+			break;	
+	}	
+
+	DrawWarnRect(frame,inRect,xcorner,ycorner,frcolor,true);	
+	return;
+}
+
+
+void CProcess::drawMtdWarnRect(int chid , Mat &frame , int changesensorCnt)
+{
+	static int classBak = 0; 
+	static bool bdraw = false;
+
+	if(changesensorCnt)
+	{
+		onlydrawRect(m_display.m_imgOsd[extInCtrl->SensorStatpri],extInCtrl->SensorStatpri,classBak,0);
+	}
+	
+	if(bdraw)
+	{
+		onlydrawRect(frame,chid,classBak,0);
+		bdraw = false;
+	}
+	
+	classBak = gmtdAreaClass;
+
+	if(m_bMoveDetect)
+	{
+		onlydrawRect(frame,chid,classBak,3);
+		bdraw = true;
+	}
+	return;
+}
+
+
+
+
 bool CProcess::OnProcess(int chId, Mat &frame)
 {				
 	int frcolor= gSYS_Osd.osdDrawColor;
@@ -2194,17 +2343,7 @@ osdindex++;
 			}
 		}
 		if(Osdflag[osdindex])
-		{
-			/*for(int i = 0; i < polwarn_count_bak[mtd_warningbox_Id]; i++)
-			{
-				polwarn_flag = (i+1)%polwarn_count_bak[mtd_warningbox_Id];
-				startwarnpoly.x = polWarnRectBak[mtd_warningbox_Id][i].x;
-				startwarnpoly.y = polWarnRectBak[mtd_warningbox_Id][i].y;
-				endwarnpoly.x = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].x;
-				endwarnpoly.y = polWarnRectBak[mtd_warningbox_Id][polwarn_flag].y;
-				DrawcvLine(m_display.m_imgOsd[mtd_warningbox_Id],&startwarnpoly,&endwarnpoly,0,1);
-			}*/
-			
+		{	
 			cv::Rect tmp;
 			mouserect recttmp;
 		
@@ -2237,6 +2376,7 @@ osdindex++;
 				bMtdDetectStat = 1;
 
 			getTargetNearToCenter();
+
 			mvIndexHandle(mvList,detect_bak,gCFG_Mtd.detectNum);
 
 			if(forwardflag)
@@ -2377,7 +2517,12 @@ osdindex++;
 	}
 
 //polygon mtd area
-unsigned int drawpolyRectId ;   
+	
+	drawMtdWarnRect(chId, m_display.m_imgOsd[extInCtrl->SensorStat],changesensorCnt);
+
+
+
+	unsigned int drawpolyRectId ;   
 	drawpolyRectId = extInCtrl->SensorStat;
 	if(pol_draw)
 	{
@@ -2414,6 +2559,7 @@ unsigned int drawpolyRectId ;
 
 		memcpy(polyRectbak, polRect, sizeof(polRect));
 		memcpy(polyrectnbak, pol_rectn, sizeof(pol_rectn));
+		
 		polytempXbak = pol_tempX;
 		polytempYbak = pol_tempY;
 		if(1 == polyrectnbak[drawpolyRectId])
@@ -2517,7 +2663,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 	static bool bstb = false;
 	static bool bmtd = false;
 	int posestep = 1;
-	
+
 	if(key == 48) // 0
 	{
 		bdismode = !bdismode;
@@ -2560,6 +2706,21 @@ void CProcess::OnKeyDwn(unsigned char key)
 	{
 		unsigned int mtdId = 1;
 		app_ctrl_trkMtdId(mtdId);
+	}
+	else if(key == 52) // 4
+	{
+		gmtdAreaClass = 0;
+		MSGDRIV_send(MSGID_EXT_MVDETECTAERA, &gmtdAreaClass); 
+	}
+	else if(key == 53) // 5
+	{
+		gmtdAreaClass = 1;
+		MSGDRIV_send(MSGID_EXT_MVDETECTAERA, &gmtdAreaClass); 
+	}
+	else if(key == 54) // 6
+	{
+		gmtdAreaClass = 2;
+		MSGDRIV_send(MSGID_EXT_MVDETECTAERA, &gmtdAreaClass); 
 	}
 
 	
