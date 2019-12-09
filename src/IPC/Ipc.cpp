@@ -1118,32 +1118,38 @@ void* recv_msgpth(SENDST *pInData)
 			break;
 			
 		case changeSensor:
-			if(pIn->intPrm[0] == 0)
-				pMsg->SensorStat = video_pal;
-			else if(pIn->intPrm[0] == 1)
-				pMsg->SensorStat = video_gaoqing0;
-			else
-				break;
 			
-			if(pMsg->MtdState[pMsg->SensorStat])
-			{	
-				pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
-				app_ctrl_setMtdStat(pMsg);
-			}
-			if(pMsg->MmtStat[pMsg->SensorStat])
-			{	
-				pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
-				app_ctrl_setMMT(pMsg);
-			}
-			if(pMsg->ImgEnhStat[pMsg->SensorStat])
-			{	
-				pMsg->ImgEnhStat[pMsg->SensorStat] = eImgAlg_Disable;
-				app_ctrl_setEnhance(pMsg);
-			}		
+			if(pIn->intPrm[0] == 0 || pIn->intPrm[0] == 1)
+			{
+				if(pIn->intPrm[0] == 0 && pMsg->SensorStat == video_pal)
+					break;
+				else if(pIn->intPrm[0] == 1 && pMsg->SensorStat == video_gaoqing0)
+					break;
+					
+				if(pMsg->MtdState[pMsg->SensorStat])
+				{	
+					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
+					app_ctrl_setMtdStat(pMsg);
+				}
+				if(pMsg->MmtStat[pMsg->SensorStat])
+				{	
+					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
+					app_ctrl_setMMT(pMsg);
+				}
+				if(pMsg->ImgEnhStat[pMsg->SensorStat])
+				{	
+					pMsg->ImgEnhStat[pMsg->SensorStat] = eImgAlg_Disable;
+					app_ctrl_setEnhance(pMsg);
+				}		
 				
-			app_ctrl_setSensor(pMsg);	
-			cfg_set_outSensor(pMsg->SensorStat, pMsg->SensorStat);
-
+				if(pIn->intPrm[0] == 0)
+					pMsg->SensorStat = video_pal;
+				else
+					pMsg->SensorStat = video_gaoqing0;
+				
+				app_ctrl_setSensor(pMsg);	
+				cfg_set_outSensor(pMsg->SensorStat, pMsg->SensorStat);
+			}
 			break;
 
 		case trkMtdId:	
@@ -1234,7 +1240,8 @@ void* recv_msgpth(SENDST *pInData)
 
 		case mtdAreaClass:
 			gmtdAreaClass = pIn->intPrm[0];
-			MSGDRIV_send(MSGID_EXT_MVDETECTAERA, &gmtdAreaClass); 	
+			MSGDRIV_send(MSGID_EXT_MVDETECTAERA, &gmtdAreaClass); 
+						
 			break;
 
 		default:

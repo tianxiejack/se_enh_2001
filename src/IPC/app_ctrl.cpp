@@ -126,8 +126,8 @@ void app_ctrl_setMtdSelfCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y)
 	pMsg.AvtTrkStat =eTrk_mode_sectrk;
 	pMsg.AvtPosX[pIStuts->SensorStat]  = x;
 	pMsg.AvtPosY[pIStuts->SensorStat]  = y;
-	pMsg.AimW[pIStuts->SensorStat]  = (int)(pIStuts->AcqRectW[pIStuts->SensorStat]*1.5);
-	pMsg.AimH[pIStuts->SensorStat]  = (int)(pIStuts->AcqRectH[pIStuts->SensorStat]*1.5);
+	pMsg.AimW[pIStuts->SensorStat]  = (int)(pIStuts->AcqRectW[pIStuts->SensorStat]*1.0);
+	pMsg.AimH[pIStuts->SensorStat]  = (int)(pIStuts->AcqRectH[pIStuts->SensorStat]*1.0);
 	app_ctrl_setTrkStat(&pMsg);//track
 	return ;
 }

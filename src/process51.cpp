@@ -1812,10 +1812,10 @@ bool CProcess::OnProcess(int chId, Mat &frame)
 	static unsigned char bdrawMvRect = 0;		
 	static int changesensorCnt = 0;
 	static cv::Rect sceneBak;
-	
+	chId = extInCtrl->SensorStat;
 	if(extInCtrl->changeSensorFlag == 1)
 		++changesensorCnt;
-	if(changesensorCnt == 3){
+	if(changesensorCnt == 2){
 		extInCtrl->changeSensorFlag =  0; 
 		changesensorCnt = 0;
 	}
@@ -2334,13 +2334,15 @@ osdindex++;
 			{	
 				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
 				sprintf(trkFPSDisplay, "%2d", (*plist).number+1);
-				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
+				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStatpri], tmp ,0);
 				putText(m_display.m_imgOsd[extInCtrl->SensorStatpri],trkFPSDisplay,
 					Point(tmp.x, tmp.y),
 					FONT_HERSHEY_TRIPLEX,1,
 					cvScalar(0,0,0,0), 1
 					);
 			}
+
+
 		}
 		if(Osdflag[osdindex])
 		{	
@@ -3521,16 +3523,16 @@ void CProcess::msgdriv_event(MSG_PROC_ID msgId, void *prm)
         int Mtdstatus = (pIStuts->MtdState[pIStuts->SensorStat]&0x01) ;
         if(Mtdstatus)
         {  
-		m_pMovDetector->mvOpen(pIStuts->SensorStat);
-		dynamic_config(VP_CFG_MvDetect, 1,NULL);
-		chooseDetect = 10;
-		pIStuts->MtdDetectStat = m_bMoveDetect;  
+			m_pMovDetector->mvOpen(pIStuts->SensorStat);
+			dynamic_config(VP_CFG_MvDetect, 1,NULL);
+			chooseDetect = 10;
+			pIStuts->MtdDetectStat = m_bMoveDetect;  
         }
         else
         {
-		dynamic_config(VP_CFG_MvDetect, 0,NULL);
-		m_pMovDetector->mvClose(pIStuts->SensorStat);
-		pIStuts->MtdDetectStat = m_bMoveDetect;
+			dynamic_config(VP_CFG_MvDetect, 0,NULL);
+			m_pMovDetector->mvClose(pIStuts->SensorStat);
+			pIStuts->MtdDetectStat = m_bMoveDetect;
         }
         OSA_printf("====== MTD cmdstat %d algstat %d \n", pIStuts->MtdState[pIStuts->SensorStat], pIStuts->MtdDetectStat);
     }
