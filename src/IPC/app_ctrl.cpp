@@ -122,7 +122,6 @@ void app_ctrl_setMtdSelfCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y)
 	pMsg.MtdState[pIStuts->SensorStat] = eImgAlg_Disable;
 	app_ctrl_setMtdStat(&pMsg);
 		
-
 	pMsg.AvtTrkStat =eTrk_mode_sectrk;
 	pMsg.AvtPosX[pIStuts->SensorStat]  = x;
 	pMsg.AvtPosY[pIStuts->SensorStat]  = y;
@@ -282,6 +281,9 @@ void app_ctrl_trkMtdId(int mtdId)
 	}
 	else
 	{
+		pMsg.MtdState[pIStuts->SensorStat] = eImgAlg_Disable;
+		app_ctrl_setMtdStat(&pMsg);
+		
 		pMsg.AvtTrkStat =eTrk_mode_sectrk;
 		pMsg.AvtPosX[pIStuts->SensorStat]  = curx;
 		pMsg.AvtPosY[pIStuts->SensorStat]  = cury;

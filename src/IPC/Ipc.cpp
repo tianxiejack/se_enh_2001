@@ -415,7 +415,7 @@ Int32 cfg_update_mtdBySensor(int * configTab)
 	gCFG_Mtd.detectArea_Y = configTab[CFGID_INPUT_DETY(BKID)];
 	gCFG_Mtd.detectArea_wide = configTab[CFGID_INPUT_DETW(BKID)];
 	gCFG_Mtd.detectArea_high = configTab[CFGID_INPUT_DETH(BKID)];
-	MSGDRIV_send(MSGID_EXT_MVDETECTAERA, 0);
+	//MSGDRIV_send(MSGID_EXT_MVDETECTAERA, 0);
 	return 0;
 }
 
@@ -781,7 +781,7 @@ void* recv_msgpth(SENDST *pInData)
 			{
 				cfg_ctrl_sysInit(sysConfig);
 				MSGDRIV_send(MSGID_EXT_UPDATE_OSD, 0);		// sys osd part
-				MSGDRIV_send(MSGID_EXT_MVDETECTAERA, 0);
+				//MSGDRIV_send(MSGID_EXT_MVDETECTAERA, 0);
 				MSGDRIV_send(MSGID_EXT_MVDETECTUPDATE, 0);
 				cfg_ctrl_osdInit(sysConfig, userConfig);
 				startEnable = 1;
@@ -1080,12 +1080,12 @@ void* recv_msgpth(SENDST *pInData)
 #if __MOVE_DETECT__
 		case mtd:
 			{
-				printf("ipc rcv mtd = %d \n ",pIn->intPrm[0]);
+				//printf("ipc rcv mtd = %d \n ",pIn->intPrm[0]);
 				if( pMsg->AvtTrkStat != eTrk_mode_acq 
 					|| pMsg->MmtStat[pMsg->SensorStat]
 					|| pMsg->ImgEnhStat[pMsg->SensorStat] )
 					break;
-				printf("111 ipc rcv mtd = %d \n ",pIn->intPrm[0]);
+				//printf("111 ipc rcv mtd = %d \n ",pIn->intPrm[0]);
 				unsigned int ImgMtdStat = pIn->intPrm[0];
 				if(ImgMtdStat == 1){
 					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Enable;
@@ -1169,7 +1169,8 @@ void* recv_msgpth(SENDST *pInData)
 			break;
 
 		case mmtcoord:
-			{
+
+			/*{
 				if(!pMsg->MmtStat[pMsg->SensorStat])
 					break;
 								
@@ -1187,7 +1188,7 @@ void* recv_msgpth(SENDST *pInData)
 				app_ctrl_setMmtCorrd(pMsg,inPixel.x,inPixel.y);	
 				pMsg->MmtStat[pMsg->SensorStat] = eImgAlg_Disable;
 				app_ctrl_setMMT(pMsg);
-			}
+			}*/
 			break;
 
 		case posemovestep:
@@ -1218,8 +1219,8 @@ void* recv_msgpth(SENDST *pInData)
 
 		case sendMtdSelfCoord:
 			{
-				if(!pMsg->MtdState[pMsg->SensorStat])
-					break;
+				//if(!pMsg->MtdState[pMsg->SensorStat])
+				//	break;
 
 				IPC_PIXEL_T* tmp = (IPC_PIXEL_T*)pIn->intPrm;
 				IPC_PIXEL_T inPixel;
