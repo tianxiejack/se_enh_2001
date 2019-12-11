@@ -460,9 +460,9 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 
 	//
 	if(m_initPrm.keyboardfunc != NULL)
-		glutKeyboardFunc(m_initPrm.keyboardfunc);
+		//glutKeyboardFunc(m_initPrm.keyboardfunc);
 	if(m_initPrm.keySpecialfunc != NULL)
-		glutSpecialFunc(m_initPrm.keySpecialfunc);
+		//glutSpecialFunc(m_initPrm.keySpecialfunc);
 
 	//mouse event:
 	if(m_initPrm.mousefunc != NULL)

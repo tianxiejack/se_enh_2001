@@ -714,47 +714,48 @@ void CProcess::DrawjianxiRect(cv::Mat frame,cv::Rect rec,int frcolor,bool bshow)
 	Osd_cvPoint start;
 	Osd_cvPoint end;
 
+	int linew = 2;
 	//lefttop -
 	start.x 	= leftTopx;
 	start.y 	= leftTopy;
 	end.x	= leftTopx + cornorx;
 	end.y 	= leftTopy;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 
 	//lefttop |
 	start.x 	= leftTopx;
 	start.y 	= leftTopy;
 	end.x	= leftTopx;
 	end.y 	= leftTopy + cornory;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 
 	//leftbottom |
 	start.x 	= leftBottomx;
 	start.y 	= leftBottomy;
 	end.x	= leftBottomx;
 	end.y 	= leftBottomy - cornory;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 
 	//leftbottom -
 	start.x 	= leftBottomx;
 	start.y 	= leftBottomy;
 	end.x	= leftBottomx + cornorx;
 	end.y 	= leftBottomy;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 
 	//righttop -
 	start.x 	= rightTopx;
 	start.y 	= rightTopy;
 	end.x	= rightTopx - cornorx;
 	end.y 	= rightTopy;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 
 	//righttop |
 	start.x 	= rightTopx;
 	start.y 	= rightTopy;
 	end.x	= rightTopx;
 	end.y 	= rightTopy + cornory;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 
 
 	//rightbottom |
@@ -762,28 +763,28 @@ void CProcess::DrawjianxiRect(cv::Mat frame,cv::Rect rec,int frcolor,bool bshow)
 	start.y 	= rightBottomy;
 	end.x	= rightBottomx;
 	end.y 	= rightBottomy - cornory;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 
 	//rightbottom -
 	start.x 	= rightBottomx;
 	start.y 	= rightBottomy;
 	end.x	= rightBottomx - cornorx;
 	end.y 	= rightBottomy;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 
 	//center -
 	start.x 	= leftTopx + cornorx;
 	start.y 	= leftTopy + 2*cornory;
 	end.x	= leftTopx + 3*cornorx;
 	end.y 	= leftTopy + 2*cornory;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 
 	//center |
 	start.x 	= leftTopx + 2*cornorx;
 	start.y 	= leftTopy + cornory;
 	end.x	= leftTopx + 2*cornorx;
 	end.y 	= leftTopy + 3*cornory;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 
 	return ;
 }
@@ -806,50 +807,51 @@ void CProcess::DrawAcqRect(cv::Mat frame,cv::Rect rec,int frcolor,bool bshow)
 	Osd_cvPoint start;
 	Osd_cvPoint end;
 
+	int linew = 2;
 	//leftBottom
 	start.x 	= leftBottomx;
 	start.y 	= leftBottomy;
 	end.x	= leftBottomx + cornorx;
 	end.y 	= leftBottomy;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 	start.x 	= leftBottomx;
 	start.y 	= leftBottomy;
 	end.x	= leftBottomx;
 	end.y 	= leftBottomy - cornory;
-	DrawcvLine(frame,&start,&end,color,1);	
+	DrawcvLine(frame,&start,&end,color,linew);	
 	//leftTop
 	start.x 	= leftTopx;
 	start.y 	= leftTopy;
 	end.x	= leftTopx + cornorx;
 	end.y 	= leftTopy;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 	start.x 	= leftTopx;
 	start.y 	= leftTopy;
 	end.x	= leftTopx;
 	end.y 	= leftTopy + cornory;
-	DrawcvLine(frame,&start,&end,color,1);	
+	DrawcvLine(frame,&start,&end,color,linew);	
 	//rightTop
 	start.x 	= rightTopx;
 	start.y 	= rightTopy;
 	end.x	= rightTopx - cornorx;
 	end.y 	= rightTopy;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 	start.x 	= rightTopx;
 	start.y 	= rightTopy;
 	end.x	= rightTopx;
 	end.y 	= rightTopy + cornory;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 	//rightBottom
 	start.x 	= rightBottomx;
 	start.y 	= rightBottomy;
 	end.x	= rightBottomx - cornorx;
 	end.y 	= rightBottomy;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 	start.x 	= rightBottomx;
 	start.y 	= rightBottomy;
 	end.x	= rightBottomx;
 	end.y 	= rightBottomy - cornory;
-	DrawcvLine(frame,&start,&end,color,1);	
+	DrawcvLine(frame,&start,&end,color,linew);	
 
 	return ;
 }
@@ -873,51 +875,51 @@ void CProcess::DrawWarnRect(cv::Mat frame,cv::Rect rec,int cornorx,int cornory,i
 	
 	Osd_cvPoint start;
 	Osd_cvPoint end;
-
+	int linew = 2;
 	//leftBottom
 	start.x 	= leftBottomx;
 	start.y 	= leftBottomy;
 	end.x	= leftBottomx + cornorx;
 	end.y 	= leftBottomy;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 	start.x 	= leftBottomx;
 	start.y 	= leftBottomy;
 	end.x	= leftBottomx;
 	end.y 	= leftBottomy - cornory;
-	DrawcvLine(frame,&start,&end,color,1);	
+	DrawcvLine(frame,&start,&end,color,linew);	
 	//leftTop
 	start.x 	= leftTopx;
 	start.y 	= leftTopy;
 	end.x	= leftTopx + cornorx;
 	end.y 	= leftTopy;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 	start.x 	= leftTopx;
 	start.y 	= leftTopy;
 	end.x	= leftTopx;
 	end.y 	= leftTopy + cornory;
-	DrawcvLine(frame,&start,&end,color,1);	
+	DrawcvLine(frame,&start,&end,color,linew);	
 	//rightTop
 	start.x 	= rightTopx;
 	start.y 	= rightTopy;
 	end.x	= rightTopx - cornorx;
 	end.y 	= rightTopy;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 	start.x 	= rightTopx;
 	start.y 	= rightTopy;
 	end.x	= rightTopx;
 	end.y 	= rightTopy + cornory;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 	//rightBottom
 	start.x 	= rightBottomx;
 	start.y 	= rightBottomy;
 	end.x	= rightBottomx - cornorx;
 	end.y 	= rightBottomy;
-	DrawcvLine(frame,&start,&end,color,1);
+	DrawcvLine(frame,&start,&end,color,linew);
 	start.x 	= rightBottomx;
 	start.y 	= rightBottomy;
 	end.x	= rightBottomx;
 	end.y 	= rightBottomy - cornory;
-	DrawcvLine(frame,&start,&end,color,1);	
+	DrawcvLine(frame,&start,&end,color,linew);	
 
 	return ;
 }
@@ -2263,7 +2265,7 @@ osdindex++;
 					tmp.target[i].y &= 0x7fff;		
 				}	
 			}
-			ipc_send_mmtprm((void*)&tmp);	
+			//ipc_send_mmtprm((void*)&tmp);	
 			
 		}
 	}

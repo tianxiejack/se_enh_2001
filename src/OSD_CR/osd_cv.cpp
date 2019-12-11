@@ -50,7 +50,8 @@ void drawdashlinepri(Mat frame,int startx,int starty,int endx,int endy,int linel
   	  CvScalar colour=GetcvColour(colour1);
   	  totallengthx=abs(endx-startx)*1.0/nCount;
   	  totallengthy=abs(endy-starty)*1.0/nCount;
-  	  
+  	  int linew = 2;
+	  
   	  Point start,end;//start and end point of each dash  
   	  if(startx>endx)
   	  	{
@@ -70,7 +71,7 @@ void drawdashlinepri(Mat frame,int startx,int starty,int endx,int endy,int linel
 		      		start.x=startx; 
 		      		start.y=cvRound(starty+i*totallengthy*flagy);
 		      		end.y=cvRound(starty+(i+1)*totallengthy*flagy);//draw left dash line
-				 line(frame, start, end, colour, 1, 8, 0 ); 
+				 line(frame, start, end, colour, linew, 8, 0 ); 
 		  	  }  
 			return ;
 		}
@@ -82,7 +83,7 @@ void drawdashlinepri(Mat frame,int startx,int starty,int endx,int endy,int linel
 		      		end.x=cvRound(startx+(i+1)*totallengthx*flagx); 
 		      		start.y=starty;
 				end.y=starty; 
-				 line(frame, start, end, colour, 1, 8, 0 ); 
+				 line(frame, start, end, colour, linew, 8, 0 ); 
 		  	  }  
 			return ;
 
@@ -96,7 +97,7 @@ void drawdashlinepri(Mat frame,int startx,int starty,int endx,int endy,int linel
       		start.y=cvRound(starty+i*totallengthy*flagy);  
 		end.y=cvRound(starty+(i+1)*totallengthy*flagy);//draw left dash line  
   
-		 line(frame, start, end, colour, 1, 8, 0 ); 
+		 line(frame, start, end, colour, linew, 8, 0 ); 
   	  }  
 }
 
@@ -247,7 +248,7 @@ void DrawRect(Mat frame,int x,int y,int width,int height,int frcolor)
 
 void drawcvrect(Mat frame,int x,int y,int width,int height,int frcolor)
 {
-	int thickness = 1;
+	int thickness = 2;
 	if(frcolor == 6 || frcolor == 0)
 		thickness = 2;
 	CvScalar colour=GetcvColour(frcolor);
