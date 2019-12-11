@@ -49,14 +49,16 @@ int MtdCoord2mtdTarget(int chid ,unsigned int x,unsigned int y)
 	int index = -1;
 	unsigned int distance , tmp;
 	int deltax,deltay;
-	distance = 2000*2000 ;
+	distance = 2000*2000+1100*1100 ;
+	
 	for(int i=0 ; i< 10 ; i++)
-	{
+	{		
 		if(plat->validMtdRecord[i])
 		{
-			deltax = abs(x - (plat->mvList[i].trkobj.targetRect.x - plat->mvList[i].trkobj.targetRect.width/2));
-			deltay = abs(y - (plat->mvList[i].trkobj.targetRect.y - plat->mvList[i].trkobj.targetRect.height/2));
+			deltax = abs(x - (plat->mvList[i].trkobj.targetRect.x + plat->mvList[i].trkobj.targetRect.width/2));
+			deltay = abs(y - (plat->mvList[i].trkobj.targetRect.y + plat->mvList[i].trkobj.targetRect.height/2));
 			tmp = deltax*deltax + deltay*deltay;
+
 			if(tmp < distance)
 			{
 				index = i;
@@ -116,6 +118,23 @@ void getMtdxy(int &x,int &y,int &w,int &h)
 	}
 }
 
+
+void getMtdxy(int index,int &x,int &y,int &w,int &h)
+{
+	x = y = w = h = -1;
+
+	if(index >= gCFG_Mtd.detectNum)
+		return;
+
+	if(plat->validMtdRecord[index])
+	{
+		x = plat->mvList[index].trkobj.targetRect.x + plat->mvList[index].trkobj.targetRect.width/2;
+		y = plat->mvList[index].trkobj.targetRect.y + plat->mvList[index].trkobj.targetRect.height/2;
+		w = plat->mvList[index].trkobj.targetRect.width;
+		h  = plat->mvList[index].trkobj.targetRect.height;	
+	}
+	return ;
+}
 
 void getMtdIdxy(int mtdId,int &x,int &y,int &w,int &h)
 {
@@ -2297,11 +2316,13 @@ osdindex++;
 				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
 				sprintf(trkFPSDisplay, "%2d", (*plist).number+1);
 				DrawRect(m_display.m_imgOsd[extInCtrl->SensorStatpri], tmp ,0);
-				putText(m_display.m_imgOsd[extInCtrl->SensorStatpri],trkFPSDisplay,
+				/*
+					putText(m_display.m_imgOsd[extInCtrl->SensorStatpri],trkFPSDisplay,
 					Point(tmp.x, tmp.y),
 					FONT_HERSHEY_TRIPLEX,1,
 					cvScalar(0,0,0,0), 1
 					);
+				*/
 			}
 
 
@@ -2316,11 +2337,13 @@ osdindex++;
 				memcpy(&tmp,&(*plist).trkobj.targetRect,sizeof(cv::Rect));
 				sprintf(trkFPSDisplay, "%2d", (*plist).number+1);
 				DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,0);
+				/*
 				putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
 					Point(tmp.x, tmp.y),
 					FONT_HERSHEY_TRIPLEX,1,
 					cvScalar(0,0,0,0), 1
 					);
+				*/
 			}
 		
 			Osdflag[osdindex]=0;
@@ -2400,11 +2423,13 @@ osdindex++;
 					memcpy((void*)&tmp,(void *)&((*plist).trkobj.targetRect),sizeof(cv::Rect));
 					sprintf(trkFPSDisplay, "%2d", (*plist).number+1);
 					DrawRect(m_display.m_imgOsd[mtd_warningbox_Id], tmp ,color);
+					/*
 					putText(m_display.m_imgOsd[extInCtrl->SensorStat],trkFPSDisplay,
 						Point(tmp.x, tmp.y),
 						FONT_HERSHEY_TRIPLEX,1,
 						cvScalar(255,255,0,255), 1
 						);
+					*/
 				}	
 				IPC_MTD_COORD_T tmp = {0};
 				tmp.chid = extInCtrl->SensorStat;
@@ -2671,8 +2696,9 @@ void CProcess::OnKeyDwn(unsigned char key)
 	}
 	else if(key == 51) // 3	
 	{
-		unsigned int mtdId = 1;
-		app_ctrl_trkMtdId(mtdId);
+		app_ctrl_setMtdCorrd(pIStuts, 1800, 1000 );
+		//unsigned int mtdId = 1;
+		//app_ctrl_trkMtdId(mtdId);
 	}
 	else if(key == 52) // 4
 	{

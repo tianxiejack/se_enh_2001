@@ -1219,8 +1219,8 @@ void* recv_msgpth(SENDST *pInData)
 
 		case sendMtdSelfCoord:
 			{
-				//if(!pMsg->MtdState[pMsg->SensorStat])
-				//	break;
+				if(pMsg->MtdState[pMsg->SensorStat])
+					break;
 
 				IPC_PIXEL_T* tmp = (IPC_PIXEL_T*)pIn->intPrm;
 				IPC_PIXEL_T inPixel;
@@ -1240,6 +1240,9 @@ void* recv_msgpth(SENDST *pInData)
 			break;
 
 		case mtdAreaClass:
+			if(pMsg->MtdState[pMsg->SensorStat])
+				break;
+
 			gmtdAreaClass = pIn->intPrm[0];
 			MSGDRIV_send(MSGID_EXT_MVDETECTAERA, &gmtdAreaClass); 
 						

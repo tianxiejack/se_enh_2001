@@ -22,6 +22,7 @@ int MmtCoord2mmtTarget(int chid ,unsigned int x,unsigned int y);
 #if __MOVE_DETECT__
 void getMtdxy(int &x,int &y,int &w,int &h);
 void getMtdIdxy(int mtdId,int &x,int &y,int &w,int &h);
+void getMtdxy(int mtdId,int &x,int &y,int &w,int &h);
 
 #endif
 
@@ -139,8 +140,9 @@ void app_ctrl_setMtdCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y)
 	if(index == -1)
 		return ;
 
-	app_ctrl_trkMtdId(index);
-
+	//app_ctrl_trkMtdId(index);
+	app_ctrl_trkMtd(index);
+	
 	return ;
 }
 
@@ -263,6 +265,7 @@ void app_ctrl_setMtdStat(CMD_EXT * pInCmd)
 }
 
 
+
 void app_ctrl_trkMtdId(int mtdId)
 {
 	CMD_EXT pMsg;
@@ -274,6 +277,41 @@ void app_ctrl_trkMtdId(int mtdId)
 
 	int curx,cury,curw,curh;
 	getMtdIdxy(mtdId,curx,cury,curw,curh);
+
+	if( -1 == curw || -1 == curh )	
+	{
+		//do nothing
+		printf(" mtd target get failed do nothing \n");
+	}
+	else
+	{
+		pMsg.MtdState[pIStuts->SensorStat] = eImgAlg_Disable;
+		app_ctrl_setMtdStat(&pMsg);
+		
+		pMsg.AvtTrkStat =eTrk_mode_sectrk;
+		pMsg.AvtPosX[pIStuts->SensorStat]  = curx;
+		pMsg.AvtPosY[pIStuts->SensorStat]  = cury;
+		pMsg.AimW[pIStuts->SensorStat]  = curw;
+		pMsg.AimH[pIStuts->SensorStat]  = curh;
+		app_ctrl_setTrkStat(&pMsg);//track
+	}	
+	return ;	
+}
+
+
+
+void app_ctrl_trkMtd(int index)
+{
+	CMD_EXT pMsg;
+	memset(&pMsg,0,sizeof(CMD_EXT));
+	
+	if(msgextInCtrl==NULL)
+		return ;
+	CMD_EXT *pIStuts = msgextInCtrl;
+
+	int curx,cury,curw,curh;
+	getMtdxy(index,curx,cury,curw,curh);
+
 	if( -1 == curw || -1 == curh )	
 	{
 		//do nothing
