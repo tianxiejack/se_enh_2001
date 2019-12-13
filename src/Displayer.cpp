@@ -92,12 +92,15 @@ CDisplayer::CDisplayer()
 	frameRate = 0.0;
 
 	m_initPrm.disSched = 3.5;
+	OSA_semCreate(&m_synctheFrame, 1, 0);
 }
 
 CDisplayer::~CDisplayer()
 {
 	//destroy();
 	gThis = NULL;
+	OSA_semDelete(&m_synctheFrame);
+	
 }
 
 inline int extractYUYV2Gray2(Mat src, Mat dst)
@@ -918,6 +921,13 @@ void CDisplayer::display(Mat frame, int chId, int code)
 	m_frame[chId][pp[chId]] = frame;
 	m_code[chId] = code;
 
+	static bool syncFrame = true;
+	if(syncFrame)
+	{
+		OSA_semSignal(&m_synctheFrame);
+		printf("display timeStamp : %d \n" , OSA_getCurTimeInMsec());
+		syncFrame = false;
+	}
 	OSA_mutexUnlock(&m_mutex);
 }
 #endif
@@ -1587,6 +1597,15 @@ void CDisplayer::gl_textureLoad(void)
 	int winId, chId;
 	unsigned int mask = 0;
 	unsigned int byteCount=0;
+
+	static bool syncFrame = true;
+	if(syncFrame)
+	{
+		OSA_semWait(&m_synctheFrame,OSA_TIMEOUT_FOREVER);
+		syncFrame = false;
+		printf("gl_textureLoad timeStamp : %d \n" , OSA_getCurTimeInMsec());
+	}
+	
 
 	tStamp[0] = getTickCount();
 	tstart = tStamp[0];

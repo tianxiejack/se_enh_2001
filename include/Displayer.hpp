@@ -120,6 +120,8 @@ public:
 	int init(DS_InitPrm *pPrm);
 	void run();
 	void stop();
+	
+	OSA_SemHndl	m_synctheFrame;
 
 	typedef enum{
 		DS_CFG_ChId = 0,
