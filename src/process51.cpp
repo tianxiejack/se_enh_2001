@@ -2646,7 +2646,7 @@ void CProcess::OnSpecialKeyDwn(int key,int x, int y)
 
 void CProcess::OnKeyDwn(unsigned char key)
 {
-	return ;
+	return 0;
 	char flag = 0;
 	CMD_EXT *pIStuts = extInCtrl;
 	CMD_EXT tmpCmd = {0};
@@ -4372,90 +4372,97 @@ void CProcess::MSGAPI_handle_mvAera(long lParam)
 	cv::Point tmp;
 	int cx,cy,w,h,ich;
 	
-	ich = sThis->extInCtrl->SensorStat;
-
-	switch(mtdareaClass)
+	//ich = sThis->extInCtrl->SensorStat;
+	for(int i=0;i<2;i++)
 	{
-		case 0:
-			minWidthRatio = 0.0;
-			minHeightRatio = 0.0;
-			maxWidthRatio = 1.0;
-			maxHeightRatio = 1.0;
-			break;
+		if(i == 0)
+			ich = video_gaoqing0;
+		else
+			ich = video_pal;
+		
+		switch(mtdareaClass)
+		{
+			case 0:
+				minWidthRatio = 0.0;
+				minHeightRatio = 0.0;
+				maxWidthRatio = 1.0;
+				maxHeightRatio = 1.0;
+				break;
 
-		case 1:
-			minWidthRatio = 0.25;
-			minHeightRatio = 0.25;
-			maxWidthRatio = 0.75;
-			maxHeightRatio = 0.75;
-			break;		
+			case 1:
+				minWidthRatio = 0.25;
+				minHeightRatio = 0.25;
+				maxWidthRatio = 0.75;
+				maxHeightRatio = 0.75;
+				break;		
 
-		case 2:
-			minWidthRatio = 0.33;
-			minHeightRatio = 0.33;
-			maxWidthRatio = 0.66;
-			maxHeightRatio = 0.66;
-			break;	
-			
-		default:
-			break;
+			case 2:
+				minWidthRatio = 0.33;
+				minHeightRatio = 0.33;
+				maxWidthRatio = 0.66;
+				maxHeightRatio = 0.66;
+				break;	
+				
+			default:
+				break;
+		}
+
+		cx = vdisWH[ich][0]/2;
+		cy = vdisWH[ich][1]/2;
+		w = vdisWH[ich][0] * (maxWidthRatio - minWidthRatio);
+		h = vdisWH[ich][1] * (maxHeightRatio - minHeightRatio); 
+
+		tmp.x = cx - w/2;
+		tmp.y = cy - h/2;
+		if(tmp.x < 0)
+			tmp.x = 0;
+		if(tmp.y < 0)
+			tmp.y = 0;
+		polyWarnRoi[0]= cv::Point(tmp.x,tmp.y);
+		sThis->polWarnRect[ich][0].x = tmp.x ;
+		sThis->polWarnRect[ich][0].y = tmp.y ;
+
+		tmp.x = cx + w/2;
+		tmp.y = cy - h/2;
+		if(tmp.x > vcapWH[ich][0])
+			tmp.x = vcapWH[ich][0];
+		if(tmp.y < 0)
+			tmp.y = 0;
+		polyWarnRoi[1]= cv::Point(tmp.x,tmp.y);
+		sThis->polWarnRect[ich][1].x = tmp.x ;
+		sThis->polWarnRect[ich][1].y = tmp.y ;
+
+
+		tmp.x = cx + w/2;
+		tmp.y = cy + h/2;
+		if(tmp.x > vcapWH[ich][0])
+			tmp.x = vcapWH[ich][0];
+		if(tmp.y > vcapWH[ich][1])
+			tmp.y = vcapWH[ich][1];
+		polyWarnRoi[2]= cv::Point(tmp.x,tmp.y);
+		sThis->polWarnRect[ich][2].x = tmp.x ;
+		sThis->polWarnRect[ich][2].y = tmp.y ;
+
+		tmp.x = cx - w/2;
+		tmp.y = cy + h/2;
+		if(tmp.x < 0 )
+			tmp.x = 0;
+		if(tmp.y > vcapWH[ich][1])
+			tmp.y = vcapWH[ich][1];	
+		polyWarnRoi[3]= cv::Point(tmp.x,tmp.y);
+		sThis->polWarnRect[ich][3].x = tmp.x ;
+		sThis->polWarnRect[ich][3].y = tmp.y ;
+
+		sThis->polwarn_count[ich] = 4 ; 
+		/*OSA_printf(" [%d] MSGAPI_handle_mvAera update ich%d (%d, %d)-(%d, %d)-(%d, %d)-(%d, %d) \n",
+			OSA_getCurTimeInMsec(), ich, 
+			sThis->polWarnRect[ich][0].x, sThis->polWarnRect[ich][0].y,
+			sThis->polWarnRect[ich][1].x, sThis->polWarnRect[ich][1].y,
+			sThis->polWarnRect[ich][2].x, sThis->polWarnRect[ich][2].y,
+			sThis->polWarnRect[ich][3].x, sThis->polWarnRect[ich][3].y);*/
+
+		pThis->m_pMovDetector->setWarningRoi( polyWarnRoi, ich );
 	}
-
-	cx = vdisWH[ich][0]/2;
-	cy = vdisWH[ich][1]/2;
-	w = vdisWH[ich][0] * (maxWidthRatio - minWidthRatio);
-	h = vdisWH[ich][1] * (maxHeightRatio - minHeightRatio); 
-
-	tmp.x = cx - w/2;
-	tmp.y = cy - h/2;
-	if(tmp.x < 0)
-		tmp.x = 0;
-	if(tmp.y < 0)
-		tmp.y = 0;
-	polyWarnRoi[0]= cv::Point(tmp.x,tmp.y);
-	sThis->polWarnRect[ich][0].x = tmp.x ;
-	sThis->polWarnRect[ich][0].y = tmp.y ;
-
-	tmp.x = cx + w/2;
-	tmp.y = cy - h/2;
-	if(tmp.x > vcapWH[ich][0])
-		tmp.x = vcapWH[ich][0];
-	if(tmp.y < 0)
-		tmp.y = 0;
-	polyWarnRoi[1]= cv::Point(tmp.x,tmp.y);
-	sThis->polWarnRect[ich][1].x = tmp.x ;
-	sThis->polWarnRect[ich][1].y = tmp.y ;
-
-
-	tmp.x = cx + w/2;
-	tmp.y = cy + h/2;
-	if(tmp.x > vcapWH[ich][0])
-		tmp.x = vcapWH[ich][0];
-	if(tmp.y > vcapWH[ich][1])
-		tmp.y = vcapWH[ich][1];
-	polyWarnRoi[2]= cv::Point(tmp.x,tmp.y);
-	sThis->polWarnRect[ich][2].x = tmp.x ;
-	sThis->polWarnRect[ich][2].y = tmp.y ;
-
-	tmp.x = cx - w/2;
-	tmp.y = cy + h/2;
-	if(tmp.x < 0 )
-		tmp.x = 0;
-	if(tmp.y > vcapWH[ich][1])
-		tmp.y = vcapWH[ich][1];	
-	polyWarnRoi[3]= cv::Point(tmp.x,tmp.y);
-	sThis->polWarnRect[ich][3].x = tmp.x ;
-	sThis->polWarnRect[ich][3].y = tmp.y ;
-
-	sThis->polwarn_count[ich] = 4 ; 
-	/*OSA_printf(" [%d] MSGAPI_handle_mvAera update ich%d (%d, %d)-(%d, %d)-(%d, %d)-(%d, %d) \n",
-		OSA_getCurTimeInMsec(), ich, 
-		sThis->polWarnRect[ich][0].x, sThis->polWarnRect[ich][0].y,
-		sThis->polWarnRect[ich][1].x, sThis->polWarnRect[ich][1].y,
-		sThis->polWarnRect[ich][2].x, sThis->polWarnRect[ich][2].y,
-		sThis->polWarnRect[ich][3].x, sThis->polWarnRect[ich][3].y);*/
-
-	pThis->m_pMovDetector->setWarningRoi( polyWarnRoi, ich );
 	return ;
 }
 

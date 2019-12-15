@@ -1480,8 +1480,16 @@ int CVideoProcess::process_track(int trackStatus, Mat frame_gray, Mat frame_dis,
 				acq.rcWin.y=image.height-acq.rcWin.height;
 			}
 
+
+/****************************************************/
+	
+		
+
+/****************************************************/		
+
 		{
 			//printf("=========movestat = %d\n",moveStat);
+			//printf("%s : m_posemove = %d\n",__func__,m_posemove);
 			if(m_posemove)
 			{
 				rcResult = UtcTrkAcq(m_track, image, acq);
