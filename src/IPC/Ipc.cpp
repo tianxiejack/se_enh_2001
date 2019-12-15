@@ -749,6 +749,35 @@ int  send_msgpth(SENDST * pData)
 	return 0;
 }
 
+
+void pixelHd2Pal(float& errx , float& erry)
+{
+	float x,y;
+
+	x = errx;
+	y = erry;
+
+	errx = (x/1920)*720;
+	erry = (y/1080)*576;
+
+	return;
+}
+
+
+void pixelPal2Hd(float& errx , float& erry)
+{
+	float x,y;
+
+	x = errx;
+	y = erry;
+
+	errx = (x/720)*1920;
+	erry = (y/576)*1080;
+
+	return;
+}
+
+
 void* recv_msgpth(SENDST *pInData)
 {
 	IPC_PRM_INT *pIn=NULL;
@@ -1125,7 +1154,38 @@ void* recv_msgpth(SENDST *pInData)
 					break;
 				else if(pIn->intPrm[0] == 1 && pMsg->SensorStat == video_gaoqing0)
 					break;
+
+				bool btrkflag = false;
+				float errx,erry;
+				if(pMsg->TrkStat)
+					btrkflag = true;
+
+				if(btrkflag)
+				{
+					errx = pMsg->TrkXtmp;
+					erry = pMsg->TrkYtmp;
+					printf("!!! before err  x,y = (%f,%f)\n" , errx , erry);
+					if(pMsg->SensorStat == video_gaoqing0)
+						pixelHd2Pal(errx,erry);
+					else
+						pixelPal2Hd(errx,erry);
+					printf("!!! after err  x,y = (%f,%f)\n" , errx , erry);
 					
+					{
+						pMsg->AxisPosX[pMsg->SensorStat] = pMsg->opticAxisPosX[pMsg->SensorStat];
+						pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
+						pMsg->AvtPosX[pMsg->SensorStat]  = pMsg->AxisPosX[pMsg->SensorStat];
+						pMsg->AvtPosY[pMsg->SensorStat]  = pMsg->AxisPosY[pMsg->SensorStat];
+						pMsg->AimW[pMsg->SensorStat]  = pMsg->AcqRectW[pMsg->SensorStat];
+						pMsg->AimH[pMsg->SensorStat]  = pMsg->AcqRectH[pMsg->SensorStat];
+						app_ctrl_setAimPos(pMsg);
+						app_ctrl_setAxisPos(pMsg);
+						app_ctrl_setAimSize(pMsg);
+					}
+					app_ctrl_setTrkStat(pMsg); 
+					cfg_set_trkSecStat(0);	// set sectrk close when exit trk 
+				}
+				
 				if(pMsg->MtdState[pMsg->SensorStat])
 				{	
 					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
@@ -1149,6 +1209,17 @@ void* recv_msgpth(SENDST *pInData)
 				
 				app_ctrl_setSensor(pMsg);	
 				cfg_set_outSensor(pMsg->SensorStat, pMsg->SensorStat);
+
+				if(btrkflag)
+				{
+					pMsg->AvtTrkStat = eTrk_mode_sectrk;
+					pMsg->AvtPosX[pMsg->SensorStat] = errx;
+					pMsg->AvtPosY[pMsg->SensorStat] = erry;				
+					app_ctrl_setTrkStat(pMsg);
+					pMsg->AxisPosX[pMsg->SensorStat] = pMsg->opticAxisPosX[pMsg->SensorStat];
+					pMsg->AxisPosY[pMsg->SensorStat] = pMsg->opticAxisPosY[pMsg->SensorStat];
+					app_ctrl_setAxisPos(pMsg);
+				}
 			}
 			break;
 

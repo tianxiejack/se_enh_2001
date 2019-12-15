@@ -917,18 +917,23 @@ void CDisplayer::display(Mat frame, int chId, int code)
 	assert(chId>=0 && chId<DS_CHAN_MAX);
 
 	OSA_mutexLock(&m_mutex);
-
 	m_frame[chId][pp[chId]] = frame;
-	m_code[chId] = code;
+	m_code[chId] = code;	
+	OSA_mutexUnlock(&m_mutex);
 
 	static bool syncFrame = true;
 	if(syncFrame)
 	{
+		struct timeval tv;
+		tv.tv_sec = 0;
+		tv.tv_usec = 2*1000;
+		//select( 0, NULL, NULL, NULL, &tv );
 		OSA_semSignal(&m_synctheFrame);
 		printf("display timeStamp : %d \n" , OSA_getCurTimeInMsec());
 		syncFrame = false;
 	}
-	OSA_mutexUnlock(&m_mutex);
+	
+	return ;
 }
 #endif
 

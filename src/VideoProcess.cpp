@@ -974,7 +974,7 @@ int CVideoProcess::init()
 	dsInit.maxsize= processmaxtargetsizeMenu;
 	dsInit.minsize= processmintargetsizeMenu;
 #endif
-	dsInit.disFPS = 30;
+	dsInit.disFPS = 60;//30;
 	dsInit.disSched = 33;   //  3.5;
 	dsInit.initMainchId = m_curChId;
 
