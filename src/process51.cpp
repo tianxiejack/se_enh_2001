@@ -2646,7 +2646,7 @@ void CProcess::OnSpecialKeyDwn(int key,int x, int y)
 
 void CProcess::OnKeyDwn(unsigned char key)
 {
-	return 0;
+	return;
 	char flag = 0;
 	CMD_EXT *pIStuts = extInCtrl;
 	CMD_EXT tmpCmd = {0};

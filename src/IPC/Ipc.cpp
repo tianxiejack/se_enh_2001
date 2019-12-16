@@ -1290,8 +1290,8 @@ void* recv_msgpth(SENDST *pInData)
 
 		case sendMtdSelfCoord:
 			{
-				if(pMsg->MtdState[pMsg->SensorStat])
-					break;
+				//if(!pMsg->MtdState[pMsg->SensorStat])
+				//	break;
 
 				IPC_PIXEL_T* tmp = (IPC_PIXEL_T*)pIn->intPrm;
 				IPC_PIXEL_T inPixel;
