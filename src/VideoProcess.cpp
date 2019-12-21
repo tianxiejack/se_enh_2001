@@ -210,6 +210,8 @@ void CVideoProcess::main_proc_func()
 	{
 		OSA_semWait(&mainProcThrObj.procNotifySem, OSA_TIMEOUT_FOREVER);
 
+		mainProcThrObj.pp ^=1;
+		
 		Mat frame = mainFrame[mainProcThrObj.pp^1];
 		bool bTrack = mainProcThrObj.cxt[mainProcThrObj.pp^1].bTrack;
 		bool bMtd = mainProcThrObj.cxt[mainProcThrObj.pp^1].bMtd;
@@ -226,7 +228,7 @@ void CVideoProcess::main_proc_func()
 
 		cv::Mat	salientMap, sobelMap;
 
-		mainProcThrObj.pp ^=1;
+		
 		if(!OnPreProcess(chId, frame))
 			continue;
 

@@ -2646,7 +2646,7 @@ void CProcess::OnSpecialKeyDwn(int key,int x, int y)
 
 void CProcess::OnKeyDwn(unsigned char key)
 {
-	return 0;
+	return ;
 	char flag = 0;
 	CMD_EXT *pIStuts = extInCtrl;
 	CMD_EXT tmpCmd = {0};
@@ -2722,8 +2722,8 @@ void CProcess::OnKeyDwn(unsigned char key)
 /*************************************/
 	if(key == 'i')
 	{
-		tmpCmd.aimRectMoveStepY=-1*posestep;
-		app_ctrl_setAimPos(&tmpCmd);	
+		//tmpCmd.aimRectMoveStepY=-1*posestep;
+		//app_ctrl_setAimPos(&tmpCmd);	
 	}
 	else if(key == 'k')
 	{
@@ -2744,8 +2744,8 @@ void CProcess::OnKeyDwn(unsigned char key)
 	
 	if(key == 'a' || key == 'A')
 	{
-		tmpCmd.SensorStat = (pIStuts->SensorStat + 1)%MAX_CHAN;
-		app_ctrl_setSensor(&tmpCmd);		
+		//tmpCmd.SensorStat = (pIStuts->SensorStat + 1)%MAX_CHAN;
+		//app_ctrl_setSensor(&tmpCmd);		
 	}
 
 	if(key == 'b' || key == 'B')
@@ -2770,6 +2770,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 
 	if(key == 'd'|| key == 'D')
 	{
+	/*
 		unsigned int ImgMtdStat = pIStuts->MmtStat[pIStuts->SensorStat];
 		//printf("%s : LINE :%d     ImgMtdStat = %d \n" , __func__, __LINE__, ImgMtdStat);
 		if(ImgMtdStat == 0x01)
@@ -2781,6 +2782,7 @@ void CProcess::OnKeyDwn(unsigned char key)
 			tmpCmd.MmtStat[pIStuts->SensorStat] = eImgAlg_Enable;
 		}
 		app_ctrl_setMMT(&tmpCmd);	
+		*/
 	}
 
 	if (key == 'e' || key == 'E')
