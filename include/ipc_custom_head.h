@@ -144,11 +144,6 @@ static void Ipc_init()
 //static unsigned char *userConfig = NULL;
 static void *ipc_getSharedMem(IPC_MTYPE itype)
 {
-	if(itype == IPC_IMG_SHA || itype == IPC_USER_SHA)
-		return ipc_getSharedAddress(itype);
-		//return (void*)IpcHandl[itype].ptr;
-	else
-		return NULL;
 }
 
 #ifdef __cplusplus

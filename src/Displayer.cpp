@@ -463,9 +463,9 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 
 	//
 	if(m_initPrm.keyboardfunc != NULL)
-		//glutKeyboardFunc(m_initPrm.keyboardfunc);
+		glutKeyboardFunc(m_initPrm.keyboardfunc);
 	if(m_initPrm.keySpecialfunc != NULL)
-		//glutSpecialFunc(m_initPrm.keySpecialfunc);
+		glutSpecialFunc(m_initPrm.keySpecialfunc);
 
 	//mouse event:
 	if(m_initPrm.mousefunc != NULL)
@@ -475,63 +475,6 @@ int CDisplayer::init(DS_InitPrm *pPrm)
 	
 	if(m_initPrm.motionfunc != NULL)
 		glutMotionFunc(m_initPrm.motionfunc);
-	
-	if(0)//(m_initPrm.menufunc != NULL)
-	{
-		int t_sub_menu2 = glutCreateMenu(processmtdmodeMenu);
-		glutAddMenuEntry("Prohibit",0);
-		glutAddMenuEntry("Allow",1);
-		int t_maxnum_submenu = glutCreateMenu(m_initPrm.maxnum);
-		glutAddMenuEntry("5",0);
-		glutAddMenuEntry("10",1);
-		int t_minsi_submenu = glutCreateMenu(m_initPrm.minsize);
-		glutAddMenuEntry("100",0);
-		glutAddMenuEntry("1000",1);
-		int t_maxsi_submenu = glutCreateMenu(m_initPrm.maxsize);
-		glutAddMenuEntry("40000",0);
-		glutAddMenuEntry("50000",1);
-		int t_rig_submenu = glutCreateMenu(m_initPrm.setrigion);
-		glutAddMenuEntry("Rigion1",0);
-		int t_rigsel_submenu = glutCreateMenu(m_initPrm.rigionsel);
-		glutAddMenuEntry("Rigion1",0);
-		int t_rigpolygon_submenu = glutCreateMenu(m_initPrm.rigionpolygon);
-		glutAddMenuEntry("Rigion1",0);
-		int t_dc_submenu = glutCreateMenu(processdetectcondMenu);
-		glutAddMenuEntry("Condition1",0);
-		glutAddMenuEntry("Condition2",1);
-		int t_redetect_submenu = glutCreateMenu(processredetectMenu);
-		glutAddMenuEntry("Disable",0);
-		glutAddMenuEntry("Enable",1);
-		int t_output_submenu = glutCreateMenu(processalarmputMenu);
-		glutAddMenuEntry("Disable",0);
-		glutAddMenuEntry("Enable",1);
-		int t_polar_submenu = glutCreateMenu(processpolarMenu);
-		glutAddMenuEntry("+",0);
-		glutAddMenuEntry("-",1);
-		int t_dur_submenu = glutCreateMenu(processdurationMenu);
-		glutAddMenuEntry("1s",0);
-		glutAddMenuEntry("3s",1);
-		glutAddMenuEntry("5s",2);
-		glutAddMenuEntry("7s",3);
-		glutAddMenuEntry("9s",4);
-		
-		glutCreateMenu(NULL);
-		glutAddSubMenu("Auto Detect Enable",t_sub_menu2);
-		glutAddSubMenu("Rigion Set",t_rig_submenu);
-		glutAddSubMenu("Rigion Select",t_rigsel_submenu);
-		glutAddSubMenu("Rigion Set Polygon",t_rigpolygon_submenu);
-		glutAddSubMenu("Detect Condition",t_dc_submenu);
-		glutAddSubMenu("Redetect after lost",t_redetect_submenu);
-#if __MOVE_DETECT__
-		glutAddSubMenu("Max Num",t_maxnum_submenu);
-		glutAddSubMenu("Minimum Target Size",t_minsi_submenu);
-		glutAddSubMenu("Maximum Target Size",t_maxsi_submenu);
-#endif
-		glutAddSubMenu("Alarm Output",t_output_submenu);
-		glutAddSubMenu("Output Polar",t_polar_submenu);
-		glutAddSubMenu("Duration",t_dur_submenu);
-		glutAttachMenu(GLUT_RIGHT_BUTTON);
-	}
 
 	if(m_initPrm.visibilityfunc != NULL)
 		glutVisibilityFunc(m_initPrm.visibilityfunc);

@@ -275,7 +275,7 @@ private:
 
 			}
 		CVideoProcess *ctxHdl = (CVideoProcess *) pObj->pParent;
-		ctxHdl->main_proc_func();
+		//ctxHdl->main_proc_func();
 		OSA_printf("****************************************************\n");
 		return NULL;
 	}

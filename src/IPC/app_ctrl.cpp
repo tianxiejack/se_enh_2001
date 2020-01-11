@@ -96,68 +96,19 @@ void app_ctrl_setAimPos(CMD_EXT * pInCmd)
 
 
 void app_ctrl_setMmtSelect(CMD_EXT * pIStuts,unsigned char index)
-{	
-	int curx,cury;
-	getMmtTg(index, &curx, &cury);
-
-	CMD_EXT tmp = {0};
-	tmp.AvtTrkStat = eTrk_mode_sectrk;
-	tmp.AvtPosX[pIStuts->SensorStat] = curx;
-	tmp.AvtPosY[pIStuts->SensorStat] = cury;
-
-	tmp.AimW[pIStuts->SensorStat]  = 32;
-	tmp.AimH[pIStuts->SensorStat]  = 32;
-	app_ctrl_setTrkStat(&tmp);//track
-
-	//pIStuts->AxisPosX[pIStuts->SensorStat] = pIStuts->opticAxisPosX[pIStuts->SensorStat];
-	//pIStuts->AxisPosY[pIStuts->SensorStat] = pIStuts->opticAxisPosY[pIStuts->SensorStat];
-	//app_ctrl_setAxisPos(pIStuts);
-	return ;
-}
+{}
 
 void app_ctrl_setMtdSelfCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y)
-{	
-	CMD_EXT pMsg;
-	memset(&pMsg,0,sizeof(CMD_EXT));
-
-	pMsg.MtdState[pIStuts->SensorStat] = eImgAlg_Disable;
-	app_ctrl_setMtdStat(&pMsg);
-		
-	pMsg.AvtTrkStat =eTrk_mode_sectrk;
-	pMsg.AvtPosX[pIStuts->SensorStat]  = x;
-	pMsg.AvtPosY[pIStuts->SensorStat]  = y;
-	pMsg.AimW[pIStuts->SensorStat]  = (int)(pIStuts->AcqRectW[pIStuts->SensorStat]*1.0);
-	pMsg.AimH[pIStuts->SensorStat]  = (int)(pIStuts->AcqRectH[pIStuts->SensorStat]*1.0);
-	app_ctrl_setTrkStat(&pMsg);//track
-	return ;
-}
+{}
 
 
 void app_ctrl_setMtdCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y)
 {	
-	int curx,cury;
-	int index = MtdCoord2mtdTarget(pIStuts->SensorStat, x, y);
-	if(index == -1)
-		return ;
 
-	//app_ctrl_trkMtdId(index);
-	app_ctrl_trkMtd(index);
-	
-	return ;
 }
 
 void app_ctrl_setMmtCorrd(CMD_EXT * pIStuts,unsigned int x,unsigned int y)
-{	
-	int curx,cury;
-
-	int index = MmtCoord2mmtTarget(pIStuts->SensorStat, x, y);
-	if(index == -1)
-		return ;
-	
-	app_ctrl_setMmtSelect(pIStuts,index);
-	
-	return ;
-}
+{}
 
 
 void app_ctrl_setEnhance(CMD_EXT * pInCmd)
@@ -248,132 +199,17 @@ void app_ctrl_setBoresightPos(CMD_EXT * pInCmd)
 
 #if __MOVE_DETECT__
 void app_ctrl_setMtdStat(CMD_EXT * pInCmd)
-{
-	if(msgextInCtrl==NULL)
-		return ;
-	CMD_EXT *pIStuts = msgextInCtrl;
-	
-	if( pInCmd->AvtTrkStat == eTrk_mode_acq  && !pIStuts->MmtStat[pIStuts->SensorStat] && !pInCmd->ImgEnhStat[pIStuts->SensorStat])
-	{
-		if((pIStuts->MtdState[pIStuts->SensorStat] != pInCmd->MtdState[pIStuts->SensorStat]))
-		{
-			pIStuts->MtdState[pIStuts->SensorStat] = pInCmd->MtdState[pIStuts->SensorStat];
-			MSGDRIV_send(MSGID_EXT_MVDETECT, 0);
-		}
-	}
-	return ;
-}
-
-
+{}
 
 void app_ctrl_trkMtdId(int mtdId)
-{
-	CMD_EXT pMsg;
-	memset(&pMsg,0,sizeof(CMD_EXT));
-	
-	if(msgextInCtrl==NULL)
-		return ;
-	CMD_EXT *pIStuts = msgextInCtrl;
-
-	int curx,cury,curw,curh;
-	getMtdIdxy(mtdId,curx,cury,curw,curh);
-
-	if( -1 == curw || -1 == curh )	
-	{
-		//do nothing
-		printf(" mtd target get failed do nothing \n");
-	}
-	else
-	{
-		pMsg.MtdState[pIStuts->SensorStat] = eImgAlg_Disable;
-		app_ctrl_setMtdStat(&pMsg);
-		
-		pMsg.AvtTrkStat =eTrk_mode_sectrk;
-		pMsg.AvtPosX[pIStuts->SensorStat]  = curx;
-		pMsg.AvtPosY[pIStuts->SensorStat]  = cury;
-		pMsg.AimW[pIStuts->SensorStat]  = curw;
-		pMsg.AimH[pIStuts->SensorStat]  = curh;
-		app_ctrl_setTrkStat(&pMsg);//track
-	}	
-	return ;	
-}
-
-
+{}
 
 void app_ctrl_trkMtd(int index)
-{
-	CMD_EXT pMsg;
-	memset(&pMsg,0,sizeof(CMD_EXT));
-	
-	if(msgextInCtrl==NULL)
-		return ;
-	CMD_EXT *pIStuts = msgextInCtrl;
-
-	int curx,cury,curw,curh;
-	getMtdxy(index,curx,cury,curw,curh);
-
-	if( -1 == curw || -1 == curh )	
-	{
-		//do nothing
-		printf(" mtd target get failed do nothing \n");
-	}
-	else
-	{
-		pMsg.MtdState[pIStuts->SensorStat] = eImgAlg_Disable;
-		app_ctrl_setMtdStat(&pMsg);
-		
-		pMsg.AvtTrkStat =eTrk_mode_sectrk;
-		pMsg.AvtPosX[pIStuts->SensorStat]  = curx;
-		pMsg.AvtPosY[pIStuts->SensorStat]  = cury;
-		pMsg.AimW[pIStuts->SensorStat]  = curw;
-		pMsg.AimH[pIStuts->SensorStat]  = curh;
-		app_ctrl_setTrkStat(&pMsg);//track
-	}	
-	return ;	
-}
+{}
 
 
 void app_ctrl_setMtdSelect(CMD_EXT * pInCmd)
-{
-	CMD_EXT pMsg;
-	memset(&pMsg,0,sizeof(CMD_EXT));
-	
-	if(msgextInCtrl==NULL)
-		return ;
-	CMD_EXT *pIStuts = msgextInCtrl;
-	
-	if(2 == pInCmd->MtdSelect[pInCmd->SensorStat] || 1 == pInCmd->MtdSelect[pInCmd->SensorStat])
-	{
-		if(eImgAlg_Enable == pIStuts->MtdState[pIStuts->SensorStat])
-		{
-			pIStuts->MtdSelect[pIStuts->SensorStat] = pInCmd->MtdSelect[pIStuts->SensorStat];
-			MSGDRIV_send(MSGID_EXT_MVDETECTSELECT, 0);
-		}
-	}
-	else if(3 == pInCmd->MtdSelect[pInCmd->SensorStat])
-	{
-		int curx,cury,curw,curh;
-		getMtdxy(curx, cury, curw, curh);
-		if( -1 == curw || -1 == curh )	
-		{
-			//do nothing
-			printf(" mtd target get failed do nothing \n");
-		}
-		else
-		{
-			pMsg.AvtTrkStat =eTrk_mode_sectrk;
-			pMsg.AvtPosX[pIStuts->SensorStat]  = curx;
-			pMsg.AvtPosY[pIStuts->SensorStat]  = cury;
-			pMsg.AimW[pIStuts->SensorStat]  = curw;
-			pMsg.AimH[pIStuts->SensorStat]  = curh;
-			app_ctrl_setTrkStat(&pMsg);//track
-
-			//pMsg.MtdState[pMsg.SensorStat] = eImgAlg_Disable;
-			//app_ctrl_setMtdStat(&pMsg);//close
-		}	
-	}
-	return ;
-}
+{}
 #endif
 
 void app_ctrl_setMMT(CMD_EXT * pInCmd)

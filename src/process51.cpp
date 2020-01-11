@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <iostream>
 #include "Ipc.hpp"
-#include "encTrans.hpp"
 #include "ipc_custom_head.h"
 
 extern int ScalerLarge,ScalerMid,ScalerSmall;
@@ -39,58 +38,16 @@ void inputtmp(unsigned char cmdid)
 
 void getMmtTg(unsigned char index,int *x,int *y)
 {
-	*x = (int)plat->m_mtd[0]->tg[index].cur_x%vdisWH[plat->extInCtrl->SensorStat][0];
-	*y = (int)plat->m_mtd[0]->tg[index].cur_y%vdisWH[plat->extInCtrl->SensorStat][1];
 }
 
 
 int MtdCoord2mtdTarget(int chid ,unsigned int x,unsigned int y)
 {
-	int index = -1;
-	unsigned int distance , tmp;
-	int deltax,deltay;
-	distance = 2000*2000+1100*1100 ;
-	
-	for(int i=0 ; i< 10 ; i++)
-	{		
-		if(plat->validMtdRecord[i])
-		{
-			deltax = abs(x - (plat->mvList[i].trkobj.targetRect.x + plat->mvList[i].trkobj.targetRect.width/2));
-			deltay = abs(y - (plat->mvList[i].trkobj.targetRect.y + plat->mvList[i].trkobj.targetRect.height/2));
-			tmp = deltax*deltax + deltay*deltay;
-
-			if(tmp < distance)
-			{
-				index = i;
-				distance = tmp;
-			}
-		}
-	}
-	return index;
 }
 
 
 int MmtCoord2mmtTarget(int chid ,unsigned int x,unsigned int y)
 {
-	int index = -1;
-	unsigned int distance , tmp;
-	int deltax,deltay;
-	distance = 2000*2000 ;
-	for(int i=0 ; i< 5 ; i++)
-	{
-		if(plat->m_mtd[chid]->tg[i].valid)
-		{
-			deltax = abs(x - plat->m_mtd[chid]->tg[i].cur_x);
-			deltay = abs(y - plat->m_mtd[chid]->tg[i].cur_y);
-			tmp = deltax*deltax + deltay*deltay;
-			if(tmp < distance)
-			{
-				index = i;
-				distance = tmp;
-			}
-		}
-	}
-	return index;
 }
 
 
@@ -594,34 +551,10 @@ void CProcess::OnRun()
 {
 	update_param_alg();
 	msgdriv_event(MSGID_EXT_INPUT_SENSOR, NULL);
-
-#ifdef ENCTRANS_ON
-	if(gSYS_Enc.srcType == 0)// ENCTRANS_SCREEN
-	{
-		cv::Size imgSize[1];
-		imgSize[0] = cv::Size(1920, 1080);
-		//EncTrans_create(1, imgSize);
-		msgdriv_event(MSGID_EXT_INPUT_GSTCTRL, 0);
-	}
-	else if(gSYS_Enc.srcType == 1)	// ENCTRANS_APPCAP
-	{
-		int encId=0;
-		cv::Size imgSize[ENT_CHN_MAX];
-		for(int i=0; i<MAX_CHAN; i++)
-		{
-			if(gSYS_Enc.vinChMask & (1<<i))
-			{
-				gSYS_Enc.vinEncId[i] = encId;
-				imgSize[encId] = cv::Size(vcapWH[i][0], vcapWH[i][1]);
-				encId++;
-				if(encId >= ENT_CHN_MAX)
-					break;
-			}
-		}
-		//EncTrans_create(encId, imgSize);
-		msgdriv_event(MSGID_EXT_INPUT_GSTCTRL, 0);
-	}
-#endif
+	
+	m_803uart = new C803COM(inputtmp);
+	m_803uart->createPort();
+	OSA_thrCreate(&m_803rcvhandl, m_803uart->runUpExtcmd, 0, 0, NULL);
 };
 void CProcess::OnStop()
 {
@@ -2646,7 +2579,6 @@ void CProcess::OnSpecialKeyDwn(int key,int x, int y)
 
 void CProcess::OnKeyDwn(unsigned char key)
 {
-	return ;
 	char flag = 0;
 	CMD_EXT *pIStuts = extInCtrl;
 	CMD_EXT tmpCmd = {0};
@@ -2658,67 +2590,32 @@ void CProcess::OnKeyDwn(unsigned char key)
 	static bool bmtd = false;
 	int posestep = 1;
 
-	if(key == 48) // 0
+	if(key == 48) // 0   tv 
 	{
-		bdismode = !bdismode;
-		if(bdismode)
-		{
-			tmpCmd.SensorStat = video_pal;
-			memset(&m_rcTrack,0,sizeof(m_rcTrack));
-			app_ctrl_setSensor(&tmpCmd);	
-			cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);			
-		}
-		else
-		{
-			tmpCmd.SensorStat = video_gaoqing0;
-			memset(&m_rcTrack,0,sizeof(m_rcTrack));
-			app_ctrl_setSensor(&tmpCmd);	
-			cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);			
-		}	
+		tmpCmd.SensorStat = video_gaoqing0;
+		app_ctrl_setSensor(&tmpCmd);	
+		cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);				
 	}
-	else if(key == 49) // 1
+	else if(key == 49) // 1	pal
 	{
-		bTrack =! bTrack;
-
-		if(pIStuts->AvtTrkStat)
-			pIStuts->AvtTrkStat = eTrk_mode_acq;
-		else
-			pIStuts->AvtTrkStat = eTrk_mode_target;
-		msgdriv_event(MSGID_EXT_INPUT_TRACK, NULL);
+		tmpCmd.SensorStat = video_pal;
+		app_ctrl_setSensor(&tmpCmd);	
+		cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);	
 	}
-	else if(key == 50) // 2
+	else if(key == 50) // 2  open enh
 	{
-		bmtd = !bmtd;
-
-		if(bmtd)
-			tmpCmd.MtdState[pIStuts->SensorStat] = eImgAlg_Enable;
-		else
-			tmpCmd.MtdState[pIStuts->SensorStat] = eImgAlg_Disable;
-		app_ctrl_setMtdStat(&tmpCmd);
+		if(!pIStuts->ImgEnhStat[pIStuts->SensorStat])
+			pIStuts->ImgEnhStat[pIStuts->SensorStat] = eImgAlg_Enable;
+		msgdriv_event(MSGID_EXT_INPUT_ENENHAN, NULL);
 	}
-	else if(key == 51) // 3	
+	else if(key == 51) // 3	close enh
 	{
-		app_ctrl_setMtdCorrd(pIStuts, 1800, 1000 );
-		//unsigned int mtdId = 1;
-		//app_ctrl_trkMtdId(mtdId);
-	}
-	else if(key == 52) // 4
-	{
-		gmtdAreaClass = 0;
-		MSGDRIV_send(MSGID_EXT_MVDETECTAERA, &gmtdAreaClass); 
-	}
-	else if(key == 53) // 5
-	{
-		gmtdAreaClass = 1;
-		MSGDRIV_send(MSGID_EXT_MVDETECTAERA, &gmtdAreaClass); 
-	}
-	else if(key == 54) // 6
-	{
-		gmtdAreaClass = 2;
-		MSGDRIV_send(MSGID_EXT_MVDETECTAERA, &gmtdAreaClass); 
+		if(pIStuts->ImgEnhStat[pIStuts->SensorStat])
+			pIStuts->ImgEnhStat[pIStuts->SensorStat] = eImgAlg_Disable;
+		msgdriv_event(MSGID_EXT_INPUT_ENENHAN, NULL);
 	}
 
-	
+	return ;
 /*************************************/
 	if(key == 'i')
 	{
@@ -2787,11 +2684,6 @@ void CProcess::OnKeyDwn(unsigned char key)
 
 	if (key == 'e' || key == 'E')
 	{
-		if(pIStuts->ImgEnhStat[pIStuts->SensorStat])
-			pIStuts->ImgEnhStat[pIStuts->SensorStat] = eImgAlg_Disable;
-		else
-			pIStuts->ImgEnhStat[pIStuts->SensorStat] = eImgAlg_Enable;
-		msgdriv_event(MSGID_EXT_INPUT_ENENHAN, NULL);
 
 		/*
 		if(pIStuts->SceneAvtTrkStat == eTrk_mode_acq )
@@ -4360,117 +4252,10 @@ float  CProcess::PiexltoWindowsyf(float y,int channel)
 
 void CProcess::MSGAPI_handle_mvAera(long lParam)
 {
-	if(sThis->extInCtrl->MtdState[sThis->extInCtrl->SensorStat])
-		return ;
-	
-	float minWidthRatio, minHeightRatio,maxWidthRatio,maxHeightRatio;
-	int mtdareaClass = *((int*)lParam);
-	
-	if(sThis->m_pMovDetector == NULL)
-		return ;
-
-	std::vector<cv::Point> polyWarnRoi ;
-	polyWarnRoi.resize(4);
-	cv::Point tmp;
-	int cx,cy,w,h,ich;
-	
-	//ich = sThis->extInCtrl->SensorStat;
-	for(int i=0;i<2;i++)
-	{
-		if(i == 0)
-			ich = video_gaoqing0;
-		else
-			ich = video_pal;
-		
-		switch(mtdareaClass)
-		{
-			case 0:
-				minWidthRatio = 0.0;
-				minHeightRatio = 0.0;
-				maxWidthRatio = 1.0;
-				maxHeightRatio = 1.0;
-				break;
-
-			case 1:
-				minWidthRatio = 0.25;
-				minHeightRatio = 0.25;
-				maxWidthRatio = 0.75;
-				maxHeightRatio = 0.75;
-				break;		
-
-			case 2:
-				minWidthRatio = 0.33;
-				minHeightRatio = 0.33;
-				maxWidthRatio = 0.66;
-				maxHeightRatio = 0.66;
-				break;	
-				
-			default:
-				break;
-		}
-
-		cx = vdisWH[ich][0]/2;
-		cy = vdisWH[ich][1]/2;
-		w = vdisWH[ich][0] * (maxWidthRatio - minWidthRatio);
-		h = vdisWH[ich][1] * (maxHeightRatio - minHeightRatio); 
-
-		tmp.x = cx - w/2;
-		tmp.y = cy - h/2;
-		if(tmp.x < 0)
-			tmp.x = 0;
-		if(tmp.y < 0)
-			tmp.y = 0;
-		polyWarnRoi[0]= cv::Point(tmp.x,tmp.y);
-		sThis->polWarnRect[ich][0].x = tmp.x ;
-		sThis->polWarnRect[ich][0].y = tmp.y ;
-
-		tmp.x = cx + w/2;
-		tmp.y = cy - h/2;
-		if(tmp.x > vcapWH[ich][0])
-			tmp.x = vcapWH[ich][0];
-		if(tmp.y < 0)
-			tmp.y = 0;
-		polyWarnRoi[1]= cv::Point(tmp.x,tmp.y);
-		sThis->polWarnRect[ich][1].x = tmp.x ;
-		sThis->polWarnRect[ich][1].y = tmp.y ;
-
-
-		tmp.x = cx + w/2;
-		tmp.y = cy + h/2;
-		if(tmp.x > vcapWH[ich][0])
-			tmp.x = vcapWH[ich][0];
-		if(tmp.y > vcapWH[ich][1])
-			tmp.y = vcapWH[ich][1];
-		polyWarnRoi[2]= cv::Point(tmp.x,tmp.y);
-		sThis->polWarnRect[ich][2].x = tmp.x ;
-		sThis->polWarnRect[ich][2].y = tmp.y ;
-
-		tmp.x = cx - w/2;
-		tmp.y = cy + h/2;
-		if(tmp.x < 0 )
-			tmp.x = 0;
-		if(tmp.y > vcapWH[ich][1])
-			tmp.y = vcapWH[ich][1];	
-		polyWarnRoi[3]= cv::Point(tmp.x,tmp.y);
-		sThis->polWarnRect[ich][3].x = tmp.x ;
-		sThis->polWarnRect[ich][3].y = tmp.y ;
-
-		sThis->polwarn_count[ich] = 4 ; 
-		/*OSA_printf(" [%d] MSGAPI_handle_mvAera update ich%d (%d, %d)-(%d, %d)-(%d, %d)-(%d, %d) \n",
-			OSA_getCurTimeInMsec(), ich, 
-			sThis->polWarnRect[ich][0].x, sThis->polWarnRect[ich][0].y,
-			sThis->polWarnRect[ich][1].x, sThis->polWarnRect[ich][1].y,
-			sThis->polWarnRect[ich][2].x, sThis->polWarnRect[ich][2].y,
-			sThis->polWarnRect[ich][3].x, sThis->polWarnRect[ich][3].y);*/
-
-		pThis->m_pMovDetector->setWarningRoi( polyWarnRoi, ich );
-	}
-	return ;
 }
 
 void CProcess::MSGAPI_handle_mvUpdate(long lParam)
 {
-	pThis->m_pMovDetector->setUpdateFactor( gCFG_Mtd.tmpUpdateSpeed ,sThis->extInCtrl->SensorStat );
 }
 
 void CProcess::MSGAPI_input_gstctrl(long lParam)
@@ -4480,93 +4265,26 @@ void CProcess::MSGAPI_input_gstctrl(long lParam)
 
 void CProcess::MvdetectObjHandle_FarToCenter()
 {
-	unsigned int distance = 0;
-	unsigned int tmp=0 ;
-	unsigned int x,y;
-	for(int i=0;i<mvList.size();i++)
-	{
-		x = abs(mvList[i].trkobj.targetRect.x - vcapWH[extInCtrl->SensorStat][0]);	
-		y = abs(mvList[i].trkobj.targetRect.y - vcapWH[extInCtrl->SensorStat][1]);
-		tmp = (x*x + y*y);
-		if( tmp > distance )
-		{
-			distance = tmp;
-			chooseDetect = i;
-		}
-	}
 }
 
 void CProcess::MvdetectObjHandle_NearToCenter()
 {
-	unsigned int distance = 4000*4000;
-	unsigned int tmp=0 ;
-	unsigned int x,y;
-	for(int i=0;i<mvList.size();i++)
-	{
-		x = abs(mvList[i].trkobj.targetRect.x - vcapWH[extInCtrl->SensorStat][0]);	
-		y = abs(mvList[i].trkobj.targetRect.y - vcapWH[extInCtrl->SensorStat][1]);
-		tmp = (x*x + y*y);
-		if( tmp < distance )
-		{
-			distance = tmp;
-			chooseDetect = i;
-		}
-	}
 }
 
 void CProcess::MvdetectObjHandle_BrightnessMax()
 {
-	float briMax = 0.0;
-	for(int i=0;i<mvList.size();i++)
-	{
-		if( mvList[i].trkobj.var > briMax )
-		{
-			briMax = mvList[i].trkobj.var;
-			chooseDetect = i;
-		}
-	}
 }
 
 void CProcess::MvdetectObjHandle_BrightnessMin()
 {
-	float briMin = 255*255;
-	for(int i=0;i<mvList.size();i++)
-	{
-		if( mvList[i].trkobj.var < briMin )
-		{
-			chooseDetect = i;
-		}
-	}
 }
 
 void CProcess::MvdetectObjHandle_AreaMax()
 {
-	unsigned int aeraMax = 0;
-	unsigned int tmp =0 ;
-	for(int i=0;i<mvList.size();i++)
-	{
-		tmp = mvList[i].trkobj.targetRect.x * mvList[i].trkobj.targetRect.y ; 
-		if( tmp > aeraMax )
-		{	
-			aeraMax = tmp;
-			chooseDetect = i;
-		}
-	}
 }
 
 void CProcess::MvdetectObjHandle_AreaMin()
 {
-	unsigned int aeraMin = 1920*1920;
-	unsigned int tmp =0 ;
-	for(int i=0;i<mvList.size();i++)
-	{
-		tmp = mvList[i].trkobj.targetRect.x * mvList[i].trkobj.targetRect.y ; 
-		if( tmp < aeraMin )
-		{	
-			aeraMin = tmp;
-			chooseDetect = i;
-		}
-	}
 }
 
 void CProcess::MSGAPI_INPUT_SCENETRK(long lParam)

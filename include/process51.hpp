@@ -6,7 +6,7 @@
 #include "osd_cv.h"
 
 #include "osa_sem.h"
-
+#include "comuart.h"
 
 using namespace cv;
 
@@ -203,6 +203,8 @@ public:
 	void onlydrawRect(cv::Mat& frame , int chid, int inClass, int frcolor);
 
 	void drawMtdWarnRect(int chid , Mat &frame , int changesensorCnt);
+	C803COM* m_803uart;
+	OSA_ThrHndl m_803rcvhandl;
 	
 };
 

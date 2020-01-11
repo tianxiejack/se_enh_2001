@@ -18,9 +18,8 @@ class CSceneProcess
 {
 public :
 	CSceneProcess();
-	virtual	~CSceneProcess();
-	
-	SceneProc m_sceneProcObj;
+	virtual ~CSceneProcess();
+
 	int m_curChId;
 	cv::Size m_imgSize[MAX_CHAN];
 	unsigned long m_cnt[MAX_CHAN];

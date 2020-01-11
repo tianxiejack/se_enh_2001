@@ -1047,46 +1047,6 @@ void* recv_msgpth(SENDST *pInData)
 				app_ctrl_setAimPos(pMsg);
 			}
 			break;	
-
-#if __MMT__
-		case mmt:
-			{
-				if( pMsg->AvtTrkStat != eTrk_mode_acq 
-					|| pMsg->MtdState[pMsg->SensorStat] 
-					|| pMsg->ImgEnhStat[pMsg->SensorStat] )
-					break;
-				
-				unsigned int ImgMtdStat = pIn->intPrm[0];
-				if(ImgMtdStat == 0x01)
-				{
-					pMsg->MmtStat[pMsg->SensorStat] = eImgAlg_Enable;	
-				}
-				else if(ImgMtdStat == 0x00)
-				{
-					pMsg->MmtStat[pMsg->SensorStat] = eImgAlg_Disable;
-				}
-				else
-					break;
-				
-				app_ctrl_setMMT(pMsg);
-			}
-			break;
-
-		case mmtselect:
-			{		
-				if(!pMsg->MmtStat[pMsg->SensorStat])
-					break;
-							
-				unsigned int ImgMmtSelect = pIn->intPrm[0];
-				ImgMmtSelect--;
-				if(ImgMmtSelect > 5)
-					ImgMmtSelect = 5;
-				app_ctrl_setMmtSelect(pMsg,ImgMmtSelect);	
-				pMsg->MmtStat[pMsg->SensorStat] = eImgAlg_Disable;
-				app_ctrl_setMMT(pMsg);
-			}
-			break;
-#endif
 #if __ENH__
 		case enh:
 			{
@@ -1105,38 +1065,6 @@ void* recv_msgpth(SENDST *pInData)
 				app_ctrl_setEnhance(pMsg);
 			}
 			break;
-#endif
-#if __MOVE_DETECT__
-		case mtd:
-			{
-				//printf("ipc rcv mtd = %d \n ",pIn->intPrm[0]);
-				if( pMsg->AvtTrkStat != eTrk_mode_acq 
-					|| pMsg->MmtStat[pMsg->SensorStat]
-					|| pMsg->ImgEnhStat[pMsg->SensorStat] )
-					break;
-				//printf("111 ipc rcv mtd = %d \n ",pIn->intPrm[0]);
-				unsigned int ImgMtdStat = pIn->intPrm[0];
-				if(ImgMtdStat == 1){
-					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Enable;
-				}
-				else if(ImgMtdStat == 0){
-					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
-				}
-				app_ctrl_setMtdStat(pMsg);
-			}
-			break;
-
-		case mtdSelect:
-			{
-				if(!pMsg->MtdSelect[pMsg->SensorStat])
-					break;
-
-				unsigned int ImgMmtSelect = pIn->intPrm[0];
-				pMsg->MtdSelect[pMsg->SensorStat] = ImgMmtSelect;
-				app_ctrl_setMtdSelect(pMsg);
-			}
-			break;
-			
 #endif
 		case workmode:
 			gSYS_Osd.workMode = pIn->intPrm[0];
@@ -1186,16 +1114,6 @@ void* recv_msgpth(SENDST *pInData)
 					cfg_set_trkSecStat(0);	// set sectrk close when exit trk 
 				}
 				
-				if(pMsg->MtdState[pMsg->SensorStat])
-				{	
-					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
-					app_ctrl_setMtdStat(pMsg);
-				}
-				if(pMsg->MmtStat[pMsg->SensorStat])
-				{	
-					pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
-					app_ctrl_setMMT(pMsg);
-				}
 				if(pMsg->ImgEnhStat[pMsg->SensorStat])
 				{	
 					pMsg->ImgEnhStat[pMsg->SensorStat] = eImgAlg_Disable;
@@ -1224,19 +1142,7 @@ void* recv_msgpth(SENDST *pInData)
 			break;
 
 		case trkMtdId:	
-			if(!pMsg->MtdState[pMsg->SensorStat])
-				break;
-					
-			if(pIn->intPrm[0] >= 0x1 && pIn->intPrm[0] <= 0x5)
-			{
-				app_ctrl_trkMtdId(pIn->intPrm[0]-1);
-				pMsg->MtdState[pMsg->SensorStat] = eImgAlg_Disable;
-				app_ctrl_setMtdStat(pMsg);
-			}
-			break;
-
 		case settrktime:
-			gTrktime = pIn->intPrm[0];
 			break;
 
 		case mmtcoord:
@@ -1325,53 +1231,21 @@ void* recv_msgpth(SENDST *pInData)
 static void * ipc_dataRecv(Void * prm)
 {
 	SENDST test;
-	while(ipc_loop)
-	{
-		ipc_recvmsg(IPC_TOIMG_MSG, &test);
-		recv_msgpth(&test);
-	}
 }
 
 static void * ipc_dataSend(Void * prm)
 {
 	SENDST test;
-	while(ipc_loop)
-	{	
-		send_msgpth(&test);
-		ipc_sendmsg(IPC_FRIMG_MSG, &test);
-	}
 }
 
 void Ipc_pthread_start(void)
 {
-	Ipc_init();
-	int ret = Ipc_create(tmpIpc);
-	if(-1 == ret)
-	{
-		printf("error : give error param \n");
-	}
-
-	cfg_init();
-	createSendBuf();
-	OSA_thrCreate(&thrHandleDataIn_recv,
-                      ipc_dataRecv,
-                      DATAIN_TSK_PRI,
-                      DATAIN_TSK_STACK_SIZE,
-                      NULL);
-       OSA_thrCreate(&thrHandleDataIn_send,
-                      ipc_dataSend,
-                      DATAIN_TSK_PRI,
-                      DATAIN_TSK_STACK_SIZE,
-                      NULL);
+	
 }
 
 void Ipc_pthread_stop(void)
 {
-	OSA_thrDelete(&thrHandleDataIn_recv);
-	OSA_thrDelete(&thrHandleDataIn_send);
 
-	Ipc_destory();
-	cfg_uninit();
 
 }
 
@@ -1526,7 +1400,7 @@ void cfg_dbg_getDefault(int * configTab, unsigned char *configUser)
 	SENDST test;
 	memset(&test, 0, sizeof(test));
 	test.cmd_ID = read_shm_config;
-	ipc_sendmsg(IPC_TOIMG_MSG, &test);
+	//ipc_sendmsg(IPC_TOIMG_MSG, &test);
 
 }
 
@@ -1603,7 +1477,7 @@ void cfg_dbg_setCmd(int cmd, int prm)
 	else
 		return ;
 
-	ipc_sendmsg(IPC_TOIMG_MSG, &test);
+	//ipc_sendmsg(IPC_TOIMG_MSG, &test);
 	return ;
 }
 

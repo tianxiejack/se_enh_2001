@@ -387,69 +387,7 @@ int CcCamCalibra::find_feature_matches ( const Mat& img_1, const Mat& img_2,
                             std::vector<KeyPoint>& keypoints_2,
                             std::vector< DMatch >& matches ,
                             double distThreshold , bool bDraw )
-{
-
-    if(img_1.empty() || img_1.empty())
-        return 0;
-
-    //-- åˆå§‹åŒ–
-    Mat descriptors_1, descriptors_2;
-    // used in OpenCV3
-    //Ptr<FeatureDetector> detector = ORB::create();
-    //Ptr<DescriptorExtractor> descriptor = ORB::create();
-    // use this if you are in OpenCV2
-    Ptr<FeatureDetector> detector = FeatureDetector::create ( "ORB" );
-    Ptr<DescriptorExtractor> descriptor = DescriptorExtractor::create ( "ORB" );
-    Ptr<DescriptorMatcher> matcher  = DescriptorMatcher::create ( "BruteForce-Hamming" );
-    //-- ç¬¬ä¸€æ­¥:æ£€æµ‹ Oriented FAST è§’ç‚¹ä½ç½®
-    detector->detect ( img_1,keypoints_1 );
-    detector->detect ( img_2,keypoints_2 );
-
-    //-- ç¬¬äºŒæ­¥:æ ¹æ®è§’ç‚¹ä½ç½®è®¡ç®— BRIEF æè¿°å­
-    descriptor->compute ( img_1, keypoints_1, descriptors_1 );
-    descriptor->compute ( img_2, keypoints_2, descriptors_2 );
-
-    if(descriptors_1.empty() || descriptors_2.empty())
-        return 0;
-
-    //-- ç¬¬ä¸‰æ­¥:å¯¹ä¸¤å¹…å›¾åƒä¸­çš„BRIEFæè¿°å­è¿›è¡ŒåŒ¹é…ï¼Œä½¿ç”¨ Hamming è·ç¦»
-    vector<DMatch> match;
-    //BFMatcher matcher ( NORM_HAMMING );
-    matcher->match ( descriptors_1, descriptors_2, match );
-
-    //-- ç¬¬å››æ­¥:åŒ¹é…ç‚¹å¯¹ç­›é€‰
-    double min_dist=10000, max_dist=0;
-
-    //æ‰¾å‡ºæ‰€æœ‰åŒ¹é…ä¹‹é—´çš„æœ€å°è·ç¦»å’Œæœ€å¤§è·ç¦», å³æ˜¯æœ€ç›¸ä¼¼çš„å’Œæœ€ä¸ç›¸ä¼¼çš„ä¸¤ç»„ç‚¹ä¹‹é—´çš„è·ç¦»
-    for ( int i = 0; i < descriptors_1.rows; i++ )
-    {
-        double dist = match[i].distance;
-        if ( dist < min_dist ) min_dist = dist;
-        if ( dist > max_dist ) max_dist = dist;
-    }
-
-    //printf ( "-- Max dist : %f \n", max_dist );
-    //printf ( "-- Min dist : %f \n", min_dist );
-
-    //å½“æè¿°å­ä¹‹é—´çš„è·ç¦»å¤§äºŽä¸¤å€çš„æœ€å°è·ç¦»æ—¶,å³è®¤ä¸ºåŒ¹é…æœ‰è¯¯.ä½†æœ‰æ—¶å€™æœ€å°è·ç¦»ä¼šéžå¸¸å°,è®¾ç½®ä¸€ä¸ªç»éªŒå€¼30ä½œä¸ºä¸‹é™.
-    double curDistThreshold = min( (max ( 1.5*min_dist, 30.0 )), distThreshold);
-    for ( int i = 0; i < descriptors_1.rows; i++ )
-    {
-        if ( match[i].distance <= curDistThreshold )
-        {
-            matches.push_back ( match[i] );
-        }
-    }
-    //-- ç¬¬äº”æ­¥:ç»˜åˆ¶åŒ¹é…ç»“æžœ
-    if(bDraw){
-        //Mat img_match;
-        Mat img_match;
-        drawMatches ( img_1, keypoints_1, img_2, keypoints_2, matches, img_match );
-        resize(img_match, img_match, Size(img_match.cols/2, img_match.rows/2));
-        imshow ( "matchWnd", img_match );
-    }
-    return matches.size();
-}
+{}
 
 Point2d CcCamCalibra::pixel2cam ( const Point2d& p, const Mat& K )
 {

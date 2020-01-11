@@ -12,7 +12,6 @@
 #include "app_ctrl.h"
 #include "Ipc.hpp"
 #include "osd_cv.h"
-#include "encTrans.hpp"
 #include "cuda_convert.cuh"
 
 typedef Rect_<double> Rect2d;

@@ -127,13 +127,13 @@ int main(int argc, char **argv)
 		//proc.SaveTestConfig();
 		proc.ReadTestConfig();
 	}
-	while(false == startEnable)
+	//while(false == startEnable)
 	{
 		tv.tv_sec = 0;
 		tv.tv_usec = 50000;
 		select( 0, NULL, NULL, NULL, &tv );
 	};
-	proc.loadIPCParam();
+	//proc.loadIPCParam();
 	proc.creat();
 	proc.init();
 	proc.run();

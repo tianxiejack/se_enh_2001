@@ -28,16 +28,14 @@ typedef struct{
 }SENDST;
 
 
-int Ipc_create(IPC_Handl_t * in); //success: 0 , error occur : -1
-void Ipc_destory();
-int ipc_sendmsg(int HandlID, SENDST* Param);
-int ipc_recvmsg(int HandlID ,SENDST* Param);
-void ipc_status_P();
-void ipc_status_V();
-int sharedMemoryLock(int shmid);
-int sharedMemoryUnlock(int shmid);
-
-void *ipc_getSharedAddress(int index);
+//int Ipc_create(IPC_Handl_t * in); //success: 0 , error occur : -1
+//void Ipc_destory();
+//int ipc_sendmsg(int HandlID, SENDST* Param);
+//int ipc_recvmsg(int HandlID ,SENDST* Param);
+//void ipc_status_P();
+//void ipc_status_V();
+//int sharedMemoryLock(int shmid);
+//int sharedMemoryUnlock(int shmid);
 
 //used to compability the old version
 //int ipc_sendmsg(SENDST* Param,int HandlID);
