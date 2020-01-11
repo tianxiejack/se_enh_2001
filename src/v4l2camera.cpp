@@ -30,6 +30,7 @@
 int vcapWH[5][2] = {{1920, 1080},{1920, 1080},{1920, 1080},{1920, 1080},{720, 576}};
 int vdisWH[5][2] = {{1920, 1080},{1920, 1080},{1920, 1080},{1920, 1080},{720, 576}};
 
+int palid= 3;
 v4l2_camera::v4l2_camera(int devId):io(IO_METHOD_USERPTR),buffers(NULL),force_format(1),m_devFd(-1),n_buffers(0),bRun(false)
 {
 	sprintf(dev_name, "/dev/video%d",devId);
@@ -44,11 +45,11 @@ v4l2_camera::v4l2_camera(int devId):io(IO_METHOD_USERPTR),buffers(NULL),force_fo
 			memType 	= MEMORY_LOCKED;
 			bufferCount 	= 8;
 			Id 			= devId;
+			sprintf(dev_name, "/dev/video%d",palid);
 			break;
+			
 		case video_gaoqing0:
 		case video_gaoqing:
-		case video_gaoqing2:
-		case video_gaoqing3:
 			imgformat 	= V4L2_PIX_FMT_YUYV;
 			imgwidth  	= vcapWH[devId][0];
 			imgheight 	= vcapWH[devId][1];
@@ -59,7 +60,10 @@ v4l2_camera::v4l2_camera(int devId):io(IO_METHOD_USERPTR),buffers(NULL),force_fo
 			bufferCount  = 8;
 			Id			= devId;
 			break;
-		
+
+		case video_gaoqing2:
+		case video_gaoqing3:
+			break;
 		default:
 			printf("No such device:%s !!\n", dev_name);
 			break;
