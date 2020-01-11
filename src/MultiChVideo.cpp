@@ -46,15 +46,26 @@ static int frameflag = 0;
 
 int MultiChVideo::creat()
 {
+#if 0
 	for(int i=0; i<MAX_CHAN; i++){	
 		VCap[i] = new v4l2_camera(i);
 		VCap[i]->creat();
 	}
+#else
+	int i ;
+	i = video_gaoqing0;
+	VCap[i] = new v4l2_camera(i);
+	VCap[i]->creat();	
+	i = video_pal;
+	VCap[i] = new v4l2_camera(i);
+	VCap[i]->creat();	
+#endif
 	return 0;
 }
 
 int MultiChVideo::destroy()
 {
+#if 0
 	for(int i=0; i<MAX_CHAN; i++){
 		if(VCap[i] != NULL)
 		{
@@ -64,6 +75,25 @@ int MultiChVideo::destroy()
 			VCap[i] = NULL;
 		}
 	}
+#else
+	int i ;
+	i = video_gaoqing0;
+	if(VCap[i] != NULL)
+	{
+		stop();
+		VCap[i]->stop();
+		delete VCap[i];
+		VCap[i] = NULL;
+	}
+	i = video_pal;
+	if(VCap[i] != NULL)
+	{
+		stop();
+		VCap[i]->stop();
+		delete VCap[i];
+		VCap[i] = NULL;
+	}
+#endif
 	return 0;
 }
 
@@ -71,8 +101,16 @@ int MultiChVideo::run()
 {
 	int iRet = 0;
 
-	for(int i=0; i<MAX_CHAN; i++){
-		//milliseconds_sleep(100);
+	int i ;
+	i = video_gaoqing0;
+	{
+		VCap[i]->run();
+		m_thrCxt[i].pUser = this;
+		m_thrCxt[i].chId = i;
+		iRet = OSA_thrCreate(&m_thrCap[i], capThreadFunc, 0, 0, &m_thrCxt[i]);		
+	}
+	i = video_pal;
+	{
 		VCap[i]->run();
 		m_thrCxt[i].pUser = this;
 		m_thrCxt[i].chId = i;
@@ -93,10 +131,17 @@ int MultiChVideo::run()
 
 int MultiChVideo::stop()
 {
-	for(int i=0; i<MAX_CHAN; i++){
+	int i ;
+	i = video_gaoqing0;
+	{
 		VCap[i]->stop();
 		OSA_thrDelete(&m_thrCap[i]);
 	}
+	i = video_pal;
+	{
+		VCap[i]->stop();
+		OSA_thrDelete(&m_thrCap[i]);
+	}	
 
 	return 0;
 }
@@ -137,7 +182,8 @@ void MultiChVideo::process()
 
 	FD_ZERO(&fds);
 
-	for(chId=0; chId<MAX_CHAN; chId++){
+	for(chId=0; chId<MAX_CHAN; chId++)
+	{
 		if(VCap[chId]->m_devFd != -1 &&VCap[chId]->bRun )
 			FD_SET(VCap[chId]->m_devFd, &fds);
 		//OSA_printf("MultiChVideo::process: FD_SET ch%d -- fd %d", chId, VCap[chId]->m_devFd);
@@ -156,7 +202,8 @@ void MultiChVideo::process()
 		return;
 	}
 
-	for(chId=0; chId<MAX_CHAN; chId++){
+	for(chId=0; chId<MAX_CHAN; chId++)
+	{
 		if(VCap[chId]->m_devFd != -1 && FD_ISSET(VCap[chId]->m_devFd, &fds)){
 			struct v4l2_buffer buf;
 			memset(&buf, 0, sizeof(buf));
