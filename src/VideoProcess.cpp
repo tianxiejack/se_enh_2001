@@ -1041,8 +1041,8 @@ int CVideoProcess::dynamic_config(int type, int iPrm, void* pPrm)
 		m_display.dynamic_config(CDisplayer::DS_CFG_ChId, 0, &m_curChId);
 		break;
 	case VP_CFG_SubChId:
-		m_curSubChId = iPrm;
-		m_display.dynamic_config(CDisplayer::DS_CFG_ChId, 1, &m_curSubChId);
+		//m_curSubChId = iPrm;
+		//m_display.dynamic_config(CDisplayer::DS_CFG_ChId, 1, &m_curSubChId);
 		break;
 	case VP_CFG_TrkEnable:
 		m_bTrack = iPrm;
@@ -1379,13 +1379,6 @@ int CVideoProcess::process_frame(int chId, int virchId, Mat frame)
 		}
 	}
 	//OSA_printf("chid =%d  m_curChId=%d m_curSubChId=%d\n", chId,m_curChId,m_curSubChId);
-
-#ifdef ENCTRANS_ON
-	if(gSYS_Enc.rtpEn && gSYS_Enc.vinEncId[chId] >= 0)
-	{
-		encTranFrame(chId, frame, gSYS_Enc.rtpEn, gSYS_Enc.vinEncId[chId]);
-	}
-#endif
 
 	if(chId == m_curChId || chId == m_curSubChId)
 	{

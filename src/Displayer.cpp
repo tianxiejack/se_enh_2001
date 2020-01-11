@@ -540,7 +540,7 @@ int CDisplayer::dynamic_config(DS_CFG type, int iPrm, void* pPrm)
 	}
 
 	if(type == DS_CFG_EnhEnable){
-		if(iPrm >= m_renderCount || iPrm < 0)
+		if(iPrm >= DS_CHAN_MAX || iPrm < 0)
 			return -1;
 		if(pPrm == NULL)
 			return -2;
@@ -1718,6 +1718,7 @@ void CDisplayer::gl_display(void)
 	for(winId=0; winId<m_renderCount; winId++)
 	{			
 		chId = m_renders[winId].video_chId;
+
 		if(chId < 0 || chId >= DS_CHAN_MAX)
 		{
 			continue;

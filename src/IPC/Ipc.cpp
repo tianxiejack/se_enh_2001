@@ -579,14 +579,14 @@ int cfg_set_outSensor(unsigned int outsen, unsigned int outsen2)
 	if(outsenPrev != outsen)	// report
 	{
 		int configId = CFGID_RTS_mainch;
-		IPCSendMsg(read_shm_single, &configId, 4);
+		//IPCSendMsg(read_shm_single, &configId, 4);
 		OSA_printf("OUT-SEN: mainch from %d to %d\n", outsenPrev, outsen);
 		outsenPrev = outsen;
 	}
 	if(outsen2Prev != outsen2)	// report
 	{
 		int configId = CFGID_RTS_mainch2;
-		IPCSendMsg(read_shm_single, &configId, 4);
+		//IPCSendMsg(read_shm_single, &configId, 4);
 		OSA_printf("OUT-SEN: mainch2 from %d to %d\n", outsen2Prev, outsen2);
 		outsen2Prev = outsen2;
 	}

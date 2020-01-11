@@ -2594,13 +2594,13 @@ void CProcess::OnKeyDwn(unsigned char key)
 	{
 		tmpCmd.SensorStat = video_gaoqing0;
 		app_ctrl_setSensor(&tmpCmd);	
-		cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);				
+		//cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);				
 	}
 	else if(key == 49) // 1	pal
 	{
 		tmpCmd.SensorStat = video_pal;
 		app_ctrl_setSensor(&tmpCmd);	
-		cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);	
+		//cfg_set_outSensor(tmpCmd.SensorStat, tmpCmd.SensorStat);	
 	}
 	else if(key == 50) // 2  open enh
 	{

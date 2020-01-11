@@ -11,8 +11,8 @@ enum devvideo{
 	video_gaoqing0=0,
 	video_gaoqing,
 	video_gaoqing2,
-	video_pal,
 	video_gaoqing3,
+	video_pal,
 	MAX_CHAN,
 };
 
