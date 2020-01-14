@@ -175,16 +175,16 @@ int C803COM::parsingComEvent()
     		{
             		case 0x01:
 				if(0 == rcvBufQue.at(5)) 	//tv
-					m_pFunc(0);
+					m_pFunc(0+48);
 				else if(1 == rcvBufQue.at(5))	//pal
-					m_pFunc(1);
+					m_pFunc(1+48);
 				break;
 
 			 case 0x02:
 				if(0 == rcvBufQue.at(5)) //enbale enh
-					m_pFunc(2);
+					m_pFunc(2+48);
 				else if(1 == rcvBufQue.at(5))//disable enh
-					m_pFunc(3);
+					m_pFunc(3+48);
 				break;
 				
     		default:
