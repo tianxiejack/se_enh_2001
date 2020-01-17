@@ -16,6 +16,7 @@
 #include <iostream>
 #include "Ipc.hpp"
 #include "ipc_custom_head.h"
+#include "gpio_rdwr.h"
 
 extern int ScalerLarge,ScalerMid,ScalerSmall;
 extern LinkagePos_t linkagePos; 
@@ -30,6 +31,8 @@ CProcess * CProcess::sThis = NULL;
 CProcess* plat = NULL;
 unsigned int gmtdAreaClass = 0;
 OSA_SemHndl g_linkage_getPos;
+
+
 
 void inputtmp(unsigned char cmdid)
 {
@@ -547,6 +550,47 @@ void CProcess::OnCreate()
 void CProcess::OnDestroy(){};
 void CProcess::OnInit(){};
 void CProcess::OnConfig(){};
+
+
+void* gpioHandle(void * prm)
+{
+	const int gpioChannel = 63;
+	const int gpioEnh = 66;
+
+	GPIO_create(gpioChannel, GPIO_DIRECTION_OUT);		//channel	0--pal   1--tv
+	GPIO_create(gpioEnh, GPIO_DIRECTION_OUT);		//enh	0--cloase 1--open
+
+	struct timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = 500*1000;
+	select( 0, NULL, NULL, NULL, &tv );
+	int ret = -1;
+	while(1)
+	{
+		ret = GPIO_get(gpioChannel);
+		if(ret == 0)
+			plat->OnKeyDwn(48+1);
+		else if(ret == 1)
+			plat->OnKeyDwn(48+0);
+		tv.tv_sec = 0;
+		tv.tv_usec = 100*1000;
+		select( 0, NULL, NULL, NULL, &tv );
+
+		ret = GPIO_get(gpioEnh);
+		if(ret == 0)
+			plat->OnKeyDwn(48+3);
+		else if(ret == 1)
+			plat->OnKeyDwn(48+2);
+		tv.tv_sec = 0;
+		tv.tv_usec = 100*1000;
+		select( 0, NULL, NULL, NULL, &tv );
+	}
+	GPIO_close(gpioChannel);
+	GPIO_close(gpioEnh);
+
+	return NULL;
+}
+
 void CProcess::OnRun()
 {
 	update_param_alg();
@@ -555,6 +599,8 @@ void CProcess::OnRun()
 	m_803uart = new C803COM(inputtmp);
 	m_803uart->createPort();
 	OSA_thrCreate(&m_803rcvhandl, m_803uart->runUpExtcmd, 0, 0, NULL);
+
+	OSA_thrCreate(&m_gpiohandl, gpioHandle , 0, 0, NULL);
 };
 void CProcess::OnStop()
 {
