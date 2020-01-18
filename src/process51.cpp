@@ -554,8 +554,8 @@ void CProcess::OnConfig(){};
 
 void* gpioHandle(void * prm)
 {
-	const int gpioChannel = 63;
-	const int gpioEnh = 66;
+	const int gpioChannel = 85;
+	const int gpioEnh = 219;
 
 	GPIO_create(gpioChannel, GPIO_DIRECTION_OUT);		//channel	0--pal   1--tv
 	GPIO_create(gpioEnh, GPIO_DIRECTION_OUT);		//enh	0--cloase 1--open
