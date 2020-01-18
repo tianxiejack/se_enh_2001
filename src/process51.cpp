@@ -557,8 +557,8 @@ void* gpioHandle(void * prm)
 	const int gpioChannel = 85;
 	const int gpioEnh = 219;
 
-	GPIO_create(gpioChannel, GPIO_DIRECTION_OUT);		//channel	0--pal   1--tv
-	GPIO_create(gpioEnh, GPIO_DIRECTION_OUT);		//enh	0--cloase 1--open
+	GPIO_create(gpioChannel, GPIO_DIRECTION_IN);		//channel	0--pal   1--tv
+	GPIO_create(gpioEnh, GPIO_DIRECTION_IN);		//enh	0--oepn 1--close
 
 	struct timeval tv;
 	tv.tv_sec = 0;
@@ -578,9 +578,9 @@ void* gpioHandle(void * prm)
 
 		ret = GPIO_get(gpioEnh);
 		if(ret == 0)
-			plat->OnKeyDwn(48+3);
-		else if(ret == 1)
 			plat->OnKeyDwn(48+2);
+		else if(ret == 1)
+			plat->OnKeyDwn(48+3);
 		tv.tv_sec = 0;
 		tv.tv_usec = 100*1000;
 		select( 0, NULL, NULL, NULL, &tv );
