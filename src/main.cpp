@@ -63,14 +63,14 @@ static void keyboard_event111(unsigned char key, int x, int y)
 	case 'c':
 	case 'd':
 	case 'f':
-		proc.OnKeyDwn(key);
+		//proc.OnKeyDwn(key);
 		break;
 	case 'q':
 	case 27:
 		;
 		break;
 	default:
-		printf("%s",strMenus);
+		//printf("%s",strMenus);
 		break;
 	}
 	#endif
